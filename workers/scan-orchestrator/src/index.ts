@@ -22,7 +22,7 @@ import {
   type ScanJobPayload,
   type WorkerResult,
 } from '@x-hunter/worker-runtime';
-import { getPrisma } from '@x-hunter/db';
+import { getPrisma, Prisma } from '@x-hunter/db';
 import { createLogger, sanitizeValue, type ScopeSnapshot } from '@x-hunter/shared';
 import { runBrowserInspector, type BrowserObservation } from '@x-hunter/browser-inspector';
 import { runZapSignal, type ZapSignalResult } from '@x-hunter/zap-signal';
@@ -83,7 +83,7 @@ async function processScan(scanJobId: string): Promise<void> {
         data: {
           state: 'succeeded',
           finishedAt: new Date(),
-          outputRef: sanitizeValue(summary(browserOut)) as object,
+          outputRef: sanitizeValue(summary(browserOut)) as Prisma.InputJsonValue,
         },
       });
     } else {
@@ -329,12 +329,12 @@ async function processScan(scanJobId: string): Promise<void> {
           description: c.evidence.description,
           source: c.source,
           rawSignal: c.rawSignal,
-        }) as object,
+        }) as Prisma.InputJsonValue,
         fixPrompt: null,
         retestScenario:
           c.rawSignal && typeof c.rawSignal === 'object' && 'retest' in c.rawSignal
-            ? ((c.rawSignal as { retest?: unknown }).retest as object)
-            : null,
+            ? ((c.rawSignal as { retest?: unknown }).retest as Prisma.InputJsonValue)
+            : Prisma.JsonNull,
       },
     });
     await prisma.findingCandidate.create({
@@ -346,8 +346,10 @@ async function processScan(scanJobId: string): Promise<void> {
         confidence: c.confidence,
         category: c.category,
         affectedAsset: c.affectedAsset,
-        evidence: sanitizeValue(c.evidence) as object,
-        rawSignal: c.rawSignal ? (sanitizeValue(c.rawSignal) as object) : null,
+        evidence: sanitizeValue(c.evidence) as Prisma.InputJsonValue,
+        rawSignal: c.rawSignal
+          ? (sanitizeValue(c.rawSignal) as Prisma.InputJsonValue)
+          : Prisma.JsonNull,
         promotedToId: finding.id,
       },
     });
