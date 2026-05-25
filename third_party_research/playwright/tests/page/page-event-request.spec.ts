@@ -1,0 +1,411 @@
+/**
+ * Copyright 2018 Google Inc. All rights reserved.
+ * Modifications copyright (c) Microsoft Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { test as it, expect } from './pageTest';
+import { attachFrame } from '../config/utils';
+
+it('should fire for navigation requests', async ({ page, server }) => {
+  const requests = [];
+  page.on('request', request => requests.push(request));
+  await page.goto(server.EMPTY_PAGE);
+  expect(requests.length).toBe(1);
+});
+
+it('should fire for iframes', async ({ page, server }) => {
+  const requests = [];
+  page.on('request', request => requests.push(request));
+  await page.goto(server.EMPTY_PAGE);
+  await attachFrame(page, 'frame1', server.EMPTY_PAGE);
+  expect(requests.length).toBe(2);
+});
+
+it('should fire for fetches', async ({ page, server }) => {
+  const requests = [];
+  page.on('request', request => requests.push(request));
+  await page.goto(server.EMPTY_PAGE);
+  await page.evaluate(() => fetch('/empty.html'));
+  expect(requests.length).toBe(2);
+});
+
+it('should fire for fetches with keepalive: true', {
+  annotation: {
+    type: 'issue',
+    description: 'https://github.com/microsoft/playwright/issues/34497'
+  }
+}, async ({ page, server, browserName }) => {
+  const requests = [];
+  page.on('request', request => requests.push(request));
+  await page.goto(server.EMPTY_PAGE);
+  await page.evaluate(() => fetch('/empty.html', { keepalive: true }));
+  expect(requests.length).toBe(2);
+});
+
+it('should report requests and responses handled by service worker', async ({ page, server, isAndroid, isElectron }) => {
+  it.fixme(isAndroid);
+  it.fixme(isElectron);
+
+  await page.goto(server.PREFIX + '/serviceworkers/fetchdummy/sw.html');
+  await page.evaluate(() => window['activationPromise']);
+  const [request, swResponse] = await Promise.all([
+    page.waitForEvent('request'),
+    page.evaluate(() => window['fetchDummy']('foo')),
+  ]);
+  expect(swResponse).toBe('responseFromServiceWorker:foo');
+  expect(request.url()).toBe(server.PREFIX + '/serviceworkers/fetchdummy/foo');
+  expect(request.serviceWorker()).toBe(null);
+  const response = await request.response();
+  expect(response.url()).toBe(server.PREFIX + '/serviceworkers/fetchdummy/foo');
+  expect(await response.text()).toBe('responseFromServiceWorker:foo');
+  expect(response.fromServiceWorker()).toBe(true);
+
+  const [failedRequest] = await Promise.all([
+    page.waitForEvent('requestfailed'),
+    page.evaluate(() => window['fetchDummy']('error')).catch(e => e),
+  ]);
+  expect(failedRequest.url()).toBe(server.PREFIX + '/serviceworkers/fetchdummy/error');
+  expect(failedRequest.failure()).not.toBe(null);
+  expect(failedRequest.serviceWorker()).toBe(null);
+  expect(await failedRequest.response()).toBe(null);
+});
+
+it('should report requests and responses handled by service worker with routing', async ({ page, server, isAndroid, isElectron, mode, browserName, platform }) => {
+  it.fixme(isAndroid);
+  it.fixme(isElectron);
+  it.fixme(mode.startsWith('service') && platform === 'linux', 'Times out for no clear reason');
+
+  const interceptedUrls = [];
+  await page.route('**/*', route => {
+    interceptedUrls.push(route.request().url());
+    void route.continue();
+  });
+  await page.goto(server.PREFIX + '/serviceworkers/fetchdummy/sw.html');
+  await page.evaluate(() => window['activationPromise']);
+  const [swResponse, request] = await Promise.all([
+    page.evaluate(() => window['fetchDummy']('foo')),
+    page.waitForEvent('request'),
+  ]);
+  expect(swResponse).toBe('responseFromServiceWorker:foo');
+  expect(request.url()).toBe(server.PREFIX + '/serviceworkers/fetchdummy/foo');
+  expect(request.serviceWorker()).toBe(null);
+  const response = await request.response();
+  expect(response.url()).toBe(server.PREFIX + '/serviceworkers/fetchdummy/foo');
+  expect(await response.text()).toBe('responseFromServiceWorker:foo');
+
+  const [failedRequest] = await Promise.all([
+    page.waitForEvent('requestfailed'),
+    page.evaluate(() => window['fetchDummy']('error')).catch(e => e),
+  ]);
+  expect(failedRequest.url()).toBe(server.PREFIX + '/serviceworkers/fetchdummy/error');
+  expect(failedRequest.failure()).not.toBe(null);
+  expect(failedRequest.serviceWorker()).toBe(null);
+  expect(await failedRequest.response()).toBe(null);
+
+  const expectedUrls = [server.PREFIX + '/serviceworkers/fetchdummy/sw.html'];
+  if (browserName === 'webkit')
+    expectedUrls.push(server.PREFIX + '/serviceworkers/fetchdummy/sw.js');
+  expect(interceptedUrls).toEqual(expectedUrls);
+});
+
+it('should report navigation requests and responses handled by service worker', async ({ page, server, isAndroid, browserName }) => {
+  it.fixme(isAndroid);
+
+  await page.goto(server.PREFIX + '/serviceworkers/stub/sw.html');
+  await page.evaluate(() => window['activationPromise']);
+
+  const reloadResponse = await page.reload();
+  expect(await page.evaluate('window.fromSW')).toBe(true);
+  expect(reloadResponse.url()).toBe(server.PREFIX + '/serviceworkers/stub/sw.html');
+  await page.evaluate(() => window['activationPromise']);
+
+  if (browserName !== 'firefox') {
+    // When SW fetch throws, Firefox does not fail the navigation,
+    // but rather falls back to the real network.
+
+    const [, failedRequest] = await Promise.all([
+      page.evaluate(() => {
+        window.location.href = '/serviceworkers/stub/error.html';
+      }),
+      page.waitForEvent('requestfailed'),
+    ]);
+    expect(failedRequest.url()).toBe(server.PREFIX + '/serviceworkers/stub/error.html');
+    expect(failedRequest.failure().errorText).toContain(browserName === 'chromium' ? 'net::ERR_FAILED' : 'uh oh');
+    expect(failedRequest.serviceWorker()).toBe(null);
+    expect(await failedRequest.response()).toBe(null);
+  }
+});
+
+it('should report navigation requests and responses handled by service worker with routing', async ({ page, server, isAndroid, browserName }) => {
+  it.fixme(isAndroid);
+
+  await page.route('**/*', route => route.continue());
+  await page.goto(server.PREFIX + '/serviceworkers/stub/sw.html');
+  await page.evaluate(() => window['activationPromise']);
+
+  const reloadResponse = await page.reload();
+  expect(await page.evaluate('window.fromSW')).toBe(true);
+  expect(reloadResponse.url()).toBe(server.PREFIX + '/serviceworkers/stub/sw.html');
+  await page.evaluate(() => window['activationPromise']);
+
+  if (browserName !== 'firefox') {
+    // When SW fetch throws, Firefox does not fail the navigation,
+    // but rather falls back to the real network.
+
+    const [, failedRequest] = await Promise.all([
+      page.evaluate(() => {
+        window.location.href = '/serviceworkers/stub/error.html';
+        // eslint-disable-next-line
+        undefined
+      }),
+      page.waitForEvent('requestfailed'),
+    ]);
+    expect(failedRequest.url()).toBe(server.PREFIX + '/serviceworkers/stub/error.html');
+    expect(failedRequest.failure().errorText).toContain(browserName === 'chromium' ? 'net::ERR_FAILED' : 'uh oh');
+    expect(failedRequest.serviceWorker()).toBe(null);
+    expect(await failedRequest.response()).toBe(null);
+  }
+});
+
+it('should return response body when Cross-Origin-Opener-Policy is set', async ({ page, server, browserName }) => {
+  server.setRoute('/empty.html', (req, res) => {
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    // Note: without 'onload', Firefox sometimes does not fire the load event
+    // over the protocol. The reason is unclear.
+    res.end(`
+      <div>Hello there!</div>
+      <script>window.onload = () => console.log('onload')</script>
+    `);
+  });
+  const response = await page.goto(server.EMPTY_PAGE);
+  expect(page.url()).toBe(server.EMPTY_PAGE);
+  await response.finished();
+  expect(response.request().failure()).toBeNull();
+  expect(await response.text()).toContain('Hello there!');
+});
+
+it('should fire requestfailed when intercepting race', async ({ page, server, browserName }) => {
+  it.skip(browserName !== 'chromium', 'This test is specifically testing Chromium race');
+
+  const promise = new Promise<void>(resolve => {
+    let counter = 0;
+    const failures = new Set();
+    const alive = new Set();
+    page.on('request', request => {
+      expect(alive.has(request)).toBe(false);
+      expect(failures.has(request)).toBe(false);
+      alive.add(request);
+    });
+    page.on('requestfailed', request => {
+      expect(failures.has(request)).toBe(false);
+      expect(alive.has(request)).toBe(true);
+      alive.delete(request);
+      failures.add(request);
+      if (++counter === 10)
+        resolve();
+    });
+  });
+
+  // Stall requests to make sure we don't get requestfinished.
+  await page.route('**', route => {});
+
+  await page.setContent(`
+    <iframe src="${server.EMPTY_PAGE}"></iframe>
+    <iframe src="${server.EMPTY_PAGE}"></iframe>
+    <iframe src="${server.EMPTY_PAGE}"></iframe>
+    <iframe src="${server.EMPTY_PAGE}"></iframe>
+    <iframe src="${server.EMPTY_PAGE}"></iframe>
+    <iframe src="${server.EMPTY_PAGE}"></iframe>
+    <iframe src="${server.EMPTY_PAGE}"></iframe>
+    <iframe src="${server.EMPTY_PAGE}"></iframe>
+    <iframe src="${server.EMPTY_PAGE}"></iframe>
+    <iframe src="${server.EMPTY_PAGE}"></iframe>
+    <script>
+      function abortAll() {
+        const frames = document.querySelectorAll("iframe");
+        for (const frame of frames)
+          frame.src = "about:blank";
+      }
+      abortAll();
+    </script>
+  `);
+
+  await promise;
+});
+
+it('main resource xhr should have type xhr', async ({ page, server }) => {
+  it.info().annotations.push({ type: 'issue', description: 'https://github.com/microsoft/playwright/issues/22812' });
+  await page.goto(server.EMPTY_PAGE);
+  const [request] = await Promise.all([
+    page.waitForEvent('request'),
+    page.evaluate(() => {
+      const x = new XMLHttpRequest();
+      x.open('GET', location.href, false);
+      x.send();
+    })
+  ]);
+  expect(request.isNavigationRequest()).toBe(false);
+  expect(request.resourceType()).toBe('xhr');
+});
+
+it('should finish 204 request', {
+  annotation: { type: 'issue', description: 'https://github.com/microsoft/playwright/issues/32752' }
+}, async ({ page, server, browserName }) => {
+  it.fixme(browserName === 'chromium');
+  server.setRoute('/204', (req, res) => {
+    res.writeHead(204, { 'Content-type': 'text/plain' });
+    res.end();
+  });
+  await page.goto(server.EMPTY_PAGE);
+  const reqPromise = Promise.race([
+    page.waitForEvent('requestfailed', r => r.url().endsWith('/204')).then(() => 'requestfailed'),
+    page.waitForEvent('requestfinished', r => r.url().endsWith('/204')).then(() => 'requestfinished'),
+  ]);
+  page.evaluate(async url => { await fetch(url); }, server.PREFIX + '/204').catch(() => {});
+  expect(await reqPromise).toBe('requestfinished');
+});
+
+it('<picture> resource should have type image', async ({ page }) => {
+  it.info().annotations.push({ type: 'issue', description: 'https://github.com/microsoft/playwright/issues/33148' });
+  const [request] = await Promise.all([
+    page.waitForEvent('request'),
+    page.setContent(`
+      <picture>
+        <source>
+          <img src="https://www.wikipedia.org/portal/wikipedia.org/assets/img/Wikipedia-logo-v2@2x.png">
+        </source>
+      </picture>
+    `)
+  ]);
+  expect(request.resourceType()).toBe('image');
+});
+
+// Chromium: requestWillBeSentEvent.frameId is undefined for OPTIONS.
+// WebKit: no requestWillBeSent event in the protocol for OPTIONS (at least on Mac).
+// Firefox: OPTIONS request can be dispatched.
+it('should not expose preflight OPTIONS request', {
+  annotation: { type: 'issue', description: 'https://github.com/microsoft/playwright/issues/36311' }
+}, async ({ page, server, browserName }) => {
+  const serverRequests = [];
+  server.setRoute('/cors', (req, res) => {
+    serverRequests.push(`${req.method} ${req.url}`);
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204, {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
+        'Access-Control-Allow-Headers': '*',
+      });
+      res.end();
+      return;
+    }
+    res.writeHead(200, { 'Content-type': 'text/plain', 'Access-Control-Allow-Origin': '*' });
+    res.end('Hello there!');
+  });
+  const clientRequests = [];
+  page.on('request', request => {
+    clientRequests.push(`${request.method()} ${request.url()}`);
+  });
+  const response = await page.evaluate(async url => {
+    const response = await fetch(url, {
+      method: 'POST',
+      body: '',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Custom-Header': 'test-value'
+      }
+    });
+    return await response.text();
+  }, server.CROSS_PROCESS_PREFIX + '/cors').catch(() => {});
+  expect(response).toBe('Hello there!');
+  expect(serverRequests).toEqual([
+    'OPTIONS /cors',
+    'POST /cors',
+  ]);
+  expect(clientRequests).toEqual([
+    `POST ${server.CROSS_PROCESS_PREFIX}/cors`,
+  ]);
+});
+
+it('should not expose preflight OPTIONS request with network interception', {
+  annotation: { type: 'issue', description: 'https://github.com/microsoft/playwright/issues/36311' }
+}, async ({ page, server, browserName, isBidi }) => {
+  const serverRequests = [];
+  server.setRoute('/cors', (req, res) => {
+    serverRequests.push(`${req.method} ${req.url}`);
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204, {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
+        'Access-Control-Allow-Headers': '*',
+      });
+      res.end();
+      return;
+    }
+    res.writeHead(200, { 'Content-type': 'text/plain', 'Access-Control-Allow-Origin': '*' });
+    res.end('Hello there!');
+  });
+  await page.route('**/*', route => route.continue());
+  const clientRequests = [];
+  page.on('request', request => {
+    clientRequests.push(`${request.method()} ${request.url()}`);
+  });
+  const response = await page.evaluate(async url => {
+    const response = await fetch(url, {
+      method: 'POST',
+      body: '',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Custom-Header': 'test-value'
+      }
+    });
+    return await response.text();
+  }, server.CROSS_PROCESS_PREFIX + '/cors').catch(() => {});
+  expect(response).toBe('Hello there!');
+  expect.soft(serverRequests).toEqual([
+    ...(browserName === 'chromium' || isBidi ? [] : ['OPTIONS /cors']),
+    'POST /cors',
+  ]);
+  expect.soft(clientRequests).toEqual([
+    `POST ${server.CROSS_PROCESS_PREFIX}/cors`,
+  ]);
+});
+
+it('should return last requests', async ({ page, server }) => {
+  await page.goto(server.PREFIX + '/title.html');
+  for (let i = 0; i < 200; ++i)
+    server.setRoute('/fetch?' + i, (req, res) => res.end('url:' + server.PREFIX + req.url));
+
+  // #0 is the navigation request, so start with #1.
+  for (let i = 0; i < 99; ++i)
+    await page.evaluate(url => fetch(url), server.PREFIX + '/fetch?' + i);
+  const first99Requests = await page.requests();
+  first99Requests.shift();
+  for (let i = 99; i < 199; ++i)
+    await page.evaluate(url => fetch(url), server.PREFIX + '/fetch?' + i);
+  const last100Requests = await page.requests();
+  const allRequests = [...first99Requests, ...last100Requests];
+
+  // All 199 requests are fully functional.
+  const received = await Promise.all(allRequests.map(async request => {
+    const response = await request.response();
+    return { text: await response.text(), url: request.url() };
+  }));
+  const expected = [];
+  for (let i = 0; i < 199; ++i) {
+    const url = server.PREFIX + '/fetch?' + i;
+    expected.push({ url, text: 'url:' + url });
+  }
+  expect(received).toEqual(expected);
+});

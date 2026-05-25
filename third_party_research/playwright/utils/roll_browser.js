@@ -1,0 +1,144 @@
+#!/usr/bin/env node
+/**
+ * Copyright 2017 Google Inc. All rights reserved.
+ * Modifications copyright (c) Microsoft Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const path = require('path');
+const { Registry } = require('../packages/playwright-core/lib/coreBundle').registry;
+const fs = require('fs');
+const protocolGenerator = require('./protocol-types-generator');
+const {execSync} = require('child_process');
+const playwright = require('playwright-core');
+
+const SCRIPT_NAME = path.basename(__filename);
+const CORE_PATH = path.resolve(path.join(__dirname, '..', 'packages', 'playwright-core'));
+
+function usage() {
+  return `
+usage: ${SCRIPT_NAME} <browser> <revision> [version]
+
+Roll the <browser> to a specific <revision> and generate new protocol.
+Version is required for chromium-based browsers.
+Supported browsers: chromium, firefox, webkit, ffmpeg, firefox-beta.
+
+Example:
+  ${SCRIPT_NAME} chromium 123456 123.0.1234.56
+  ${SCRIPT_NAME} webkit 123456
+`;
+}
+
+(async () => {
+  // 1. Parse CLI arguments
+  const args = process.argv.slice(2);
+  if (args.some(arg => arg === '--help')) {
+    console.log(usage());
+    process.exit(1);
+  } else if (args.length < 1) {
+    console.log(`Please specify the browser name, e.g. 'chromium'.`);
+    console.log(`Try running ${SCRIPT_NAME} --help`);
+    process.exit(1);
+  } else if (args.length < 2) {
+    console.log(`Please specify the revision`);
+    console.log(`Try running ${SCRIPT_NAME} --help`);
+    process.exit(1);
+  }
+  const browsersJSON = require(path.join(CORE_PATH, 'browsers.json'));
+  const browserName = {
+    'cr': 'chromium',
+    'ff': 'firefox',
+    'ff-beta': 'firefox-beta',
+    'wk': 'webkit',
+  }[args[0].toLowerCase()] ?? args[0].toLowerCase();
+  const browserTypeName = browserName.split('-')[0];
+  const descriptors = browsersJSON.browsers.filter(b =>
+    b.name === browserName || b.name === `${browserName}-headless-shell`
+  );
+
+  if (!descriptors.length) {
+    console.log(`Unknown browser "${browserName}"`);
+    console.log(`Try running ${SCRIPT_NAME} --help`);
+    process.exit(1);
+  }
+
+  const revision = args[1];
+  let browserVersion = args[2];
+  console.log(`Rolling ${browserName} to ${revision}`);
+  if (browserVersion) {
+    console.log(`Browser version: ${browserVersion}`);
+  } else if (browserTypeName === 'chromium') {
+    console.log(`Chromium-based browsers must provide a version`);
+    process.exit(1);
+  }
+
+  // 2. Update browser revisions in browsers.json.
+  console.log('\nUpdating revision in browsers.json...');
+  for (const descriptor of descriptors) {
+    descriptor.revision = String(revision);
+    if (browserVersion)
+      descriptor.browserVersion = browserVersion;
+  }
+  fs.writeFileSync(path.join(CORE_PATH, 'browsers.json'), JSON.stringify(browsersJSON, null, 2) + '\n');
+
+  // 3. Download new browser.
+  console.log('\nDownloading new browser...');
+  const registry = new Registry(browsersJSON);
+  const executable = registry.findExecutable(browserName);
+  await registry.installDeps([executable]);
+  await registry.install([...registry.defaultExecutables(), executable]);
+
+  // 4. Update browser version if rolling WebKit / Firefox, validate if rolling Chromium.
+  const browserType = playwright[browserTypeName];
+  if (browserType) {
+    const browser = await browserType.launch({
+      executablePath: executable.executablePath('javascript'),
+    });
+    const downloadedVersion = await browser.version();
+    await browser.close();
+
+    if (browserVersion && downloadedVersion !== browserVersion) {
+      console.error(`\nError: Provided browser version "${browserVersion}" does not match downloaded version "${downloadedVersion}".`);
+      console.error(`Please verify that revision ${revision} corresponds to version ${browserVersion}.`);
+      process.exit(1);
+    }
+
+    if (!browserVersion) {
+      console.log('\nUpdating browser version in browsers.json...');
+      for (const descriptor of descriptors)
+        descriptor.browserVersion = downloadedVersion;
+      fs.writeFileSync(path.join(CORE_PATH, 'browsers.json'), JSON.stringify(browsersJSON, null, 2) + '\n');
+    }
+  }
+
+  if (browserType && descriptors[0].installByDefault) {
+    // 5. Generate types.
+    console.log('\nGenerating protocol types...');
+    const executablePath = registry.findExecutable(browserName).executablePathOrDie();
+    await protocolGenerator.generateProtocol(browserName, executablePath);
+
+    // 6. Update docs.
+    console.log('\nUpdating documentation...');
+    try {
+      execSync('npm run doc', { stdio: 'inherit' });
+    } catch (e) {
+      console.log('npm run doc failed with non-zero exit code. This might have updated generated files.');
+    }
+  }
+  console.log(`\nRolled ${browserName} to ${revision}`);
+})().catch(err => {
+  console.error(err);
+  process.exit(1);
+});
+

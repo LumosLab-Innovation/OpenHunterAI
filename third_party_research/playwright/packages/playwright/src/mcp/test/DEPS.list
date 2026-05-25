@@ -1,0 +1,9 @@
+[*]
+@isomorphic/**
+@utils/**
+../../runner
+../../util
+../../common
+../../util.ts
+node_modules/debug
+node_modules/zod

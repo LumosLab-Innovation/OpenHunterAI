@@ -1,0 +1,10 @@
+[*]
+@isomorphic/**
+@utils/**
+../util.ts
+../transform
+../isomorphic
+../globals.ts
+../package.ts
+[testType.ts]
+../matchers/expect.ts

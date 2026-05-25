@@ -1,0 +1,348 @@
+/**
+ * Copyright (c) Microsoft Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import fs from 'fs';
+import path from 'path';
+
+import mime from 'mime';
+import { WebSocketServer as wsServer } from 'ws';
+import { assert } from '@isomorphic/assert';
+import { createGuid } from './crypto';
+import { isPathInside } from './fileUtils';
+import { createHttpServer, startHttpServer } from './network';
+
+import type http from 'http';
+
+// Minimal shape of the Vite dev server we rely on. Kept inline so this file
+// doesn't need a type dep on `vite`, which is only available in watch builds.
+export type ViteDevServer = {
+  middlewares: (req: http.IncomingMessage, res: http.ServerResponse, next: (err?: unknown) => void) => void;
+  transformIndexHtml: (url: string, html: string, originalUrl?: string) => Promise<string>;
+  close: () => Promise<void>;
+};
+
+export type ServerRouteHandler = (request: http.IncomingMessage, response: http.ServerResponse) => boolean;
+
+export type Transport = {
+  sendEvent?: (method: string, params: any) => void;
+  close?: () => void;
+  onconnect: () => void;
+  dispatch: (method: string, params: any) => Promise<any>;
+  onclose: () => void;
+};
+
+export class HttpServer {
+  private _server: http.Server;
+  private _urlPrefixPrecise: string = '';
+  private _urlPrefixHumanReadable: string = '';
+  private _port: number = 0;
+  private _started = false;
+  private _routes: { prefix?: string, exact?: string, handler: ServerRouteHandler }[] = [];
+  private _wsGuid: string | undefined;
+  // Allowed Host headers; null disables the check (host bound to a public address).
+  private _allowedHosts: Set<string> | null = null;
+  private _staticRoot: string | undefined;
+
+  constructor(staticRoot?: string) {
+    this._server = createHttpServer(this._onRequest.bind(this));
+    this._staticRoot = staticRoot ? path.resolve(staticRoot) : undefined;
+  }
+
+  server() {
+    return this._server;
+  }
+
+  routePrefix(prefix: string, handler: ServerRouteHandler) {
+    this._routes.push({ prefix, handler });
+  }
+
+  routePath(path: string, handler: ServerRouteHandler) {
+    this._routes.push({ exact: path, handler });
+  }
+
+  port(): number {
+    return this._port;
+  }
+
+  createWebSocket(transportFactory: (url: URL) => Transport, guid?: string) {
+    assert(!this._wsGuid, 'can only create one main websocket transport per server');
+    this._wsGuid = guid || createGuid();
+    // HMR begin: route upgrades manually with `noServer` so Vite HMR's upgrade
+    // listener on the same http.Server is not pre-empted. With `{ server, path }`
+    // the ws library aborts non-matching upgrades with 400.
+    const wsPath = '/' + this._wsGuid;
+    const wss = new wsServer({ noServer: true });
+    this._server.on('upgrade', (request, socket, head) => {
+      const pathname = new URL(request.url ?? '/', 'http://localhost').pathname;
+      if (pathname !== wsPath)
+        return;
+      wss.handleUpgrade(request, socket, head, ws => wss.emit('connection', ws, request));
+    });
+    // HMR end
+    wss.on('connection', (ws, request) => {
+      const url = new URL(request.url ?? '/', 'http://localhost');
+      const transport = transportFactory(url);
+      transport.sendEvent = (method, params) => ws.send(JSON.stringify({ method, params }));
+      transport.close = () => ws.close();
+      transport.onconnect();
+      ws.on('message', async message => {
+        const { id, method, params } = JSON.parse(String(message));
+        try {
+          const result = await transport.dispatch(method, params);
+          ws.send(JSON.stringify({ id, result }));
+        } catch (e) {
+          ws.send(JSON.stringify({ id, error: String(e) }));
+        }
+      });
+      ws.on('close', () => transport.onclose());
+      ws.on('error', () => transport.onclose());
+    });
+  }
+
+  wsGuid(): string | undefined {
+    return this._wsGuid;
+  }
+
+  async createViteDevServer(options: { root: string, base?: string }): Promise<ViteDevServer> {
+    // HMR begin: hide the `vite` import from esbuild so release bundles can
+    // DCE this whole branch without keeping a resolvable module reference.
+    const loadVite = new Function('return import("vite")') as () => Promise<any>;
+    const vite = await loadVite();
+    return await vite.createServer({
+      root: options.root,
+      base: options.base,
+      server: {
+        middlewareMode: true,
+        // Dedicated path so Vite's HMR websocket does not collide with any
+        // websocket HttpServer owns via createWebSocket().
+        hmr: { path: '/__vite_hmr', server: this._server },
+      },
+      appType: 'spa',
+      clearScreen: false,
+    });
+  }
+  // HMR end
+
+  // Vite's middleware `next` callback for the "no middleware matched" case;
+  // emits a 404 only if nothing downstream already responded.
+  static notFoundFallback(response: http.ServerResponse): () => void {
+    return () => {
+      if (!response.headersSent) {
+        response.statusCode = 404;
+        response.end();
+      }
+    };
+  }
+
+  async start(options: { port?: number, preferredPort?: number, host?: string } = {}): Promise<void> {
+    assert(!this._started, 'server already started');
+    this._started = true;
+
+    const host = options.host;
+    if (options.preferredPort) {
+      try {
+        await startHttpServer(this._server, { port: options.preferredPort, host });
+      } catch (e) {
+        if (!e || !e.message || !e.message.includes('EADDRINUSE'))
+          throw e;
+        await startHttpServer(this._server, { host });
+      }
+    } else {
+      await startHttpServer(this._server, { port: options.port, host });
+    }
+
+    const address = this._server.address();
+    assert(address, 'Could not bind server socket');
+    if (typeof address === 'string') {
+      this._urlPrefixPrecise = address;
+      this._urlPrefixHumanReadable = address;
+    } else {
+      this._port = address.port;
+      this._urlPrefixPrecise = `http://${urlHostFromAddress(address)}:${address.port}`;
+      this._urlPrefixHumanReadable = `http://${host ?? 'localhost'}:${address.port}`;
+      this._allowedHosts = computeAllowedHosts(host, address.address);
+    }
+  }
+
+  async stop() {
+    await new Promise(cb => this._server!.close(cb));
+  }
+
+  urlPrefix(purpose: 'human-readable' | 'precise'): string {
+    return purpose === 'human-readable' ? this._urlPrefixHumanReadable : this._urlPrefixPrecise;
+  }
+
+  serveFile(request: http.IncomingMessage, response: http.ServerResponse, absoluteFilePath: string, headers?: { [name: string]: string }, options?: { skipRootCheck?: boolean }): boolean {
+    if (this._staticRoot && !options?.skipRootCheck && !isPathInside(this._staticRoot, absoluteFilePath)) {
+      response.statusCode = 403;
+      response.end();
+      return true;
+    }
+    try {
+      for (const [name, value] of Object.entries(headers || {}))
+        response.setHeader(name, value);
+      if (request.headers.range)
+        this._serveRangeFile(request, response, absoluteFilePath);
+      else
+        this._serveFile(response, absoluteFilePath);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  private _serveFile(response: http.ServerResponse, absoluteFilePath: string) {
+    const content = fs.readFileSync(absoluteFilePath);
+    response.statusCode = 200;
+    const contentType = mime.getType(path.extname(absoluteFilePath)) || 'application/octet-stream';
+    response.setHeader('Content-Type', contentType);
+    response.setHeader('Content-Length', content.byteLength);
+    response.end(content);
+  }
+
+  private _serveRangeFile(request: http.IncomingMessage, response: http.ServerResponse, absoluteFilePath: string) {
+    const range = request.headers.range;
+    if (!range || !range.startsWith('bytes=') || range.includes(', ') || [...range].filter(char => char === '-').length !== 1) {
+      response.statusCode = 400;
+      return response.end('Bad request');
+    }
+
+    // Parse the range header: https://datatracker.ietf.org/doc/html/rfc7233#section-2.1
+    const [startStr, endStr] = range.replace(/bytes=/, '').split('-');
+
+    // Both start and end (when passing to fs.createReadStream) and the range header are inclusive and start counting at 0.
+    let start: number;
+    let end: number;
+    const size = fs.statSync(absoluteFilePath).size;
+    if (startStr !== '' && endStr === '') {
+      // No end specified: use the whole file
+      start = +startStr;
+      end = size - 1;
+    } else if (startStr === '' && endStr !== '') {
+      // No start specified: calculate start manually
+      start = size - +endStr;
+      end = size - 1;
+    } else {
+      start = +startStr;
+      end = +endStr;
+    }
+
+    // Handle unavailable range request
+    if (Number.isNaN(start) || Number.isNaN(end) || start >= size || end >= size || start > end) {
+      // Return the 416 Range Not Satisfiable: https://datatracker.ietf.org/doc/html/rfc7233#section-4.4
+      response.writeHead(416, {
+        'Content-Range': `bytes */${size}`
+      });
+      return response.end();
+    }
+
+    // Sending Partial Content: https://datatracker.ietf.org/doc/html/rfc7233#section-4.1
+    response.writeHead(206, {
+      'Content-Range': `bytes ${start}-${end}/${size}`,
+      'Accept-Ranges': 'bytes',
+      'Content-Length': end - start + 1,
+      'Content-Type': mime.getType(path.extname(absoluteFilePath))!,
+    });
+
+    const readable = fs.createReadStream(absoluteFilePath, { start, end });
+    readable.pipe(response);
+  }
+
+  private _onRequest(request: http.IncomingMessage, response: http.ServerResponse) {
+    if (request.method === 'OPTIONS') {
+      response.writeHead(200);
+      response.end();
+      return;
+    }
+
+    if (this._allowedHosts) {
+      const host = request.headers.host?.toLowerCase();
+      const hostname = host ? hostnameFromHostHeader(host) : undefined;
+      if (!hostname || !this._allowedHosts.has(hostname)) {
+        response.statusCode = 403;
+        response.end();
+        return;
+      }
+    }
+
+    request.on('error', () => response.end());
+    try {
+      if (!request.url) {
+        response.end();
+        return;
+      }
+      const url = new URL('http://localhost' + request.url);
+      for (const route of this._routes) {
+        if (route.exact && url.pathname === route.exact && route.handler(request, response))
+          return;
+        if (route.prefix && url.pathname.startsWith(route.prefix) && route.handler(request, response))
+          return;
+      }
+      response.statusCode = 404;
+      response.end();
+    } catch (e) {
+      response.end();
+    }
+  }
+}
+
+export function computeAllowedHosts(requested: string | undefined, bound: string): Set<string> | null {
+  const loopback = new Set(['127.0.0.1', '::1', 'localhost']);
+  const isLoopback = (h: string | undefined) => h !== undefined && loopback.has(h.toLowerCase());
+  if (!isLoopback(requested) && requested !== undefined)
+    return null;
+  if (!isLoopback(bound) && requested === undefined)
+    return null;
+  return new Set(['localhost', '127.0.0.1', '[::1]']);
+}
+
+// Bracket IPv6 literals so they can be used as the host part of a URL.
+export function urlHostFromAddress(address: { address: string, family: string }): string {
+  return address.family === 'IPv6' ? `[${address.address}]` : address.address;
+}
+
+export function hostnameFromHostHeader(host: string): string {
+  if (host.startsWith('[')) {
+    const end = host.indexOf(']');
+    return end < 0 ? host : host.substring(0, end + 1);
+  }
+  const colon = host.indexOf(':');
+  return colon < 0 ? host : host.substring(0, colon);
+}
+
+export function serveFolder(folder: string): HttpServer {
+  const server = new HttpServer(folder);
+  server.routePrefix('/', (request, response) => {
+    let relativePath = new URL('http://localhost' + request.url).pathname;
+    if (relativePath.startsWith('/trace/file')) {
+      const url = new URL('http://localhost' + request.url!);
+      const requested = url.searchParams.get('path');
+      if (!requested)
+        return false;
+      const resolved = path.resolve(requested);
+      try {
+        return server.serveFile(request, response, resolved);
+      } catch (e) {
+        return false;
+      }
+    }
+    if (relativePath === '/')
+      relativePath = '/index.html';
+    const absolutePath = path.join(folder, ...relativePath.split('/'));
+    return server.serveFile(request, response, absolutePath);
+  });
+  return server;
+}

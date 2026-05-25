@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:openhack:finding-candidate",
+  "title": "Finding Candidate",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "candidate_id",
+    "scenario_id",
+    "source_result",
+    "expert",
+    "status",
+    "finding"
+  ],
+  "properties": {
+    "candidate_id": {
+      "type": "string",
+      "pattern": "^S[0-9]{3,}-F[0-9]{3,}$"
+    },
+    "scenario_id": {
+      "type": "string",
+      "pattern": "^S[0-9]{3,}$"
+    },
+    "source_result": {"type": "string", "minLength": 1},
+    "expert": {"type": "string", "minLength": 1},
+    "status": {
+      "type": "string",
+      "enum": ["pending_triage"]
+    },
+    "primary_vulnerability_class": {"type": "string"},
+    "finding": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

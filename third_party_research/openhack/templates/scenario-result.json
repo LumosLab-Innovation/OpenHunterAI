@@ -1,0 +1,60 @@
+{
+  "scenario_id": "S001",
+  "review_mode": "per-scenario-subagent",
+  "subagent_id": "unique-scenario-subagent-id",
+  "scenario_prompt_sha256": "64 lowercase hex characters",
+  "reviewed_files": [
+    "source-relative/path"
+  ],
+  "status": "verified|candidate|rejected|needs_context",
+  "expert": "expert-agent-id",
+  "primary_vulnerability_class": "root-cause vulnerability family or subtype",
+  "summary": "Concise decision for this scenario.",
+  "evidence": [
+    {
+      "path": "source-relative/path",
+      "line": 1,
+      "snippet": "Exact source line snippet copied from the cited file",
+      "role": "attacker role or unknown",
+      "note": "source, sink, guard, or impact evidence"
+    }
+  ],
+  "proof_obligations": [
+    {
+      "id": "obligation_id_from_scenario",
+      "status": "proven_safe|proven_vulnerable|not_applicable|needs_context",
+      "summary": "Conclusion for this required check. For needs_context, explain the missing source/config/runtime fact.",
+      "evidence": [
+        {
+          "path": "source-relative/path",
+          "line": 1,
+          "snippet": "Exact source line snippet copied from the cited file",
+          "role": "guard|source|sink|impact|dependency",
+          "note": "why this line closes the obligation"
+        }
+      ]
+    }
+  ],
+  "surface_class_coverage": [],
+  "same_root_expansion": [],
+  "candidate_queue_entries": [],
+  "findings": [
+    {
+      "title": "<severity> - <type of vuln> - <location>",
+      "severity": "critical|high|medium|low|informational",
+      "target_path": "source-relative/path",
+      "attacker_role": "Required attacker role, auth state, or privilege level",
+      "preconditions": "Deployment settings, feature flags, data state, or user actions required",
+      "non_technical_summary": "Plain-language summary for non-technical stakeholders.",
+      "summary": "Technical summary of the verified root cause.",
+      "evidence": "Source, sink, missing guard, line references, and proof notes.",
+      "attack_chain": "1. Attacker reaches the entrypoint.\n2. Attacker controls the vulnerable input.\n3. Input reaches the sink without the required guard.\n4. Security impact occurs.",
+      "example_attack": "Concrete controlled-test example of how the attack would look, without unnecessary live-target weaponization.",
+      "impact": "Short impact statement retained for summary tooling.",
+      "impact_analysis": "Thorough impact analysis covering confidentiality, integrity, availability, privilege boundaries, data scope, and realistic blast radius.",
+      "attacker_use": "How an attacker could use this in practice, including what they gain and what limits the attack.",
+      "recommended_fix": "Specific remediation guidance.",
+      "validation_notes": "How to reproduce safely and how to verify the fix."
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+# Generated pentest runs and target source checkouts.
+runs/**
+!runs/
+!runs/.gitkeep
+sourcecode/
+**/sourcecode/
+targets/
+
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+*.egg-info/
+.DS_Store

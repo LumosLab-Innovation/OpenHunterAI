@@ -1,0 +1,111 @@
+---
+title: "HTTP Proxy"
+description: "Caido-powered proxy for request interception and replay"
+---
+
+Strix includes [Caido](https://caido.io), a modern HTTP proxy built for security testing. All browser traffic flows through Caido, giving the agent full control over requests and responses.
+
+## Capabilities
+
+| Feature          | Description                                  |
+| ---------------- | -------------------------------------------- |
+| Request Capture  | Log all HTTP/HTTPS traffic automatically     |
+| Request Replay   | Repeat any request with modifications        |
+| HTTPQL           | Query captured traffic with powerful filters |
+| Scope Management | Focus on specific domains or paths           |
+| Sitemap          | Visualize the discovered attack surface      |
+
+## HTTPQL Filtering
+
+Query captured requests using Caido's HTTPQL syntax
+
+## Request Replay
+
+The agent can take any captured request and replay it with modifications:
+
+- Change path parameters (test for IDOR)
+- Modify request body (test for injection)
+- Add/remove headers (test for auth bypass)
+- Alter cookies (test for session issues)
+
+## Python Integration
+
+All proxy functions are automatically available in Python sessions. This enables powerful scripted security testing:
+
+```python
+# List recent POST requests
+post_requests = list_requests(
+    httpql_filter='req.method.eq:"POST"',
+    page_size=20
+)
+
+# View a specific request
+request_details = view_request("req_123", part="request")
+
+# Replay with modified payload
+response = repeat_request("req_123", {
+    "body": '{"user_id": "admin"}'
+})
+print(f"Status: {response['status_code']}")
+```
+
+### Available Functions
+
+| Function               | Description                                |
+| ---------------------- | ------------------------------------------ |
+| `list_requests()`      | Query captured traffic with HTTPQL filters |
+| `view_request()`       | Get full request/response details          |
+| `repeat_request()`     | Replay a request with modifications        |
+| `send_request()`       | Send a new HTTP request                    |
+| `scope_rules()`        | Manage proxy scope (allowlist/denylist)    |
+| `list_sitemap()`       | View discovered endpoints                  |
+| `view_sitemap_entry()` | Get details for a sitemap entry            |
+
+### Example: Automated IDOR Testing
+
+```python
+# Get all requests to user endpoints
+user_requests = list_requests(
+    httpql_filter='req.path.cont:"/users/"'
+)
+
+for req in user_requests.get('requests', []):
+    # Try accessing with different user IDs
+    for test_id in ['1', '2', 'admin', '../admin']:
+        response = repeat_request(req['id'], {
+            'url': req['path'].replace('/users/1', f'/users/{test_id}')
+        })
+
+        if response['status_code'] == 200:
+            print(f"Potential IDOR: {test_id} returned 200")
+```
+
+## Human-in-the-Loop
+
+Strix exposes the Caido proxy to your host machine, so you can interact with it alongside the automated scan. When the sandbox starts, the Caido URL is displayed in the TUI sidebar — click it to copy, then open it in Caido Desktop.
+
+### Accessing Caido
+
+1. Start a scan as usual
+2. Look for the **Caido** URL in the sidebar stats panel (e.g. `localhost:52341`)
+3. Open the URL in Caido Desktop
+4. Click **Continue as guest** to access the instance
+
+### What You Can Do
+
+- **Inspect traffic** — Browse all HTTP/HTTPS requests the agent is making in real time
+- **Replay requests** — Take any captured request and resend it with your own modifications
+- **Intercept and modify** — Pause requests mid-flight, edit them, then forward
+- **Explore the sitemap** — See the full attack surface the agent has discovered
+- **Manual testing** — Use Caido's tools to test findings the agent reports, or explore areas it hasn't reached
+
+This turns Strix from a fully automated scanner into a collaborative tool — the agent handles the heavy lifting while you focus on the interesting parts.
+
+## Scope
+
+Create scopes to filter traffic to relevant domains:
+
+```
+Allowlist: ["api.example.com", "*.example.com"]
+Denylist: ["*.gif", "*.jpg", "*.png", "*.css", "*.js"]
+```

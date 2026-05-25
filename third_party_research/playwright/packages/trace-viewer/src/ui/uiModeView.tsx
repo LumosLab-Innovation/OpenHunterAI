@@ -1,0 +1,573 @@
+/**
+ * Copyright (c) Microsoft Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import '@web/third_party/vscode/codicon.css';
+import '@web/common.css';
+import React from 'react';
+import { TeleSuite } from '@testIsomorphic/teleReceiver';
+import { TeleSuiteUpdater, type TeleSuiteUpdaterProgress, type TeleSuiteUpdaterTestModel } from '@testIsomorphic/teleSuiteUpdater';
+import type { TeleTestCase } from '@testIsomorphic/teleReceiver';
+import type * as reporterTypes from 'playwright/types/testReporter';
+import { SplitView } from '@web/components/splitView';
+import type { SourceLocation } from '@isomorphic/trace/traceModel';
+import './uiModeView.css';
+import { ToolbarButton } from '@web/components/toolbarButton';
+import { Toolbar } from '@web/components/toolbar';
+import type { XtermDataSource } from '@web/components/xtermWrapper';
+import { XtermWrapper } from '@web/components/xtermWrapper';
+import { clsx, settings, useSetting } from '@web/uiUtils';
+import { statusEx, TestTree } from '@testIsomorphic/testTree';
+import type { TreeItem  } from '@testIsomorphic/testTree';
+import { TestServerConnection, WebSocketTestServerTransport } from '@testIsomorphic/testServerConnection';
+import { FiltersView } from './uiModeFiltersView';
+import { TestListView } from './uiModeTestListView';
+import { TraceView } from './uiModeTraceView';
+import { SettingsView } from './settingsView';
+import { DefaultSettingsView } from './defaultSettingsView';
+
+let xtermSize = { cols: 80, rows: 24 };
+const xtermDataSource: XtermDataSource = {
+  pending: [],
+  clear: () => {},
+  write: data => xtermDataSource.pending.push(data),
+  resize: () => {},
+};
+
+const searchParams = new URLSearchParams(window.location.search);
+const testServerBaseUrl = new URL(searchParams.get('server') ?? '../', window.location.href);
+const wsURL = new URL(searchParams.get('ws')!, testServerBaseUrl);
+wsURL.protocol = (wsURL.protocol === 'https:' ? 'wss:' : 'ws:');
+const queryParams = {
+  args: searchParams.getAll('arg'),
+  grep: searchParams.get('grep') || undefined,
+  grepInvert: searchParams.get('grepInvert') || undefined,
+  projects: searchParams.getAll('project'),
+  workers: searchParams.get('workers') || undefined,
+  headed: searchParams.has('headed'),
+  updateSnapshots: (searchParams.get('updateSnapshots') as reporterTypes.FullConfig['updateSnapshots'] | undefined) || undefined,
+  reporters: searchParams.has('reporter') ? searchParams.getAll('reporter') : undefined,
+  pathSeparator: searchParams.get('pathSeparator') || '/',
+};
+if (queryParams.updateSnapshots && !['all', 'changed', 'none', 'missing'].includes(queryParams.updateSnapshots))
+  queryParams.updateSnapshots = undefined;
+
+const isMac = navigator.platform === 'MacIntel';
+
+function escapeRegex(text: string) {
+  // playwright interprets absolute paths as regex,
+  // removing the leading slash prevents that.
+  if (text.startsWith('/'))
+    text = text.substring(1);
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function renderStatusLine(progress: TeleSuiteUpdaterProgress, total: number, isRunning: boolean) {
+  const finished = progress.passed + progress.failed + progress.skipped;
+  const pct = total ? (finished / total) * 100 | 0 : 0;
+  const counts: React.ReactNode[] = [];
+  if (progress.passed > 0)
+    counts.push(`${progress.passed} passed`);
+  if (progress.failed > 0)
+    counts.push(<span key='failed' className='status-line-failed'>{progress.failed} failed</span>);
+  if (progress.skipped > 0)
+    counts.push(`${progress.skipped} skipped`);
+  return <div data-testid='status-line' className='status-line'>
+    <div>
+      {isRunning && 'Running '}
+      {finished}/{total} ({pct}%)
+      {counts.length > 0 && ' — '}
+      {counts.map((count, i) => <React.Fragment key={i}>{i > 0 ? ', ' : ''}{count}</React.Fragment>)}
+    </div>
+  </div>;
+}
+
+export const UIModeView: React.FC<{}> = ({
+}) => {
+  const [filterText, setFilterText] = React.useState<string>('');
+  const [isShowingOutput, setIsShowingOutput] = React.useState<boolean>(false);
+  const [outputContainsError, setOutputContainsError] = React.useState(false);
+  const [statusFilters, setStatusFilters] = React.useState<Map<string, boolean>>(new Map([
+    ['passed', false],
+    ['failed', false],
+    ['skipped', false],
+  ]));
+  const [projectFilters, setProjectFilters] = React.useState<Map<string, boolean>>(new Map());
+  const [testModel, setTestModel] = React.useState<TeleSuiteUpdaterTestModel>();
+  const [progress, setProgress] = React.useState<TeleSuiteUpdaterProgress & { total: number } | undefined>();
+  const [selectedItem, setSelectedItem] = React.useState<{ treeItem?: TreeItem, testFile?: SourceLocation, testCase?: reporterTypes.TestCase }>({});
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [runningState, setRunningState] = React.useState<{ testIds: Set<string>, itemSelectedByUser?: boolean, completed?: boolean } | undefined>();
+  const isRunningTest = runningState && !runningState.completed;
+
+  const [watchAll, setWatchAll] = useSetting<boolean>('watch-all', false);
+  const [watchedTreeIds, setWatchedTreeIds] = React.useState<{ value: Set<string> }>({ value: new Set() });
+  const commandQueue = React.useRef(Promise.resolve());
+  const runTestBacklog = React.useRef<{ testIds: Set<string>, locations: Set<string> }>({ testIds: new Set(), locations: new Set() });
+  const [collapseAllCount, setCollapseAllCount] = React.useState(0);
+  const [expandAllCount, setExpandAllCount] = React.useState(0);
+  const [isDisconnected, setIsDisconnected] = React.useState(false);
+  const [hasBrowsers, setHasBrowsers] = React.useState(true);
+  const [testServerConnection, setTestServerConnection] = React.useState<TestServerConnection>();
+  const [teleSuiteUpdater, setTeleSuiteUpdater] = React.useState<TeleSuiteUpdater>();
+  const [settingsVisible, setSettingsVisible] = React.useState(false);
+  const [testingOptionsVisible, setTestingOptionsVisible] = React.useState(false);
+  const [revealSource, setRevealSource] = React.useState(false);
+  const onRevealSource = React.useCallback(() => setRevealSource(true), [setRevealSource]);
+
+  const [singleWorker, setSingleWorker] = useSetting<boolean>('single-worker', false);
+  const [updateSnapshots, setUpdateSnapshots] = useSetting<reporterTypes.FullConfig['updateSnapshots']>('updateSnapshots', 'missing');
+  const [onlyChanged, setOnlyChanged] = useSetting<boolean>('only-changed', false);
+  const [stopOnFailure, setStopOnFailure] = useSetting<boolean>('stop-on-failure', false);
+  const [mergeFiles] = useSetting('mergeFiles', false);
+
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const reloadTests = React.useCallback(() => {
+    setTestServerConnection(prevConnection => {
+      prevConnection?.close();
+      return new TestServerConnection(new WebSocketTestServerTransport(wsURL));
+    });
+  }, []);
+
+  // Load tests on startup.
+  React.useEffect(() => {
+    inputRef.current?.focus();
+    setIsLoading(true);
+    reloadTests();
+  }, [reloadTests]);
+
+  // Wire server connection to the auxiliary UI features.
+  React.useEffect(() => {
+    if (!testServerConnection)
+      return;
+    const disposables = [
+      testServerConnection.onStdio(params => {
+        if (params.buffer) {
+          const data = atob(params.buffer);
+          xtermDataSource.write(data);
+        } else {
+          xtermDataSource.write(params.text!);
+        }
+
+        if (params.type === 'stderr')
+          setOutputContainsError(true);
+      }),
+      testServerConnection.onClose(() => setIsDisconnected(true))
+    ];
+    xtermDataSource.resize = (cols, rows) => {
+      xtermSize = { cols, rows };
+      testServerConnection.resizeTerminalNoReply({ cols, rows });
+    };
+    return () => {
+      for (const disposable of disposables)
+        disposable.dispose();
+    };
+  }, [testServerConnection]);
+
+  // This is the main routine, every time connection updates it starts the
+  // whole workflow.
+  React.useEffect(() => {
+    if (!testServerConnection)
+      return;
+
+    let throttleTimer: NodeJS.Timeout | undefined;
+    const teleSuiteUpdater = new TeleSuiteUpdater({
+      onUpdate: immediate => {
+        clearTimeout(throttleTimer);
+        throttleTimer = undefined;
+        if (immediate) {
+          setTestModel(teleSuiteUpdater.asModel());
+        } else if (!throttleTimer) {
+          throttleTimer = setTimeout(() => {
+            setTestModel(teleSuiteUpdater.asModel());
+          }, 250);
+        }
+      },
+      onError: error => {
+        xtermDataSource.write((error.stack || error.value || '') + '\n');
+        setOutputContainsError(true);
+      },
+      pathSeparator: queryParams.pathSeparator,
+    });
+
+    setTeleSuiteUpdater(teleSuiteUpdater);
+
+    setTestModel(undefined);
+    setIsLoading(true);
+    setWatchedTreeIds({ value: new Set() });
+    (async () => {
+      try {
+        await testServerConnection.initialize({
+          interceptStdio: true,
+          watchTestDirs: true
+        });
+        const { status, report } = await testServerConnection.runGlobalSetup({});
+        teleSuiteUpdater.processGlobalReport(report);
+        if (status !== 'passed')
+          return;
+
+        const result = await testServerConnection.listTests({ projects: queryParams.projects, locations: queryParams.args, grep: queryParams.grep, grepInvert: queryParams.grepInvert, onlyChanged });
+        teleSuiteUpdater.processListReport(result.report);
+
+        testServerConnection.onReport(params => {
+          teleSuiteUpdater.processTestReportEvent(params);
+        });
+
+        const { hasBrowsers } = await testServerConnection.checkBrowsers({});
+        setHasBrowsers(hasBrowsers);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+    return () => {
+      clearTimeout(throttleTimer);
+    };
+  }, [onlyChanged, testServerConnection]);
+
+  // Update project filter default values.
+  React.useEffect(() => {
+    if (!testModel)
+      return;
+
+    const { config, rootSuite } = testModel;
+    const selectedProjects = config.configFile ? settings.getObject<string[] | undefined>(config.configFile + ':projects', undefined) : undefined;
+    const newFilter = new Map(projectFilters);
+    for (const projectName of newFilter.keys()) {
+      if (!rootSuite.suites.find(s => s.title === projectName))
+        newFilter.delete(projectName);
+    }
+    for (const projectSuite of rootSuite.suites) {
+      if (!newFilter.has(projectSuite.title))
+        newFilter.set(projectSuite.title, !!selectedProjects?.includes(projectSuite.title));
+    }
+    if (!selectedProjects && newFilter.size && ![...newFilter.values()].includes(true))
+      newFilter.set(newFilter.entries().next().value![0], true);
+    if (projectFilters.size !== newFilter.size || [...projectFilters].some(([k, v]) => newFilter.get(k) !== v))
+      setProjectFilters(newFilter);
+  }, [projectFilters, testModel]);
+
+  // Update progress.
+  React.useEffect(() => {
+    if (isRunningTest && testModel?.progress)
+      setProgress(testModel.progress);
+    else if (!testModel)
+      setProgress(undefined);
+  }, [testModel, isRunningTest]);
+
+  // Test tree is built from the model and filters.
+  const { testTree } = React.useMemo(() => {
+    if (!testModel)
+      return { testTree: new TestTree('', new TeleSuite('', 'root'), [], projectFilters, queryParams.pathSeparator, mergeFiles) };
+    const testTree = new TestTree('', testModel.rootSuite, testModel.loadErrors, projectFilters, queryParams.pathSeparator, mergeFiles);
+    testTree.filterTree(filterText, statusFilters, isRunningTest ? runningState?.testIds : undefined);
+    testTree.sortAndPropagateStatus();
+    testTree.shortenRoot();
+    testTree.flattenForSingleProject();
+    return { testTree };
+  }, [filterText, testModel, statusFilters, projectFilters, runningState, isRunningTest, mergeFiles]);
+
+  const runTests = React.useCallback((mode: 'queue-if-busy' | 'bounce-if-busy', filter: { testIds: Iterable<string>, locations: Iterable<string> }) => {
+    if (!testServerConnection || !testModel)
+      return;
+    if (mode === 'bounce-if-busy' && isRunningTest)
+      return;
+
+    for (const testId of filter.testIds)
+      runTestBacklog.current.testIds.add(testId);
+    for (const location of filter.locations)
+      runTestBacklog.current.locations.add(location);
+    commandQueue.current = commandQueue.current.then(async () => {
+      const { testIds, locations } = runTestBacklog.current;
+      runTestBacklog.current = { testIds: new Set(), locations: new Set() };
+      if (!testIds.size)
+        return;
+
+      // Clear test results.
+      {
+        for (const test of testModel.rootSuite?.allTests() || []) {
+          if (testIds.has(test.id)) {
+            test.results = [];
+            const result = (test as TeleTestCase)._createTestResult('pending');
+            (result as any)[statusEx] = 'scheduled';
+          }
+        }
+        setTestModel({ ...testModel });
+      }
+
+      const time = '  [' + new Date().toLocaleTimeString() + ']';
+      xtermDataSource.write('\x1B[2m—'.repeat(Math.max(0, xtermSize.cols - time.length)) + time + '\x1B[22m');
+      setProgress({ total: 0, passed: 0, failed: 0, skipped: 0 });
+      setRunningState({ testIds });
+
+      await testServerConnection.runTests({
+        locations: [...locations].map(escapeRegex),
+        grep: queryParams.grep,
+        grepInvert: queryParams.grepInvert,
+        testIds: [...testIds],
+        projects: [...projectFilters].filter(([_, v]) => v).map(([p]) => p),
+        updateSnapshots,
+        reporters: queryParams.reporters,
+        workers: singleWorker ? 1 : undefined,
+        maxFailures: stopOnFailure ? 1 : undefined,
+        trace: 'on',
+      });
+      // Clear pending tests in case of interrupt.
+      for (const test of testModel.rootSuite?.allTests() || []) {
+        if (test.results[0]?.duration === -1)
+          test.results = [];
+      }
+      setTestModel({ ...testModel });
+      setRunningState(oldState => oldState ? ({ ...oldState, completed: true }) : undefined);
+    });
+  }, [projectFilters, isRunningTest, testModel, testServerConnection, updateSnapshots, singleWorker, stopOnFailure]);
+
+  const runVisibleTests = React.useCallback(() => runTests('bounce-if-busy', testTree.collectTestIds(testTree.rootItem)), [runTests, testTree]);
+
+  React.useEffect(() => {
+    if (!testServerConnection || !teleSuiteUpdater)
+      return;
+    const disposable = testServerConnection.onTestFilesChanged(async params => {
+      // fetch the new list of tests
+      commandQueue.current = commandQueue.current.then(async () => {
+        setIsLoading(true);
+        try {
+          const result = await testServerConnection.listTests({ projects: queryParams.projects, locations: queryParams.args, grep: queryParams.grep, grepInvert: queryParams.grepInvert, onlyChanged });
+          teleSuiteUpdater.processListReport(result.report);
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.log(e);
+        } finally {
+          setIsLoading(false);
+        }
+      });
+      await commandQueue.current;
+
+      if (params.testFiles.length === 0)
+        return;
+
+      // run affected watched tests
+      const testModel = teleSuiteUpdater.asModel();
+      const testTree = new TestTree('', testModel.rootSuite, testModel.loadErrors, projectFilters, queryParams.pathSeparator, mergeFiles);
+
+      const locations: string[] = [];
+      const testIds: string[] = [];
+      const set = new Set(params.testFiles);
+      if (watchAll) {
+        const visit = (treeItem: TreeItem) => {
+          const fileName = treeItem.location.file;
+          if (fileName && set.has(fileName)) {
+            const filter = testTree.collectTestIds(treeItem);
+            locations.push(...filter.locations);
+            testIds.push(...filter.testIds);
+          }
+          if (treeItem.kind === 'group' && treeItem.subKind === 'folder')
+            treeItem.children.forEach(visit);
+        };
+        visit(testTree.rootItem);
+      } else {
+        for (const treeId of watchedTreeIds.value) {
+          const treeItem = testTree.treeItemById(treeId);
+          if (!treeItem)
+            continue;
+
+          let fileItem = treeItem;
+          while (!(fileItem.kind === 'group' && (fileItem.subKind === 'file' || fileItem.subKind === 'folder')) && fileItem.parent)
+            fileItem = fileItem.parent;
+          const fileName = fileItem?.location.file;
+          if (fileName && set.has(fileName)) {
+            const filter = testTree.collectTestIds(treeItem);
+            locations.push(...filter.locations);
+            testIds.push(...filter.testIds);
+          }
+        }
+      }
+
+      runTests('queue-if-busy', { locations, testIds });
+    });
+    return () => disposable.dispose();
+  }, [runTests, testServerConnection, watchAll, watchedTreeIds, teleSuiteUpdater, projectFilters, mergeFiles, onlyChanged]);
+
+  // Shortcuts.
+  React.useEffect(() => {
+    if (!testServerConnection)
+      return;
+    const onShortcutEvent = (e: KeyboardEvent) => {
+      if (e.code === 'Backquote' && e.ctrlKey) {
+        e.preventDefault();
+        setIsShowingOutput(!isShowingOutput);
+      } else if (e.code === 'F5' && e.shiftKey) {
+        e.preventDefault();
+        testServerConnection?.stopTestsNoReply({});
+      } else if (e.code === 'F5') {
+        e.preventDefault();
+        runVisibleTests();
+      }
+    };
+    addEventListener('keydown', onShortcutEvent);
+    return () => {
+      removeEventListener('keydown', onShortcutEvent);
+    };
+  }, [runVisibleTests, reloadTests, testServerConnection, isShowingOutput]);
+
+  const dialogRef = React.useRef<HTMLDialogElement>(null);
+  const openInstallDialog = React.useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dialogRef.current?.showModal();
+  }, []);
+  const closeInstallDialog = React.useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dialogRef.current?.close();
+  }, []);
+  const installBrowsers = React.useCallback((e: React.MouseEvent) => {
+    closeInstallDialog(e);
+    setIsShowingOutput(true);
+    testServerConnection?.installBrowsers({}).then(async () => {
+      setIsShowingOutput(false);
+      const { hasBrowsers } = await testServerConnection?.checkBrowsers({});
+      setHasBrowsers(hasBrowsers);
+    });
+  }, [closeInstallDialog, testServerConnection]);
+
+  return <div className='vbox ui-mode'>
+    {!hasBrowsers && <dialog ref={dialogRef}>
+      <div className='title'><span className='codicon codicon-lightbulb'></span>Install browsers</div>
+      <div className='body'>
+        Playwright did not find installed browsers.
+        <br></br>
+        Would you like to run `playwright install`?
+        <br></br>
+        <button className='button' onClick={installBrowsers}>Install</button>
+        <button className='button secondary' onClick={closeInstallDialog}>Dismiss</button>
+      </div>
+    </dialog>}
+    {isDisconnected && <div className='disconnected'>
+      <div className='title'>UI Mode disconnected</div>
+      <div><a href='#' onClick={() => window.location.href = '/'}>Reload the page</a> to reconnect</div>
+    </div>}
+    <SplitView
+      sidebarSize={250}
+      minSidebarSize={150}
+      orientation='horizontal'
+      sidebarIsFirst={true}
+      settingName='testListSidebar'
+      main={<div className='vbox'>
+        <div className={clsx('vbox', !isShowingOutput && 'hidden')}>
+          <Toolbar>
+            <div className='section-title' style={{ flex: 'none' }}>Output</div>
+            <ToolbarButton icon='circle-slash' title='Clear output' onClick={() => { xtermDataSource.clear(); setOutputContainsError(false); }}></ToolbarButton>
+            <div className='spacer'></div>
+            <ToolbarButton icon='close' title='Close' onClick={() => setIsShowingOutput(false)}></ToolbarButton>
+          </Toolbar>
+          <XtermWrapper source={xtermDataSource}></XtermWrapper>
+        </div>
+        <div className={clsx('vbox', isShowingOutput && 'hidden')}>
+          <TraceView
+            pathSeparator={queryParams.pathSeparator}
+            item={selectedItem}
+            rootDir={testModel?.config?.rootDir}
+            revealSource={revealSource}
+            onOpenExternally={location => testServerConnection?.openNoReply({ location: { file: location.file, line: location.line, column: location.column } })}
+          />
+        </div>
+      </div>}
+      sidebar={<div className='vbox ui-mode-sidebar'>
+        <Toolbar noShadow={true} noMinHeight={true}>
+          <img src='playwright-logo.svg' alt='Playwright logo' />
+          <div className='section-title'>Playwright</div>
+          <ToolbarButton icon='refresh' title='Reload' onClick={() => reloadTests()} disabled={isRunningTest || isLoading}></ToolbarButton>
+          <div style={{ position: 'relative' }}>
+            <ToolbarButton icon={'terminal'} title={'Toggle output — ' + (isMac ? '⌃`' : 'Ctrl + `')} toggled={isShowingOutput} errorBadge={outputContainsError ? 'Output contains error' : undefined} onClick={() => { setIsShowingOutput(!isShowingOutput); }} />
+          </div>
+          {!hasBrowsers && <ToolbarButton icon='lightbulb-autofix' style={{ color: 'var(--vscode-list-warningForeground)' }} title='Playwright browsers are missing' onClick={openInstallDialog} />}
+        </Toolbar>
+        <FiltersView
+          filterText={filterText}
+          setFilterText={setFilterText}
+          statusFilters={statusFilters}
+          setStatusFilters={setStatusFilters}
+          projectFilters={projectFilters}
+          setProjectFilters={setProjectFilters}
+          onlyChanged={onlyChanged}
+          setOnlyChanged={setOnlyChanged}
+          testModel={testModel}
+          runTests={runVisibleTests} />
+        <Toolbar className='section-toolbar' noMinHeight={true}>
+          {!isRunningTest && !progress && <div className='section-title'>Tests</div>}
+          {progress && renderStatusLine(progress, isRunningTest ? runningState.testIds.size : progress.total, !!isRunningTest)}
+          <ToolbarButton icon='play' title='Run all — F5' onClick={runVisibleTests} disabled={isRunningTest || isLoading}></ToolbarButton>
+          <ToolbarButton icon='debug-stop' title={'Stop — ' + (isMac ? '⇧F5' : 'Shift + F5')} onClick={() => testServerConnection?.stopTests({})} disabled={!isRunningTest || isLoading} testId={'stop-button'}></ToolbarButton>
+          <ToolbarButton icon='eye' title='Watch all' toggled={watchAll} onClick={() => {
+            setWatchedTreeIds({ value: new Set() });
+            setWatchAll(!watchAll);
+          }}></ToolbarButton>
+          <ToolbarButton icon='collapse-all' title='Collapse all' onClick={() => {
+            setCollapseAllCount(collapseAllCount + 1);
+          }} />
+          <ToolbarButton icon='expand-all' title='Expand all' onClick={() => {
+            setExpandAllCount(expandAllCount + 1);
+          }} />
+        </Toolbar>
+        <TestListView
+          filterText={filterText}
+          testModel={testModel}
+          testTree={testTree}
+          testServerConnection={testServerConnection}
+          runningState={runningState}
+          runTests={runTests}
+          onItemSelected={setSelectedItem}
+          watchAll={watchAll}
+          watchedTreeIds={watchedTreeIds}
+          setWatchedTreeIds={setWatchedTreeIds}
+          isLoading={isLoading}
+          requestedCollapseAllCount={collapseAllCount}
+          requestedExpandAllCount={expandAllCount}
+          setFilterText={setFilterText}
+          onRevealSource={onRevealSource}
+        />
+        <Toolbar noShadow={true} noMinHeight={true} className='settings-toolbar' onClick={() => setTestingOptionsVisible(!testingOptionsVisible)}>
+          <span
+            className={`codicon codicon-${testingOptionsVisible ? 'chevron-down' : 'chevron-right'}`}
+            style={{ marginLeft: 5 }}
+            title={testingOptionsVisible ? 'Hide Testing Options' : 'Show Testing Options'}
+          />
+          <div className='section-title'>Testing Options</div>
+        </Toolbar>
+        {testingOptionsVisible && <SettingsView settings={[
+          { type: 'check', value: singleWorker, set: setSingleWorker, name: 'Single worker' },
+          { type: 'check', value: stopOnFailure, set: setStopOnFailure, name: 'Stop on first failure' },
+          { type: 'select', options: [
+            { label: 'All', value: 'all' },
+            { label: 'Changed', value: 'changed' },
+            { label: 'Missing', value: 'missing' },
+            { label: 'None', value: 'none' },
+          ], value: updateSnapshots, set: setUpdateSnapshots as (value: string) => void, name: 'Update snapshots' },
+        ]} />}
+        <Toolbar noShadow={true} noMinHeight={true} className='settings-toolbar' onClick={() => setSettingsVisible(!settingsVisible)}>
+          <span
+            className={`codicon codicon-${settingsVisible ? 'chevron-down' : 'chevron-right'}`}
+            style={{ marginLeft: 5 }}
+            title={settingsVisible ? 'Hide Settings' : 'Show Settings'}
+          />
+          <div className='section-title'>Settings</div>
+        </Toolbar>
+        {settingsVisible && <DefaultSettingsView location='ui-mode' />}
+      </div>
+      }
+    />
+  </div>;
+};

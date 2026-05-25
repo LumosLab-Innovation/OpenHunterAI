@@ -1,0 +1,17 @@
+[*]
+@isomorphic/**
+@utils/**
+../common/
+../reporters/
+../transform/
+../plugins/
+../util.ts
+../isomorphic/
+node_modules/chokidar
+node_modules/colors/safe
+node_modules/debug
+node_modules/diff
+node_modules/enquirer
+node_modules/minimatch
+node_modules/open
+node_modules/source-map-support

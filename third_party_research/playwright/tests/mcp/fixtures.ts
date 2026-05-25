@@ -1,0 +1,365 @@
+/**
+ * Copyright (c) Microsoft Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import fs from 'fs';
+import path from 'path';
+import { chromium } from 'playwright';
+
+import { test as baseTest, expect as baseExpect } from '@playwright/test';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { ListRootsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { TestServer } from '../config/testserver';
+import { serverFixtures } from '../config/serverFixtures';
+import { tools } from '../../packages/playwright-core/lib/coreBundle';
+import { commonFixtures } from '../config/commonFixtures';
+import { RunServer } from '../config/remoteServer';
+import { inheritAndCleanEnv } from '../config/utils';
+
+import type { CommonFixtures, CommonWorkerFixtures } from '../config/commonFixtures';
+import type { Config } from '../../packages/playwright-core/src/tools/mcp/config.d';
+import type { BrowserContext } from 'playwright';
+import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
+import type { Stream } from 'stream';
+import type { ServerFixtures, ServerWorkerOptions } from '../config/serverFixtures';
+
+export const { parseResponse } = tools;
+
+export type TestOptions = {
+  mcpArgs: string[] | undefined;
+  mcpBrowser: string | undefined;
+  mcpBrowserNormalized: string | undefined;
+  mcpCaps: string[] | undefined;
+  mcpServerType: 'mcp' | 'test-mcp';
+};
+
+type CDPServer = {
+  endpoint: string;
+  start: () => Promise<BrowserContext>;
+};
+
+export type StartClient = (options?: {
+  clientName?: string,
+  args?: string[],
+  omitArgs?: string[],
+  cwd?: string,
+  config?: Config | string,
+  roots?: { name: string, uri: string }[],
+  rootsResponseDelay?: number,
+  env?: NodeJS.ProcessEnv,
+  noTimeoutForTest?: boolean,
+}) => Promise<{ client: Client, stderr: () => string }>;
+
+
+type TestFixtures = {
+  client: Client;
+  startClient: StartClient;
+  wsEndpoint: string;
+  runServerEndpoint: string;
+  cdpServer: CDPServer;
+  server: TestServer;
+  httpsServer: TestServer;
+  mcpHeadless: boolean;
+};
+
+type WorkerFixtures = {
+  _workerServers: { server: TestServer, httpsServer: TestServer };
+};
+
+export const serverTest = baseTest
+    .extend<CommonFixtures, CommonWorkerFixtures>(commonFixtures)
+    .extend<ServerFixtures, ServerWorkerOptions>(serverFixtures);
+
+export const test = serverTest.extend<TestFixtures & TestOptions, WorkerFixtures>({
+  mcpArgs: [undefined, { option: true }],
+  mcpCaps: [undefined, { option: true }],
+
+  client: async ({ startClient }, use) => {
+    const { client } = await startClient();
+    await use(client);
+  },
+
+  startClient: async ({ mcpHeadless, mcpBrowser, mcpArgs, mcpServerType, mcpCaps }, use, testInfo) => {
+    const configDir = path.dirname(test.info().config.configFile!);
+    const clients: Client[] = [];
+
+    await use(async options => {
+      let args: string[] = mcpArgs ?? [];
+
+      if (mcpHeadless)
+        args.push('--headless');
+      if (mcpCaps?.length)
+        args.push(`--caps=${mcpCaps.join(',')}`);
+
+      if (mcpServerType === 'test-mcp') {
+        if (!options?.args?.some(arg => arg.startsWith('--config')))
+          args.push(`--config=${test.info().outputPath()}`);
+      } else {
+        if (mcpBrowser)
+          args.push(`--browser=${mcpBrowser}`);
+        if (options?.config) {
+          const configFile = testInfo.outputPath('config.json');
+          if (typeof options.config === 'object')
+            await fs.promises.writeFile(configFile, JSON.stringify(options.config, null, 2));
+          else if (typeof options.config === 'string')
+            await fs.promises.writeFile(configFile, options.config.trim());
+          args.push(`--config=${path.relative(configDir, configFile)}`);
+        }
+        if (!options?.noTimeoutForTest)
+          args.push('--timeout-action=10000');
+      }
+
+      if (options?.args)
+        args.push(...options.args);
+      if (options?.omitArgs)
+        args = args.filter(arg => !options.omitArgs?.includes(arg));
+
+      const client = new Client({ name: options?.clientName ?? 'test', version: '1.0.0' }, options?.roots ? { capabilities: { roots: {} } } : undefined);
+      if (options?.roots) {
+        client.setRequestHandler(ListRootsRequestSchema, async request => {
+          if (options.rootsResponseDelay)
+            await new Promise(resolve => setTimeout(resolve, options.rootsResponseDelay));
+          return {
+            roots: options.roots,
+          };
+        });
+      }
+      const env = inheritAndCleanEnv({
+        PW_TMPDIR_FOR_TEST: testInfo.outputPath('tmp'),
+        ...options?.env
+      });
+      const { transport, stderr } = await createTransport(mcpServerType, { args, env, cwd: options?.cwd || test.info().outputPath() });
+      let stderrBuffer = '';
+      stderr?.on('data', data => {
+        if (process.env.PWDEBUGIMPL)
+          process.stderr.write(data);
+        stderrBuffer += data.toString();
+      });
+      clients.push(client);
+      await client.connect(transport);
+      await client.ping();
+      return { client, stderr: () => stderrBuffer };
+    });
+
+    await Promise.all(clients.map(client => client.close()));
+  },
+
+  wsEndpoint: async ({ }, use) => {
+    const browserServer = await chromium.launchServer();
+    await use(browserServer.wsEndpoint());
+    await browserServer.close();
+  },
+
+  runServerEndpoint: async ({ childProcess }, use) => {
+    const runServer = new RunServer();
+    await runServer.start(childProcess);
+    await use(runServer.wsEndpoint());
+    await runServer.close();
+  },
+
+  cdpServer: async ({ mcpBrowser }, use, testInfo) => {
+    test.skip(!['chrome', 'msedge', 'chromium'].includes(mcpBrowser!), 'CDP is not supported for non-Chromium browsers');
+
+    let browserContext: BrowserContext | undefined;
+    const port = 9100 + testInfo.workerIndex;
+    await use({
+      endpoint: `http://localhost:${port}`,
+      start: async () => {
+        if (browserContext && browserContext.browser()?.isConnected())
+          throw new Error('CDP server already exists');
+        browserContext = await chromium.launchPersistentContext(testInfo.outputPath('cdp-user-data-dir'), {
+          channel: mcpBrowser,
+          headless: true,
+          args: [
+            `--remote-debugging-port=${port}`,
+          ],
+        });
+        return browserContext;
+      }
+    });
+    await browserContext?.close().catch(() => {});
+  },
+
+  mcpHeadless: async ({ headless }, use) => {
+    await use(headless);
+  },
+
+  server: async ({ server }, use) => {
+    server.setContent('/favicon.ico', '', 'image/x-icon');
+    server.setContent('/', ``, 'text/html');
+    server.setContent('/hello-world', `
+      <title>Title</title>
+      <body>Hello, world!</body>
+    `, 'text/html');
+    await use(server);
+  },
+
+  mcpBrowser: ['chrome', { option: true }],
+
+  mcpBrowserNormalized: async ({ mcpBrowser }, use) => {
+    const normalized = mcpBrowser?.replace(/chromium/, 'chrome-for-testing');
+    await use(normalized);
+  },
+
+  mcpServerType: ['mcp', { option: true }],
+});
+
+async function createTransport(mcpServerType: TestOptions['mcpServerType'], options: { args: string[], env: NodeJS.ProcessEnv, cwd: string }): Promise<{
+  transport: Transport,
+  stderr: Stream | null,
+}> {
+  const profilesDir = test.info().outputPath('ms-playwright');
+  const transport = new StdioClientTransport({
+    command: 'node',
+    args: [...(mcpServerType === 'test-mcp' ? testMcpServerPath : mcpServerPath), ...options.args],
+    cwd: options.cwd,
+    stderr: 'pipe',
+    env: {
+      ...options.env,
+      DEBUG_COLORS: '0',
+      DEBUG_HIDE_DATE: '1',
+      PWMCP_PROFILES_DIR_FOR_TEST: profilesDir,
+    },
+  });
+  return {
+    transport,
+    stderr: transport.stderr!,
+  };
+}
+
+type Response = Awaited<ReturnType<Client['callTool']>>;
+
+export const expect = baseExpect.extend({
+  toHaveResponse(response: Response, object: any) {
+    const parsed = tools.parseResponse(response, test.info().outputPath());
+    const text = parsed.text;
+    const isNot = this.isNot;
+
+    const keys = Object.keys(object);
+    for (const key of Object.keys(parsed)) {
+      if (!keys.includes(key))
+        delete parsed[key];
+    }
+
+    try {
+      if (isNot) {
+        expect(parsed).not.toEqual(expect.objectContaining(object));
+      } else {
+        expect(parsed).toEqual(expect.objectContaining(object));
+        if (parsed.isError && !object.isError)
+          throw new Error('Response is an error, but expected is not');
+      }
+    } catch (e) {
+      return {
+        pass: isNot,
+        message: () => e.message + '\n\nResponse text:\n' + text,
+      };
+    }
+    return {
+      pass: !isNot,
+      message: () => ``,
+    };
+  },
+
+  toHaveTextResponse(response: Response, value: any) {
+    const text = response.content[0].text
+        .replace(/\[id=[^\]]+\]/g, '[id=<ID>]')
+        .replace(/\([\d\.]+m?s\)/g, '(XXms)')
+        .replace(/[✓] /g, 'ok');
+
+    const isNot = this.isNot;
+    try {
+      if (isNot)
+        expect(text).not.toEqual(value);
+      else
+        expect(text).toEqual(value);
+    } catch (e) {
+      return {
+        pass: isNot,
+        message: () => e.message,
+      };
+    }
+    return {
+      pass: !isNot,
+      message: () => ``,
+    };
+  },
+});
+
+export const mcpServerPath = [require.resolve('../../packages/playwright-core/lib/entry/mcp.js')];
+export const testMcpServerPath = [require.resolve('../../packages/playwright-test/cli.js'), 'run-test-mcp-server'];
+
+type Files = { [key: string]: string | Buffer };
+
+export async function writeFiles(files: Files, options?: { update?: boolean }) {
+  const baseDir = test.info().outputPath();
+
+  if (!options?.update && !Object.keys(files).some(name => name.includes('package.json'))) {
+    files = {
+      ...files,
+      'package.json': `{ "name": "test-project" }`,
+    };
+  }
+
+  if (!options?.update && !Object.keys(files).some(name => name.includes('tsconfig.json') || name.includes('jsconfig.json'))) {
+    files = {
+      ...files,
+      'tsconfig.json': `{}`,
+    };
+  }
+
+  await Promise.all(Object.keys(files).map(async name => {
+    const fullName = path.join(baseDir, name);
+    if (files[name] === undefined)
+      return;
+    await fs.promises.mkdir(path.dirname(fullName), { recursive: true });
+    await fs.promises.writeFile(fullName, files[name]);
+  }));
+
+  return baseDir;
+}
+
+export async function prepareDebugTest(startClient: StartClient, testFile?: string, clientArgs?: Parameters<StartClient>[0]) {
+  await writeFiles({
+    'a.test.ts': testFile || `
+      import { test, expect } from '@playwright/test';
+      test('fail', async ({ page }) => {
+        await page.setContent('<button>Submit</button>');
+        await expect(page.getByRole('button', { name: 'Missing' })).toBeVisible({ timeout: 1000 });
+      });
+    `
+  });
+
+  const { client } = await startClient(clientArgs);
+  const listResult = await client.callTool({
+    name: 'test_list',
+  });
+  const [, id] = listResult.content[0].text.match(/\[id=([^\]]+)\]/);
+  return { client, id };
+}
+
+export function formatLog(stderr: string) {
+  const lines = stderr.split('\n').filter(l => l.startsWith('pw:mcp:test')).map(l => l.replace(/^pw:mcp:test\s+/, ''));
+  const object = {};
+  for (const line of lines)
+    object[line] = (object[line] || 0) + 1;
+  return object;
+}
+
+export async function consoleEntries(response: any) {
+  const file = response.events?.match(/New console entries: (.+\.log)(#L\d+)?/)?.[1];
+  return await fs.promises.readFile(test.info().outputPath(file), 'utf-8');
+}

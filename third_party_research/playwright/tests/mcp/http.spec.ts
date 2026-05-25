@@ -1,0 +1,411 @@
+/**
+ * Copyright (c) Microsoft Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import fs from 'fs';
+import dns from 'dns';
+
+import { ChildProcess, spawn } from 'child_process';
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { test as baseTest, expect, mcpServerPath, formatLog } from './fixtures';
+import { inheritAndCleanEnv } from '../config/utils';
+
+import type { Config } from '../../packages/playwright-core/src/tools/mcp/config.d';
+import { ListRootsRequestSchema } from 'playwright-core/lib/utilsBundle';
+
+const test = baseTest.extend<{ serverEndpoint: (options?: { args?: string[], noPort?: boolean }) => Promise<{ url: URL, stderr: () => string }> }>({
+  serverEndpoint: async ({ mcpHeadless }, use, testInfo) => {
+    let cp: ChildProcess | undefined;
+    const userDataDir = testInfo.outputPath('user-data-dir');
+    await use(async (options?: { args?: string[], noPort?: boolean }) => {
+      if (cp)
+        throw new Error('Process already running');
+
+      cp = spawn('node', [
+        ...mcpServerPath,
+        ...(options?.noPort ? [] : ['--port=0']),
+        ...(!options?.args?.includes('--isolated') ? ['--user-data-dir=' + userDataDir] : []),
+        ...(mcpHeadless ? ['--headless'] : []),
+        ...(options?.args || []),
+      ], {
+        stdio: 'pipe',
+        env: inheritAndCleanEnv({
+          DEBUG: 'pw:mcp:test',
+          DEBUG_COLORS: '0',
+          DEBUG_HIDE_DATE: '1',
+        }),
+        cwd: testInfo.outputPath(),
+      });
+      let stderr = '';
+      const url = await new Promise<string>(resolve => cp!.stderr?.on('data', data => {
+        stderr += data.toString();
+        const match = stderr.match(/Listening on (http:\/\/.*)/);
+        if (match)
+          resolve(match[1]);
+      }));
+
+      return { url: new URL(url), stderr: () => stderr };
+    });
+    cp?.kill('SIGTERM');
+  },
+});
+
+async function resolveToIp(address: string) {
+  const resolvedIp = await new Promise<{ address: string, family: number }>((resolve, reject) => {
+    dns.lookup('localhost', (err, address, family) => {
+      if (err)
+        return reject(err);
+      resolve({ address, family }); // ::1 6  OR  127.0.0.1 4
+    });
+  });
+  if (resolvedIp.family === 6)
+    return `[${resolvedIp.address}]`;
+  return resolvedIp.address;
+}
+
+test('http transport', async ({ serverEndpoint }) => {
+  const { url } = await serverEndpoint();
+  const transport = new StreamableHTTPClientTransport(new URL('/mcp', url));
+  const client = new Client({ name: 'test', version: '1.0.0' });
+  await client.connect(transport);
+  await client.ping();
+});
+
+test('http transport (config)', async ({ serverEndpoint }) => {
+  const config: Config = {
+    server: {
+      port: 0,
+    }
+  };
+  const configFile = test.info().outputPath('config.json');
+  await fs.promises.writeFile(configFile, JSON.stringify(config, null, 2));
+
+  const { url } = await serverEndpoint({ noPort: true, args: ['--config=' + configFile] });
+  const transport = new StreamableHTTPClientTransport(new URL('/mcp', url));
+  const client = new Client({ name: 'test', version: '1.0.0' });
+  await client.connect(transport);
+  await client.ping();
+});
+
+test('http transport browser lifecycle (isolated)', async ({ serverEndpoint, server }) => {
+  const { url, stderr } = await serverEndpoint({ args: ['--isolated'] });
+
+  const transport1 = new StreamableHTTPClientTransport(new URL('/mcp', url));
+  const client1 = new Client({ name: 'test', version: '1.0.0' });
+  await client1.connect(transport1);
+  await client1.callTool({
+    name: 'browser_navigate',
+    arguments: { url: server.HELLO_WORLD },
+  });
+  /**
+   * src/client/streamableHttp.ts
+   * Clients that no longer need a particular session
+   * (e.g., because the user is leaving the client application) SHOULD send an
+   * HTTP DELETE to the MCP endpoint with the Mcp-Session-Id header to explicitly
+   * terminate the session.
+   */
+  await transport1.terminateSession();
+  await client1.close();
+
+  const transport2 = new StreamableHTTPClientTransport(new URL('/mcp', url));
+  const client2 = new Client({ name: 'test', version: '1.0.0' });
+  await client2.connect(transport2);
+  await client2.callTool({
+    name: 'browser_navigate',
+    arguments: { url: server.HELLO_WORLD },
+  });
+  await transport2.terminateSession();
+  await client2.close();
+
+  await expect.poll(() => formatLog(stderr())).toEqual({
+    'create http session': 2,
+    'delete http session': 2,
+    'create browser \(isolated\)': 2,
+    'create context': 2,
+    'close browser': 2,
+  });
+});
+
+test('http transport browser sigint', async ({ serverEndpoint, server }) => {
+  const { url, stderr } = await serverEndpoint({ args: ['--isolated'] });
+
+  const transport = new StreamableHTTPClientTransport(new URL('/mcp', url));
+  const client = new Client({ name: 'test', version: '1.0.0' });
+  await client.connect(transport);
+  await client.callTool({
+    name: 'browser_navigate',
+    arguments: { url: server.HELLO_WORLD },
+  });
+
+  await fetch(new URL('/killkillkill', url).href, { method: 'POST', headers: { 'x-pw-mcp-kill': '1' } }).catch(() => {});
+
+  await expect.poll(() => formatLog(stderr())).toEqual({
+    'create browser (isolated)': 1,
+    'create context': 1,
+    'create http session': 1,
+    'gracefully closing 1': 1,
+  });
+});
+
+test('http transport browser lifecycle (isolated, multiclient)', async ({ serverEndpoint, server }) => {
+  const { url, stderr } = await serverEndpoint({ args: ['--isolated'] });
+
+  const transport1 = new StreamableHTTPClientTransport(new URL('/mcp', url));
+  const client1 = new Client({ name: 'test', version: '1.0.0' });
+  await client1.connect(transport1);
+  await client1.callTool({
+    name: 'browser_navigate',
+    arguments: { url: server.HELLO_WORLD },
+  });
+
+  const transport2 = new StreamableHTTPClientTransport(new URL('/mcp', url));
+  const client2 = new Client({ name: 'test', version: '1.0.0' });
+  await client2.connect(transport2);
+  await client2.callTool({
+    name: 'browser_navigate',
+    arguments: { url: server.HELLO_WORLD },
+  });
+  await transport1.terminateSession();
+  await client1.close();
+
+  const transport3 = new StreamableHTTPClientTransport(new URL('/mcp', url));
+  const client3 = new Client({ name: 'test', version: '1.0.0' });
+  await client3.connect(transport3);
+  await client3.callTool({
+    name: 'browser_navigate',
+    arguments: { url: server.HELLO_WORLD },
+  });
+
+  await transport2.terminateSession();
+  await client2.close();
+  await transport3.terminateSession();
+  await client3.close();
+
+  await expect.poll(() => formatLog(stderr())).toEqual({
+    'create http session': 3,
+    'delete http session': 3,
+    'create context': 3,
+    'create browser (isolated)': 1,
+    'close browser': 1,
+  });
+});
+
+test('http transport browser lifecycle (isolated, concurrent clients)', { annotation: { type: 'issue', description: 'https://github.com/microsoft/playwright-mcp/issues/1607' } }, async ({ serverEndpoint, server }) => {
+  const { url, stderr } = await serverEndpoint({ args: ['--isolated'] });
+
+  const clients = await Promise.all([1, 2, 3].map(async () => {
+    const transport = new StreamableHTTPClientTransport(new URL('/mcp', url));
+    const client = new Client({ name: 'test', version: '1.0.0' });
+    await client.connect(transport);
+    return { transport, client };
+  }));
+
+  await Promise.all(clients.map(({ client }) => client.callTool({
+    name: 'browser_navigate',
+    arguments: { url: server.HELLO_WORLD },
+  })));
+
+  for (const { transport, client } of clients) {
+    await transport.terminateSession();
+    await client.close();
+  }
+
+  await expect.poll(() => formatLog(stderr())).toEqual({
+    'create http session': 3,
+    'delete http session': 3,
+    'create context': 3,
+    'create browser (isolated)': 1,
+    'close browser': 1,
+  });
+});
+
+test('http transport browser lifecycle (persistent)', async ({ serverEndpoint, server }) => {
+  const { url, stderr } = await serverEndpoint();
+
+  const transport1 = new StreamableHTTPClientTransport(new URL('/mcp', url));
+  const client1 = new Client({ name: 'test', version: '1.0.0' });
+  await client1.connect(transport1);
+  await client1.callTool({
+    name: 'browser_navigate',
+    arguments: { url: server.HELLO_WORLD },
+  });
+  await transport1.terminateSession();
+  await client1.close();
+
+  const transport2 = new StreamableHTTPClientTransport(new URL('/mcp', url));
+  const client2 = new Client({ name: 'test', version: '1.0.0' });
+  await client2.connect(transport2);
+  await client2.callTool({
+    name: 'browser_navigate',
+    arguments: { url: server.HELLO_WORLD },
+  });
+  await transport2.terminateSession();
+  await client2.close();
+
+  await expect.poll(() => formatLog(stderr())).toEqual({
+    'create http session': 2,
+    'delete http session': 2,
+    'create context': 2,
+    'close browser': 2,
+    'create browser (persistent)': 2,
+  });
+});
+
+test('http transport browser lifecycle (persistent, multiclient)', async ({ serverEndpoint, server }) => {
+  const { url } = await serverEndpoint();
+
+  const transport1 = new StreamableHTTPClientTransport(new URL('/mcp', url));
+  const client1 = new Client({ name: 'test', version: '1.0.0' });
+  await client1.connect(transport1);
+  await client1.callTool({
+    name: 'browser_navigate',
+    arguments: { url: server.HELLO_WORLD },
+  });
+
+  const transport2 = new StreamableHTTPClientTransport(new URL('/mcp', url));
+  const client2 = new Client({ name: 'test', version: '1.0.0' });
+  await client2.connect(transport2);
+  const response = await client2.callTool({
+    name: 'browser_navigate',
+    arguments: { url: server.HELLO_WORLD },
+  });
+  expect(response.isError).toBe(true);
+  expect(response.content?.[0].text).toContain('use --isolated to run multiple instances of the same browser');
+
+  await client1.close();
+  await client2.close();
+});
+
+test('http transport shared context', async ({ serverEndpoint, server }) => {
+  const { url, stderr } = await serverEndpoint({ args: ['--shared-browser-context'] });
+
+  // Create first client and navigate
+  const transport1 = new StreamableHTTPClientTransport(new URL('/mcp', url));
+  const client1 = new Client({ name: 'test1', version: '1.0.0' });
+  await client1.connect(transport1);
+  await client1.callTool({
+    name: 'browser_navigate',
+    arguments: { url: server.HELLO_WORLD },
+  });
+
+  // Create second client - should reuse the same browser context
+  const transport2 = new StreamableHTTPClientTransport(new URL('/mcp', url));
+  const client2 = new Client({ name: 'test2', version: '1.0.0' });
+  await client2.connect(transport2);
+
+  // Get tabs from second client - should see the tab created by first client
+  const tabsResult = await client2.callTool({
+    name: 'browser_tabs',
+    arguments: { action: 'list' },
+  });
+
+  // Should have at least one tab (the one created by client1)
+  expect(tabsResult.content[0]?.text).toContain('Title');
+
+  await transport1.terminateSession();
+  await client1.close();
+
+  // Second client should still work since context is shared
+  await client2.callTool({
+    name: 'browser_snapshot',
+    arguments: {},
+  });
+
+  await transport2.terminateSession();
+  await client2.close();
+
+  await expect.poll(() => formatLog(stderr())).toEqual({
+    'create browser (persistent)': 1,
+    'create http session': 2,
+    'delete http session': 2,
+    'create context': 2,
+    'close browser': 1,
+  });
+});
+
+test('http transport (default)', async ({ serverEndpoint }) => {
+  const { url } = await serverEndpoint();
+  const transport = new StreamableHTTPClientTransport(url);
+  const client = new Client({ name: 'test', version: '1.0.0' });
+  await client.connect(transport);
+  await client.ping();
+  expect(transport.sessionId, 'has session support').toBeDefined();
+});
+
+test('client should receive list roots request', async ({ serverEndpoint, server }) => {
+  const { url } = await serverEndpoint();
+  const transport = new StreamableHTTPClientTransport(url);
+  const client = new Client({ name: 'test', version: '1.0.0' }, { capabilities: { roots: {} } });
+  let rootsListedCallback;
+  const rootsListedPromise = new Promise((resolve, reject) => {
+    rootsListedCallback = resolve;
+    setTimeout(() => reject(new Error('timeout waiting for ListRootsRequestSchema')), 5_000);
+  });
+  client.setRequestHandler(ListRootsRequestSchema, async request => {
+    rootsListedCallback('success');
+    return {
+      roots: [
+        {
+          name: 'test',
+          uri: 'file://tmp/',
+        }
+      ],
+    };
+  });
+  await client.connect(transport);
+  await client.callTool({
+    name: 'browser_navigate',
+    arguments: { url: server.HELLO_WORLD },
+  });
+  expect(await rootsListedPromise).toBe('success');
+});
+
+test('should not allow rebinding to localhost', async ({ serverEndpoint }) => {
+  const { url } = await serverEndpoint();
+  const ip = await resolveToIp('localhost');
+  const response = await fetch(url.href.replace('localhost', ip));
+  expect.soft(response.status).toBe(403);
+  expect.soft(await response.text()).toContain('Access is only allowed at localhost');
+});
+
+test('should respect allowed hosts (negative)', async ({ serverEndpoint }) => {
+  const { url } = await serverEndpoint({ args: ['--allowed-hosts=example.com'] });
+  const response = await fetch(url.href);
+  expect(response.status).toBe(403);
+  expect(await response.text()).toContain('Access is only allowed at example.com');
+});
+
+test('should respect allowed hosts (positive)', async ({ serverEndpoint, findFreePort }) => {
+  const port = await findFreePort();
+  await serverEndpoint({
+    args: [
+      '--host=127.0.0.1',
+      '--port=' + port,
+      '--allowed-hosts=localhost:' + port,
+    ]
+  });
+  const response = await fetch('http://localhost:' + port);
+  // 400 is expected for the mcp fetch.
+  expect(response.status).toBe(400);
+});
+
+test('should be able to allow any host', async ({ serverEndpoint }) => {
+  const { url } = await serverEndpoint({ args: ['--allowed-hosts=*'] });
+  const response = await fetch(url.href);
+  // 400 is expected for the mcp fetch.
+  expect(response.status).toBe(400);
+  expect(await response.text()).toBe('Invalid request');
+});

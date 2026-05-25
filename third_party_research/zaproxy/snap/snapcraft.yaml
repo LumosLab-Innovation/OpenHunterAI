@@ -1,0 +1,45 @@
+name: zaproxy
+version: '2.17.0'
+summary: ZAP by Checkmarx, a tool for finding vulnerabilities in web applications
+description: |
+  The Zed Attack Proxy (ZAP) by Checkmarx is one of the world’s most popular security tools.
+  It is free and open source.
+  It can help you automatically find security vulnerabilities in your web applications
+  while you are developing and testing your applications.
+  Its also a great tool for experienced pentesters to use for manual security testing.
+
+base: core22
+grade: stable
+confinement: classic
+
+apps:
+  zaproxy:
+    command-chain:
+      - bin/desktop-launch
+    command: zap.sh
+    environment:
+      XDG_DATA_HOME: "$SNAP/usr/share"
+      FONTCONFIG_PATH: "$SNAP/etc/fonts"
+      JAVA_HOME: "$SNAP/usr/lib/jvm/java-17-openjdk-$CRAFT_ARCH_BUILD_FOR"
+      PATH: $JAVA_HOME/bin:$PATH
+
+parts:
+  zaproxy:
+    source: https://github.com/zaproxy/zaproxy/releases/download/v2.17.0/ZAP_2.17.0_Linux.tar.gz
+    plugin: dump
+    stage:
+      - .
+  java:
+    plugin: nil
+    build-packages:
+      - openjdk-17-jre
+    stage-packages:
+      - openjdk-17-jre
+  desktop-glib-only:
+    build-packages:
+      - libglib2.0-dev
+    plugin: make
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: glib-only
+    stage-packages:
+      - libglib2.0-bin

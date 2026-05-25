@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:openhack:scenario-result",
+  "title": "Scenario Result",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "status",
+    "expert",
+    "summary",
+    "evidence",
+    "scenario_id",
+    "review_mode",
+    "subagent_id",
+    "scenario_prompt_sha256",
+    "reviewed_files"
+  ],
+  "properties": {
+    "scenario_id": {
+      "type": "string",
+      "pattern": "^S[0-9]{3,}$"
+    },
+    "review_mode": {
+      "type": "string",
+      "enum": ["per-scenario-subagent"]
+    },
+    "subagent_id": {"type": "string", "minLength": 1},
+    "scenario_prompt_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "reviewed_files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "status": {
+      "type": "string",
+      "enum": ["verified", "candidate", "rejected", "needs_context"]
+    },
+    "expert": {"type": "string", "minLength": 1},
+    "primary_vulnerability_class": {"type": "string"},
+    "summary": {"type": "string", "minLength": 1},
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["path", "line", "snippet", "note"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "line": {"type": ["integer", "string"]},
+          "snippet": {"type": "string", "minLength": 1},
+          "role": {"type": "string"},
+          "note": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "proof_obligations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["id", "status", "summary"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_:-]*$"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "proven_safe",
+              "proven_vulnerable",
+              "not_applicable",
+              "needs_context"
+            ]
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": ["path", "line", "snippet", "note"],
+              "properties": {
+                "path": {"type": "string", "minLength": 1},
+                "line": {"type": ["integer", "string"]},
+                "snippet": {"type": "string", "minLength": 1},
+                "role": {"type": "string"},
+                "note": {"type": "string", "minLength": 1}
+              }
+            }
+          }
+        }
+      }
+    },
+    "surface_class_coverage": {"type": "array"},
+    "same_root_expansion": {"type": "array"},
+    "candidate_queue_entries": {"type": "array"},
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    }
+  }
+}

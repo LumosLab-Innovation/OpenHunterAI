@@ -1,0 +1,134 @@
+rules:
+  - id: openhack.input.request
+    languages: [generic]
+    message: Request-controlled input or client-controlled state.
+    severity: INFO
+    metadata:
+      inventory_kind: inputs
+      signal: input
+      experts:
+        - broken-access-control
+        - authentication-failures
+    pattern-regex: '(?i)(request\.|params\[|\$_GET|\$_POST|\$_FILES|optional_param|required_param|php://input|json\.parse|localstorage|location\.hash|http_host|x-forwarded|userid|courseid|groupid|contextid|itemid|instanceid)'
+
+  - id: openhack.sink.sql
+    languages: [generic]
+    message: SQL construction or execution sink.
+    severity: INFO
+    metadata:
+      inventory_kind: sinks
+      signal: sql
+      experts:
+        - injection
+        - broken-access-control
+    pattern-regex: '(?i)(query\(|execute\(|get_records_sql|get_record_sql|sql_like|raw\(|select\s+|insert\s+|update\s+|delete\s+)'
+
+  - id: openhack.sink.command
+    languages: [generic]
+    message: Command execution or process-spawn sink.
+    severity: INFO
+    metadata:
+      inventory_kind: sinks
+      signal: command
+      experts:
+        - injection
+    pattern-regex: '(?i)(subprocess|exec\(|system\(|spawn\(|shell_exec|shell\s*=\s*true)'
+
+  - id: openhack.sink.file
+    languages: [generic]
+    message: File read/write/download path.
+    severity: INFO
+    metadata:
+      inventory_kind: sinks
+      signal: file
+      experts:
+        - path-traversal-unrestricted-upload
+        - sensitive-information-exposure
+    pattern-regex: '(?i)(open\(|readfile|writefile|send_file|download|file_get_contents|content-disposition)'
+
+  - id: openhack.surface.upload
+    languages: [generic]
+    message: Upload or stored-file handling surface.
+    severity: INFO
+    metadata:
+      inventory_kind: exposures
+      signal: upload
+      experts:
+        - path-traversal-unrestricted-upload
+        - unrestricted-resource-consumption
+    pattern-regex: '(?i)(upload|multipart|filename|content-type|attachment|move_uploaded_file|stored-file)'
+
+  - id: openhack.sink.http-client
+    languages: [generic]
+    message: Outbound HTTP or URL fetch.
+    severity: INFO
+    metadata:
+      inventory_kind: sinks
+      signal: ssrf
+      experts:
+        - broken-access-control
+        - sensitive-information-exposure
+        - path-traversal-unrestricted-upload
+    pattern-regex: '(?i)(requests\.|fetch\(|http\.get|httpclient|curl|proxy_pass|webhook|preview|import-url)'
+
+  - id: openhack.sink.parser-template
+    languages: [generic]
+    message: Parser, template, or dynamic deserialization surface.
+    severity: INFO
+    metadata:
+      inventory_kind: sinks
+      signal: parser
+      experts:
+        - software-data-integrity-failures
+        - injection
+        - memory-buffer-boundary-errors
+        - unrestricted-resource-consumption
+    pattern-regex: '(?i)(xml|dtd|entity|yaml\.load|deserialize|pickle|unserialize|render-from-string|template|mustache|erb|ffi|unsafe)'
+
+  - id: openhack.sink.html
+    languages: [generic]
+    message: HTML, template, or DOM output sink.
+    severity: INFO
+    metadata:
+      inventory_kind: sinks
+      signal: xss
+      experts:
+        - injection
+    pattern-regex: '(?i)(innerhtml|ng-bind-html|html_writer|format_text|format_string|param_raw|param_notags|render\(|template)'
+
+  - id: openhack.sink.redirect-header
+    languages: [generic]
+    message: Redirect or response-header construction.
+    severity: INFO
+    metadata:
+      inventory_kind: sinks
+      signal: redirect
+      experts:
+        - security-misconfiguration
+        - authentication-failures
+    pattern-regex: '(?i)(redirect\(|header\(|location:|content-disposition|return_to|next=|callback)'
+
+  - id: openhack.exposure.secret-debug
+    languages: [generic]
+    message: Secret, admin, debug, or example exposure.
+    severity: INFO
+    metadata:
+      inventory_kind: exposures
+      signal: exposure
+      experts:
+        - sensitive-information-exposure
+        - security-misconfiguration
+    pattern-regex: '(?i)(password|secret|api_key|credential|\.env|admin|example|debug|stack-trace|verbose-error)'
+
+  - id: openhack.control.identity-state
+    languages: [generic]
+    message: Identity, session, state transition, or federated auth surface.
+    severity: INFO
+    metadata:
+      inventory_kind: routes
+      signal: state
+      experts:
+        - authentication-failures
+        - insecure-design
+        - broken-access-control
+    pattern-regex: '(?i)(oauth|oidc|saml|sso|mfa|csrf|state|approve|reset|session|signed-cookie|jwt|account-linking)'

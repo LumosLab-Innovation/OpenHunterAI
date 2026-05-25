@@ -1,0 +1,167 @@
+/*
+  Copyright (c) Microsoft Corporation.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+.network-request-details-tab {
+  user-select: text;
+  overflow: auto;
+}
+
+.network-response-toolbar {
+  border-top: 1px solid var(--vscode-panel-border);
+  border-bottom: none !important;
+}
+
+.network-request-details-tab > * {
+  flex: none;
+}
+
+.network-request-no-payload {
+  margin-left: 14px;
+}
+
+.network-request-details-tab .expandable-title {
+  padding-left: 3px;
+  background-color: var(--vscode-sideBar-background);
+}
+
+.network-request-details-tab .expandable-content {
+  margin-left: 0;
+  padding-left: 28px;
+  line-height: 24px;
+}
+
+.network-request-details-header {
+  margin: 3px 0 3px 14px;
+  font-weight: bold;
+}
+
+.network-request-details-header-count {
+  color: var(--vscode-editorCodeLens-foreground);
+  font-weight: normal;
+}
+
+.network-request-details-table {
+  width: 100%;
+  line-height: 18px;
+  padding: 8px 0 8px 8px;
+  white-space: pre-wrap;
+}
+
+.network-request-details-table td:first-of-type {
+  width: 30%;
+  min-width: 160px;
+  vertical-align: top;
+}
+
+.network-request-details-table td:nth-of-type(2) {
+  word-break: break-all;
+  vertical-align: center;
+}
+
+.network-request-details-tab .cm-wrapper {
+  overflow: hidden;
+}
+
+.network-response-body {
+  flex: 1;
+}
+
+.network-request-request-body {
+  max-height: 100%;
+}
+
+.network-request-request-body .expandable-content {
+  height: 100%;
+}
+
+.network-font-preview {
+  font-family: font-preview;
+  font-size: 30px;
+  line-height: 40px;
+  padding: 16px;
+  padding-left: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+.network-font-preview-error {
+  margin-top: 8px;
+  text-align: center;
+}
+
+.tab-network .toolbar {
+  min-height: 30px !important;
+  background-color: initial !important;
+  border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+.tab-network .toolbar::after {
+  box-shadow: none !important;
+}
+
+.tab-network .tabbed-pane-tab.selected {
+  font-weight: bold;
+}
+
+.copy-request-dropdown {
+  .copy-request-dropdown-toggle {
+    margin-right: 14px;
+    width: 135px;
+  }
+
+  &:not(:hover) .copy-request-dropdown-menu {
+    display: none;
+  }
+
+  .copy-request-dropdown-menu {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    width: 135px;
+    z-index: 10;
+    background-color: var(--vscode-list-dropBackground);
+
+    button {
+      padding: 8px;
+      text-align: left;
+    }
+  }
+}
+
+.green-circle::before,
+.red-circle::before,
+.yellow-circle::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+  margin-right: 2px;
+  align-self: center;
+}
+
+.green-circle::before {
+  background-color: var(--vscode-charts-green);
+}
+
+.red-circle::before {
+  background-color: var(--vscode-charts-red);
+}
+
+.yellow-circle::before {
+  background-color: var(--vscode-charts-yellow);
+}

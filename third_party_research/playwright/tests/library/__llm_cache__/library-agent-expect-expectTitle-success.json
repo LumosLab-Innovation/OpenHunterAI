@@ -1,0 +1,29 @@
+{
+  "4f7feecac5df193da7ccb5774663891e57273f80": {
+    "result": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "I need to verify that the page title is \"My Page Title\". I'll use the browser_expect_title tool to check this."
+        },
+        {
+          "type": "tool_call",
+          "name": "browser_expect_title",
+          "arguments": {
+            "title": "My Page Title",
+            "_is_done": true
+          },
+          "id": "toolu_01P2u9QAXVAC9B3ARMBn44hz"
+        }
+      ],
+      "stopReason": {
+        "code": "ok"
+      }
+    },
+    "usage": {
+      "input": 2208,
+      "output": 105
+    }
+  }
+}

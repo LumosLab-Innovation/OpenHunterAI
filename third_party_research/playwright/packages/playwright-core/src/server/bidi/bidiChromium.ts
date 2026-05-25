@@ -1,0 +1,172 @@
+/**
+ * Copyright (c) Microsoft Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the 'License');
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an 'AS IS' BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import os from 'os';
+
+import { wrapInASCIIBox } from '@utils/ascii';
+import { RecentLogsCollector } from '@utils/debugLogger';
+import { BrowserType, kNoXServerRunningError } from '../browserType';
+import { BidiBrowser } from './bidiBrowser';
+import { kBrowserCloseMessageId } from './bidiConnection';
+import { chromiumSwitches } from '../chromium/chromiumSwitches';
+import { profileInUseError, waitForReadyState } from '../chromium/chromium';
+import { shouldProxyLoopback } from '../chromium/crBrowser';
+
+import type { BrowserOptions } from '../browser';
+import type { SdkObject } from '../instrumentation';
+import type { ConnectionTransport } from '../transport';
+import type * as types from '../types';
+
+
+export class BidiChromium extends BrowserType {
+  constructor(parent: SdkObject) {
+    super(parent, 'chromium');
+  }
+
+  override async connectToTransport(transport: ConnectionTransport, options: BrowserOptions, browserLogsCollector: RecentLogsCollector): Promise<BidiBrowser> {
+    // Chrome doesn't support Bidi, we create Bidi over CDP which is used by Chrome driver.
+    // bidiOverCdp depends on chromium-bidi which we only have in devDependencies, so
+    // we load bidiOverCdp dynamically.
+    const bidiOverCdp = require('./bidiOverCdp');
+    const bidiTransport = await bidiOverCdp.connectBidiOverCdp(transport);
+    (transport as any)[kBidiOverCdpWrapper] = bidiTransport;
+    try {
+      return BidiBrowser.connect(this.attribution.playwright, bidiTransport, options);
+    } catch (e) {
+      const error = profileInUseError(browserLogsCollector.recentLogs());
+      if (error)
+        throw error;
+      throw e;
+    }
+  }
+
+  override doRewriteStartupLog(logs: string): string {
+    if (logs.includes('Missing X server'))
+      logs = '\n' + wrapInASCIIBox(kNoXServerRunningError, 1);
+    // These error messages are taken from Chromium source code as of July, 2020:
+    // https://github.com/chromium/chromium/blob/70565f67e79f79e17663ad1337dc6e63ee207ce9/content/browser/zygote_host/zygote_host_impl_linux.cc
+    if (!logs.includes('crbug.com/357670') && !logs.includes('No usable sandbox!') && !logs.includes('crbug.com/638180'))
+      return logs;
+    return [
+      `Chromium sandboxing failed!`,
+      `================================`,
+      `To avoid the sandboxing issue, do either of the following:`,
+      `  - (preferred): Configure your environment to support sandboxing`,
+      `  - (alternative): Launch Chromium without sandbox using 'chromiumSandbox: false' option`,
+      `================================`,
+      ``,
+    ].join('\n');
+  }
+
+  override amendEnvironment(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+    return env;
+  }
+
+  override attemptToGracefullyCloseBrowser(transport: ConnectionTransport): void {
+    // Note that it's fine to reuse the transport, since our connection ignores kBrowserCloseMessageId.
+    const bidiTransport = (transport as any)[kBidiOverCdpWrapper];
+    if (bidiTransport)
+      transport = bidiTransport;
+    transport.send({ method: 'browser.close', params: {}, id: kBrowserCloseMessageId });
+  }
+
+  override supportsPipeTransport(): boolean {
+    return false;
+  }
+
+  override async defaultArgs(options: types.LaunchOptions, isPersistent: boolean, userDataDir: string) {
+    const chromeArguments = this._innerDefaultArgs(options);
+    chromeArguments.push(`--user-data-dir=${userDataDir}`);
+    chromeArguments.push('--remote-debugging-port=0');
+    if (isPersistent)
+      chromeArguments.push('about:blank');
+    else
+      chromeArguments.push('--no-startup-window');
+    return chromeArguments;
+  }
+
+  override async waitForReadyState(options: types.LaunchOptions, browserLogsCollector: RecentLogsCollector): Promise<{ wsEndpoint?: string }> {
+    return waitForReadyState({ ...options, args: ['--remote-debugging-port=0'] }, browserLogsCollector);
+  }
+
+  private _innerDefaultArgs(options: types.LaunchOptions): string[] {
+    const { args = [] } = options;
+    const userDataDirArg = args.find(arg => arg.startsWith('--user-data-dir'));
+    if (userDataDirArg)
+      throw this._createUserDataDirArgMisuseError('--user-data-dir');
+    if (args.find(arg => arg.startsWith('--remote-debugging-pipe')))
+      throw new Error('Playwright manages remote debugging connection itself.');
+    if (args.find(arg => !arg.startsWith('-')))
+      throw new Error('Arguments can not specify page to be opened');
+    const chromeArguments = [...chromiumSwitches()];
+
+    if (os.platform() === 'darwin') {
+      // See https://issues.chromium.org/issues/40277080
+      chromeArguments.push('--enable-unsafe-swiftshader');
+    }
+
+    if (options.headless) {
+      chromeArguments.push('--headless');
+
+      chromeArguments.push(
+          '--hide-scrollbars',
+          '--mute-audio',
+          '--blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4',
+      );
+    }
+    if (options.chromiumSandbox !== true)
+      chromeArguments.push('--no-sandbox');
+    const proxy = options.proxyOverride || options.proxy;
+    if (proxy) {
+      const proxyURL = new URL(proxy.server);
+      const isSocks = proxyURL.protocol === 'socks5:';
+      // https://www.chromium.org/developers/design-documents/network-settings
+      if (isSocks && !options.socksProxyPort) {
+        // https://www.chromium.org/developers/design-documents/network-stack/socks-proxy
+        chromeArguments.push(`--host-resolver-rules="MAP * ~NOTFOUND , EXCLUDE ${proxyURL.hostname}"`);
+      }
+      chromeArguments.push(`--proxy-server=${proxy.server}`);
+      const proxyBypassRules = [];
+      // https://source.chromium.org/chromium/chromium/src/+/master:net/docs/proxy.md;l=548;drc=71698e610121078e0d1a811054dcf9fd89b49578
+      if (proxy.bypass)
+        proxyBypassRules.push(...proxy.bypass.split(',').map(t => t.trim()).map(t => t.startsWith('.') ? '*' + t : t));
+      if (options.socksProxyPort || shouldProxyLoopback(proxy.bypass))
+        proxyBypassRules.push('<-loopback>');
+      if (proxyBypassRules.length > 0)
+        chromeArguments.push(`--proxy-bypass-list=${proxyBypassRules.join(';')}`);
+    }
+    chromeArguments.push(...args);
+    return chromeArguments;
+  }
+
+  override getExecutableName(options: types.LaunchOptions): string {
+    switch (options.channel) {
+      case 'bidi-chromium':
+        return 'chromium';
+      case 'bidi-chrome':
+        return 'chrome';
+      case 'bidi-chrome-beta':
+        return 'chrome-beta';
+      case 'bidi-chrome-dev':
+        return 'chrome-dev';
+      case 'bidi-chrome-canary':
+        return 'chrome-canary';
+    }
+    throw new Error(`Unsupported Bidi Chromium channel: ${options.channel}`);
+  }
+}
+
+const kBidiOverCdpWrapper = Symbol('kBidiConnectionWrapper');

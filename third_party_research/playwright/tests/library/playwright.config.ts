@@ -1,0 +1,139 @@
+/**
+ * Copyright (c) Microsoft Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { config as loadEnv } from 'dotenv';
+loadEnv({ path: path.join(__dirname, '..', '..', '.env'), override: true });
+process.env.PWTEST_UNDER_TEST = '1';
+
+import { type Config, type PlaywrightTestOptions, type PlaywrightWorkerOptions, type ReporterDescription } from '@playwright/test';
+import * as path from 'path';
+import type { TestModeWorkerOptions } from '../config/testModeFixtures';
+import type { TestModeName } from '../config/testMode';
+
+type BrowserName = 'chromium' | 'firefox' | 'webkit';
+
+const getExecutablePath = (browserName: BrowserName) => {
+  if (browserName === 'chromium' && process.env.CRPATH)
+    return process.env.CRPATH;
+  if (browserName === 'firefox' && process.env.FFPATH)
+    return process.env.FFPATH;
+  if (browserName === 'webkit' && process.env.WKPATH)
+    return process.env.WKPATH;
+};
+
+const mode = (process.env.PWTEST_MODE ?? 'default') as TestModeName;
+const headed = process.argv.includes('--headed');
+const channel = process.env.PWTEST_CHANNEL as any;
+const video = !!process.env.PWTEST_VIDEO;
+const trace = !!process.env.PWTEST_TRACE;
+
+const outputDir = path.join(__dirname, '..', '..', 'test-results');
+const testDir = path.join(__dirname, '..');
+const reporters = () => {
+  const result: ReporterDescription[] = process.env.CI ? [
+    ['dot'],
+    ['json', { outputFile: path.join(outputDir, 'report.json') }],
+    ['blob'],
+  ] : [
+    ['html', { open: 'on-failure', title: 'Playwright Library Tests' }]
+  ];
+  return result;
+};
+
+let connectOptions: any;
+let webServer: Config['webServer'];
+
+if (channel === 'webkit-wsl') {
+  connectOptions = { wsEndpoint: 'ws://localhost:3777/' };
+  webServer = {
+    command: 'set PWTEST_UNDER_TEST=1 && set WSLENV=PWTEST_UNDER_TEST && wsl.exe -d playwright -u pwuser -- bash -lc \'/home/pwuser/node/bin/npx playwright run-server --port=3777\'',
+    url: 'http://localhost:3777',
+  };
+}
+
+const config: Config<PlaywrightWorkerOptions & PlaywrightTestOptions & TestModeWorkerOptions> = {
+  testDir,
+  outputDir,
+  expect: {
+    timeout: 10000,
+  },
+  maxFailures: 200,
+  timeout: video ? 60000 : 30000,
+  globalTimeout: 5400000,
+  workers: undefined,
+  fullyParallel: !process.env.CI,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 3 : 0,
+  reporter: reporters(),
+  tag: process.env.PW_TAG,
+  projects: [],
+  use: {
+    connectOptions,
+  },
+  webServer,
+};
+
+const browserNames = ['chromium', 'webkit', 'firefox'] as BrowserName[];
+for (const browserName of browserNames) {
+  const executablePath = getExecutablePath(browserName);
+  if (executablePath && !process.env.TEST_WORKER_INDEX)
+    console.error(`Using executable at ${executablePath}`);
+  const testIgnore: RegExp[] = browserNames.filter(b => b !== browserName).map(b => new RegExp(b));
+
+  const projectTemplate: typeof config.projects[0] = {
+    testIgnore,
+    snapshotPathTemplate: `{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}-${browserName}{ext}`,
+    use: {
+      mode,
+      browserName,
+      headless: !headed,
+      channel,
+      video: video ? 'on' : undefined,
+      launchOptions: {
+        executablePath,
+      },
+      trace: trace ? 'on' : undefined,
+    },
+    metadata: {
+      platform: process.platform,
+      docker: !!process.env.INSIDE_DOCKER,
+      headless: headed ? 'headed' : 'headless',
+      browserName,
+      channel,
+      mode,
+      video: !!video,
+      trace: !!trace,
+      clock: process.env.PW_CLOCK ? 'clock-' + process.env.PW_CLOCK : undefined,
+    }
+  };
+
+  const libraryProject = {
+    name: `${browserName}-library`,
+    testDir: path.join(testDir, 'library'),
+    ...projectTemplate,
+  };
+  config.projects.push(libraryProject);
+
+  const pageProject = {
+    name: `${browserName}-page`,
+    testDir: path.join(testDir, 'page'),
+    ...projectTemplate,
+  };
+
+  config.projects.push(pageProject);
+}
+
+export default config;

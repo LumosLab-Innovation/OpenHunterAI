@@ -1,0 +1,156 @@
+/**
+ * Copyright (c) Microsoft Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import fs from 'fs';
+import path from 'path';
+import { execFileSync } from 'child_process';
+
+import { test as baseTest, expect } from './fixtures';
+import { chromium } from 'playwright-core';
+
+export { expect };
+
+type TraceCliWorkerFixtures = {
+  traceFile: string;
+  traceCwd: string;
+};
+
+type TraceCliFixtures = {
+  runTraceCli: (args: string[]) => Promise<{ stdout: string, stderr: string, exitCode: number | null }>;
+};
+
+export const test = baseTest
+    .extend<{}, TraceCliWorkerFixtures>({
+      traceFile: [async ({ __servers }, use, workerInfo) => {
+        const server = __servers.server;
+        // Record a trace with various actions for testing.
+        const browser = await chromium.launch();
+        const context = await browser.newContext({ viewport: { width: 800, height: 600 } });
+        await context.tracing.start({ screenshots: true, snapshots: true });
+
+        const page = await context.newPage();
+        server.setContent('/', `
+          <html>
+            <head>
+              <title>Test Page</title>
+              <link rel="stylesheet" href="/style.css">
+            </head>
+            <body>
+              <h1>Hello World</h1>
+              <button id="btn">Click me</button>
+              <input id="search" type="text" placeholder="Search..." />
+              <a href="/page2">Go to page 2</a>
+              <div id="styled">Styled text</div>
+            </body>
+          </html>
+        `, 'text/html');
+
+        server.setContent('/style.css', '#styled { color: rgb(255, 0, 0); }', 'text/css');
+
+        server.setContent('/page2', `
+          <html>
+            <head><title>Page 2</title></head>
+            <body>
+              <h1>Page 2</h1>
+              <iframe src="/iframe" id="frame1"></iframe>
+            </body>
+          </html>
+        `, 'text/html');
+
+        server.setContent('/iframe', `
+          <html>
+            <head><title>Iframe</title></head>
+            <body>
+              <p>Iframe content</p>
+              <iframe src="/iframe-inner" id="frame2"></iframe>
+            </body>
+          </html>
+        `, 'text/html');
+
+        server.setContent('/iframe-inner', `
+          <html>
+            <head><title>Inner iframe</title></head>
+            <body><p>Innermost</p></body>
+          </html>
+        `, 'text/html');
+
+        server.setContent('/feedback', JSON.stringify({ received: true }), 'application/json');
+
+        // Navigate
+        await page.goto(server.PREFIX);
+
+        // Click
+        await page.locator('#btn').click();
+
+        // Fill
+        await page.locator('#search').fill('test query');
+
+        // Console messages
+        await page.evaluate(() => {
+          console.log('info message');
+          console.warn('warning message');
+          console.error('error message');
+        });
+
+        // Fetch
+        await page.evaluate(() => fetch('/feedback', { method: 'POST', body: 'What a great product!' }).then(res => res.text()));
+
+        // Navigate to another page
+        await page.locator('a').click();
+
+        // Click into innermost frame
+        await page.frameLocator('#frame1').frameLocator('#frame2').locator('p').click();
+
+        await page.close();
+        const tmpDir = path.join(workerInfo.project.outputDir, 'pw-trace-cli-' + workerInfo.workerIndex);
+        const tracePath = path.join(tmpDir, 'trace.zip');
+        await context.tracing.stop({ path: tracePath });
+        await browser.close();
+
+        server.reset();
+
+        await use(tracePath);
+
+        await fs.promises.rm(tmpDir, { recursive: true, force: true });
+      }, { scope: 'worker' }],
+
+      traceCwd: [async ({ traceFile }, use, workerInfo) => {
+        // Create a working directory and open the trace once for all tests.
+        const cwd = path.join(workerInfo.project.outputDir, 'pw-trace-cwd-' + workerInfo.workerIndex);
+        await fs.promises.mkdir(cwd, { recursive: true });
+        const cliPath = path.resolve(__dirname, '../../packages/playwright-core/cli.js');
+        execFileSync(process.execPath, [cliPath, 'trace', 'open', traceFile], { cwd });
+        await use(cwd);
+        await fs.promises.rm(cwd, { recursive: true, force: true });
+      }, { scope: 'worker' }],
+    })
+    .extend<TraceCliFixtures>({
+      runTraceCli: async ({ childProcess, traceCwd }, use) => {
+        await use(async (args: string[]) => {
+          const cliPath = path.resolve(__dirname, '../../packages/playwright-core/cli.js');
+          const child = childProcess({
+            command: [process.execPath, cliPath, 'trace', ...args],
+            cwd: traceCwd,
+          });
+          await child.exited;
+          return {
+            stdout: child.stdout.trim(),
+            stderr: child.stderr.trim(),
+            exitCode: await child.exitCode,
+          };
+        });
+      },
+    });

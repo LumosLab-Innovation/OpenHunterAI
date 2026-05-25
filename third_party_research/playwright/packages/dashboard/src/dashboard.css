@@ -1,0 +1,295 @@
+/**
+ * Copyright (c) Microsoft Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.dashboard-view {
+  --interactive-orange: 238 134 12;
+  --recording-red: 239 68 68;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.dashboard-view.has-annotate-sidebar {
+  flex-direction: row;
+}
+
+.dashboard-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* -- Mode toggle buttons (interactive / record) -- */
+.mode-toggle.toolbar-button.toggled,
+.mode-toggle.toolbar-button.toggled > .codicon {
+  color: var(--color-fg-on-emphasis);
+}
+
+.mode-toggle.toolbar-button.toggled.mode-interactive {
+  background: rgb(var(--interactive-orange));
+  box-shadow: 0 0 0 2px rgb(var(--interactive-orange) / 0.35);
+}
+
+.mode-toggle.toolbar-button.toggled.mode-record {
+  background: rgb(var(--recording-red));
+  box-shadow: 0 0 0 2px rgb(var(--recording-red) / 0.35);
+}
+
+.mode-toggle.flash {
+  animation: mode-toggle-flash 0.45s ease-in-out 4;
+}
+
+@keyframes mode-toggle-flash {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgb(var(--interactive-orange) / 0);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgb(var(--interactive-orange) / 0.6);
+    background: rgb(var(--interactive-orange) / 0.25);
+  }
+}
+
+/* -- Toolbar -- */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 40px;
+  min-height: 40px;
+  background: var(--color-canvas-overlay);
+  padding: 0 8px;
+  position: relative;
+  z-index: 100;
+  border-bottom: 1px solid var(--color-border-muted);
+  overflow: visible;
+}
+
+:root.light-mode .toolbar {
+  background: var(--color-canvas-subtle);
+}
+
+/* -- Browser window / chrome (wraps the screencast to look like a browser) -- */
+/* width / height are set via inline style so the window tightly inscribes
+   the screencast aspect ratio instead of letting the image letterbox. */
+.browser-window {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border-default);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  background: var(--color-canvas-default);
+  position: relative;
+}
+
+.browser-chrome {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0 8px;
+  background: var(--color-canvas-overlay);
+  border-bottom: 1px solid var(--color-border-muted);
+  position: relative;
+  overflow: visible;
+}
+
+:root.light-mode .browser-chrome {
+  background: var(--color-canvas-subtle);
+}
+
+.omnibox-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  position: relative;
+  min-width: 0;
+}
+
+
+.nav-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.nav-btn:hover {
+  background: var(--color-neutral-subtle);
+}
+
+.nav-btn:active {
+  background: var(--color-neutral-muted);
+}
+
+.nav-btn[aria-disabled] {
+  color: var(--color-fg-subtle);
+  cursor: default;
+}
+
+.nav-btn[aria-disabled]:hover {
+  background: none;
+}
+
+.nav-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.omnibox {
+  flex: 1;
+  height: 30px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--color-canvas-inset);
+  color: var(--color-fg-default);
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  outline: none;
+  min-width: 0;
+}
+
+:root.light-mode .omnibox {
+  background: var(--color-canvas-default);
+}
+
+.omnibox:focus {
+  border-color: var(--color-accent-fg);
+  background: var(--color-canvas-default);
+  box-shadow: 0 0 0 2px var(--color-accent-muted);
+}
+
+:root.light-mode .omnibox:focus {
+  background: var(--color-canvas-default);
+}
+
+.omnibox::placeholder {
+  color: var(--color-fg-subtle);
+}
+
+.omnibox::selection {
+  background: var(--color-accent-muted);
+}
+
+.omnibox[aria-disabled] {
+  color: var(--color-fg-subtle);
+  cursor: default;
+}
+
+/* -- Viewport -- */
+.viewport-wrapper {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+  min-height: 0;
+}
+
+.viewport-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+.screen {
+  position: relative;
+  outline: none;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.display {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--color-canvas-subtle);
+  object-fit: contain;
+}
+
+.screen-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  z-index: 10;
+  pointer-events: none;
+  background: var(--color-canvas-subtle);
+  color: var(--color-fg-subtle);
+}
+
+.screen-overlay.has-frame {
+  background: rgba(200, 200, 200, 0.5);
+}
+
+.screen-overlay.has-frame > span {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: rgba(0, 0, 0, 0.8);
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 24px 12px rgba(255, 255, 255, 0.2);
+}
+
+.mode-record.toggled > .codicon {
+  animation: mode-record-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes mode-record-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}
+
+.mode-record-label {
+  display: inline-block;
+  margin-left: 5px;
+  white-space: nowrap;
+  animation: mode-record-label-slide-in 300ms ease both;
+}
+
+@keyframes mode-record-label-slide-in {
+  from {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+  }
+  to {
+    max-width: 100px;
+    opacity: 1;
+    overflow: hidden;
+  }
+}

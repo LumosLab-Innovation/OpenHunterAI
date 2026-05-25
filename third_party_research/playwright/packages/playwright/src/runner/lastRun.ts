@@ -1,0 +1,79 @@
+/**
+ * Copyright Microsoft Corporation. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import fs from 'fs';
+import path from 'path';
+
+import type { FullResult, Suite } from '../../types/testReporter';
+import type { config as commonConfig } from '../common';
+import type { ReporterV2 } from '../reporters/reporterV2';
+
+type LastRunInfo = {
+  status: FullResult['status'];
+  failedTests: string[];
+};
+
+export class LastRunReporter implements ReporterV2 {
+  private _lastRunFile: string | undefined;
+  private _suite: Suite | undefined;
+  private _listMode: boolean;
+
+  constructor(filteredProjects: commonConfig.FullProjectInternal[], listMode?: boolean, lastFailedFileOverride?: string) {
+    this._listMode = !!listMode;
+    const override = lastFailedFileOverride ?? process.env.PLAYWRIGHT_LAST_RUN_OUTPUT_FILE;
+    if (override) {
+      this._lastRunFile = path.resolve(process.cwd(), override);
+    } else {
+      const [project] = filteredProjects;
+      if (project)
+        this._lastRunFile = path.join(project.project.outputDir, '.last-run.json');
+    }
+  }
+
+  async filterLastFailed(): Promise<string[]> {
+    if (!this._lastRunFile)
+      return [];
+    try {
+      const lastRunInfo = JSON.parse(await fs.promises.readFile(this._lastRunFile, 'utf8')) as LastRunInfo;
+      return lastRunInfo.failedTests;
+    } catch {
+      return [];
+    }
+  }
+
+  version(): 'v2' {
+    return 'v2';
+  }
+
+  printsToStdio() {
+    return false;
+  }
+
+  onBegin(suite: Suite) {
+    this._suite = suite;
+  }
+
+  async onEnd(result: FullResult) {
+    if (!this._lastRunFile || this._listMode)
+      return;
+    const lastRunInfo: LastRunInfo = {
+      status: result.status,
+      failedTests: this._suite?.allTests().filter(t => !t.ok()).map(t => t.id) || [],
+    };
+    await fs.promises.mkdir(path.dirname(this._lastRunFile), { recursive: true });
+    await fs.promises.writeFile(this._lastRunFile, JSON.stringify(lastRunInfo, undefined, 2));
+  }
+}

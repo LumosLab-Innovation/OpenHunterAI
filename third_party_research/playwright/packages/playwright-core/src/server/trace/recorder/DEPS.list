@@ -1,0 +1,7 @@
+[*]
+@isomorphic/**
+@utils/**
+../../
+../../har/
+../../dispatchers/dispatcher.ts
+node_modules/mime

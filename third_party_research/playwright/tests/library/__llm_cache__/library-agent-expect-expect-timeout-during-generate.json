@@ -1,0 +1,32 @@
+{
+  "54f2adf81994f0dcc29b5165994b9ea09a0710c1": {
+    "result": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "I need to verify that the input textbox has the value \"hello\", but according to the page snapshot, the textbox currently has the value \"bye\". Let me check this expectation."
+        },
+        {
+          "type": "tool_call",
+          "name": "browser_expect_value",
+          "arguments": {
+            "type": "textbox",
+            "element": "textbox",
+            "ref": "e2",
+            "value": "hello",
+            "_is_done": true
+          },
+          "id": "toolu_01FLk22B7JWYMXCnH4rgFiHS"
+        }
+      ],
+      "stopReason": {
+        "code": "ok"
+      }
+    },
+    "usage": {
+      "input": 2217,
+      "output": 168
+    }
+  }
+}

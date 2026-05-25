@@ -1,0 +1,138 @@
+---
+title: "Configuration"
+description: "Environment variables for Strix"
+---
+
+Configure Strix using environment variables or a config file.
+
+## LLM Configuration
+
+<ParamField path="STRIX_LLM" type="string" required>
+  Model name in LiteLLM format (e.g., `openai/gpt-5.4`, `anthropic/claude-sonnet-4-6`).
+</ParamField>
+
+<ParamField path="LLM_API_KEY" type="string">
+  API key for your LLM provider. Not required for local models or cloud provider auth (Vertex AI, AWS Bedrock).
+</ParamField>
+
+<ParamField path="LLM_API_BASE" type="string">
+  Custom API base URL. Also accepts `OPENAI_API_BASE`, `LITELLM_BASE_URL`, or `OLLAMA_API_BASE`.
+</ParamField>
+
+<ParamField path="LLM_TIMEOUT" default="300" type="integer">
+  Request timeout in seconds for LLM calls.
+</ParamField>
+
+<ParamField path="STRIX_LLM_MAX_RETRIES" default="5" type="integer">
+  Maximum number of retries for LLM API calls on transient failures.
+</ParamField>
+
+<ParamField path="STRIX_REASONING_EFFORT" default="high" type="string">
+  Control thinking effort for reasoning models. Valid values: `none`, `minimal`, `low`, `medium`, `high`, `xhigh`. Defaults to `medium` for quick scan mode.
+</ParamField>
+
+<ParamField path="STRIX_MEMORY_COMPRESSOR_TIMEOUT" default="30" type="integer">
+  Timeout in seconds for memory compression operations (context summarization).
+</ParamField>
+
+## Optional Features
+
+<ParamField path="PERPLEXITY_API_KEY" type="string">
+  API key for Perplexity AI. Enables real-time web search during scans for OSINT and vulnerability research.
+</ParamField>
+
+<ParamField path="STRIX_DISABLE_BROWSER" default="false" type="boolean">
+  Disable browser automation tools.
+</ParamField>
+
+<ParamField path="STRIX_TELEMETRY" default="1" type="string">
+  Global telemetry default toggle. Set to `0`, `false`, `no`, or `off` to disable both PostHog and OTEL unless overridden by per-channel flags below.
+</ParamField>
+
+<ParamField path="STRIX_OTEL_TELEMETRY" type="string">
+  Enable/disable OpenTelemetry run observability independently. When unset, falls back to `STRIX_TELEMETRY`.
+</ParamField>
+
+<ParamField path="STRIX_POSTHOG_TELEMETRY" type="string">
+  Enable/disable PostHog product telemetry independently. When unset, falls back to `STRIX_TELEMETRY`.
+</ParamField>
+
+<ParamField path="TRACELOOP_BASE_URL" type="string">
+  OTLP/Traceloop base URL for remote OpenTelemetry export. If unset, Strix keeps traces local only.
+</ParamField>
+
+<ParamField path="TRACELOOP_API_KEY" type="string">
+  API key used for remote trace export. Remote export is enabled only when both `TRACELOOP_BASE_URL` and `TRACELOOP_API_KEY` are set.
+</ParamField>
+
+<ParamField path="TRACELOOP_HEADERS" type="string">
+  Optional custom OTEL headers (JSON object or `key=value,key2=value2`). Useful for Langfuse or custom/self-hosted OTLP gateways.
+</ParamField>
+
+When remote OTEL vars are not set, Strix still writes complete run telemetry locally to:
+
+```bash
+strix_runs/<run_name>/events.jsonl
+```
+
+When remote vars are set, Strix dual-writes telemetry to both local JSONL and the remote OTEL endpoint.
+
+## Docker Configuration
+
+<ParamField path="STRIX_IMAGE" default="ghcr.io/usestrix/strix-sandbox:0.1.13" type="string">
+  Docker image to use for the sandbox container.
+</ParamField>
+
+<ParamField path="DOCKER_HOST" type="string">
+  Docker daemon socket path. Use for remote Docker hosts or custom configurations.
+</ParamField>
+
+<ParamField path="STRIX_RUNTIME_BACKEND" default="docker" type="string">
+  Runtime backend for the sandbox environment.
+</ParamField>
+
+## Sandbox Configuration
+
+<ParamField path="STRIX_SANDBOX_EXECUTION_TIMEOUT" default="120" type="integer">
+  Maximum execution time in seconds for sandbox operations.
+</ParamField>
+
+<ParamField path="STRIX_SANDBOX_CONNECT_TIMEOUT" default="10" type="integer">
+  Timeout in seconds for connecting to the sandbox container.
+</ParamField>
+
+## Config File
+
+Strix stores configuration in `~/.strix/cli-config.json`. You can also specify a custom config file:
+
+```bash
+strix --target ./app --config /path/to/config.json
+```
+
+**Config file format:**
+
+```json
+{
+  "env": {
+    "STRIX_LLM": "openai/gpt-5.4",
+    "LLM_API_KEY": "sk-...",
+    "STRIX_REASONING_EFFORT": "high"
+  }
+}
+```
+
+## Example Setup
+
+```bash
+# Required
+export STRIX_LLM="openai/gpt-5.4"
+export LLM_API_KEY="sk-..."
+
+# Optional: Enable web search
+export PERPLEXITY_API_KEY="pplx-..."
+
+# Optional: Custom timeouts
+export LLM_TIMEOUT="600"
+export STRIX_SANDBOX_EXECUTION_TIMEOUT="300"
+
+```

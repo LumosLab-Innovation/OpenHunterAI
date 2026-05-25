@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openhack"
+version = "0.1.0"
+description = "File-based, scenario-first workspace for source-guided whitebox security review."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+dependencies = [
+  "jsonschema>=4.18",
+  "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "ruff>=0.6",
+  "mypy>=1.10",
+  "types-jsonschema",
+]
+
+[project.scripts]
+openhack = "openhack.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+target-version = "py39"
+
+[tool.mypy]
+files = ["src"]
+disallow_untyped_defs = true
+disallow_incomplete_defs = true

@@ -1,0 +1,8 @@
+[*]
+@isomorphic/**
+@utils/**
+../
+../../utilsBundle.ts
+../chromium/
+../registry/
+node_modules/debug

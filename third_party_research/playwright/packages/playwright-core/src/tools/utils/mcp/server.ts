@@ -1,0 +1,248 @@
+/**
+ * Copyright (c) Microsoft Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { fileURLToPath } from 'url';
+
+import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import debug from 'debug';
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { startMcpHttpServer } from './http';
+import { toMcpTool } from './tool';
+
+import type { CallToolResult, CallToolRequest, Root } from '@modelcontextprotocol/sdk/types.js';
+import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
+export type { Server } from '@modelcontextprotocol/sdk/server/index.js';
+export type { Tool, CallToolResult, CallToolRequest, Root } from '@modelcontextprotocol/sdk/types.js';
+import type { Server as ServerType } from '@modelcontextprotocol/sdk/server/index.js';
+import type { ToolSchema } from './tool';
+
+const serverDebug = debug('pw:mcp:server');
+const serverDebugResponse = debug('pw:mcp:server:response');
+
+export type ClientInfo = {
+  cwd: string;
+  clientName: string;
+};
+
+class BackendManager {
+  private _backends = new Map<ServerBackend, ServerBackendFactory>();
+
+  async createBackend(factory: ServerBackendFactory, clientInfo: ClientInfo): Promise<ServerBackend> {
+    const backend = await factory.create(clientInfo);
+    await backend.initialize?.(clientInfo);
+    this._backends.set(backend, factory);
+    return backend;
+  }
+
+  async disposeBackend(backend: ServerBackend) {
+    const factory = this._backends.get(backend);
+    if (!factory)
+      return;
+    await backend.dispose?.();
+    await factory.disposed(backend).catch(serverDebug);
+    this._backends.delete(backend);
+  }
+}
+
+const backendManager = new BackendManager();
+
+export interface ServerBackend {
+  initialize?(clientInfo: ClientInfo): Promise<void>;
+  callTool(name: string, args: CallToolRequest['params']['arguments'], signal: AbortSignal): Promise<CallToolResult & { isClose?: boolean }>;
+  dispose?(): Promise<void>;
+}
+
+export type ServerBackendFactory = {
+  name: string;
+  nameInConfig: string;
+  version: string;
+  toolSchemas: ToolSchema<any>[];
+  create: (clientInfo: ClientInfo) => Promise<ServerBackend>;
+  disposed: (backend: ServerBackend) => Promise<void>;
+};
+
+export async function connect(factory: ServerBackendFactory, transport: Transport, runHeartbeat: boolean) {
+  const server = createServer(factory.name, factory.version, factory, runHeartbeat);
+  await server.connect(transport);
+}
+
+export function createServer(name: string, version: string, factory: ServerBackendFactory, runHeartbeat: boolean): ServerType {
+  const server = new Server({ name, version }, {
+    capabilities: {
+      tools: {},
+    }
+  });
+
+  server.setRequestHandler(ListToolsRequestSchema, async () => {
+    serverDebug('listTools');
+    return { tools: factory.toolSchemas.map(s => toMcpTool(s)) };
+  });
+
+  let backendPromise: Promise<ServerBackend> | undefined;
+
+  const onClose = () => backendPromise?.then(b => backendManager.disposeBackend(b)).catch(serverDebug);
+  addServerListener(server, 'close', onClose);
+
+  server.setRequestHandler(CallToolRequestSchema, async (request, extra) => {
+    serverDebug('callTool', request);
+
+    try {
+      if (!backendPromise) {
+        backendPromise = initializeServer(server, factory, runHeartbeat).catch(e => {
+          backendPromise = undefined;
+          throw e;
+        });
+      }
+
+      const backend = await backendPromise;
+      const toolResult = await backend.callTool(request.params.name, request.params.arguments || {}, extra.signal);
+      if (toolResult.isClose) {
+        await backendManager.disposeBackend(backend).catch(serverDebug);
+        backendPromise = undefined;
+        delete toolResult.isClose;
+      }
+
+      const mergedResult = mergeTextParts(toolResult);
+      serverDebugResponse('callResult', mergedResult);
+      return mergedResult;
+    } catch (error) {
+      return {
+        content: [{ type: 'text', text: '### Error\n' + String(error) }],
+        isError: true,
+      };
+    }
+  });
+  return server;
+}
+
+const initializeServer = async (server: ServerType, factory: ServerBackendFactory, runHeartbeat: boolean): Promise<ServerBackend> => {
+  const capabilities = server.getClientCapabilities();
+  let clientRoots: Root[] = [];
+  if (capabilities?.roots) {
+    const { roots } = await server.listRoots().catch(e => {
+      serverDebug(e);
+      return { roots: [] };
+    });
+    clientRoots = roots;
+  }
+
+  const clientInfo: ClientInfo = {
+    cwd: firstRootPath(clientRoots),
+    clientName: server.getClientVersion()?.name ?? 'Playwright MCP',
+  };
+
+  const backend = await backendManager.createBackend(factory, clientInfo);
+  if (runHeartbeat)
+    startHeartbeat(server);
+  return backend;
+};
+
+const startHeartbeat = (server: ServerType) => {
+  const beat = () => {
+    Promise.race([
+      server.ping(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('ping timeout')), 5000)),
+    ]).then(() => {
+      setTimeout(beat, 3000);
+    }).catch(() => {
+      void server.close();
+    });
+  };
+
+  beat();
+};
+
+function addServerListener(server: ServerType, event: 'close' | 'initialized', listener: () => void) {
+  const oldListener = server[`on${event}`];
+  server[`on${event}`] = () => {
+    oldListener?.();
+    listener();
+  };
+}
+
+export async function start(serverBackendFactory: ServerBackendFactory, options: { host?: string; port?: number, allowedHosts?: string[], socketPath?: string } = {}) {
+  if (options.port === undefined) {
+    const transport = new StdioServerTransport();
+    // The SDK's StdioServerTransport doesn't detect peer disconnect — it never listens for stdin
+    // end-of-stream. Wire it up so callTool requests can be cancelled when the client goes away.
+    process.stdin.on('end', () => void transport.close());
+    await connect(serverBackendFactory, transport, false);
+    return;
+  }
+
+  const url = await startMcpHttpServer(options, serverBackendFactory, options.allowedHosts);
+
+  const mcpConfig: any = { mcpServers: { } };
+  mcpConfig.mcpServers[serverBackendFactory.nameInConfig] = {
+    url: `${url}/mcp`
+  };
+  const message = [
+    `Listening on ${url}`,
+    'Put this in your client config:',
+    JSON.stringify(mcpConfig, undefined, 2),
+    'For legacy SSE transport support, you can use the /sse endpoint instead.',
+  ].join('\n');
+    // eslint-disable-next-line no-console
+  console.error(message);
+}
+
+export function firstRootPath(roots: Root[]): string {
+  return allRootPaths(roots)[0];
+}
+
+export function allRootPaths(roots: Root[]): string[] {
+  const paths: string[] = [];
+  for (const root of roots) {
+    const url = new URL(root.uri);
+    let rootPath;
+    try {
+      rootPath = fileURLToPath(url);
+    } catch (e) {
+      // Support WSL paths on Windows.
+      if (e.code === 'ERR_INVALID_FILE_URL_PATH' && process.platform === 'win32')
+        rootPath = decodeURIComponent(url.pathname);
+    }
+    if (!rootPath)
+      continue;
+    paths.push(rootPath);
+  }
+  if (paths.length === 0)
+    paths.push(process.cwd());
+  return paths;
+}
+
+function mergeTextParts(result: CallToolResult): CallToolResult {
+  const content: CallToolResult['content'] = [];
+  const testParts: string[] = [];
+  for (const part of result.content) {
+    if (part.type === 'text') {
+      testParts.push(part.text);
+      continue;
+    }
+    if (testParts.length > 0) {
+      content.push({ type: 'text', text: testParts.join('\n') });
+      testParts.length = 0;
+    }
+    content.push(part);
+  }
+  if (testParts.length > 0)
+    content.push({ type: 'text', text: testParts.join('\n') });
+  return {
+    ...result,
+    content,
+  };
+}

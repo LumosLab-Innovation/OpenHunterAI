@@ -1,0 +1,43 @@
+/*
+  Copyright (c) Microsoft Corporation.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+// hash string to integer in range [0, 6] for color index, to get same color for same tag
+export function hashStringToInt(str: string) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++)
+    hash = str.charCodeAt(i) + ((hash << 8) - hash);
+  return Math.abs(hash % 6);
+}
+
+// Preserves any query parameters that could be used for serving the report from storage,
+// or for anything else. We don't use any query params in the report anyway.
+export function formatUrl(url: string): string;
+export function formatUrl(url: string | undefined): string | undefined;
+export function formatUrl(url: string | undefined): string | undefined {
+  if (!url)
+    return url;
+  try {
+    const parsed = new URL(url, window.location.href);
+    if (parsed.origin === window.location.origin) {
+      for (const [key, value] of new URLSearchParams(window.location.search))
+        parsed.searchParams.set(key, value);
+      return parsed.toString();
+    }
+    return url;
+  } catch {
+    return url;
+  }
+}

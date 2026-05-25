@@ -1,0 +1,46 @@
+name: 'Download artifacts'
+description: 'Download artifacts from GitHub'
+inputs:
+  namePrefix:
+    description: 'Name prefix of the artifacts to download'
+    required: true
+    default: 'blob-report'
+  path:
+    description: 'Directory with downloaded artifacts'
+    required: true
+    default: '.'
+runs:
+  using: "composite"
+  steps:
+    - name: Create temp downloads dir
+      shell: bash
+      run: mkdir -p '${{ inputs.path }}/artifacts'
+    - name: Download artifacts
+      uses: actions/github-script@v7
+      with:
+        script: |
+          console.log(`downloading artifacts for workflow_run: ${context.payload.workflow_run.id}`);
+          console.log(`workflow_run: ${JSON.stringify(context.payload.workflow_run, null, 2)}`);
+          const allArtifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {
+            ...context.repo,
+            run_id: context.payload.workflow_run.id
+          });
+          console.log('total = ', allArtifacts.length);
+          const artifacts = allArtifacts.filter(a => a.name.startsWith('${{ inputs.namePrefix }}'));
+          const fs = require('fs');
+          for (const artifact of artifacts) {
+            const result = await github.rest.actions.downloadArtifact({
+              ...context.repo,
+              artifact_id: artifact.id,
+              archive_format: 'zip'
+            });
+            console.log(`Downloaded ${artifact.name}.zip (${result.data.byteLength} bytes)`);
+            fs.writeFileSync(`${{ inputs.path }}/artifacts/${artifact.name}.zip`, Buffer.from(result.data));
+          }
+    - name: Unzip artifacts
+      shell: bash
+      run: |
+        if ls '${{ inputs.path }}/artifacts'/*.zip 1>/dev/null 2>&1; then
+          unzip -n '${{ inputs.path }}/artifacts/*.zip' -d ${{ inputs.path }}
+        fi
+        rm -rf '${{ inputs.path }}/artifacts'

@@ -1,0 +1,85 @@
+/*
+  Copyright (c) Microsoft Corporation.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+.attachment-body {
+  white-space: pre-wrap;
+  background-color: var(--color-canvas-subtle);
+  margin-left: 24px;
+  line-height: normal;
+  padding: 8px;
+  font-family: monospace;
+  position: relative;
+}
+
+.attachment-body .copy-icon {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+}
+
+.attachment-flash {
+  animation: attachmentflash-bg 2s;
+}
+@keyframes attachmentflash-bg {
+  from { background: var(--color-attention-subtle); }
+  to   { background: transparent; }
+}
+
+.link-badge {
+  flex: none;
+  background-color: transparent;
+  border-color: transparent;
+  user-select: none;
+}
+
+.link-badge-dim span {
+  color: var(--color-fg-muted);
+}
+
+.link-badge:hover {
+  cursor: pointer;
+}
+
+.link-badge svg {
+  fill: var(--color-fg-default);
+}
+
+.link-badge-dim svg {
+  fill: var(--color-fg-muted);
+}
+
+.link-badge-dim:hover svg {
+  fill: var(--color-fg-muted);
+}
+
+.fullwidth-link {
+  width: 100%;
+  text-align: left;
+}
+
+.fullwidth-link:hover {
+  background-color: var(--color-canvas-subtle);
+}
+
+.trace-link {
+  /* Trace link button has 1px border and 4px padding, so we need 3px right margin to match content on the other side of divider */
+  margin-right: 3px;
+}
+
+.trace-link-separator {
+  color: var(--color-fg-muted);
+  user-select: none;
+}

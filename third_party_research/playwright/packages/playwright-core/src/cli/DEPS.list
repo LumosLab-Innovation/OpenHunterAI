@@ -1,0 +1,15 @@
+[*]
+@isomorphic/**
+@utils/**
+../inprocess.ts
+../package.ts
+../server/
+../server/registry/
+../remote/
+../server/trace/viewer/
+../tools/cli-client/program.ts
+../tools/trace/traceCli.ts
+../bootstrap.ts
+node_modules/commander
+node_modules/debug
+node_modules/dotenv

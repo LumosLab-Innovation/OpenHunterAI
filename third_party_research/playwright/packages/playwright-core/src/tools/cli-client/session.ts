@@ -1,0 +1,262 @@
+/**
+ * Copyright (c) Microsoft Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { spawn } from 'child_process';
+
+import fs from 'fs';
+import net from 'net';
+import os from 'os';
+import path from 'path';
+import { libPath } from '../../package';
+import { compareSemver, SocketConnection } from '../utils/socketConnection';
+import { resolveSessionName } from './registry';
+
+import type { SessionConfig, ClientInfo, SessionFile } from './registry';
+import type { MinimistArgs } from './minimist';
+
+export class Session {
+  readonly name: string;
+  readonly config: SessionConfig;
+  private _sessionFile: SessionFile;
+
+  constructor(sessionFile: SessionFile) {
+    this.config = sessionFile.config;
+    this.name = this.config.name;
+    this._sessionFile = sessionFile;
+  }
+
+  isCompatible(clientInfo: ClientInfo): boolean {
+    return compareSemver(clientInfo.version, this.config.version) >= 0;
+  }
+
+  async run(clientInfo: ClientInfo, args: MinimistArgs, options?: { raw?: boolean, json?: boolean }): Promise<{ text: string }> {
+    if (!this.isCompatible(clientInfo))
+      throw new Error(`Client is v${clientInfo.version}, session '${this.name}' is v${this.config.version}. Run\n\n  playwright-cli${this.name !== 'default' ? ` -s=${this.name}` : ''} open\n\nto restart the browser session.`);
+
+    const { socket } = await this._connect();
+    if (!socket)
+      throw new Error(`Browser '${this.name}' is not open. Run\n\n  playwright-cli${this.name !== 'default' ? ` -s=${this.name}` : ''} open\n\nto start the browser session.`);
+    return await SocketConnectionClient.sendAndClose(socket, 'run', { args, cwd: process.cwd(), raw: options?.raw, json: options?.json });
+  }
+
+  async stop(): Promise<{ wasOpen: boolean }> {
+    if (!await this.canConnect())
+      return { wasOpen: false };
+    await this._stopDaemon();
+    return { wasOpen: true };
+  }
+
+  async deleteData(): Promise<{ existed: boolean, deletedUserDataDir: boolean }> {
+    await this.stop();
+
+    const dataDirs = await fs.promises.readdir(this._sessionFile.daemonDir).catch(() => []);
+    const matchingEntries = dataDirs.filter(file => file === `${this.name}.session` || file.startsWith(`ud-${this.name}-`));
+    if (matchingEntries.length === 0)
+      return { existed: false, deletedUserDataDir: false };
+
+    let deletedUserDataDir = false;
+    for (const entry of matchingEntries) {
+      const userDataDir = path.resolve(this._sessionFile.daemonDir, entry);
+      for (let i = 0; i < 5; i++) {
+        try {
+          await fs.promises.rm(userDataDir, { recursive: true });
+          if (entry.startsWith('ud-'))
+            deletedUserDataDir = true;
+          break;
+        } catch (e: any) {
+          if (e.code === 'ENOENT')
+            break;
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          if (i === 4)
+            throw e;
+        }
+      }
+    }
+    return { existed: true, deletedUserDataDir };
+  }
+
+  private async _connect(): Promise<{ socket?: net.Socket, error?: Error }> {
+    return await new Promise(resolve => {
+      const socket = net.createConnection(this.config.socketPath, () => {
+        resolve({ socket });
+      });
+      socket.on('error', error => {
+        if (os.platform() !== 'win32')
+          void fs.promises.unlink(this.config.socketPath).catch(() => {}).then(() => resolve({ error }));
+        else
+          resolve({ error });
+      });
+    });
+  }
+
+  async canConnect(): Promise<boolean> {
+    const { socket } = await this._connect();
+    if (socket) {
+      socket.destroy();
+      return true;
+    }
+    return false;
+  }
+
+  static async startDaemon(clientInfo: ClientInfo, cliArgs: MinimistArgs, mode: 'open' | 'attach'): Promise<{ pid: number | undefined, sessionName: string, endpoint: string | undefined }> {
+    await fs.promises.mkdir(clientInfo.daemonProfilesDir, { recursive: true });
+
+    const cliPath = libPath('entry', 'cliDaemon.js');
+    const sessionName = resolveSessionName(cliArgs.session as string);
+    const errLog = path.join(clientInfo.daemonProfilesDir, sessionName + '.err');
+    const err = fs.openSync(errLog, 'w');
+
+    const args = [
+      cliPath,
+      sessionName,
+    ];
+    if (cliArgs.headed)
+      args.push('--headed');
+    if (cliArgs.extension)
+      args.push('--extension');
+    if (cliArgs.browser)
+      args.push(`--browser=${cliArgs.browser}`);
+    if (cliArgs.persistent)
+      args.push('--persistent');
+    if (cliArgs.profile)
+      args.push(`--profile=${cliArgs.profile}`);
+    if (cliArgs.config)
+      args.push(`--config=${cliArgs.config}`);
+    if (cliArgs.cdp)
+      args.push(`--cdp=${cliArgs.cdp}`);
+    if (cliArgs.endpoint)
+      args.push(`--endpoint=${cliArgs.endpoint}`);
+    else if (mode === 'attach' && process.env.PLAYWRIGHT_CLI_SESSION)
+      args.push(`--endpoint=${process.env.PLAYWRIGHT_CLI_SESSION}`);
+
+    const child = spawn(process.execPath, args, {
+      detached: true,
+      stdio: ['ignore', 'pipe', err],
+      cwd: process.cwd(), // Will be used as root.
+    });
+
+    let signalled = false;
+    const sigintHandler = () => {
+      signalled = true;
+      child.kill('SIGINT');
+    };
+    const sigtermHandler = () => {
+      signalled = true;
+      child.kill('SIGTERM');
+    };
+    process.on('SIGINT', sigintHandler);
+    process.on('SIGTERM', sigtermHandler);
+
+    let outLog = '';
+    const rejectWithPid = (reject: (e: Error) => void, message: string) =>
+      reject(Object.assign(new Error(`Daemon pid=${child.pid}: ${message}`), { daemonPid: child.pid }));
+    await new Promise<void>((resolve, reject) => {
+      child.stdout!.on('data', data => {
+        outLog += data.toString();
+        if (outLog.includes('Daemon listening on'))
+          resolve();
+      });
+      child.on('close', code => {
+        if (!signalled) {
+          const errLogContent = fs.readFileSync(errLog, 'utf-8');
+          rejectWithPid(reject, `Daemon process exited with code ${code}` + (outLog ? '\n' + outLog : '') + (errLogContent ? '\n' + errLogContent : ''));
+        }
+      });
+    });
+
+    process.off('SIGINT', sigintHandler);
+    process.off('SIGTERM', sigtermHandler);
+    child.stdout!.destroy();
+    child.unref();
+
+    return { pid: child.pid, sessionName, endpoint: cliArgs.endpoint as string | undefined };
+  }
+
+  private async _stopDaemon(): Promise<void> {
+    const { socket } = await this._connect();
+    if (!socket)
+      return;
+
+    let error: Error | undefined;
+    await SocketConnectionClient.sendAndClose(socket, 'stop', {}).catch(e => error = e);
+    if (error && !error?.message?.includes('Session closed'))
+      throw error;
+  }
+
+  async deleteSessionConfig() {
+    await fs.promises.rm(this._sessionFile.file).catch(() => {});
+  }
+}
+
+class SocketConnectionClient {
+  private _connection: SocketConnection;
+  private _nextMessageId = 1;
+  private _callbacks = new Map<number, { resolve: (o: any) => void, reject: (e: Error) => void, method: string, params: any }>();
+
+  constructor(socket: net.Socket) {
+    this._connection = new SocketConnection(socket);
+    this._connection.onmessage = message => this._onMessage(message);
+    this._connection.onclose = () => this._rejectCallbacks();
+  }
+
+  async send(method: string, params: any = {}): Promise<any> {
+    const messageId = this._nextMessageId++;
+    const message = {
+      id: messageId,
+      method,
+      params,
+    };
+    const responsePromise = new Promise<any>((resolve, reject) => {
+      this._callbacks.set(messageId, { resolve, reject, method, params });
+    });
+    const [result] = await Promise.all([responsePromise, this._connection.send(message)]);
+    return result;
+  }
+
+  static async sendAndClose(socket: net.Socket, method: string, params: any = {}): Promise<any> {
+    const connection = new SocketConnectionClient(socket);
+    try {
+      return await connection.send(method, params);
+    } finally {
+      connection.close();
+    }
+  }
+
+  close() {
+    this._connection.close();
+  }
+
+  private _onMessage(object: { id: number, error?: string, result: any }) {
+    if (object.id && this._callbacks.has(object.id)) {
+      const callback = this._callbacks.get(object.id)!;
+      this._callbacks.delete(object.id);
+      if (object.error)
+        callback.reject(new Error(object.error));
+      else
+        callback.resolve(object.result);
+    } else if (object.id) {
+      throw new Error(`Unexpected message id: ${object.id}`);
+    } else {
+      throw new Error(`Unexpected message without id: ${JSON.stringify(object)}`);
+    }
+  }
+
+  private _rejectCallbacks() {
+    for (const callback of this._callbacks.values())
+      callback.reject(new Error('Session closed'));
+    this._callbacks.clear();
+  }
+}

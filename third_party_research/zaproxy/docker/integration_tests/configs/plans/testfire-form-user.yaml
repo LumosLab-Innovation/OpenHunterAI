@@ -1,0 +1,69 @@
+---
+env:
+  contexts:
+  - name: "demo.testfire.net"
+    urls:
+    - "https://demo.testfire.net"
+    includePaths:
+    - "https://demo.testfire.net.*"
+    excludePaths: []
+    authentication:
+      method: "form"
+      parameters:
+        loginPageUrl: "https://demo.testfire.net/doLogin"
+        loginRequestUrl: "https://demo.testfire.net/doLogin"
+        loginRequestBody: "uid={%username%}&passw={%password%}&btnSubmit=Login"
+      verification:
+        method: "response"
+        loggedInRegex: "\\Q\" >MY ACCOUNT</a>\\E"
+        pollFrequency: 60
+        pollUnits: "seconds"
+        pollUrl: ""
+        pollPostData: ""
+    sessionManagement:
+      method: "cookie"
+      parameters: {}
+    users:
+    - name: "jsmith"
+      username: "jsmith"
+      password: "demo1234"
+  parameters:
+    failOnError: true
+    failOnWarning: false
+    continueOnFailure: true
+    progressToStdout: true
+  vars: {}
+jobs:
+- parameters:
+    user: "jsmith"
+  requests:
+  - url: "https://demo.testfire.net"
+    name: ""
+    method: "GET"
+    data: ""
+    responseCode: 200
+  tests:
+  - onFail: "ERROR"
+    statistic: "stats.auth.state.loggedin"
+    site: "https://demo.testfire.net"
+    operator: ">="
+    value: 1
+    name: "requestor/stats"
+    type: "stats"
+  name: "requestor"
+  type: "requestor"
+- parameters:
+    action: "add"
+    type: "standalone"
+    engine: "ECMAScript : Graal.js"
+    name: "af-diags.js"
+    target: ""
+    source: "../scripts/standalone/af-diags.js"
+  name: "script"
+  type: "script"
+- parameters:
+    action: "run"
+    type: "standalone"
+    name: "af-diags.js"
+  name: "script"
+  type: "script"

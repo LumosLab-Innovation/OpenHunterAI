@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:openhack:finding",
+  "title": "Finding",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "title",
+    "severity",
+    "target_path",
+    "attacker_role",
+    "preconditions",
+    "non_technical_summary",
+    "summary",
+    "attack_chain",
+    "example_attack",
+    "evidence",
+    "impact",
+    "impact_analysis",
+    "attacker_use",
+    "recommended_fix",
+    "validation_notes"
+  ],
+  "properties": {
+    "title": {"type": "string", "minLength": 1},
+    "severity": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low", "informational", "unknown"]
+    },
+    "target_path": {"type": "string", "minLength": 1},
+    "attacker_role": {"type": "string", "minLength": 1},
+    "preconditions": {"type": "string", "minLength": 1},
+    "non_technical_summary": {"type": "string", "minLength": 1},
+    "summary": {"type": "string", "minLength": 1},
+    "attack_chain": {"type": "string", "minLength": 1},
+    "example_attack": {"type": "string", "minLength": 1},
+    "evidence": {
+      "oneOf": [
+        {"type": "string", "minLength": 1},
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": true
+        }
+      ]
+    },
+    "impact": {"type": "string", "minLength": 1},
+    "impact_analysis": {"type": "string", "minLength": 1},
+    "attacker_use": {"type": "string", "minLength": 1},
+    "recommended_fix": {"type": "string", "minLength": 1},
+    "validation_notes": {"type": "string", "minLength": 1}
+  }
+}

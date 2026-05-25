@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:openhack:scenario",
+  "title": "Scenario",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "id",
+    "recon_item_id",
+    "expert",
+    "target_path",
+    "proof_question",
+    "evidence_required"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^S[0-9]{3,}$"
+    },
+    "recon_item_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expert": {
+      "type": "string",
+      "minLength": 1
+    },
+    "routing_unit_id": {
+      "type": "string",
+      "pattern": "^U[0-9]{3,}$"
+    },
+    "covered_routing_unit_ids": {
+      "oneOf": [
+        {"type": "string", "minLength": 1},
+        {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        }
+      ]
+    },
+    "target_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "target_paths": {
+      "oneOf": [
+        {"type": "string", "minLength": 1},
+        {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        }
+      ]
+    },
+    "related_paths": {
+      "oneOf": [
+        {"type": "string", "minLength": 1},
+        {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        }
+      ]
+    },
+    "covered_paths": {
+      "oneOf": [
+        {"type": "string", "minLength": 1},
+        {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        }
+      ]
+    },
+    "proof_question": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence_required": {
+      "oneOf": [
+        {"type": "string", "minLength": 1},
+        {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        }
+      ]
+    },
+    "security_invariant": {
+      "type": "string",
+      "minLength": 1
+    },
+    "proof_obligations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["id", "question", "evidence_required"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_:-]*$"
+          },
+          "question": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence_required": {
+            "oneOf": [
+              {"type": "string", "minLength": 1},
+              {
+                "type": "array",
+                "items": {"type": "string", "minLength": 1}
+              }
+            ]
+          },
+          "central": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["critical", "high", "normal", "low"]
+    },
+    "routing_rationale": {
+      "type": "string"
+    },
+    "expected_finding_width": {
+      "oneOf": [
+        {"type": "string"},
+        {"type": "integer", "minimum": 0}
+      ]
+    },
+    "candidate_policy": {
+      "type": "string"
+    },
+    "result_location": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,73 @@
+/*
+  Copyright (c) Microsoft Corporation.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+.test-case-column {
+  border-radius: 6px;
+  margin-bottom: 24px;
+}
+
+.test-case-column .tab-element.selected {
+  font-weight: 600;
+  border-bottom-color: var(--color-primer-border-active);
+}
+
+.test-case-column .tab-element {
+  border: none;
+  color: var(--color-fg-default);
+  border-bottom: 2px solid transparent;
+}
+
+.test-case-column .tab-element:hover {
+  color: var(--color-fg-default);
+}
+
+.test-case-location,
+.test-case-duration {
+  flex: none;
+  align-items: center;
+  padding: 0 8px 8px;
+}
+
+.selected .test-case-run-duration {
+  -webkit-text-stroke: 0;
+}
+
+.test-case-run-duration {
+  color: var(--color-fg-muted);
+  padding-left: 8px;
+}
+
+.header-view .test-case-path {
+  flex: none;
+  flex-shrink: 1;
+  align-items: center;
+  padding-right: 8px;
+}
+
+.test-case-annotation {
+  flex: none;
+  align-items: center;
+  padding: 0 8px;
+  line-height: 24px;
+  white-space: pre-wrap;
+}
+
+@media only screen and (max-width: 600px) {
+  .test-case-column {
+    border-radius: 0 !important;
+    margin: 0 !important;
+  }
+}

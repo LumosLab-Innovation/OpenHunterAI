@@ -1,0 +1,110 @@
+/*
+  Copyright (c) Microsoft Corporation.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+.timeline-view-container {
+  flex: none;
+  border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+.timeline-view {
+  flex: none;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-top: 16px;
+  cursor: text;
+  user-select: none;
+  margin-left: 10px;
+}
+
+.timeline-divider {
+  position: absolute;
+  width: 1px;
+  top: 0;
+  bottom: 0;
+  background-color: var(--vscode-panel-border);
+}
+
+.timeline-time {
+  position: absolute;
+  top: 4px;
+  right: 3px;
+  font-size: 80%;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.timeline-time-input {
+  cursor: pointer;
+}
+
+.timeline-grid {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.timeline-highlight {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+  background-color: #1a85ff33;
+  border-left: 2px solid var(--vscode-charts-blue);
+  border-right: 2px solid var(--vscode-charts-blue);
+}
+
+.timeline-window {
+  display: flex;
+  position: absolute;
+  top: 0;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}
+
+.timeline-window-center {
+  flex: auto;
+}
+
+.timeline-window-drag {
+  height: 20px;
+  cursor: grab;
+  pointer-events: all;
+}
+
+.timeline-window-curtain {
+  flex: none;
+  background-color: #3879d91a;
+}
+
+:root.dark-mode .timeline-window-curtain {
+  background-color: #161718bf;
+}
+
+.timeline-window-resizer {
+  flex: none;
+  width: 10px;
+  cursor: ew-resize;
+  pointer-events: all;
+  position: relative;
+  background-color: var(--vscode-panel-border);
+  border-left: 1px solid var(--vscode-panel-border);
+  border-right: 1px solid var(--vscode-panel-border);
+}

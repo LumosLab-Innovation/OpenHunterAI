@@ -1,0 +1,134 @@
+/**
+ * Copyright (c) Microsoft Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import React from 'react';
+
+import chromeSvg from '@browser-logos/chrome/chrome.svg';
+import chromeBetaSvg from '@browser-logos/chrome-beta/chrome-beta.svg';
+import chromeCanarySvg from '@browser-logos/chrome-canary/chrome-canary.svg';
+import chromeDevSvg from '@browser-logos/chrome-dev/chrome-dev.svg';
+import chromiumSvg from '@browser-logos/chromium/chromium.svg';
+import firefoxSvg from '@browser-logos/firefox/firefox.svg';
+import firefoxBetaSvg from '@browser-logos/firefox-beta/firefox-beta.svg';
+import firefoxNightlySvg from '@browser-logos/firefox-nightly/firefox-nightly.svg';
+import safariSvg from '@browser-logos/safari/safari.svg';
+import edgeSvg from '@browser-logos/edge/edge.svg';
+
+// Keys include both browserName values ('chromium' | 'firefox' | 'webkit') and
+// LaunchOptions.channel values accepted by Playwright.
+export const browserIconUrls: Record<string, string> = {
+  // Open-source Chromium (plus the headless shell + chrome-for-testing variants).
+  'chromium': chromiumSvg,
+  'chromium-headless-shell': chromiumSvg,
+  'chrome-for-testing': chromiumSvg,
+  // Google Chrome stable + per-channel icons.
+  'chrome': chromeSvg,
+  'chrome-beta': chromeBetaSvg,
+  'chrome-dev': chromeDevSvg,
+  'chrome-canary': chromeCanarySvg,
+  // Firefox: stable (bundled + moz-firefox) + dedicated beta/nightly icons.
+  'firefox': firefoxSvg,
+  'moz-firefox': firefoxSvg,
+  'firefox-beta': firefoxBetaSvg,
+  'moz-firefox-beta': firefoxBetaSvg,
+  'moz-firefox-nightly': firefoxNightlySvg,
+  // Safari / WebKit.
+  'webkit': safariSvg,
+  // Microsoft Edge — the @browser-logos packages only ship SVG for stable, so use it for all channels.
+  'msedge': edgeSvg,
+  'msedge-beta': edgeSvg,
+  'msedge-dev': edgeSvg,
+  'msedge-canary': edgeSvg,
+};
+
+export const BrowserIcon: React.FC<{ browserName?: string, channel?: string }> = ({ browserName, channel }) => {
+  const key = channel && browserIconUrls[channel] ? channel : browserName;
+  const url = key ? browserIconUrls[key] : undefined;
+  if (url)
+    return <img className='browser-icon-img' src={url} alt='' aria-hidden='true' />;
+  const initial = browserName ? browserName[0].toUpperCase() : '?';
+  return <span className='browser-icon-fallback' aria-hidden='true'>{initial}</span>;
+};
+
+export const ChevronLeftIcon: React.FC = () => (
+  <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
+    <polyline points='15 18 9 12 15 6'/>
+  </svg>
+);
+
+export const ChevronRightIcon: React.FC = () => (
+  <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
+    <polyline points='9 18 15 12 9 6'/>
+  </svg>
+);
+
+export const CloseIcon: React.FC = () => (
+  <svg viewBox='0 0 12 12' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' aria-hidden='true'>
+    <line x1='2' y1='2' x2='10' y2='10'/>
+    <line x1='10' y1='2' x2='2' y2='10'/>
+  </svg>
+);
+
+export const PlusIcon: React.FC = () => (
+  <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' aria-hidden='true'>
+    <line x1='12' y1='5' x2='12' y2='19'/>
+    <line x1='5' y1='12' x2='19' y2='12'/>
+  </svg>
+);
+
+export const LockIcon: React.FC = () => (
+  <svg width='20' height='20' viewBox='0 -960 960 960' style={{ fill: 'currentColor' }} aria-hidden='true'>
+    <path d='M240-80q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640h40v-80q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Zm0-80h480v-400H240v400Zm296.5-143.5Q560-327 560-360t-23.5-56.5Q513-440 480-440t-56.5 23.5Q400-393 400-360t23.5 56.5Q447-280 480-280t56.5-23.5ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80ZM240-160v-400 400Z'/>
+  </svg>
+);
+
+export const LockOpenIcon: React.FC = () => (
+  <svg width='20' height='20' viewBox='0 -960 960 960' style={{ fill: 'currentColor' }} aria-hidden='true'>
+    <path d='M240-160h480v-400H240v400Zm296.5-143.5Q560-327 560-360t-23.5-56.5Q513-440 480-440t-56.5 23.5Q400-393 400-360t23.5 56.5Q447-280 480-280t56.5-23.5ZM240-160v-400 400Zm0 80q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640h280v-80q0-83 58.5-141.5T720-920q83 0 141.5 58.5T920-720h-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80h120q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Z'/>
+  </svg>
+);
+
+export const ScreenshotRegionIcon: React.FC = () => (
+  <svg width='20' height='20' viewBox='0 -960 960 960' style={{ fill: 'currentColor' }} aria-hidden='true'>
+    <path d='M680-80v-120H560v-80h120v-120h80v120h120v80H760v120h-80ZM200-200v-200h80v120h120v80H200Zm0-360v-200h200v80H280v120h-80Zm480 0v-120H560v-80h200v200h-80Z'/>
+  </svg>
+);
+
+export const DownloadIcon: React.FC = () => (
+  <svg width='20' height='20' viewBox='0 -960 960 960' style={{ fill: 'currentColor' }} aria-hidden='true'>
+    <path d='M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z'/>
+  </svg>
+);
+
+export const ReloadIcon: React.FC = () => (
+  <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
+    <polyline points='23 4 23 10 17 10'/>
+    <path d='M20.49 15a9 9 0 1 1-2.12-9.36L23 10'/>
+  </svg>
+);
+
+export const InspectorPanelIcon: React.FC = () => (
+  <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
+    <rect x='3' y='3' width='18' height='18' rx='2'/>
+    <line x1='9' y1='3' x2='9' y2='21'/>
+  </svg>
+);
+
+export const GearIcon: React.FC = () => (
+  <svg viewBox='0 0 16 16' fill='currentColor' aria-hidden='true'>
+    <path d='M8 0a8.2 8.2 0 0 1 .701.031C9.444.095 9.99.645 10.16 1.29l.288 1.107c.018.066.079.158.212.224.231.114.454.243.668.386.123.082.233.09.299.071l1.103-.303c.644-.176 1.392.021 1.82.63.27.385.506.792.704 1.218.315.675.111 1.422-.364 1.891l-.814.806c-.049.048-.098.147-.088.294.016.257.016.515 0 .772-.01.147.038.246.088.294l.814.806c.475.469.679 1.216.364 1.891a7.977 7.977 0 0 1-.704 1.217c-.428.61-1.176.807-1.82.63l-1.102-.302c-.067-.019-.177-.011-.3.071a5.909 5.909 0 0 1-.668.386c-.133.066-.194.158-.211.224l-.29 1.106c-.168.646-.715 1.196-1.458 1.26a8.006 8.006 0 0 1-1.402 0c-.743-.064-1.289-.614-1.458-1.26l-.289-1.106c-.018-.066-.079-.158-.212-.224a5.738 5.738 0 0 1-.668-.386c-.123-.082-.233-.09-.299-.071l-1.103.303c-.644.176-1.392-.021-1.82-.63a8.12 8.12 0 0 1-.704-1.218c-.315-.675-.111-1.422.363-1.891l.815-.806c.05-.048.098-.147.088-.294a6.214 6.214 0 0 1 0-.772c.01-.147-.038-.246-.088-.294l-.815-.806C.635 6.045.431 5.298.746 4.623a7.92 7.92 0 0 1 .704-1.217c.428-.61 1.176-.807 1.82-.63l1.102.302c.067.019.177.011.3-.071.214-.143.437-.272.668-.386.133-.066.194-.158.211-.224l.29-1.106C6.009.645 6.556.095 7.299.03 7.53.01 7.764 0 8 0Zm-.571 1.525c-.036.003-.108.036-.137.146l-.289 1.105c-.147.561-.549.967-.998 1.189-.173.086-.34.183-.5.29-.417.278-.97.423-1.529.27l-1.103-.303c-.109-.03-.175.016-.195.045-.22.312-.412.644-.573.99-.014.031-.021.11.059.19l.815.806c.411.406.562.957.53 1.456a4.709 4.709 0 0 0 0 .582c.032.499-.119 1.05-.53 1.456l-.815.806c-.081.08-.073.159-.059.19.162.346.353.677.573.989.02.03.085.076.195.046l1.102-.303c.56-.153 1.113-.008 1.53.27.161.107.328.204.501.29.447.222.85.629.997 1.189l.289 1.105c.029.109.101.143.137.146a6.6 6.6 0 0 0 1.142 0c.036-.003.108-.036.137-.146l.289-1.105c.147-.561.549-.967.998-1.189.173-.086.34-.183.5-.29.417-.278.97-.423 1.529-.27l1.103.303c.109.029.175-.016.195-.045.22-.313.411-.644.573-.99.014-.031.021-.11-.059-.19l-.815-.806c-.411-.406-.562-.957-.53-1.456a4.709 4.709 0 0 0 0-.582c-.032-.499.119-1.05.53-1.456l.815-.806c.081-.08.073-.159.059-.19a6.464 6.464 0 0 0-.573-.989c-.02-.03-.085-.076-.195-.046l-1.102.303c-.56.153-1.113.008-1.53-.27a4.44 4.44 0 0 0-.501-.29c-.447-.222-.85-.629-.997-1.189l-.289-1.105c-.029-.11-.101-.143-.137-.146a6.6 6.6 0 0 0-1.142 0ZM11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM9.5 8a1.5 1.5 0 1 0-3.001.001A1.5 1.5 0 0 0 9.5 8Z'/>
+  </svg>
+);

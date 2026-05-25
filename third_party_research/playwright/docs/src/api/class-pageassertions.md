@@ -1,0 +1,467 @@
+# class: PageAssertions
+* since: v1.17
+
+The [PageAssertions] class provides assertion methods that can be used to make assertions about the [Page] state in the tests.
+
+```js
+import { test, expect } from '@playwright/test';
+
+test('navigates to login', async ({ page }) => {
+  // ...
+  await page.getByText('Sign in').click();
+  await expect(page).toHaveURL(/.*\/login/);
+});
+```
+
+```java
+// ...
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+
+public class TestPage {
+  // ...
+  @Test
+  void navigatesToLoginPage() {
+    // ...
+    page.getByText("Sign in").click();
+    assertThat(page).hasURL(Pattern.compile(".*/login"));
+  }
+}
+```
+
+```python async
+import re
+from playwright.async_api import Page, expect
+
+async def test_navigates_to_login_page(page: Page) -> None:
+    # ..
+    await page.get_by_text("Sign in").click()
+    await expect(page).to_have_url(re.compile(r".*/login"))
+```
+
+```python sync
+import re
+from playwright.sync_api import Page, expect
+
+def test_navigates_to_login_page(page: Page) -> None:
+    # ..
+    page.get_by_text("Sign in").click()
+    expect(page).to_have_url(re.compile(r".*/login"))
+```
+
+```csharp
+using System.Text.RegularExpressions;
+using Microsoft.Playwright;
+using Microsoft.Playwright.MSTest;
+
+namespace PlaywrightTests;
+
+[TestClass]
+public class ExampleTests : PageTest
+{
+    [TestMethod]
+    public async Task NavigateToLoginPage()
+    {
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Sign In" }).ClickAsync();
+        await Expect(Page).ToHaveURLAsync(new Regex(".*/login"));
+    }
+}
+```
+
+## property: PageAssertions.not
+* since: v1.20
+* langs: java, js, csharp
+- returns: <[PageAssertions]>
+
+Makes the assertion check for the opposite condition.
+
+**Usage**
+
+For example, this code tests that the page URL doesn't contain `"error"`:
+
+```js
+await expect(page).not.toHaveURL('error');
+```
+
+```java
+assertThat(page).not().hasURL("error");
+```
+
+```csharp
+await Expect(Page).Not.ToHaveURLAsync("error");
+```
+
+## async method: PageAssertions.NotToHaveTitle
+* since: v1.20
+* langs: python
+
+The opposite of [`method: PageAssertions.toHaveTitle`].
+
+### param: PageAssertions.NotToHaveTitle.titleOrRegExp
+* since: v1.18
+- `titleOrRegExp` <[string]|[RegExp]>
+
+Expected title or RegExp.
+
+### option: PageAssertions.NotToHaveTitle.timeout = %%-csharp-java-python-assertions-timeout-%%
+* since: v1.18
+
+## async method: PageAssertions.NotToHaveURL
+* since: v1.20
+* langs: python
+  - alias-java: hasURL
+
+The opposite of [`method: PageAssertions.toHaveURL`].
+
+### param: PageAssertions.NotToHaveURL.urlOrRegExp
+* since: v1.18
+- `urlOrRegExp` <[string]|[RegExp]>
+
+Expected URL string or RegExp.
+
+### option: PageAssertions.NotToHaveURL.ignoreCase
+* since: v1.44
+- `ignoreCase` <[boolean]>
+
+Whether to perform case-insensitive match. [`option: ignoreCase`] option takes precedence over the corresponding regular expression flag if specified.
+
+### option: PageAssertions.NotToHaveURL.timeout = %%-csharp-java-python-assertions-timeout-%%
+* since: v1.18
+
+## async method: PageAssertions.toMatchAriaSnapshot
+* since: v1.60
+* langs:
+  - alias-java: matchesAriaSnapshot
+
+Asserts that the page body matches the given [accessibility snapshot](../aria-snapshots.md).
+
+**Usage**
+
+```js
+await page.goto('https://demo.playwright.dev/todomvc/');
+await expect(page).toMatchAriaSnapshot(`
+  - heading "todos"
+  - textbox "What needs to be done?"
+`);
+```
+
+```python async
+await page.goto("https://demo.playwright.dev/todomvc/")
+await expect(page).to_match_aria_snapshot('''
+  - heading "todos"
+  - textbox "What needs to be done?"
+''')
+```
+
+```python sync
+page.goto("https://demo.playwright.dev/todomvc/")
+expect(page).to_match_aria_snapshot('''
+  - heading "todos"
+  - textbox "What needs to be done?"
+''')
+```
+
+```csharp
+await page.GotoAsync("https://demo.playwright.dev/todomvc/");
+await Expect(page).ToMatchAriaSnapshotAsync(@"
+  - heading ""todos""
+  - textbox ""What needs to be done?""
+");
+```
+
+```java
+page.navigate("https://demo.playwright.dev/todomvc/");
+assertThat(page).matchesAriaSnapshot("""
+  - heading "todos"
+  - textbox "What needs to be done?"
+""");
+```
+
+### param: PageAssertions.toMatchAriaSnapshot.expected
+* since: v1.60
+- `expected` <[string]>
+
+### option: PageAssertions.toMatchAriaSnapshot.timeout = %%-js-assertions-timeout-%%
+* since: v1.60
+
+### option: PageAssertions.toMatchAriaSnapshot.timeout = %%-csharp-java-python-assertions-timeout-%%
+* since: v1.60
+
+## async method: PageAssertions.NotToMatchAriaSnapshot
+* since: v1.60
+* langs: python
+
+The opposite of [`method: PageAssertions.toMatchAriaSnapshot`].
+
+### param: PageAssertions.NotToMatchAriaSnapshot.expected
+* since: v1.60
+- `expected` <[string]>
+
+### option: PageAssertions.NotToMatchAriaSnapshot.timeout = %%-csharp-java-python-assertions-timeout-%%
+* since: v1.60
+
+## async method: PageAssertions.toMatchAriaSnapshot#2
+* since: v1.60
+* langs: js
+
+Asserts that the page body matches the given [accessibility snapshot](../aria-snapshots.md).
+
+Snapshot is stored in a separate `.aria.yml` file in a location configured by `expect.toMatchAriaSnapshot.pathTemplate` and/or `snapshotPathTemplate` properties in the configuration file.
+
+**Usage**
+
+```js
+await expect(page).toMatchAriaSnapshot();
+await expect(page).toMatchAriaSnapshot({ name: 'home.aria.yml' });
+```
+
+### option: PageAssertions.toMatchAriaSnapshot#2.name
+* since: v1.60
+* langs: js
+- `name` <[string]>
+
+Name of the snapshot to store in the snapshot folder corresponding to this test.
+Generates sequential names if not specified.
+
+### option: PageAssertions.toMatchAriaSnapshot#2.timeout = %%-js-assertions-timeout-%%
+* since: v1.60
+
+## async method: PageAssertions.toHaveScreenshot#1
+* since: v1.23
+* langs: js
+
+This function will wait until two consecutive page screenshots
+yield the same result, and then compare the last screenshot with the expectation.
+
+**Usage**
+
+```js
+await expect(page).toHaveScreenshot('image.png');
+```
+
+Note that screenshot assertions only work with Playwright test runner.
+
+### param: PageAssertions.toHaveScreenshot#1.name
+* since: v1.23
+- `name` <[string]|[Array]<[string]>>
+
+Snapshot name.
+
+### option: PageAssertions.toHaveScreenshot#1.timeout = %%-js-assertions-timeout-%%
+* since: v1.23
+
+### option: PageAssertions.toHaveScreenshot#1.animations = %%-screenshot-option-animations-default-disabled-%%
+* since: v1.23
+
+### option: PageAssertions.toHaveScreenshot#1.caret = %%-screenshot-option-caret-%%
+* since: v1.23
+
+### option: PageAssertions.toHaveScreenshot#1.clip = %%-screenshot-option-clip-%%
+* since: v1.23
+
+### option: PageAssertions.toHaveScreenshot#1.fullPage = %%-screenshot-option-full-page-%%
+* since: v1.23
+
+### option: PageAssertions.toHaveScreenshot#1.mask = %%-screenshot-option-mask-%%
+* since: v1.23
+
+### option: PageAssertions.toHaveScreenshot#1.maskColor = %%-screenshot-option-mask-color-%%
+* since: v1.35
+
+### option: PageAssertions.toHaveScreenshot#1.stylePath = %%-screenshot-option-style-path-%%
+* since: v1.41
+
+### option: PageAssertions.toHaveScreenshot#1.omitBackground = %%-screenshot-option-omit-background-%%
+* since: v1.23
+
+### option: PageAssertions.toHaveScreenshot#1.scale = %%-screenshot-option-scale-default-css-%%
+* since: v1.23
+
+### option: PageAssertions.toHaveScreenshot#1.maxDiffPixels = %%-assertions-max-diff-pixels-%%
+* since: v1.23
+
+### option: PageAssertions.toHaveScreenshot#1.maxDiffPixelRatio = %%-assertions-max-diff-pixel-ratio-%%
+* since: v1.23
+
+### option: PageAssertions.toHaveScreenshot#1.threshold = %%-assertions-threshold-%%
+* since: v1.23
+
+## async method: PageAssertions.toHaveScreenshot#2
+* since: v1.23
+* langs: js
+
+This function will wait until two consecutive page screenshots
+yield the same result, and then compare the last screenshot with the expectation.
+
+**Usage**
+
+```js
+await expect(page).toHaveScreenshot();
+```
+
+Note that screenshot assertions only work with Playwright test runner.
+
+### option: PageAssertions.toHaveScreenshot#2.timeout = %%-js-assertions-timeout-%%
+* since: v1.23
+
+### option: PageAssertions.toHaveScreenshot#2.animations = %%-screenshot-option-animations-default-disabled-%%
+* since: v1.23
+
+### option: PageAssertions.toHaveScreenshot#2.caret = %%-screenshot-option-caret-%%
+* since: v1.23
+
+### option: PageAssertions.toHaveScreenshot#2.clip = %%-screenshot-option-clip-%%
+* since: v1.23
+
+### option: PageAssertions.toHaveScreenshot#2.fullPage = %%-screenshot-option-full-page-%%
+* since: v1.23
+
+### option: PageAssertions.toHaveScreenshot#2.mask = %%-screenshot-option-mask-%%
+* since: v1.23
+
+### option: PageAssertions.toHaveScreenshot#2.maskColor = %%-screenshot-option-mask-color-%%
+* since: v1.35
+
+### option: PageAssertions.toHaveScreenshot#2.stylePath = %%-screenshot-option-style-path-%%
+* since: v1.41
+
+### option: PageAssertions.toHaveScreenshot#2.omitBackground = %%-screenshot-option-omit-background-%%
+* since: v1.23
+
+### option: PageAssertions.toHaveScreenshot#2.scale = %%-screenshot-option-scale-default-css-%%
+* since: v1.23
+
+### option: PageAssertions.toHaveScreenshot#2.maxDiffPixels = %%-assertions-max-diff-pixels-%%
+* since: v1.23
+
+### option: PageAssertions.toHaveScreenshot#2.maxDiffPixelRatio = %%-assertions-max-diff-pixel-ratio-%%
+* since: v1.23
+
+### option: PageAssertions.toHaveScreenshot#2.threshold = %%-assertions-threshold-%%
+* since: v1.23
+
+## async method: PageAssertions.toHaveTitle
+* since: v1.20
+* langs:
+  - alias-java: hasTitle
+
+Ensures the page has the given title.
+
+**Usage**
+
+```js
+await expect(page).toHaveTitle(/.*checkout/);
+```
+
+```java
+assertThat(page).hasTitle("Playwright");
+```
+
+```python async
+import re
+from playwright.async_api import expect
+
+# ...
+await expect(page).to_have_title(re.compile(r".*checkout"))
+```
+
+```python sync
+import re
+from playwright.sync_api import expect
+
+# ...
+expect(page).to_have_title(re.compile(r".*checkout"))
+```
+
+```csharp
+await Expect(Page).ToHaveTitleAsync("Playwright");
+```
+
+### param: PageAssertions.toHaveTitle.titleOrRegExp
+* since: v1.18
+- `titleOrRegExp` <[string]|[RegExp]>
+
+Expected title or RegExp.
+
+### option: PageAssertions.toHaveTitle.timeout = %%-js-assertions-timeout-%%
+* since: v1.18
+
+### option: PageAssertions.toHaveTitle.timeout = %%-csharp-java-python-assertions-timeout-%%
+* since: v1.18
+
+## async method: PageAssertions.toHaveURL
+* since: v1.20
+* langs:
+  - alias-java: hasURL
+
+Ensures the page is navigated to the given URL.
+
+**Usage**
+
+```js
+// Check for the page URL to be 'https://playwright.dev/docs/intro' (including query string)
+await expect(page).toHaveURL('https://playwright.dev/docs/intro');
+
+// Check for the page URL to contain 'doc', followed by an optional 's', followed by '/'
+await expect(page).toHaveURL(/docs?\//);
+
+// Check for the page URL to match the URL pattern
+await expect(page).toHaveURL(new URLPattern({ pathname: '/docs/*' }));
+
+// Check for the predicate to be satisfied
+// For example: verify query strings
+await expect(page).toHaveURL(url => {
+  const params = url.searchParams;
+  return params.has('search') && params.has('options') && params.get('id') === '5';
+});
+```
+
+```java
+assertThat(page).hasURL(".com");
+```
+
+```python async
+import re
+from playwright.async_api import expect
+
+# ...
+await expect(page).to_have_url(re.compile(".*checkout"))
+```
+
+```python sync
+import re
+from playwright.sync_api import expect
+
+# ...
+expect(page).to_have_url(re.compile(".*checkout"))
+```
+
+```csharp
+await Expect(Page).ToHaveURLAsync(new Regex(".*checkout"));
+```
+
+### param: PageAssertions.toHaveURL.url
+* since: v1.18
+* langs: js
+- `url` <[string]|[RegExp]|[URLPattern]|[function]\([URL]\):[boolean]>
+
+Expected URL string, RegExp, or predicate receiving [URL] to match.
+When [`option: Browser.newContext.baseURL`] is provided via the context options and the `url` argument is a string, the two values are merged via the [`new URL()`](https://developer.mozilla.org/en-US/docs/Web/API/URL/URL) constructor and used for the comparison against the current browser URL.
+
+### param: PageAssertions.toHaveURL.urlOrRegExp
+* since: v1.18
+* langs: csharp, python, java
+- `urlOrRegExp` <[string]|[RegExp]>
+
+Expected URL string or RegExp.
+
+### option: PageAssertions.toHaveURL.ignoreCase
+* since: v1.44
+- `ignoreCase` <[boolean]>
+
+Whether to perform case-insensitive match. [`option: ignoreCase`] option takes precedence over the corresponding regular expression parameter if specified. A provided predicate ignores this flag.
+
+### option: PageAssertions.toHaveURL.timeout = %%-js-assertions-timeout-%%
+* since: v1.18
+
+### option: PageAssertions.toHaveURL.timeout = %%-csharp-java-python-assertions-timeout-%%
+* since: v1.18

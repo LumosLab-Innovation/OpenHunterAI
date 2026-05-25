@@ -1,0 +1,5 @@
+[*]
+@isomorphic/**
+@utils/**
+node_modules/colors/safe
+node_modules/debug

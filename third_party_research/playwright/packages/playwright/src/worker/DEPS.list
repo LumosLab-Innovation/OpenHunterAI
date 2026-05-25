@@ -1,0 +1,9 @@
+[*]
+@isomorphic/**
+@utils/**
+../globals.ts
+../common/
+../util.ts
+../matchers/**
+node_modules/colors/safe
+node_modules/yazl

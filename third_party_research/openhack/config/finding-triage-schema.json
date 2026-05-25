@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:openhack:finding-triage",
+  "title": "Finding Triage",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "candidate_id",
+    "review_mode",
+    "triage_agent_id",
+    "triage_prompt_sha256",
+    "reviewed_files",
+    "decision",
+    "summary",
+    "final_severity",
+    "severity_rationale",
+    "confidence",
+    "evidence_assessment",
+    "evidence_gaps",
+    "required_changes"
+  ],
+  "properties": {
+    "candidate_id": {
+      "type": "string",
+      "pattern": "^S[0-9]{3,}-F[0-9]{3,}$"
+    },
+    "review_mode": {
+      "type": "string",
+      "enum": ["per-finding-triage-agent"]
+    },
+    "triage_agent_id": {"type": "string", "minLength": 1},
+    "triage_prompt_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "reviewed_files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "decision": {
+      "type": "string",
+      "enum": ["accepted", "downgraded", "duplicate", "rejected", "needs_context"]
+    },
+    "summary": {"type": "string", "minLength": 1},
+    "final_severity": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low",
+        "informational",
+        "not_applicable"
+      ]
+    },
+    "severity_rationale": {"type": "string", "minLength": 1},
+    "confidence": {
+      "type": "string",
+      "enum": ["high", "medium", "low"]
+    },
+    "evidence_assessment": {"type": "string", "minLength": 1},
+    "evidence_gaps": {"type": "array"},
+    "required_changes": {"type": "array"},
+    "dedupe_notes": {"type": "string"},
+    "duplicate_of": {"type": "string"},
+    "finding": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

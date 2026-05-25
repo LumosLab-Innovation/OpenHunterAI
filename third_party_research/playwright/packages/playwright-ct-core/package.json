@@ -1,0 +1,33 @@
+{
+  "name": "@playwright/experimental-ct-core",
+  "version": "1.61.0-next",
+  "description": "Playwright Component Testing Helpers",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/playwright.git"
+  },
+  "homepage": "https://playwright.dev",
+  "engines": {
+    "node": ">=18"
+  },
+  "author": {
+    "name": "Microsoft Corporation"
+  },
+  "license": "Apache-2.0",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./lib/mount": "./lib/mount.js",
+    "./lib/program": "./lib/program.js",
+    "./types/component": {
+      "types": "./types/component.d.ts"
+    }
+  },
+  "dependencies": {
+    "playwright-core": "1.61.0-next",
+    "vite": "^6.4.1",
+    "playwright": "1.61.0-next"
+  }
+}

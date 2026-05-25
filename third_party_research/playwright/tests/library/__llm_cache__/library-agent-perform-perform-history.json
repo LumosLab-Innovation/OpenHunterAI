@@ -1,0 +1,58 @@
+{
+  "54afa1e29fe78452a29b389587b30f71e7b68876": {
+    "result": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "I'll click the Fox button again as requested."
+        },
+        {
+          "type": "tool_call",
+          "name": "browser_click",
+          "arguments": {
+            "element": "Fox button",
+            "ref": "e3",
+            "_is_done": true
+          },
+          "id": "toolu_015TpKarPp9KvpT5K86f1fez"
+        }
+      ],
+      "stopReason": {
+        "code": "ok"
+      }
+    },
+    "usage": {
+      "input": 3131,
+      "output": 102
+    }
+  },
+  "83a2685b1bdc1b947fbaa05e3e2ce3a7323ab216": {
+    "result": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "I'll click the Fox button as requested."
+        },
+        {
+          "type": "tool_call",
+          "name": "browser_click",
+          "arguments": {
+            "element": "Fox button",
+            "ref": "e3",
+            "_is_done": true
+          },
+          "id": "toolu_01JnaV2Pgnyaz9oYDFkXzDMQ"
+        }
+      ],
+      "stopReason": {
+        "code": "ok"
+      }
+    },
+    "usage": {
+      "input": 3118,
+      "output": 101
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "candidate_id": "S001-F001",
+  "review_mode": "per-finding-triage-agent",
+  "triage_agent_id": "unique-triage-subagent-id",
+  "triage_prompt_sha256": "64 lowercase hex characters",
+  "reviewed_files": [
+    "source-relative/path"
+  ],
+  "decision": "accepted|downgraded|duplicate|rejected|needs_context",
+  "summary": "Concise triage decision.",
+  "final_severity": "critical|high|medium|low|informational|not_applicable",
+  "severity_rationale": "Why this severity is justified after checking attacker role, preconditions, exploitability, impact scope, and deployment assumptions.",
+  "confidence": "high|medium|low",
+  "evidence_assessment": "Whether the scenario evidence proves reachability, attacker control, sink or boundary, missing guard, and concrete impact.",
+  "evidence_gaps": [],
+  "required_changes": [],
+  "dedupe_notes": "How this compares to existing findings or related candidates.",
+  "duplicate_of": "candidate-id-or-finding-title when decision is duplicate",
+  "finding": {
+    "title": "<severity> - <type of vuln> - <location>",
+    "severity": "critical|high|medium|low|informational",
+    "target_path": "source-relative/path",
+    "attacker_role": "Required attacker role, auth state, or privilege level",
+    "preconditions": "Deployment settings, feature flags, data state, or user actions required",
+    "non_technical_summary": "Plain-language summary for non-technical stakeholders.",
+    "summary": "Technical summary of the verified root cause.",
+    "evidence": "Source, sink, missing guard, line references, and proof notes.",
+    "attack_chain": "1. Attacker reaches the entrypoint.\n2. Attacker controls the vulnerable input.\n3. Input reaches the sink without the required guard.\n4. Security impact occurs.",
+    "example_attack": "Concrete controlled-test example of how the attack would look, without unnecessary live-target weaponization.",
+    "impact": "Short impact statement retained for summary tooling.",
+    "impact_analysis": "Thorough impact analysis covering confidentiality, integrity, availability, privilege boundaries, data scope, and realistic blast radius.",
+    "attacker_use": "How an attacker could use this in practice, including what they gain and what limits the attack.",
+    "recommended_fix": "Specific remediation guidance.",
+    "validation_notes": "How to reproduce safely and how to verify the fix."
+  }
+}

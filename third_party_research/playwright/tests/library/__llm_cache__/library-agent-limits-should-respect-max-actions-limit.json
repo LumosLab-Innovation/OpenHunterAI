@@ -1,0 +1,114 @@
+{
+  "02c08e7832aaa36c18ea5191d8576315d0b2de69": {
+    "result": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "Now clicking the fourth time."
+        },
+        {
+          "type": "tool_call",
+          "name": "browser_click",
+          "arguments": {
+            "element": "Submit button",
+            "ref": "e2",
+            "_is_done": false
+          },
+          "id": "toolu_01RaTy7Rx5THV9gfuXZDLpJc"
+        }
+      ],
+      "stopReason": {
+        "code": "ok"
+      }
+    },
+    "usage": {
+      "input": 3372,
+      "output": 98
+    }
+  },
+  "3e5f433d3eb65d0452eb142cc6c9169ca743ad9c": {
+    "result": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "I'll click the submit button 5 times as requested. Let me start by clicking it the first time."
+        },
+        {
+          "type": "tool_call",
+          "name": "browser_click",
+          "arguments": {
+            "element": "Submit button",
+            "ref": "e2",
+            "_is_done": false
+          },
+          "id": "toolu_017Lc8Rcz2Pqo5bN2gnQ5xJr"
+        }
+      ],
+      "stopReason": {
+        "code": "ok"
+      }
+    },
+    "usage": {
+      "input": 3085,
+      "output": 115
+    }
+  },
+  "3eac3a4f34e9b3d5239f95864a043d84bcafb3cf": {
+    "result": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "Now clicking the second time."
+        },
+        {
+          "type": "tool_call",
+          "name": "browser_click",
+          "arguments": {
+            "element": "Submit button",
+            "ref": "e2",
+            "_is_done": false
+          },
+          "id": "toolu_01TRZkN9Q2PXgDbvNQo28WnV"
+        }
+      ],
+      "stopReason": {
+        "code": "ok"
+      }
+    },
+    "usage": {
+      "input": 3229,
+      "output": 98
+    }
+  },
+  "7da30a83cb82a113b53b02fd7ff3ca946a5bf2b0": {
+    "result": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "Now clicking the third time."
+        },
+        {
+          "type": "tool_call",
+          "name": "browser_click",
+          "arguments": {
+            "element": "Submit button",
+            "ref": "e2",
+            "_is_done": false
+          },
+          "id": "toolu_013WxjykEaqVN1aqpEqobvEx"
+        }
+      ],
+      "stopReason": {
+        "code": "ok"
+      }
+    },
+    "usage": {
+      "input": 3302,
+      "output": 98
+    }
+  }
+}

@@ -1,0 +1,28 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      gha:
+        applies-to: version-updates
+        patterns:
+        - "*"
+  - package-ecosystem: "gradle"
+    directory: "/"
+    exclude-paths:
+      - "buildSrc"
+    schedule:
+      interval: "weekly"
+    groups:
+      gradle:
+        applies-to: version-updates
+        patterns:
+          - "*"
+    ignore:
+      - dependency-name: "gradle-wrapper"
+      - dependency-name: "com.google.errorprone:error_prone_core"
+        versions: [ ">= 2.43.0" ] # versions 2.43.x and later require Java 21
+      - dependency-name: "com.diffplug.spotless*" # newer versions lead to runtime error, will need to update the common zap plugin first
+      - dependency-name: "org.jgrapht:jgrapht-core" # Also used by AJAX Spider and newer versions have breaking changes.

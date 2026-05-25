@@ -1,0 +1,10 @@
+[*]
+../../package.ts
+../utils/socketConnection.ts
+../cli-client/registry.ts
+../backend/
+../mcp/
+@utils/**
+../../server/registry/index.ts
+@utils/**
+node_modules/zod

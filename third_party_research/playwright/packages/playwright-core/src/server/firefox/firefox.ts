@@ -1,0 +1,119 @@
+/**
+ * Copyright 2017 Google Inc. All rights reserved.
+ * Modifications copyright (c) Microsoft Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import os from 'os';
+import path from 'path';
+
+import { ManualPromise } from '@isomorphic/manualPromise';
+import { wrapInASCIIBox } from '@utils/ascii';
+import { FFBrowser } from './ffBrowser';
+import { kBrowserCloseMessageId } from './ffConnection';
+import { BrowserType, kNoXServerRunningError } from '../browserType';
+
+import type { Browser, BrowserOptions } from '../browser';
+import type { SdkObject } from '../instrumentation';
+import type { ConnectionTransport } from '../transport';
+import type * as types from '../types';
+import type { RecentLogsCollector } from '@utils/debugLogger';
+import type { BrowserContext } from '../browserContext';
+import type * as channels from '@protocol/channels';
+import type { Progress } from '@protocol/progress';
+
+export class Firefox extends BrowserType {
+  private _bidiFirefox: BrowserType;
+
+  constructor(parent: SdkObject, bidiFirefox: BrowserType) {
+    super(parent, 'firefox');
+    this._bidiFirefox = bidiFirefox;
+  }
+
+  override launch(progress: Progress, options: types.LaunchOptions, protocolLogger?: types.ProtocolLogger): Promise<Browser> {
+    if (options.channel?.startsWith('moz-'))
+      return this._bidiFirefox.launch(progress, options, protocolLogger);
+    return super.launch(progress, options, protocolLogger);
+  }
+
+  override async launchPersistentContext(progress: Progress, userDataDir: string, options: channels.BrowserTypeLaunchPersistentContextOptions & { internalIgnoreHTTPSErrors?: boolean, socksProxyPort?: number }): Promise<BrowserContext> {
+    if (options.channel?.startsWith('moz-'))
+      return this._bidiFirefox.launchPersistentContext(progress, userDataDir, options);
+    return super.launchPersistentContext(progress, userDataDir, options);
+  }
+
+  override connectToTransport(transport: ConnectionTransport, options: BrowserOptions): Promise<FFBrowser> {
+    return FFBrowser.connect(this.attribution.playwright, transport, options);
+  }
+
+  override doRewriteStartupLog(logs: string): string {
+    // https://github.com/microsoft/playwright/issues/6500
+    if (logs.includes(`as root in a regular user's session is not supported.`))
+      logs = '\n' + wrapInASCIIBox(`Firefox is unable to launch if the $HOME folder isn't owned by the current user.\nWorkaround: Set the HOME=/root environment variable${process.env.GITHUB_ACTION ? ' in your GitHub Actions workflow file' : ''} when running Playwright.`, 1);
+    if (logs.includes('no DISPLAY environment variable specified'))
+      logs = '\n' + wrapInASCIIBox(kNoXServerRunningError, 1);
+    return logs;
+  }
+
+  override amendEnvironment(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+    if (!path.isAbsolute(os.homedir()))
+      throw new Error(`Cannot launch Firefox with relative home directory. Did you set ${os.platform() === 'win32' ? 'USERPROFILE' : 'HOME'} to a relative path?`);
+    if (os.platform() === 'linux') {
+      // Always remove SNAP_NAME and SNAP_INSTANCE_NAME env variables since they
+      // confuse Firefox: in our case, builds never come from SNAP.
+      // See https://github.com/microsoft/playwright/issues/20555
+      return { ...env, SNAP_NAME: undefined, SNAP_INSTANCE_NAME: undefined };
+    }
+    return env;
+  }
+
+  override attemptToGracefullyCloseBrowser(transport: ConnectionTransport): void {
+    // Note that it's fine to reuse the transport, since our connection ignores kBrowserCloseMessageId.
+    const message = { method: 'Browser.close', params: {}, id: kBrowserCloseMessageId };
+    transport.send(message);
+  }
+
+  override async defaultArgs(options: types.LaunchOptions, isPersistent: boolean, userDataDir: string) {
+    const { args = [], headless } = options;
+    const userDataDirArg = args.find(arg => arg.startsWith('-profile') || arg.startsWith('--profile'));
+    if (userDataDirArg)
+      throw this._createUserDataDirArgMisuseError('--profile');
+    if (args.find(arg => arg.startsWith('-juggler')))
+      throw new Error('Use the port parameter instead of -juggler argument');
+    const firefoxArguments = ['-no-remote'];
+    if (headless) {
+      firefoxArguments.push('-headless');
+    } else {
+      firefoxArguments.push('-wait-for-browser');
+      firefoxArguments.push('-foreground');
+    }
+    firefoxArguments.push(`-profile`, userDataDir);
+    firefoxArguments.push('-juggler-pipe');
+    firefoxArguments.push(...args);
+    if (isPersistent)
+      firefoxArguments.push('about:blank');
+    else
+      firefoxArguments.push('-silent');
+    return firefoxArguments;
+  }
+
+  override waitForReadyState(options: types.LaunchOptions, browserLogsCollector: RecentLogsCollector): Promise<{ wsEndpoint?: string }> {
+    const result = new ManualPromise<{ wsEndpoint?: string }>();
+    browserLogsCollector.onMessage(message => {
+      if (message.includes('Juggler listening to the pipe'))
+        result.resolve({});
+    });
+    return result;
+  }
+}

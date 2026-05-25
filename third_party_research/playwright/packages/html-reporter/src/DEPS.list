@@ -1,0 +1,15 @@
+[*]
+@web/**
+@isomorphic/**
+
+[chip.spec.tsx]
+***
+
+[headerView.spec.tsx]
+***
+
+[imageDiffView.spec.tsx]
+***
+
+[testCaseView.spec.tsx]
+***

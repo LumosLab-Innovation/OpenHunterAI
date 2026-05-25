@@ -1,0 +1,100 @@
+/*
+  Copyright (c) Microsoft Corporation.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+.test-file-test {
+  line-height: 32px;
+  align-items: center;
+  padding: 2px 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.test-file-test-selected, .test-file-test:hover {
+  background-color: var(--color-canvas-subtle);
+}
+
+.test-file-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.test-file-details-row {
+  padding: 0 0 6px 8px;
+  margin: 0 0 0 15px;
+  line-height: 16px;
+  font-weight: 400;
+  color: var(--color-fg-muted);
+  display: flex;
+  align-items: center;
+}
+
+.test-file-details-row-items {
+  display: flex;
+  height: 16px;
+}
+
+.test-file-details-row-items > .link-badge {
+  /* Align badges */
+  margin-top: -2px;
+}
+
+.test-file-details-row-items > .trace-link {
+  /* Center in row */
+  margin-top: -4px;
+}
+
+.test-file-path {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  color: var(--color-fg-muted);
+}
+
+.test-file-path-link {
+  margin-right: 10px;
+}
+
+.test-file-test-outcome-skipped {
+  color: var(--color-fg-muted);
+}
+
+.test-file-test-status-icon {
+  flex: none;
+}
+
+.test-file-header-info {
+  display: flex;
+  align-items: center;
+  gap: 4px 8px;
+  color: var(--color-fg-muted);
+}
+
+.test-file-header-br {
+  flex-basis: 100%;
+  height: 0;
+}
+
+.test-file-no-files {
+  margin-top: 12px;
+
+  color: var(--color-fg-muted);
+  background-color: unset;
+
+  font-weight: unset;
+
+  border: 1px solid var(--color-border-default);
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
