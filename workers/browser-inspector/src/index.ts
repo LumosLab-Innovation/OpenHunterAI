@@ -86,7 +86,10 @@ export interface BrowserObservation {
 }
 
 class BrowserInspectorWorker extends BaseWorker<BrowserInspectorInput, BrowserObservation> {
-  protected async run(input: BrowserInspectorInput, signal: AbortSignal): Promise<BrowserObservation> {
+  protected async run(
+    input: BrowserInspectorInput,
+    signal: AbortSignal,
+  ): Promise<BrowserObservation> {
     let playwright: typeof import('playwright');
     try {
       playwright = await import('playwright');
@@ -127,7 +130,13 @@ class BrowserInspectorWorker extends BaseWorker<BrowserInspectorInput, BrowserOb
             // CDN-style 3p assets are fine — we just don't follow them as routes.
             // We let GET asset types through (static); for navigation we abort.
             const type = req.resourceType();
-            if (type === 'image' || type === 'font' || type === 'media' || type === 'stylesheet' || type === 'script') {
+            if (
+              type === 'image' ||
+              type === 'font' ||
+              type === 'media' ||
+              type === 'stylesheet' ||
+              type === 'script'
+            ) {
               await route.continue();
               return;
             }
@@ -211,7 +220,9 @@ class BrowserInspectorWorker extends BaseWorker<BrowserInspectorInput, BrowserOb
         } catch (e) {
           // Per-page navigation errors are non-fatal — record and continue.
           consoleErrors.push(
-            sanitizeText(`navigate_failed url=${next}: ${e instanceof Error ? e.message : String(e)}`).slice(0, 1000),
+            sanitizeText(
+              `navigate_failed url=${next}: ${e instanceof Error ? e.message : String(e)}`,
+            ).slice(0, 1000),
           );
         }
       }
@@ -227,7 +238,10 @@ class BrowserInspectorWorker extends BaseWorker<BrowserInspectorInput, BrowserOb
         path: c.path,
       }));
       const storageKeys: ObservedStorageKey[] = await page.evaluate(() => {
-        function describe(scope: 'localStorage' | 'sessionStorage', store: Storage): ObservedStorageKey[] {
+        function describe(
+          scope: 'localStorage' | 'sessionStorage',
+          store: Storage,
+        ): ObservedStorageKey[] {
           const out: ObservedStorageKey[] = [];
           for (let i = 0; i < store.length; i++) {
             const key = store.key(i);
@@ -241,14 +255,19 @@ class BrowserInspectorWorker extends BaseWorker<BrowserInspectorInput, BrowserOb
           }
           return out;
         }
-        return [...describe('localStorage', window.localStorage), ...describe('sessionStorage', window.sessionStorage)];
+        return [
+          ...describe('localStorage', window.localStorage),
+          ...describe('sessionStorage', window.sessionStorage),
+        ];
       });
 
-      const apiEndpoints: ObservedApiEndpoint[] = Array.from(apiMap.entries()).map(([url, methods]) => ({
-        url,
-        methods: Array.from(methods),
-        pathPattern: detectPathPattern(new URL(url).pathname),
-      }));
+      const apiEndpoints: ObservedApiEndpoint[] = Array.from(apiMap.entries()).map(
+        ([url, methods]) => ({
+          url,
+          methods: Array.from(methods),
+          pathPattern: detectPathPattern(new URL(url).pathname),
+        }),
+      );
 
       const result: BrowserObservation = {
         routes,

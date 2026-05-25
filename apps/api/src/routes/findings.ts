@@ -89,7 +89,8 @@ export function registerFindingRoutes(app: FastifyInstance): void {
       data: {
         findingId: finding.id,
         scanJobId: finding.scanJobId,
-        kind: finding.severity === 'critical' || finding.severity === 'high' ? 'ai_assisted' : 'auto',
+        kind:
+          finding.severity === 'critical' || finding.severity === 'high' ? 'ai_assisted' : 'auto',
         scopeSnapshot: finding.scanJob.scopeSnapshot ?? {},
         scenarioRef: finding.retestScenario,
       },

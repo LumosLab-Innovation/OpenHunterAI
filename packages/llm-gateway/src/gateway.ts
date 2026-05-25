@@ -71,7 +71,9 @@ export class LLMGateway {
       this.buckets.set(bucketKey, tracker);
     }
     const estInput = estimateTokens(
-      sanitized.systemPrompt + '\n' + sanitized.userPrompt +
+      sanitized.systemPrompt +
+        '\n' +
+        sanitized.userPrompt +
         (sanitized.compactContext ? JSON.stringify(sanitized.compactContext) : ''),
     );
     tracker.reserve(estInput);

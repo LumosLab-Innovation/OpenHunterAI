@@ -29,23 +29,38 @@ function obs(partial: Partial<BrowserObservation>): BrowserObservation {
 describe('OpenHack hunters', () => {
   it('flags exposed .env paths', async () => {
     const res = await runOpenHackHunters({
-      scanId: 's', projectId: 'p', mode: 'free', scope,
-      browser: obs({ routes: [{ url: 'https://example.com/.env', method: 'GET', statusCode: 200 }] }),
+      scanId: 's',
+      projectId: 'p',
+      mode: 'free',
+      scope,
+      browser: obs({
+        routes: [{ url: 'https://example.com/.env', method: 'GET', statusCode: 200 }],
+      }),
     });
-    expect(res.candidates.some((c) => /\.env/.test(c.title) || c.affectedAsset === '/.env')).toBe(true);
+    expect(res.candidates.some((c) => /\.env/.test(c.title) || c.affectedAsset === '/.env')).toBe(
+      true,
+    );
   });
 
   it('flags localStorage tokens', async () => {
     const res = await runOpenHackHunters({
-      scanId: 's', projectId: 'p', mode: 'free', scope,
-      browser: obs({ storageKeys: [{ scope: 'localStorage', keyName: 'access_token', looksTokenLike: true }] }),
+      scanId: 's',
+      projectId: 'p',
+      mode: 'free',
+      scope,
+      browser: obs({
+        storageKeys: [{ scope: 'localStorage', keyName: 'access_token', looksTokenLike: true }],
+      }),
     });
     expect(res.candidates.some((c) => c.category === 'frontend-secret')).toBe(true);
   });
 
   it('flags session cookies missing HttpOnly', async () => {
     const res = await runOpenHackHunters({
-      scanId: 's', projectId: 'p', mode: 'free', scope,
+      scanId: 's',
+      projectId: 'p',
+      mode: 'free',
+      scope,
       browser: obs({ cookies: [{ name: 'sessionid', httpOnly: false, secure: false }] }),
     });
     expect(res.candidates.some((c) => c.category === 'auth-session')).toBe(true);
@@ -53,18 +68,30 @@ describe('OpenHack hunters', () => {
 
   it('flags direct LLM calls from the browser', async () => {
     const res = await runOpenHackHunters({
-      scanId: 's', projectId: 'p', mode: 'free', scope,
-      browser: obs({ apiEndpoints: [{ url: 'https://api.openai.com/v1/chat/completions', methods: ['POST'] }] }),
+      scanId: 's',
+      projectId: 'p',
+      mode: 'free',
+      scope,
+      browser: obs({
+        apiEndpoints: [{ url: 'https://api.openai.com/v1/chat/completions', methods: ['POST'] }],
+      }),
     });
     expect(res.candidates.some((c) => c.category === 'ai-app')).toBe(true);
   });
 
   it('warns about mutating endpoints', async () => {
     const res = await runOpenHackHunters({
-      scanId: 's', projectId: 'p', mode: 'free', scope,
+      scanId: 's',
+      projectId: 'p',
+      mode: 'free',
+      scope,
       browser: obs({
         apiEndpoints: [
-          { url: 'https://example.com/api/users/123', methods: ['DELETE'], pathPattern: '/api/users/:id' },
+          {
+            url: 'https://example.com/api/users/123',
+            methods: ['DELETE'],
+            pathPattern: '/api/users/:id',
+          },
         ],
       }),
     });

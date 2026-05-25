@@ -85,7 +85,8 @@ function countSeverities(hunter?: OpenHackResult, strix?: StrixResult): Record<S
 
 function renderFreeSnapshot(input: ReportInput, counts: Record<Severity, number>): string {
   const items = (input.hunter?.candidates ?? []).map(
-    (c) => `- **[${c.severity.toUpperCase()}]** ${sanitizeText(c.title)} — \`${sanitizeText(c.affectedAsset)}\``,
+    (c) =>
+      `- **[${c.severity.toUpperCase()}]** ${sanitizeText(c.title)} — \`${sanitizeText(c.affectedAsset)}\``,
   );
   const coverage = (input.hunter?.coverageGaps ?? []).map((g) => `- ${sanitizeText(g)}`);
   const checked = listChecked(input);
@@ -97,7 +98,7 @@ function renderFreeSnapshot(input: ReportInput, counts: Record<Severity, number>
     `**Gói:** ${input.scope.scanPackage}`,
     `**Đã chạy:** ${checked.join(', ')}`,
     ``,
-    `## Mục đã tìm thấy (${(input.hunter?.candidates.length ?? 0)})`,
+    `## Mục đã tìm thấy (${input.hunter?.candidates.length ?? 0})`,
     items.length ? items.join('\n') : '_Không tìm thấy mục nào trong phạm vi đã quét._',
     ``,
     `## Phạm vi chưa kiểm tra được`,
@@ -113,7 +114,10 @@ function renderFreeSnapshot(input: ReportInput, counts: Record<Severity, number>
   ].join('\n');
 }
 
-async function renderHumanReport(input: ReportInput, counts: Record<Severity, number>): Promise<string> {
+async function renderHumanReport(
+  input: ReportInput,
+  counts: Record<Severity, number>,
+): Promise<string> {
   // Deterministic backbone:
   const head = [
     `# Báo cáo bảo mật web (Human Report)`,
@@ -160,17 +164,16 @@ async function renderHumanReport(input: ReportInput, counts: Record<Severity, nu
       userPrompt: head + '\n' + sections + strixObs,
     });
     if (!polish.error && polish.outputText.trim().length > 20) {
-      return head + sections + strixObs + `\n\n## Kết luận chung\n\n${sanitizeText(polish.outputText)}`;
+      return (
+        head + sections + strixObs + `\n\n## Kết luận chung\n\n${sanitizeText(polish.outputText)}`
+      );
     }
   }
   return head + sections + strixObs;
 }
 
 function renderAiDevReport(input: ReportInput, counts: Record<Severity, number>): string {
-  const items = [
-    ...(input.hunter?.candidates ?? []),
-    ...(input.strix?.findings ?? []),
-  ];
+  const items = [...(input.hunter?.candidates ?? []), ...(input.strix?.findings ?? [])];
   const lines = items.map((c) => {
     return [
       `## ${sanitizeText(c.title)}`,
@@ -183,7 +186,8 @@ function renderAiDevReport(input: ReportInput, counts: Record<Severity, number>)
     ].join('\n');
   });
   const fixPrompts = (input.strix?.fixPrompts ?? []).map(
-    (p) => `### Fix prompt for: ${sanitizeText(p.findingTitle)}\n\n\`\`\`\n${sanitizeText(p.prompt)}\n\`\`\``,
+    (p) =>
+      `### Fix prompt for: ${sanitizeText(p.findingTitle)}\n\n\`\`\`\n${sanitizeText(p.prompt)}\n\`\`\``,
   );
   return [
     `# AI / Dev Report`,
@@ -200,7 +204,8 @@ function renderAiDevReport(input: ReportInput, counts: Record<Severity, number>)
 
 function listChecked(input: ReportInput): string[] {
   const out = ['Browser Inspect'];
-  if (input.hunter && input.hunter.candidates.length + input.hunter.warnings.length > 0) out.push('OpenHack Hunters');
+  if (input.hunter && input.hunter.candidates.length + input.hunter.warnings.length > 0)
+    out.push('OpenHack Hunters');
   if (input.strix && input.strix.observations.length > 0) out.push('Strix Reasoning');
   return out;
 }

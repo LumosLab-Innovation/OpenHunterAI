@@ -46,11 +46,10 @@ export function assertInScope(
   if (scope.allowedPaths.length > 0) {
     const anyAllowed = scope.allowedPaths.some((p) => matchesPathPrefix(path, p));
     if (!anyAllowed) {
-      throw new GuardrailError(
-        'OUT_OF_SCOPE_PATH',
-        `Path not within allowed prefixes`,
-        { path, allowed: scope.allowedPaths },
-      );
+      throw new GuardrailError('OUT_OF_SCOPE_PATH', `Path not within allowed prefixes`, {
+        path,
+        allowed: scope.allowedPaths,
+      });
     }
   }
 }

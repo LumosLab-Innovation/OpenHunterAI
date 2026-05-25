@@ -102,9 +102,8 @@ export function assertNotReservedTarget(hostname: string): void {
   }
 
   // IPv6 literal (with or without brackets)?
-  const stripped = hostname.startsWith('[') && hostname.endsWith(']')
-    ? hostname.slice(1, -1)
-    : hostname;
+  const stripped =
+    hostname.startsWith('[') && hostname.endsWith(']') ? hostname.slice(1, -1) : hostname;
   if (isIPv6Literal(stripped)) {
     if (isPrivateIPv6(stripped)) {
       throw new GuardrailError('PRIVATE_OR_RESERVED_TARGET', 'Private/reserved IPv6 is blocked', {
@@ -179,7 +178,12 @@ export function isPrivateIPv6(ip: string): boolean {
   if (lower === '::1' || lower === '::' || lower === '0:0:0:0:0:0:0:0') return true;
   if (lower === '0:0:0:0:0:0:0:1') return true;
   if (lower.startsWith('fc') || lower.startsWith('fd')) return true; // fc00::/7
-  if (lower.startsWith('fe8') || lower.startsWith('fe9') || lower.startsWith('fea') || lower.startsWith('feb')) {
+  if (
+    lower.startsWith('fe8') ||
+    lower.startsWith('fe9') ||
+    lower.startsWith('fea') ||
+    lower.startsWith('feb')
+  ) {
     return true; // fe80::/10
   }
   if (lower.startsWith('ff')) return true; // multicast ff00::/8

@@ -52,7 +52,8 @@ export function registerScanRoutes(app: FastifyInstance): void {
       testAccountPermission: authz.testAccountPermission,
       sensitiveActionPermission: authz.sensitiveActionPermission,
       scanPackage: authz.scanPackage,
-      verifiedDomain: (await prisma.domain.findUnique({ where: { id: authz.domainId } }))?.hostname ?? '',
+      verifiedDomain:
+        (await prisma.domain.findUnique({ where: { id: authz.domainId } }))?.hostname ?? '',
       capturedAt: new Date().toISOString(),
     };
 

@@ -1,7 +1,16 @@
 import type { OpenHackInput } from '../index.js';
 import type { Hunter, HunterOutput } from './types.js';
 
-const SESSION_HINTS = ['session', 'sess', 'auth', 'token', 'sid', 'jsessionid', 'phpsessid', 'connect.sid'];
+const SESSION_HINTS = [
+  'session',
+  'sess',
+  'auth',
+  'token',
+  'sid',
+  'jsessionid',
+  'phpsessid',
+  'connect.sid',
+];
 
 export const authSessionHunter: Hunter = function authSessionHunter(
   input: OpenHackInput,
@@ -24,7 +33,8 @@ export const authSessionHunter: Hunter = function authSessionHunter(
         category: 'auth-session',
         affectedAsset: `cookie:${c.name}`,
         evidence: {
-          description: `Cookie "${c.name}" is missing: ${issues.join(', ')}. ` +
+          description:
+            `Cookie "${c.name}" is missing: ${issues.join(', ')}. ` +
             `Set HttpOnly, Secure, and SameSite=Lax (or Strict where possible) for session cookies.`,
           sanitized: true,
         },

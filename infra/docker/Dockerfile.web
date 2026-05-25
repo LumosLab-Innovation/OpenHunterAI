@@ -1,0 +1,23 @@
+FROM node:22-slim AS base
+ENV NODE_ENV=production CI=true
+RUN corepack enable && corepack prepare pnpm@9.15.1 --activate
+WORKDIR /app
+
+FROM base AS deps
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml tsconfig.base.json ./
+COPY apps/web/package.json ./apps/web/
+COPY packages ./packages/
+COPY workers ./workers/
+RUN pnpm install --frozen-lockfile --prod=false
+
+FROM deps AS build
+COPY . .
+RUN pnpm --filter @x-hunter/web run build
+
+FROM node:22-slim AS runner
+ENV NODE_ENV=production
+RUN corepack enable && corepack prepare pnpm@9.15.1 --activate
+WORKDIR /app
+COPY --from=build /app /app
+EXPOSE 3001
+CMD ["pnpm", "--filter", "@x-hunter/web", "run", "start"]

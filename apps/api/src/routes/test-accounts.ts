@@ -46,7 +46,11 @@ export function registerTestAccountRoutes(app: FastifyInstance): void {
     }
 
     const cipher = encryptString(
-      JSON.stringify({ username: body.username, password: body.password, totpSecret: body.totpSecret }),
+      JSON.stringify({
+        username: body.username,
+        password: body.password,
+        totpSecret: body.totpSecret,
+      }),
     );
 
     const acct = await prisma.testAccount.create({

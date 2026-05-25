@@ -59,7 +59,12 @@ async function processScan(scanJobId: string): Promise<void> {
   // 1) Browser Inspector (always; produces the security context)
   // ---------------------------------------------------------------------
   const browserStep = await prisma.scanStep.create({
-    data: { scanJobId: scan.id, kind: 'browser_inspector', state: 'running', startedAt: new Date() },
+    data: {
+      scanJobId: scan.id,
+      kind: 'browser_inspector',
+      state: 'running',
+      startedAt: new Date(),
+    },
   });
   let browserOut: BrowserObservation | undefined;
   try {
@@ -96,7 +101,12 @@ async function processScan(scanJobId: string): Promise<void> {
     log.error('browser_inspector_threw', { msg: String(err) });
     await prisma.scanStep.update({
       where: { id: browserStep.id },
-      data: { state: 'failed', finishedAt: new Date(), errorCode: 'WORKER_ERROR', errorMsg: String(err) },
+      data: {
+        state: 'failed',
+        finishedAt: new Date(),
+        errorCode: 'WORKER_ERROR',
+        errorMsg: String(err),
+      },
     });
   }
 
@@ -140,7 +150,12 @@ async function processScan(scanJobId: string): Promise<void> {
     } catch (err) {
       await prisma.scanStep.update({
         where: { id: zapStep.id },
-        data: { state: 'failed', finishedAt: new Date(), errorCode: 'WORKER_ERROR', errorMsg: String(err) },
+        data: {
+          state: 'failed',
+          finishedAt: new Date(),
+          errorCode: 'WORKER_ERROR',
+          errorMsg: String(err),
+        },
       });
     }
   }
@@ -158,9 +173,10 @@ async function processScan(scanJobId: string): Promise<void> {
         scanId: scan.id,
         projectId: scan.projectId,
         scope,
-        targets: Array.from(
-          new Set(browserOut.routes.map((r) => new URL(r.url).origin)),
-        ).slice(0, 5),
+        targets: Array.from(new Set(browserOut.routes.map((r) => new URL(r.url).origin))).slice(
+          0,
+          5,
+        ),
         logger: log,
       });
       if (res.ok) {
@@ -187,7 +203,12 @@ async function processScan(scanJobId: string): Promise<void> {
     } catch (err) {
       await prisma.scanStep.update({
         where: { id: step.id },
-        data: { state: 'failed', finishedAt: new Date(), errorCode: 'WORKER_ERROR', errorMsg: String(err) },
+        data: {
+          state: 'failed',
+          finishedAt: new Date(),
+          errorCode: 'WORKER_ERROR',
+          errorMsg: String(err),
+        },
       });
     }
   }
@@ -198,7 +219,12 @@ async function processScan(scanJobId: string): Promise<void> {
   let hunterOut: OpenHackResult | undefined;
   if (browserOut) {
     const step = await prisma.scanStep.create({
-      data: { scanJobId: scan.id, kind: 'openhack_hunter', state: 'running', startedAt: new Date() },
+      data: {
+        scanJobId: scan.id,
+        kind: 'openhack_hunter',
+        state: 'running',
+        startedAt: new Date(),
+      },
     });
     try {
       hunterOut = await runOpenHackHunters({
@@ -222,7 +248,12 @@ async function processScan(scanJobId: string): Promise<void> {
     } catch (err) {
       await prisma.scanStep.update({
         where: { id: step.id },
-        data: { state: 'failed', finishedAt: new Date(), errorCode: 'WORKER_ERROR', errorMsg: String(err) },
+        data: {
+          state: 'failed',
+          finishedAt: new Date(),
+          errorCode: 'WORKER_ERROR',
+          errorMsg: String(err),
+        },
       });
     }
   }
@@ -254,13 +285,21 @@ async function processScan(scanJobId: string): Promise<void> {
         data: {
           state: 'succeeded',
           finishedAt: new Date(),
-          outputRef: { observations: strixOut.observations.length, findings: strixOut.findings.length },
+          outputRef: {
+            observations: strixOut.observations.length,
+            findings: strixOut.findings.length,
+          },
         },
       });
     } catch (err) {
       await prisma.scanStep.update({
         where: { id: step.id },
-        data: { state: 'failed', finishedAt: new Date(), errorCode: 'WORKER_ERROR', errorMsg: String(err) },
+        data: {
+          state: 'failed',
+          finishedAt: new Date(),
+          errorCode: 'WORKER_ERROR',
+          errorMsg: String(err),
+        },
       });
     }
   }
@@ -292,9 +331,10 @@ async function processScan(scanJobId: string): Promise<void> {
           rawSignal: c.rawSignal,
         }) as object,
         fixPrompt: null,
-        retestScenario: c.rawSignal && typeof c.rawSignal === 'object' && 'retest' in c.rawSignal
-          ? (c.rawSignal as { retest?: unknown }).retest as object
-          : null,
+        retestScenario:
+          c.rawSignal && typeof c.rawSignal === 'object' && 'retest' in c.rawSignal
+            ? ((c.rawSignal as { retest?: unknown }).retest as object)
+            : null,
       },
     });
     await prisma.findingCandidate.create({
@@ -339,7 +379,12 @@ async function processScan(scanJobId: string): Promise<void> {
     log.error('report_failed', { msg: String(err) });
     await prisma.scanStep.update({
       where: { id: reportStep.id },
-      data: { state: 'failed', finishedAt: new Date(), errorCode: 'WORKER_ERROR', errorMsg: String(err) },
+      data: {
+        state: 'failed',
+        finishedAt: new Date(),
+        errorCode: 'WORKER_ERROR',
+        errorMsg: String(err),
+      },
     });
   }
 

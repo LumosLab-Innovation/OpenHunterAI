@@ -1,7 +1,17 @@
 import type { OpenHackInput } from '../index.js';
 import type { Hunter, HunterOutput } from './types.js';
 
-const RISKY_KEY_HINTS = ['token', 'secret', 'apikey', 'api_key', 'access_key', 'refresh', 'jwt', 'firebase', 'supabase'];
+const RISKY_KEY_HINTS = [
+  'token',
+  'secret',
+  'apikey',
+  'api_key',
+  'access_key',
+  'refresh',
+  'jwt',
+  'firebase',
+  'supabase',
+];
 
 export const frontendSecretHunter: Hunter = function frontendSecretHunter(
   input: OpenHackInput,

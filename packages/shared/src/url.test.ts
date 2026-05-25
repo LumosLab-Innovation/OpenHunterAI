@@ -31,7 +31,13 @@ describe('normalizeUrl', () => {
   });
 
   it('rejects localhost & private IPs', () => {
-    for (const host of ['http://localhost', 'http://127.0.0.1', 'http://10.0.0.1', 'http://192.168.1.1', 'http://169.254.169.254']) {
+    for (const host of [
+      'http://localhost',
+      'http://127.0.0.1',
+      'http://10.0.0.1',
+      'http://192.168.1.1',
+      'http://169.254.169.254',
+    ]) {
       try {
         normalizeUrl(host);
         throw new Error(`expected ${host} to throw`);
@@ -68,7 +74,17 @@ describe('normalizeUrl', () => {
 
 describe('isPrivateIPv4', () => {
   it('flags private and reserved', () => {
-    for (const ip of ['10.1.2.3', '127.0.0.1', '172.16.0.1', '192.168.1.1', '169.254.1.1', '224.0.0.1', '240.0.0.1', '0.0.0.0', '100.64.1.1']) {
+    for (const ip of [
+      '10.1.2.3',
+      '127.0.0.1',
+      '172.16.0.1',
+      '192.168.1.1',
+      '169.254.1.1',
+      '224.0.0.1',
+      '240.0.0.1',
+      '0.0.0.0',
+      '100.64.1.1',
+    ]) {
       expect(isPrivateIPv4(ip)).toBe(true);
     }
   });

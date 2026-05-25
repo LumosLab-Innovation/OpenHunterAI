@@ -79,18 +79,28 @@ class NucleiSignalWorker extends BaseWorker<NucleiSignalInput, NucleiSignalResul
       '-jsonl',
       '-silent',
       '-no-color',
-      '-rl', '20', // rate-limit reqs/sec
-      '-c', '10',  // concurrency
-      '-timeout', '10',
-      '-tags', SAFE_TAGS.join(','),
-      '-exclude-tags', 'fuzz,intrusive,dos,brute-force',
-      '-target', input.targets.join(','),
+      '-rl',
+      '20', // rate-limit reqs/sec
+      '-c',
+      '10', // concurrency
+      '-timeout',
+      '10',
+      '-tags',
+      SAFE_TAGS.join(','),
+      '-exclude-tags',
+      'fuzz,intrusive,dos,brute-force',
+      '-target',
+      input.targets.join(','),
     ];
 
     let stdout = '';
     let exitCode = 0;
     try {
-      const r = await execFileP(bin, args, { signal, timeout: input.timeoutMs ?? 300_000, maxBuffer: 32 * 1024 * 1024 });
+      const r = await execFileP(bin, args, {
+        signal,
+        timeout: input.timeoutMs ?? 300_000,
+        maxBuffer: 32 * 1024 * 1024,
+      });
       stdout = r.stdout;
     } catch (e) {
       const ex = e as { stdout?: string; code?: number; signal?: string };
@@ -123,7 +133,10 @@ class NucleiSignalWorker extends BaseWorker<NucleiSignalInput, NucleiSignalResul
       }
       candidates.push({
         source: 'nuclei',
-        title: sanitizeText(parsed.info?.name ?? parsed['template-id'] ?? 'Nuclei match').slice(0, 200),
+        title: sanitizeText(parsed.info?.name ?? parsed['template-id'] ?? 'Nuclei match').slice(
+          0,
+          200,
+        ),
         severity: severityFromNuclei(parsed.info?.severity),
         confidence: 'medium',
         category: 'nuclei',

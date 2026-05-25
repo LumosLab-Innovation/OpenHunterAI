@@ -1,5 +1,11 @@
 import { GuardrailError } from '@x-hunter/shared';
-import type { LLMError, LLMProvider, LLMResponse, ProviderName, SanitizedLLMRequest } from '../types.js';
+import type {
+  LLMError,
+  LLMProvider,
+  LLMResponse,
+  ProviderName,
+  SanitizedLLMRequest,
+} from '../types.js';
 
 export abstract class BaseProvider implements LLMProvider {
   abstract readonly name: ProviderName;

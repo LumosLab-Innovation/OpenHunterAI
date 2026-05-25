@@ -12,10 +12,7 @@ let _client: PrismaClient | null = null;
 export function getPrisma(): PrismaClient {
   if (!_client) {
     _client = new PrismaClient({
-      log:
-        process.env.NODE_ENV === 'production'
-          ? ['warn', 'error']
-          : ['warn', 'error'],
+      log: process.env.NODE_ENV === 'production' ? ['warn', 'error'] : ['warn', 'error'],
     });
   }
   return _client;

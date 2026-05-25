@@ -87,14 +87,21 @@ class ZapSignalWorker extends BaseWorker<ZapSignalInput, ZapSignalResult> {
     });
     const spiderId = spiderResp.scan;
     await pollUntil(
-      async () => Number((await fetcher.get<{ status: string }>('/JSON/spider/view/status/', { scanId: spiderId })).status),
+      async () =>
+        Number(
+          (await fetcher.get<{ status: string }>('/JSON/spider/view/status/', { scanId: spiderId }))
+            .status,
+        ),
       (v) => v >= 100,
       input.timeoutMs ?? 600_000,
       signal,
     );
 
     // 4. Read alerts limited to seed hosts.
-    const alerts = await fetcher.get<{ alerts: ZapAlert[] }>('/JSON/core/view/alerts/', { start: '0', count: '500' });
+    const alerts = await fetcher.get<{ alerts: ZapAlert[] }>('/JSON/core/view/alerts/', {
+      start: '0',
+      count: '500',
+    });
     const candidates: FindingCandidate[] = [];
     let high = 0;
     let medium = 0;
@@ -124,7 +131,10 @@ class ZapSignalWorker extends BaseWorker<ZapSignalInput, ZapSignalResult> {
           description: sanitizeText(a.description ?? a.alert).slice(0, 1000),
           sanitized: true,
         },
-        rawSignal: sanitizeValue({ cweid: a.cweid, wascid: a.wascid, risk: a.risk }) as Record<string, unknown>,
+        rawSignal: sanitizeValue({ cweid: a.cweid, wascid: a.wascid, risk: a.risk }) as Record<
+          string,
+          unknown
+        >,
       });
     }
     return {
@@ -135,7 +145,10 @@ class ZapSignalWorker extends BaseWorker<ZapSignalInput, ZapSignalResult> {
 }
 
 function emptyResult(): ZapSignalResult {
-  return { candidates: [], summary: { alertsHigh: 0, alertsMedium: 0, alertsLow: 0, alertsInfo: 0 } };
+  return {
+    candidates: [],
+    summary: { alertsHigh: 0, alertsMedium: 0, alertsLow: 0, alertsInfo: 0 },
+  };
 }
 
 function makeFetcher(baseUrl: string, apiKey: string, signal: AbortSignal) {

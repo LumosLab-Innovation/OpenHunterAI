@@ -28,7 +28,12 @@ export interface Logger {
   child(fields: Record<string, unknown>): Logger;
 }
 
-function emit(level: LogLevel, baseFields: Record<string, unknown>, msg: string, fields?: Record<string, unknown>) {
+function emit(
+  level: LogLevel,
+  baseFields: Record<string, unknown>,
+  msg: string,
+  fields?: Record<string, unknown>,
+) {
   if (LEVELS[level] < activeLevel()) return;
   const record = {
     ts: new Date().toISOString(),

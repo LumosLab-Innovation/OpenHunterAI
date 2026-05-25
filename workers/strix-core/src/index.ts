@@ -91,7 +91,8 @@ interface StrixLlmPayload {
 export async function runStrixCore(input: StrixInput): Promise<StrixResult> {
   const log = input.logger ?? createLogger({ component: 'strix-core' });
   const compact = buildCompactContext(input);
-  const userPrompt = `Compact Security Context:\n\`\`\`json\n${JSON.stringify(compact, null, 2)}\n\`\`\`\n\n` +
+  const userPrompt =
+    `Compact Security Context:\n\`\`\`json\n${JSON.stringify(compact, null, 2)}\n\`\`\`\n\n` +
     `Trả về JSON với schema: { "observations": string[], "findings": [...], "remediation": string[], ` +
     `"fix_prompts": [...], "retest_proposals": [...] }`;
 
@@ -167,20 +168,36 @@ function buildCompactContext(input: StrixInput) {
       sensitive_action_permission: input.scope.sensitiveActionPermission,
     },
     routes: input.browser.routes.slice(0, 60).map((r) => ({
-      url: r.url, method: r.method, status: r.statusCode,
+      url: r.url,
+      method: r.method,
+      status: r.statusCode,
     })),
     api_endpoints: input.browser.apiEndpoints.slice(0, 80).map((e) => ({
-      url: e.url, methods: e.methods, pattern: e.pathPattern,
+      url: e.url,
+      methods: e.methods,
+      pattern: e.pathPattern,
     })),
     cookies: input.browser.cookies.slice(0, 40).map((c) => ({
-      name: c.name, http_only: c.httpOnly, secure: c.secure, same_site: c.sameSite, domain: c.domain, path: c.path,
+      name: c.name,
+      http_only: c.httpOnly,
+      secure: c.secure,
+      same_site: c.sameSite,
+      domain: c.domain,
+      path: c.path,
     })),
     storage_keys: input.browser.storageKeys.slice(0, 40).map((k) => ({
-      scope: k.scope, key: k.keyName, token_like: k.looksTokenLike,
+      scope: k.scope,
+      key: k.keyName,
+      token_like: k.looksTokenLike,
     })),
     hunter_candidates: input.hunter.candidates.slice(0, 30).map((c) => ({
-      source: c.source, title: c.title, severity: c.severity, confidence: c.confidence,
-      category: c.category, affected: c.affectedAsset, description: c.evidence.description,
+      source: c.source,
+      title: c.title,
+      severity: c.severity,
+      confidence: c.confidence,
+      category: c.category,
+      affected: c.affectedAsset,
+      description: c.evidence.description,
     })),
     hunter_warnings: input.hunter.warnings.slice(0, 20),
     hunter_coverage_gaps: input.hunter.coverageGaps.slice(0, 20),
@@ -204,12 +221,16 @@ function parseStrixJson(text: string): StrixLlmPayload | null {
 }
 
 function stripFences(s: string): string {
-  return s.replace(/^```(?:json)?/i, '').replace(/```$/i, '').trim();
+  return s
+    .replace(/^```(?:json)?/i, '')
+    .replace(/```$/i, '')
+    .trim();
 }
 
 function coerceSeverity(s: string): Severity {
   const low = (s || '').toLowerCase();
-  if (low === 'critical' || low === 'high' || low === 'medium' || low === 'low' || low === 'info') return low;
+  if (low === 'critical' || low === 'high' || low === 'medium' || low === 'low' || low === 'info')
+    return low;
   return 'info';
 }
 function coerceConfidence(s: string): Confidence {

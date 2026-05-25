@@ -1,5 +1,10 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { encryptString, decryptString, constantTimeEqual, generateVerificationToken } from './crypto.js';
+import {
+  encryptString,
+  decryptString,
+  constantTimeEqual,
+  generateVerificationToken,
+} from './crypto.js';
 
 beforeAll(() => {
   process.env.APP_ENCRYPTION_KEY = '0'.repeat(64); // deterministic key for tests

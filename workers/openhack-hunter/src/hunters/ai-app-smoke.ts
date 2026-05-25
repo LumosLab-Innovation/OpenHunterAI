@@ -1,7 +1,13 @@
 import type { OpenHackInput } from '../index.js';
 import type { Hunter, HunterOutput } from './types.js';
 
-const AI_APP_PATTERNS = [/openai/i, /anthropic/i, /api\.openai\.com/i, /huggingface/i, /replicate/i];
+const AI_APP_PATTERNS = [
+  /openai/i,
+  /anthropic/i,
+  /api\.openai\.com/i,
+  /huggingface/i,
+  /replicate/i,
+];
 
 export const aiAppSmokeHunter: Hunter = function aiAppSmokeHunter(
   input: OpenHackInput,

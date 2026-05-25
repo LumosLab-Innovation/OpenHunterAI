@@ -60,7 +60,9 @@ export function registerAuthRoutes(app: FastifyInstance): void {
     const prisma = getPrisma();
     const user = await prisma.user.findUnique({ where: { email: body.email } });
     if (!user || !verifyPassword(body.password, user.passwordHash)) {
-      reply.code(401).send({ error: { code: 'INVALID_CREDENTIALS', message: 'Invalid credentials' } });
+      reply
+        .code(401)
+        .send({ error: { code: 'INVALID_CREDENTIALS', message: 'Invalid credentials' } });
       return;
     }
     const token = await reply.jwtSign(
@@ -79,9 +81,7 @@ export function registerAuthRoutes(app: FastifyInstance): void {
   });
 
   app.post('/v1/auth/signout', async (_req, reply) => {
-    reply
-      .clearCookie(cookieName, { path: '/' })
-      .send({ ok: true });
+    reply.clearCookie(cookieName, { path: '/' }).send({ ok: true });
   });
 
   app.get('/v1/auth/me', async (req, reply) => {

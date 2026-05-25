@@ -11,7 +11,8 @@ import { promises as dns } from 'node:dns';
 import { requireUser } from '../auth.js';
 
 const TXT_RECORD_NAME = process.env.VERIFICATION_TXT_RECORD_NAME || '_xhunter-verification';
-const WELL_KNOWN_PATH = process.env.VERIFICATION_WELL_KNOWN_PATH || '.well-known/xhunter-verification.txt';
+const WELL_KNOWN_PATH =
+  process.env.VERIFICATION_WELL_KNOWN_PATH || '.well-known/xhunter-verification.txt';
 const TOKEN_PREFIX = process.env.VERIFICATION_TOKEN_PREFIX || 'xhunter-verify';
 
 const CreateDomain = z.object({

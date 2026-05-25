@@ -64,10 +64,14 @@ async function processRetest(retestRunId: string): Promise<void> {
       const finding = await prisma.finding.findUnique({ where: { id: run.findingId } });
       if (!finding) throw new Error('finding missing');
       result = await classify(scenario, scope);
-      notes = result === 'fixed' ? 'Finding không còn reproducible trong phạm vi đã cho.'
-        : result === 'still_vulnerable' ? 'Vẫn quan sát được dấu hiệu rủi ro ban đầu.'
-        : result === 'partially_fixed' ? 'Đã cải thiện nhưng vẫn còn rủi ro.'
-        : 'Không xác định được trạng thái.';
+      notes =
+        result === 'fixed'
+          ? 'Finding không còn reproducible trong phạm vi đã cho.'
+          : result === 'still_vulnerable'
+            ? 'Vẫn quan sát được dấu hiệu rủi ro ban đầu.'
+            : result === 'partially_fixed'
+              ? 'Đã cải thiện nhưng vẫn còn rủi ro.'
+              : 'Không xác định được trạng thái.';
     }
   } catch (err) {
     if (isGuardrailError(err)) {
@@ -101,7 +105,10 @@ async function processRetest(retestRunId: string): Promise<void> {
   if (result === 'fixed') {
     await prisma.finding.update({ where: { id: run.findingId }, data: { status: 'fixed' } });
   } else if (result === 'still_vulnerable') {
-    await prisma.finding.update({ where: { id: run.findingId }, data: { status: 'still_vulnerable' } });
+    await prisma.finding.update({
+      where: { id: run.findingId },
+      data: { status: 'still_vulnerable' },
+    });
   }
 }
 

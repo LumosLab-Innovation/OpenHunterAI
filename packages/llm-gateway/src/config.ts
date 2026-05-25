@@ -27,19 +27,31 @@ function envModel(name: string, fallback: string): string {
 
 export const ALIAS_ROUTES: Record<ModelAlias, AliasRoute> = {
   'llm.free.summary': {
-    primary: { provider: 'deepseek', model: envModel('DEEPSEEK_FREE_SUMMARY_MODEL', 'deepseek-chat') },
+    primary: {
+      provider: 'deepseek',
+      model: envModel('DEEPSEEK_FREE_SUMMARY_MODEL', 'deepseek-chat'),
+    },
     fallback: { provider: 'openai', model: envModel('OPENAI_FREE_SUMMARY_MODEL', 'gpt-4o-mini') },
   },
   'llm.light.summary': {
     primary: { provider: 'openai', model: envModel('OPENAI_FREE_SUMMARY_MODEL', 'gpt-4o-mini') },
-    fallback: { provider: 'deepseek', model: envModel('DEEPSEEK_FREE_SUMMARY_MODEL', 'deepseek-chat') },
+    fallback: {
+      provider: 'deepseek',
+      model: envModel('DEEPSEEK_FREE_SUMMARY_MODEL', 'deepseek-chat'),
+    },
   },
   'llm.standard.reasoning': {
-    primary: { provider: 'claude', model: envModel('CLAUDE_STANDARD_REASONING_MODEL', 'claude-3-5-sonnet-latest') },
+    primary: {
+      provider: 'claude',
+      model: envModel('CLAUDE_STANDARD_REASONING_MODEL', 'claude-3-5-sonnet-latest'),
+    },
     fallback: { provider: 'openai', model: envModel('OPENAI_STANDARD_REASONING_MODEL', 'gpt-4o') },
   },
   'llm.auth.reasoning': {
-    primary: { provider: 'claude', model: envModel('CLAUDE_AUTH_REASONING_MODEL', 'claude-3-5-sonnet-latest') },
+    primary: {
+      provider: 'claude',
+      model: envModel('CLAUDE_AUTH_REASONING_MODEL', 'claude-3-5-sonnet-latest'),
+    },
     fallback: { provider: 'openai', model: envModel('OPENAI_AUTH_REASONING_MODEL', 'gpt-4o') },
   },
   'llm.report.writer': {
@@ -51,7 +63,10 @@ export const ALIAS_ROUTES: Record<ModelAlias, AliasRoute> = {
     fallback: { provider: 'deepseek', model: envModel('DEEPSEEK_REPORT_MODEL', 'deepseek-chat') },
   },
   'llm.retest.reasoning': {
-    primary: { provider: 'claude', model: envModel('CLAUDE_STANDARD_REASONING_MODEL', 'claude-3-5-sonnet-latest') },
+    primary: {
+      provider: 'claude',
+      model: envModel('CLAUDE_STANDARD_REASONING_MODEL', 'claude-3-5-sonnet-latest'),
+    },
     fallback: { provider: 'openai', model: envModel('OPENAI_STANDARD_REASONING_MODEL', 'gpt-4o') },
   },
 };

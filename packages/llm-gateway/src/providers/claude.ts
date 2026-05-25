@@ -25,7 +25,11 @@ export class ClaudeProvider extends BaseProvider {
         model: req.resolvedModel,
         outputText: '',
         latencyMs: 0,
-        error: { code: 'NOT_CONFIGURED', message: 'ANTHROPIC_API_KEY is not set', retryable: false },
+        error: {
+          code: 'NOT_CONFIGURED',
+          message: 'ANTHROPIC_API_KEY is not set',
+          retryable: false,
+        },
       };
     }
 
