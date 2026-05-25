@@ -1,0 +1,33 @@
+{
+  "name": "@x-hunter/strix-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "echo 'lint: no rules'",
+    "test": "echo 'no tests'"
+  },
+  "dependencies": {
+    "@x-hunter/browser-inspector": "workspace:*",
+    "@x-hunter/llm-gateway": "workspace:*",
+    "@x-hunter/nuclei-signal": "workspace:*",
+    "@x-hunter/openhack-hunter": "workspace:*",
+    "@x-hunter/shared": "workspace:*",
+    "@x-hunter/zap-signal": "workspace:*",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "typescript": "^5.4.5"
+  }
+}
