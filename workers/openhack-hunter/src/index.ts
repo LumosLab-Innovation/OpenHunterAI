@@ -57,16 +57,16 @@ export async function runOpenHackHunters(input: OpenHackInput): Promise<OpenHack
   const hardening: string[] = [];
   const gaps: string[] = [];
 
-  const hunters = [
-    vibeCodeExposureHunter,
-    frontendSecretHunter,
-    apiSurfaceHunter,
-    authSessionHunter,
-    aiAppSmokeHunter,
+  const hunters: Array<{ name: string; fn: typeof vibeCodeExposureHunter }> = [
+    { name: 'vibe-code-exposure', fn: vibeCodeExposureHunter },
+    { name: 'frontend-secret', fn: frontendSecretHunter },
+    { name: 'api-surface', fn: apiSurfaceHunter },
+    { name: 'auth-session', fn: authSessionHunter },
+    { name: 'ai-app-smoke', fn: aiAppSmokeHunter },
   ];
   for (const h of hunters) {
     try {
-      const out = h(input);
+      const out = h.fn(input);
       candidates.push(...out.candidates);
       warnings.push(...out.warnings);
       hardening.push(...out.hardening);

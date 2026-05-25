@@ -10,6 +10,7 @@
  */
 
 import {
+  type Logger,
   type ScanMode,
   type ScopeSnapshot,
   type Severity,
@@ -30,7 +31,7 @@ export interface ReportInput {
   hunter?: OpenHackResult;
   strix?: StrixResult;
   gateway: LLMGateway;
-  logger?: { warn: (m: string, f?: object) => void };
+  logger?: Logger;
 }
 
 const SEVERITY_ORDER: Severity[] = ['critical', 'high', 'medium', 'low', 'info'];

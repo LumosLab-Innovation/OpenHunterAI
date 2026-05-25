@@ -3,28 +3,25 @@
  * worker processes and the API share queue configuration.
  */
 
-import { ConnectionOptions, Queue, QueueEvents } from 'bullmq';
-import IORedis from 'ioredis';
+import { Queue, QueueEvents } from 'bullmq';
+import { Redis } from 'ioredis';
 
 export const QUEUE_SCAN = 'scan';
 export const QUEUE_RETEST = 'retest';
 export const QUEUE_REPORT = 'report';
 
-let _connection: IORedis | null = null;
-let _connectionOptions: ConnectionOptions | null = null;
+let _connection: Redis | null = null;
 
-export function getRedisConnection(): IORedis {
+export function getRedisConnection(): Redis {
   if (!_connection) {
     const url = process.env.REDIS_URL || 'redis://localhost:6379';
-    _connection = new IORedis(url, { maxRetriesPerRequest: null });
-    _connectionOptions = { connection: _connection };
+    _connection = new Redis(url, { maxRetriesPerRequest: null });
   }
   return _connection;
 }
 
-export function getQueueConnectionOptions(): { connection: IORedis } {
-  getRedisConnection();
-  return _connectionOptions as { connection: IORedis };
+export function getQueueConnectionOptions(): { connection: Redis } {
+  return { connection: getRedisConnection() };
 }
 
 const queues = new Map<string, Queue>();

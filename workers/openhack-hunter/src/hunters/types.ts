@@ -8,4 +8,4 @@ export interface HunterOutput {
   coverageGaps: string[];
 }
 
-export type Hunter = ((input: OpenHackInput) => HunterOutput) & { name: string };
+export type Hunter = (input: OpenHackInput) => HunterOutput;
