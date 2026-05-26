@@ -22,7 +22,8 @@ export default function ScansPage() {
   return (
     <>
       <h1>All scans</h1>
-      <table className="card">
+      <div className="card">
+      <table>
         <thead>
           <tr>
             <th>ID</th>
@@ -50,6 +51,7 @@ export default function ScansPage() {
           ))}
         </tbody>
       </table>
+      </div>
     </>
   );
 }

@@ -132,14 +132,14 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
     <>
       <h1>Project {projectId.slice(0, 8)}…</h1>
       {err && (
-        <div className="card" style={{ borderColor: 'var(--critical)', color: 'var(--critical)' }}>
+        <div className="card" style={{ borderColor: 'var(--sev-critical)', color: 'var(--sev-critical)' }}>
           {err}
         </div>
       )}
 
       <section className="card">
         <h2>1. Domain &amp; xác minh quyền sở hữu</h2>
-        <form onSubmit={addDomain} style={{ display: 'flex', gap: '0.5rem' }}>
+        <form onSubmit={addDomain} className="row">
           <input
             placeholder="vd: example.com"
             value={newHost}
@@ -181,7 +181,7 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
           </tbody>
         </table>
         {verifyDomainId && verifyToken && (
-          <div style={{ marginTop: '0.5rem' }}>
+          <div style={{ marginTop: 'var(--space-sm)' }}>
             <p>
               {verifyMethod === 'dns_txt' ? (
                 <>
@@ -204,24 +204,21 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
 
       <section className="card">
         <h2>2. Tạo Scan Authorization</h2>
-        <form onSubmit={createAuth}>
-          <label>
-            Package:{' '}
-            <select value={pkg} onChange={(e) => setPkg(e.target.value)}>
-              <option value="free">Free</option>
-              <option value="light">Light</option>
-              <option value="standard">Standard</option>
-              <option value="auth">Auth (cần test account)</option>
-              <option value="launch">Launch</option>
-            </select>
-          </label>{' '}
+        <form onSubmit={createAuth} className="row">
+          <select value={pkg} onChange={(e) => setPkg(e.target.value)}>
+            <option value="free">Free</option>
+            <option value="light">Light</option>
+            <option value="standard">Standard</option>
+            <option value="auth">Auth (cần test account)</option>
+            <option value="launch">Launch</option>
+          </select>
           <input
             placeholder="allowed hosts (vd: example.com, www.example.com)"
             value={authHosts}
             onChange={(e) => setAuthHosts(e.target.value)}
             required
-            size={50}
-          />{' '}
+            style={{ flex: 1, minWidth: 0 }}
+          />
           <button type="submit">Tạo Authorization</button>
         </form>
         <p className="muted">

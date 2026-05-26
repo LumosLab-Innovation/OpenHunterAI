@@ -21,7 +21,8 @@ export default function FindingsPage() {
   return (
     <>
       <h1>Finding board</h1>
-      <table className="card">
+      <div className="card">
+      <table>
         <thead>
           <tr>
             <th>Title</th>
@@ -49,6 +50,7 @@ export default function FindingsPage() {
           ))}
         </tbody>
       </table>
+      </div>
     </>
   );
 }
