@@ -132,7 +132,10 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
     <>
       <h1>Project {projectId.slice(0, 8)}…</h1>
       {err && (
-        <div className="card" style={{ borderColor: 'var(--sev-critical)', color: 'var(--sev-critical)' }}>
+        <div
+          className="card"
+          style={{ borderColor: 'var(--sev-critical)', color: 'var(--sev-critical)' }}
+        >
           {err}
         </div>
       )}

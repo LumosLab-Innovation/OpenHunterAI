@@ -1,20 +1,22 @@
-# X-hunter AI — White-hat Security Workspace
+# OpenHunterAI — White-hat Security Workspace
 
 End-to-end **authorized** security testing workspace for web/app targets.
 
-> **Rule zero.** X-hunter only scans domains the operator has proven ownership of.
+> **Rule zero.** OpenHunterAI only scans domains the operator has proven ownership of.
 > No scanning without verified domain authorization. No scanning private/local IP. No raw secrets in logs, prompts, or reports.
 
-See the long-form specs (already committed to the repo root):
+See the long-form specs in [`docs/`](./docs):
 
-- [`PLAN_V3_AI_WHITEHAT_SECURITY_WORKSPACE.md`](./PLAN_V3_AI_WHITEHAT_SECURITY_WORKSPACE.md) — the master plan.
-- [`ARCHITECTURE.md`](./ARCHITECTURE.md) — system architecture.
-- [`SECURITY_GUARDRAILS.md`](./SECURITY_GUARDRAILS.md) — non-negotiable rules.
-- [`WORKER_SPEC.md`](./WORKER_SPEC.md) — worker contracts.
-- [`LLM_PROVIDER_SPEC.md`](./LLM_PROVIDER_SPEC.md) — LLM gateway contract.
-- [`ACCEPTANCE_CRITERIA.md`](./ACCEPTANCE_CRITERIA.md) — must-pass criteria.
-- [`AGENTS.md`](./AGENTS.md) — operator/agent rules.
-- [`DESIGN.md`](./DESIGN.md) — v1 implementation design (this monorepo).
+- [`docs/PLAN_V3_AI_WHITEHAT_SECURITY_WORKSPACE.md`](./docs/PLAN_V3_AI_WHITEHAT_SECURITY_WORKSPACE.md) — the master plan.
+- [`docs/PRD.md`](./docs/PRD.md) — product requirements.
+- [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) — system architecture.
+- [`docs/SECURITY_GUARDRAILS.md`](./docs/SECURITY_GUARDRAILS.md) — non-negotiable rules.
+- [`docs/WORKER_SPEC.md`](./docs/WORKER_SPEC.md) — worker contracts.
+- [`docs/LLM_PROVIDER_SPEC.md`](./docs/LLM_PROVIDER_SPEC.md) — LLM gateway contract.
+- [`docs/ACCEPTANCE_CRITERIA.md`](./docs/ACCEPTANCE_CRITERIA.md) — must-pass criteria.
+- [`docs/DESIGN.md`](./docs/DESIGN.md) — v1 implementation design (this monorepo).
+- [`docs/PRODUCTION_READINESS.md`](./docs/PRODUCTION_READINESS.md) — remaining work to be production-ready.
+- [`AGENTS.md`](./AGENTS.md) — operator/agent rules (kept at root).
 
 ---
 
@@ -79,8 +81,11 @@ pnpm db:migrate
 pnpm db:seed
 
 # 4. Run the API and web in two shells
-pnpm dev:api          # http://localhost:3000
+pnpm dev:api          # http://localhost:4000 (API_PORT)
 pnpm dev:web          # http://localhost:3001
+#
+# The web dev server proxies /api/* to API_BASE_URL (defaults to
+# http://localhost:4000). If you change API_PORT, update API_BASE_URL too.
 
 # 5. (Optional) Run the scan orchestrator worker in a third shell
 pnpm --filter @x-hunter/scan-orchestrator run dev
