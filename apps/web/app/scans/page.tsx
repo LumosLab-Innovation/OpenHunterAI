@@ -23,34 +23,34 @@ export default function ScansPage() {
     <>
       <h1>All scans</h1>
       <div className="card">
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Project</th>
-            <th>Mode</th>
-            <th>State</th>
-            <th>Started</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {scans.map((s) => (
-            <tr key={s.id}>
-              <td className="muted">{s.id.slice(0, 8)}…</td>
-              <td className="muted">{s.projectId.slice(0, 8)}…</td>
-              <td>{s.mode}</td>
-              <td>{s.state}</td>
-              <td className="muted">
-                {s.startedAt ? new Date(s.startedAt).toLocaleString() : '—'}
-              </td>
-              <td>
-                <a href={`/scans/${s.id}`}>Mở</a>
-              </td>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Project</th>
+              <th>Mode</th>
+              <th>State</th>
+              <th>Started</th>
+              <th></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {scans.map((s) => (
+              <tr key={s.id}>
+                <td className="muted">{s.id.slice(0, 8)}…</td>
+                <td className="muted">{s.projectId.slice(0, 8)}…</td>
+                <td>{s.mode}</td>
+                <td>{s.state}</td>
+                <td className="muted">
+                  {s.startedAt ? new Date(s.startedAt).toLocaleString() : '—'}
+                </td>
+                <td>
+                  <a href={`/scans/${s.id}`}>Mở</a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </>
   );

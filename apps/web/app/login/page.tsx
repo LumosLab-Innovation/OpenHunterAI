@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { apiFetch } from '../../lib/api';
+import { useT } from '../../lib/i18n';
 
 export default function LoginPage() {
+  const t = useT();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [err, setErr] = useState<string | null>(null);
@@ -13,32 +15,43 @@ export default function LoginPage() {
     e.preventDefault();
     setErr(null);
     setLoading(true);
-    const res = await apiFetch<{ userId: string; orgId: string }>('/v1/auth/signin', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
-    setLoading(false);
-    if (!res.ok) {
-      setErr(res.error.message ?? `HTTP ${res.status}`);
-      return;
+    try {
+      const res = await apiFetch<{ userId: string; orgId: string }>('/v1/auth/signin', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      });
+      if (!res.ok) {
+        setErr(res.error.message ?? `HTTP ${res.status}`);
+        return;
+      }
+      window.location.href = '/projects';
+    } catch {
+      setErr(t('login.error.network'));
+    } finally {
+      setLoading(false);
     }
-    window.location.href = '/projects';
   }
 
   return (
     <div className="auth-wrap">
-      <section className="card" style={{ width: '100%', maxWidth: 440 }}>
-        <div style={{ textAlign: 'center', marginBottom: 'var(--space-sm)' }}>
-          <img src="/logo.png" alt="OpenHunterAI" style={{ height: 36, marginBottom: 'var(--space-lg)' }} />
-          <h2>Sign in</h2>
-          <p className="muted" style={{ fontSize: 15, marginTop: 'var(--space-sm)' }}>
-            Đăng nhập vào workspace kiểm thử bảo mật của bạn.
-          </p>
+      <section
+        className="card"
+        style={{ width: '100%', maxWidth: 420, padding: 'var(--space-xxl)' }}
+      >
+        <div
+          className="center"
+          style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}
+        >
+          <h3 style={{ marginBottom: 0 }}>{t('login.title')}</h3>
+          <p>{t('login.subtitle')}</p>
         </div>
-        <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+        <form
+          onSubmit={onSubmit}
+          style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}
+        >
           <input
             type="email"
-            placeholder="email@example.com"
+            placeholder={t('login.email')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -46,19 +59,23 @@ export default function LoginPage() {
           />
           <input
             type="password"
-            placeholder="Mật khẩu"
+            placeholder={t('login.password')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="current-password"
           />
-          {err && <small style={{ color: 'var(--sev-critical)' }}>{err}</small>}
-          <button type="submit" disabled={loading} style={{ marginTop: 'var(--space-sm)' }}>
-            {loading ? 'Đang đăng nhập…' : 'Sign in'}
+          {err && (
+            <small style={{ color: 'var(--sev-critical)' }} role="alert">
+              {err}
+            </small>
+          )}
+          <button type="submit" disabled={loading}>
+            {loading ? t('login.submitting') : t('login.submit')}
           </button>
         </form>
-        <p className="muted" style={{ textAlign: 'center', fontSize: 14 }}>
-          Chưa có tài khoản? <a href="/register">Tạo workspace mới</a>
+        <p className="center" style={{ fontSize: 14 }}>
+          {t('login.noaccount')} <a href="/register">{t('login.create')}</a>
         </p>
       </section>
     </div>

@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { apiFetch } from '../../lib/api';
+import { useT } from '../../lib/i18n';
 
 export default function RegisterPage() {
+  const t = useT();
   const [orgName, setOrgName] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
@@ -15,81 +17,95 @@ export default function RegisterPage() {
     e.preventDefault();
     setErr(null);
     if (password.length < 8) {
-      setErr('Mật khẩu phải có ít nhất 8 ký tự.');
+      setErr(t('register.password.short'));
       return;
     }
     setLoading(true);
-    const res = await apiFetch<{ userId: string; orgId: string }>('/v1/auth/signup', {
-      method: 'POST',
-      body: JSON.stringify({
-        email,
-        password,
-        orgName,
-        displayName: displayName || undefined,
-      }),
-    });
-    setLoading(false);
-    if (!res.ok) {
-      setErr(res.error.message ?? `HTTP ${res.status}`);
-      return;
+    try {
+      const res = await apiFetch<{ userId: string; orgId: string }>('/v1/auth/signup', {
+        method: 'POST',
+        body: JSON.stringify({
+          email,
+          password,
+          orgName,
+          displayName: displayName || undefined,
+        }),
+      });
+      if (!res.ok) {
+        setErr(res.error.message ?? `HTTP ${res.status}`);
+        return;
+      }
+      window.location.href = '/projects';
+    } catch {
+      setErr(t('login.error.network'));
+    } finally {
+      setLoading(false);
     }
-    window.location.href = '/projects';
   }
 
   return (
     <div className="auth-wrap">
-    <section className="card" style={{ width: '100%', maxWidth: 460 }}>
-      <div style={{ textAlign: 'center', marginBottom: 'var(--space-sm)' }}>
-        <img src="/logo.png" alt="OpenHunterAI" style={{ height: 36, marginBottom: 'var(--space-lg)' }} />
-        <h2>Tạo workspace</h2>
-        <p className="muted" style={{ fontSize: 15, marginTop: 'var(--space-sm)' }}>
-          Tạo tài khoản và tổ chức để bắt đầu Free Vibe-code Hunter Snapshot.
+      <section
+        className="card"
+        style={{ width: '100%', maxWidth: 440, padding: 'var(--space-xxl)' }}
+      >
+        <div
+          className="center"
+          style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}
+        >
+          <h3 style={{ marginBottom: 0 }}>{t('register.title')}</h3>
+          <p>{t('register.subtitle')}</p>
+        </div>
+        <form
+          onSubmit={onSubmit}
+          style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}
+        >
+          <input
+            placeholder={t('register.orgName')}
+            value={orgName}
+            onChange={(e) => setOrgName(e.target.value)}
+            required
+            maxLength={64}
+          />
+          <input
+            placeholder={t('register.displayName')}
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            maxLength={64}
+          />
+          <input
+            type="email"
+            placeholder={t('login.email')}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+          />
+          <input
+            type="password"
+            placeholder={t('register.password.placeholder')}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={8}
+            autoComplete="new-password"
+          />
+          {err && (
+            <small style={{ color: 'var(--sev-critical)' }} role="alert">
+              {err}
+            </small>
+          )}
+          <button type="submit" disabled={loading}>
+            {loading ? t('register.submitting') : t('register.submit')}
+          </button>
+        </form>
+        <small className="center" style={{ display: 'block' }}>
+          {t('register.disclaimer')}
+        </small>
+        <p className="center" style={{ fontSize: 14 }}>
+          {t('register.haveaccount')} <a href="/login">{t('login.title')}</a>
         </p>
-      </div>
-      <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
-        <input
-          placeholder="Tên tổ chức (vd: ShopX)"
-          value={orgName}
-          onChange={(e) => setOrgName(e.target.value)}
-          required
-          maxLength={64}
-        />
-        <input
-          placeholder="Tên hiển thị (tuỳ chọn)"
-          value={displayName}
-          onChange={(e) => setDisplayName(e.target.value)}
-          maxLength={64}
-        />
-        <input
-          type="email"
-          placeholder="email@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          autoComplete="email"
-        />
-        <input
-          type="password"
-          placeholder="mật khẩu (≥ 8 ký tự)"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          minLength={8}
-          autoComplete="new-password"
-        />
-        {err && <small style={{ color: 'var(--sev-critical)' }}>{err}</small>}
-        <button type="submit" disabled={loading}>
-          {loading ? 'Đang tạo…' : 'Create workspace'}
-        </button>
-      </form>
-      <small className="muted" style={{ textAlign: 'center', display: 'block' }}>
-        Bằng việc tạo tài khoản, bạn xác nhận sẽ chỉ kiểm thử các domain mà bạn được phép —
-        không phát hiện Critical/High không có nghĩa là an toàn tuyệt đối.
-      </small>
-      <p className="muted" style={{ textAlign: 'center', fontSize: 14 }}>
-        Đã có tài khoản? <a href="/login">Sign in</a>
-      </p>
-    </section>
+      </section>
     </div>
   );
 }
