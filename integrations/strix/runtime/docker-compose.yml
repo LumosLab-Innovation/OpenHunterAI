@@ -1,0 +1,7 @@
+services:
+  strix-adapter:
+    build:
+      context: ../../..
+      dockerfile: integrations/strix/Dockerfile
+    ports:
+      - "6130:6130"
