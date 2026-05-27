@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openhunter.local/schemas/scope-snapshot.json",
+  "title": "ScopeSnapshot",
+  "type": "object",
+  "required": ["allowedHosts", "allowedPaths", "excludedPaths", "testAccountPermission", "sensitiveActionPermission", "scanPackage", "verifiedDomain", "capturedAt"],
+  "properties": {
+    "allowedHosts": { "type": "array", "items": { "type": "string" } },
+    "allowedPaths": { "type": "array", "items": { "type": "string" } },
+    "excludedPaths": { "type": "array", "items": { "type": "string" } },
+    "testAccountPermission": { "type": "boolean" },
+    "sensitiveActionPermission": { "type": "boolean" },
+    "scanPackage": { "enum": ["free", "light", "standard", "auth", "launch"] },
+    "verifiedDomain": { "type": "string" },
+    "capturedAt": { "type": "string", "format": "date-time" }
+  }
+}
