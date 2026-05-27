@@ -1,0 +1,27 @@
+{
+  "name": "@openhunter/frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && vite build",
+    "dev": "vite --host 0.0.0.0 --port 3001",
+    "preview": "vite preview --host 0.0.0.0 --port 3001",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "echo 'lint: no rules (frontend)'",
+    "test": "echo 'no tests (frontend)'"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-router-dom": "^6.26.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.4.5"
+  }
+}
