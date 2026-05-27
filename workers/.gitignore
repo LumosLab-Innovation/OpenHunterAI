@@ -1,0 +1,7 @@
+bin/
+dist/
+*.test
+*.out
+.env
+.env.local
+!**/env/*.env.example
