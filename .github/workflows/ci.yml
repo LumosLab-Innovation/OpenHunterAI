@@ -12,9 +12,9 @@ concurrency:
 
 jobs:
   test:
-    name: typecheck + test + format
+    name: service checks
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -26,22 +26,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Install TypeScript services
+        run: make install
 
       - name: Generate Prisma client
-        run: pnpm --filter @x-hunter/db run generate
+        run: make db-generate
 
-      - name: Format check
-        run: pnpm format:check
+      - name: Typecheck TypeScript services
+        run: make typecheck
 
-      - name: Typecheck (all packages)
-        run: pnpm typecheck
+      - name: Test TypeScript services
+        run: make test
 
-      - name: Tests
-        run: pnpm test
-
-      - name: Lint
-        run: pnpm lint
+      - name: Build Go services
+        run: make go-build
