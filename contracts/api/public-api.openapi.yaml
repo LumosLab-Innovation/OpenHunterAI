@@ -1,0 +1,30 @@
+openapi: 3.0.3
+info:
+  title: OpenHunter Public API
+  version: 0.1.0
+paths:
+  /v1/auth/signin:
+    post:
+      responses:
+        "200":
+          description: Signed in
+  /v1/projects:
+    get:
+      responses:
+        "200":
+          description: Project list
+    post:
+      responses:
+        "200":
+          description: Project created
+  /v1/projects/{id}/scans:
+    post:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Scan queued
