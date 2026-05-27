@@ -1,0 +1,17 @@
+go 1.22
+
+use (
+  ./workers/orchestrator
+  ./workers/browser-inspector
+  ./workers/zap-signal
+  ./workers/nuclei-signal
+  ./workers/openhack-hunter
+  ./workers/strix-core
+  ./workers/retest
+  ./integrations/zaproxy
+  ./integrations/nuclei
+  ./integrations/openhack
+  ./integrations/strix
+  ./integrations/playwright
+  ./contracts/generated/go
+)
