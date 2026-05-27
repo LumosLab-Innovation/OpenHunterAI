@@ -1,0 +1,12 @@
+name: openhack
+language: go
+mode: http
+requires_runtime: true
+docker_profile: openhack
+internal_base_url: http://openhack-adapter:6120
+health_endpoint: /health
+required_env:
+  - OPENHACK_ROOT
+capabilities:
+  - rule_based_hunting
+  - scenario_generation
