@@ -1,0 +1,65 @@
+services:
+  orchestrator:
+    build:
+      context: ../..
+      dockerfile: workers/orchestrator/Dockerfile
+    env_file:
+      - ../../workers/orchestrator/env/orchestrator.env.example
+    environment:
+      NATS_URL: nats://nats:4222
+    ports:
+      - "5100:5100"
+
+  browser-inspector:
+    build:
+      context: ../..
+      dockerfile: workers/browser-inspector/Dockerfile
+    env_file:
+      - ../../workers/browser-inspector/env/browser-inspector.env.example
+    ports:
+      - "5110:5110"
+
+  zap-signal:
+    build:
+      context: ../..
+      dockerfile: workers/zap-signal/Dockerfile
+    env_file:
+      - ../../workers/zap-signal/env/zap-signal.env.example
+    ports:
+      - "5120:5120"
+
+  nuclei-signal:
+    build:
+      context: ../..
+      dockerfile: workers/nuclei-signal/Dockerfile
+    env_file:
+      - ../../workers/nuclei-signal/env/nuclei-signal.env.example
+    ports:
+      - "5130:5130"
+
+  openhack-hunter:
+    build:
+      context: ../..
+      dockerfile: workers/openhack-hunter/Dockerfile
+    env_file:
+      - ../../workers/openhack-hunter/env/openhack-hunter.env.example
+    ports:
+      - "5140:5140"
+
+  strix-core:
+    build:
+      context: ../..
+      dockerfile: workers/strix-core/Dockerfile
+    env_file:
+      - ../../workers/strix-core/env/strix-core.env.example
+    ports:
+      - "5150:5150"
+
+  retest:
+    build:
+      context: ../..
+      dockerfile: workers/retest/Dockerfile
+    env_file:
+      - ../../workers/retest/env/retest.env.example
+    ports:
+      - "5160:5160"
