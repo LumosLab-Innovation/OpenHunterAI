@@ -1,0 +1,55 @@
+services:
+  zap:
+    image: ghcr.io/zaproxy/zaproxy:stable
+    env_file:
+      - ../../integrations/zaproxy/runtime/.env.example
+    command: ["zap.sh", "-daemon", "-host", "0.0.0.0", "-port", "8080", "-config", "api.disablekey=false", "-config", "api.key=${ZAP_API_KEY:-changeme}", "-config", "api.addrs.addr.name=.*", "-config", "api.addrs.addr.regex=true"]
+    ports:
+      - "8090:8080"
+
+  zaproxy-adapter:
+    build:
+      context: ../..
+      dockerfile: integrations/zaproxy/Dockerfile
+    env_file:
+      - ../../integrations/zaproxy/runtime/.env.example
+    environment:
+      ZAP_BASE_URL: http://zap:8080
+    ports:
+      - "6100:6100"
+    depends_on:
+      - zap
+
+  nuclei-adapter:
+    build:
+      context: ../..
+      dockerfile: integrations/nuclei/Dockerfile
+    env_file:
+      - ../../integrations/nuclei/runtime/.env.example
+    ports:
+      - "6110:6110"
+
+  openhack-adapter:
+    build:
+      context: ../..
+      dockerfile: integrations/openhack/Dockerfile
+    env_file:
+      - ../../integrations/openhack/runtime/.env.example
+    ports:
+      - "6120:6120"
+
+  strix-adapter:
+    build:
+      context: ../..
+      dockerfile: integrations/strix/Dockerfile
+    env_file:
+      - ../../integrations/strix/runtime/.env.example
+    ports:
+      - "6130:6130"
+
+  playwright-adapter:
+    build:
+      context: ../..
+      dockerfile: integrations/playwright/Dockerfile
+    ports:
+      - "6140:6140"
