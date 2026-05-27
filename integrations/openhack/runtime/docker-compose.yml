@@ -1,0 +1,7 @@
+services:
+  openhack-adapter:
+    build:
+      context: ../../..
+      dockerfile: integrations/openhack/Dockerfile
+    ports:
+      - "6120:6120"
