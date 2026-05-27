@@ -1,0 +1,63 @@
+services:
+  public-api:
+    build:
+      context: ../..
+      dockerfile: gateway/public-api/Dockerfile
+    env_file:
+      - ../../gateway/public-api/env/public-api.env.example
+    environment:
+      DATABASE_URL: postgresql://xhunter:xhunter@postgres:5432/xhunter?schema=public
+      NATS_URL: nats://nats:4222
+      API_PORT: 4000
+      APP_JWT_SECRET: dev-only-rotate-me
+    ports:
+      - "4000:4000"
+    depends_on:
+      - postgres
+      - nats
+
+  internal-api:
+    image: node:22-slim
+    env_file:
+      - ../../gateway/internal-api/env/internal-api.env.example
+    working_dir: /app/gateway/internal-api
+    command: ["sh", "-lc", "corepack enable && corepack prepare pnpm@9.15.1 --activate && pnpm install && pnpm run dev"]
+    volumes:
+      - ../..:/app
+    environment:
+      INTERNAL_API_PORT: 4100
+    ports:
+      - "4100:4100"
+
+  control-plane:
+    image: node:22-slim
+    env_file:
+      - ../../backend/control-plane/env/control-plane.env.example
+    working_dir: /app/backend/control-plane
+    command: ["sh", "-lc", "corepack enable && corepack prepare pnpm@9.15.1 --activate && pnpm install && pnpm run dev"]
+    volumes:
+      - ../..:/app
+    ports:
+      - "4200:4200"
+
+  findings:
+    image: node:22-slim
+    env_file:
+      - ../../backend/findings/env/findings.env.example
+    working_dir: /app/backend/findings
+    command: ["sh", "-lc", "corepack enable && corepack prepare pnpm@9.15.1 --activate && pnpm install && pnpm run dev"]
+    volumes:
+      - ../..:/app
+    ports:
+      - "4300:4300"
+
+  reporting:
+    image: node:22-slim
+    env_file:
+      - ../../backend/reporting/env/reporting.env.example
+    working_dir: /app/backend/reporting
+    command: ["sh", "-lc", "corepack enable && corepack prepare pnpm@9.15.1 --activate && pnpm install && pnpm run dev"]
+    volumes:
+      - ../..:/app
+    ports:
+      - "4400:4400"
