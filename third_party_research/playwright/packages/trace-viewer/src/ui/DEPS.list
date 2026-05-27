@@ -1,6 +1,0 @@
-[*]
-@injected/**
-@isomorphic/**
-@web/**
-../../../playwright/src/isomorphic/**
-../third_party/devtools.ts

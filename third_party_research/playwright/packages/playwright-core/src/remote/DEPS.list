@@ -1,6 +1,0 @@
-[*]
-../server/
-../server/android/
-../server/dispatchers/
-@utils/**
-@isomorphic/**

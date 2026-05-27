@@ -1,8 +1,0 @@
-[*]
-@isomorphic/**
-@utils/**
-../
-../codegen/language.ts
-../codegen/languages.ts
-../../package.ts
-node_modules/mime

@@ -1,6 +1,0 @@
-[*]
-../../
-@utils/**
-../../../package.ts
-@utils/**
-node_modules/open

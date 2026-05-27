@@ -1,7 +1,0 @@
-[*]
-../../generated/
-../../protocol/
-@utils/**
-@isomorphic/**
-../**
-node_modules/yaml
