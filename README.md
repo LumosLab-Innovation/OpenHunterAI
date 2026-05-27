@@ -34,7 +34,7 @@ See the canonical specs in `docs/`:
 - `docs/ACCEPTANCE_CRITERIA.md` - must-pass criteria.
 - `docs/PRODUCTION_READINESS.md` - remaining work to be production-ready.
 - `docs/DESIGN.md` - UI/design notes.
-- `docs/AGENTS.md` - operator/agent rules.
+- `AGENTS.md` - operator/agent rules.
 
 `third_party_research/` is reference material only. It is not imported or used
 as runtime code.
