@@ -1,0 +1,7 @@
+services:
+  nuclei-adapter:
+    build:
+      context: ../../..
+      dockerfile: integrations/nuclei/Dockerfile
+    ports:
+      - "6110:6110"
