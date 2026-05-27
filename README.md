@@ -1,131 +1,117 @@
-# OpenHunterAI — White-hat Security Workspace
+# OpenHunterAI
 
-End-to-end **authorized** security testing workspace for web/app targets.
+Microservice-oriented white-hat security workspace. The runtime is split into
+frontend, gateways, backend services, Go workers, and Go integration adapters.
 
-> **Rule zero.** OpenHunterAI only scans domains the operator has proven ownership of.
-> No scanning without verified domain authorization. No scanning private/local IP. No raw secrets in logs, prompts, or reports.
+`third_party_research/` is reference material only. It is not imported or used as
+runtime code.
 
-See the long-form specs in [`docs/`](./docs):
+## Structure
 
-- [`docs/PLAN_V3_AI_WHITEHAT_SECURITY_WORKSPACE.md`](./docs/PLAN_V3_AI_WHITEHAT_SECURITY_WORKSPACE.md) — the master plan.
-- [`docs/PRD.md`](./docs/PRD.md) — product requirements.
-- [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) — system architecture.
-- [`docs/SECURITY_GUARDRAILS.md`](./docs/SECURITY_GUARDRAILS.md) — non-negotiable rules.
-- [`docs/WORKER_SPEC.md`](./docs/WORKER_SPEC.md) — worker contracts.
-- [`docs/LLM_PROVIDER_SPEC.md`](./docs/LLM_PROVIDER_SPEC.md) — LLM gateway contract.
-- [`docs/ACCEPTANCE_CRITERIA.md`](./docs/ACCEPTANCE_CRITERIA.md) — must-pass criteria.
-- [`docs/DESIGN.md`](./docs/DESIGN.md) — v1 implementation design (this monorepo).
-- [`docs/PRODUCTION_READINESS.md`](./docs/PRODUCTION_READINESS.md) — remaining work to be production-ready.
-- [`AGENTS.md`](./AGENTS.md) — operator/agent rules (kept at root).
-
----
-
-## Monorepo layout
-
-```
-X-hunterAI/
-├── apps/
-│   ├── api/                 Fastify REST API (auth, projects, domains, verify,
-│   │                        authorizations, scans, findings, retest, reports,
-│   │                        approvals, health).
-│   └── web/                 Next.js dashboard (projects → verify → scan
-│                            → findings → retest).
-├── workers/
-│   ├── scan-orchestrator/   BullMQ entry point. Runs the full pipeline:
-│   │                        browser-inspector → zap → nuclei → openhack →
-│   │                        strix (standard+) → report.
-│   ├── browser-inspector/   Playwright crawl + scope-aware route blocking.
-│   ├── zap-signal/          ZAP daemon REST client (passive/baseline only).
-│   ├── nuclei-signal/       Nuclei CLI wrapper, safe tag profile.
-│   ├── openhack-hunter/     5 rule-based mini hunters.
-│   ├── strix-core/          LLM-driven attacker-mindset reasoning.
-│   ├── report/              Free snapshot + human + AI/dev reports.
-│   └── retest/              Manual single-finding retest.
-├── packages/
-│   ├── shared/              Types, URL normalization, scope check, evidence
-│   │                        sanitizer, AES-256-GCM crypto, logger.
-│   ├── db/                  Prisma schema + seed.
-│   ├── llm-gateway/         OpenAI / Claude / DeepSeek providers + budget +
-│   │                        sanitizer + fallback. Single entrypoint for LLM.
-│   └── worker-runtime/      BaseWorker (timeout/retry/logs), Policy Gate,
-│                            BullMQ queue helpers.
-├── infra/
-│   ├── docker/              Dockerfile.{api,web,worker}
-│   └── docker-compose.yml   Local stack (postgres, redis, optional zap/minio).
-├── .github/workflows/ci.yml CI: typecheck + test + format.
-└── third_party_research/    Reference repos (ZAP, Nuclei, Playwright, Strix,
-                             OpenHack). Not imported as source dependencies —
-                             X-hunter integrates via CLI / REST / SDK only.
+```txt
+frontend/                  Vite + React dashboard
+gateway/public-api/        Express public API, auth, public /v1/* routes
+gateway/internal-api/      Private API for worker/service callbacks
+backend/control-plane/     Projects, domains, authorizations, scan lifecycle
+backend/findings/          Findings and retest domain service
+backend/reporting/         Report domain service
+workers/*                  Go worker services
+integrations/*             Go adapters + Docker runtime per tool
+shared/*                   Shared TS packages: db, events, security, llm, queue
+contracts/                 OpenAPI, AsyncAPI, JSON Schema, generated types
+infra/docker-compose/      Compose files split by runtime layer
+infra/env/                 Core infra env examples
+ops/scripts/               Local dev scripts
+third_party_research/      Reference repos only
 ```
 
-## Local development
+Root files are only repo-level controls: `README.md`, `Makefile`, and `go.work`.
+Each TypeScript service owns its own `package.json`, `tsconfig.json`, dependencies,
+and env example under `*/env/*.env.example` or `integrations/*/runtime/.env.example`.
 
-Requirements:
-
-- Node v22 (`.nvmrc`)
-- pnpm 9 (`packageManager` is pinned)
-- Docker (for postgres/redis)
+## Install
 
 ```bash
-# 1. Boot the local stack
-docker compose -f infra/docker-compose.yml up -d postgres redis
-
-# 2. Install deps + generate Prisma client
-pnpm install
-pnpm db:generate
-
-# 3. Migrate + seed
-cp .env.example .env
-# edit DATABASE_URL, REDIS_URL, APP_JWT_SECRET, APP_ENCRYPTION_KEY, LLM keys, ...
-pnpm db:migrate
-pnpm db:seed
-
-# 4. Run the API and web in two shells
-pnpm dev:api          # http://localhost:4000 (API_PORT)
-pnpm dev:web          # http://localhost:3001
-#
-# The web dev server proxies /api/* to API_BASE_URL (defaults to
-# http://localhost:4000). If you change API_PORT, update API_BASE_URL too.
-
-# 5. (Optional) Run the scan orchestrator worker in a third shell
-pnpm --filter @x-hunter/scan-orchestrator run dev
+make install
 ```
 
-### Required env vars
-
-See [`.env.example`](./.env.example). The most important ones:
-
-| Var                  | Purpose                                                       |
-| -------------------- | ------------------------------------------------------------- |
-| `DATABASE_URL`       | Postgres connection string.                                   |
-| `REDIS_URL`          | Redis URL for BullMQ.                                         |
-| `APP_JWT_SECRET`     | HMAC secret for API JWT (used for session cookies).           |
-| `APP_ENCRYPTION_KEY` | 32-byte hex key for AES-256-GCM (test account credentials).   |
-| `OPENAI_API_KEY` …   | Optional LLM keys. Gateway routes by use-case + falls back.   |
-| `ZAP_BASE_URL`       | Optional. If unset, ZAP step is `skipped` (TOOL_UNAVAILABLE). |
-| `NUCLEI_BIN`         | Optional. If unset, Nuclei step is `skipped`.                 |
-
-### Tests
+Generate Prisma client and prepare DB:
 
 ```bash
-pnpm typecheck   # tsc --noEmit on every package
-pnpm test        # vitest for shared / llm-gateway / worker-runtime / openhack-hunter / api
-pnpm format:check
+make up-core
+make db-generate
+make db-migrate
+make db-seed
 ```
 
-## Operating principles
+## Run For Dev
 
-1. **Scope is a frozen snapshot.** Every scan job captures `ScopeSnapshot` at creation time and uses that snapshot for all subsequent worker calls and retests. Operators changing the underlying authorization does NOT change the scope of an in-flight scan.
-2. **The Product Policy Gate gates every action.** Workers do not call URLs directly — they call `decide(input)` first. Out-of-scope, redirect-out-of-scope, sensitive-action-without-approval, package-tier-exceeded → all denied.
-3. **The evidence sanitizer is conservative.** It over-masks before letting anything reach the report writer, the LLM, or the UI. Cookie values, headers in the sensitive set, JWT-shaped strings, common API-key prefixes (`sk-`, `ghp_`, `AKIA`, `AIza`), emails, and long hex/base64 blobs are masked.
-4. **LLM calls go through the Gateway only.** No provider SDK call lives outside `packages/llm-gateway`. The Gateway enforces per-scan budgets, use-case allowances, sanitization, and primary/fallback routing.
-5. **Workers can fail loudly.** Every worker has a hard timeout. A timeout is an error — never a silent hang.
-6. **Tools that are unavailable mean the step is `skipped`.** The Free report must still be valuable even when ZAP/Nuclei aren't running; the report explicitly lists coverage gaps.
+Run the full Docker stack:
 
-## What is **not** in v1
+```bash
+make up-full
+```
 
-- CI/CD auto-retest, GitHub code scanning, Jira integration, VPS agent.
-- Mobile/APK audit, Kubernetes orchestration, full DefectDojo integration.
-- Multi-tenant enterprise admin features beyond a single organization seed.
+Run frontend and public API locally:
 
-See `AGENTS.md` §2 for the v1 scope contract.
+```bash
+make dev-frontend      # http://localhost:3001
+make dev-public-api    # http://localhost:4000
+```
+
+Run one backend/gateway service:
+
+```bash
+make up-service BACKEND=public-api
+make up-service BACKEND=internal-api
+make up-service BACKEND=control-plane
+make up-service BACKEND=findings
+make up-service BACKEND=reporting
+
+make dev-service BACKEND=public-api
+```
+
+Run one worker:
+
+```bash
+make up-worker WORKER=orchestrator
+make up-worker WORKER=nuclei-signal
+
+make dev-worker WORKER=zap-signal
+```
+
+Run one integration:
+
+```bash
+make up-integration INTEGRATION=zaproxy
+make up-integration INTEGRATION=nuclei
+make up-integration INTEGRATION=openhack
+make up-integration INTEGRATION=strix
+make up-integration INTEGRATION=playwright
+
+make dev-integration INTEGRATION=nuclei
+make check-integrations
+```
+
+## Env Files
+
+Examples are split by owner:
+
+```txt
+infra/env/core.env.example
+frontend/env/frontend.env.example
+gateway/public-api/env/public-api.env.example
+gateway/internal-api/env/internal-api.env.example
+backend/*/env/*.env.example
+workers/*/env/*.env.example
+integrations/*/runtime/.env.example
+shared/db/env/db.env.example
+shared/llm-gateway-core/env/llm.env.example
+```
+
+## Current Runtime Flow
+
+Frontend calls `gateway/public-api`. The public API writes business state and
+publishes NATS events. Go workers consume events, call integration adapters, and
+report status through `gateway/internal-api`. Integrations own Docker-first
+runtimes for ZAP, Nuclei, OpenHack, Strix, and Playwright MCP/fallback.
