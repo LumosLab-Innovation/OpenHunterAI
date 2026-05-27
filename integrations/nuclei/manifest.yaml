@@ -1,0 +1,12 @@
+name: nuclei
+language: go
+mode: http
+requires_runtime: true
+docker_profile: nuclei
+internal_base_url: http://nuclei-adapter:6110
+health_endpoint: /health
+required_env:
+  - NUCLEI_BIN
+capabilities:
+  - safe_template_scan
+  - exposure_detection
