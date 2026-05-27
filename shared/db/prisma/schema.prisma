@@ -1,0 +1,490 @@
+// Prisma schema for the OpenHunter Workspace.
+//
+// Reflects the v1 data model in PLAN_V3.md §15 / ARCHITECTURE.md §6.1.
+// Names use snake_case at the SQL layer (via @@map / @map) so the schema
+// reads cleanly to non-Prisma DBAs while exposing camelCase to TS code.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// Tenants & people
+// =============================================================================
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  users    User[]
+  projects Project[]
+
+  @@map("organizations")
+}
+
+enum UserRole {
+  owner
+  admin
+  member
+}
+
+model User {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  email          String       @unique
+  passwordHash   String       @map("password_hash")
+  displayName    String?      @map("display_name")
+  role           UserRole     @default(member)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  scanJobs          ScanJob[]
+  approvalDecisions ApprovalDecision[]
+  auditLogs         AuditLog[]
+
+  @@map("users")
+}
+
+// =============================================================================
+// Projects, domains, verification, scope
+// =============================================================================
+
+model Project {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  name           String
+  packageTier    PackageTier  @default(free) @map("package_tier")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  domains            Domain[]
+  scanAuthorizations ScanAuthorization[]
+  testAccounts       TestAccount[]
+  scanJobs           ScanJob[]
+  findings           Finding[]
+  reports            Report[]
+  creditLedger       CreditEntry[]
+
+  @@map("projects")
+}
+
+enum PackageTier {
+  free
+  light
+  standard
+  auth
+  launch
+}
+
+model Domain {
+  id        String   @id @default(cuid())
+  projectId String   @map("project_id")
+  hostname  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  verifications DomainVerification[]
+
+  @@unique([projectId, hostname])
+  @@map("domains")
+}
+
+enum VerificationMethod {
+  dns_txt
+  well_known
+}
+
+enum VerificationStatus {
+  pending
+  verified
+  failed
+  expired
+}
+
+model DomainVerification {
+  id         String             @id @default(cuid())
+  domainId   String             @map("domain_id")
+  method     VerificationMethod
+  token      String
+  status     VerificationStatus @default(pending)
+  verifiedAt DateTime?          @map("verified_at")
+  expiresAt  DateTime?          @map("expires_at")
+  lastError  String?            @map("last_error")
+  createdAt  DateTime           @default(now()) @map("created_at")
+  updatedAt  DateTime           @updatedAt @map("updated_at")
+  domain     Domain             @relation(fields: [domainId], references: [id], onDelete: Cascade)
+
+  @@index([domainId])
+  @@map("domain_verifications")
+}
+
+model ScanAuthorization {
+  id                         String      @id @default(cuid())
+  projectId                  String      @map("project_id")
+  domainId                   String      @map("domain_id")
+  scanPackage                PackageTier @map("scan_package")
+  allowedHosts               Json        @map("allowed_hosts")
+  allowedPaths               Json        @map("allowed_paths")
+  excludedPaths              Json        @map("excluded_paths")
+  testAccountPermission      Boolean     @default(false) @map("test_account_permission")
+  sensitiveActionPermission  Boolean     @default(false) @map("sensitive_action_permission")
+  consentText                String      @map("consent_text")
+  acceptedByUserId           String      @map("accepted_by_user_id")
+  expiresAt                  DateTime?   @map("expires_at")
+  createdAt                  DateTime    @default(now()) @map("created_at")
+  project                    Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  scanJobs ScanJob[]
+
+  @@index([projectId])
+  @@map("scan_authorizations")
+}
+
+model TestAccount {
+  id                 String   @id @default(cuid())
+  projectId          String   @map("project_id")
+  label              String
+  loginUrl           String   @map("login_url")
+  /// Encrypted (AES-256-GCM). Never decrypted to logs or LLM prompts.
+  credentialCipher   String   @map("credential_cipher")
+  /// Encrypted JSON: { username, password, totpSecret? }.
+  identityEmail      String?  @map("identity_email")
+  notes              String?
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+  project            Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("test_accounts")
+}
+
+// =============================================================================
+// Scan jobs and steps
+// =============================================================================
+
+enum ScanState {
+  queued
+  running
+  awaiting_approval
+  completed
+  failed
+  cancelled
+  timeout
+}
+
+enum ScanMode {
+  free
+  light
+  standard
+  auth
+}
+
+model ScanJob {
+  id                  String             @id @default(cuid())
+  projectId           String             @map("project_id")
+  authorizationId    String              @map("authorization_id")
+  initiatorUserId     String             @map("initiator_user_id")
+  mode                ScanMode
+  state               ScanState          @default(queued)
+  scopeSnapshot       Json               @map("scope_snapshot")
+  startedAt           DateTime?          @map("started_at")
+  finishedAt          DateTime?          @map("finished_at")
+  errorMessage        String?            @map("error_message")
+  budgetUsed          Json?              @map("budget_used")
+  createdAt           DateTime           @default(now()) @map("created_at")
+  updatedAt           DateTime           @updatedAt @map("updated_at")
+  project             Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  authorization       ScanAuthorization  @relation(fields: [authorizationId], references: [id])
+  initiator           User               @relation(fields: [initiatorUserId], references: [id])
+
+  steps             ScanStep[]
+  findings          Finding[]
+  reports           Report[]
+  approvalRequests  ApprovalRequest[]
+  retestRuns        RetestRun[]
+
+  @@index([projectId])
+  @@map("scan_jobs")
+}
+
+enum ScanStepKind {
+  browser_inspector
+  zap_signal
+  nuclei_signal
+  openhack_hunter
+  strix_core
+  report
+  retest
+}
+
+enum ScanStepState {
+  pending
+  running
+  succeeded
+  failed
+  skipped
+}
+
+model ScanStep {
+  id          String        @id @default(cuid())
+  scanJobId   String        @map("scan_job_id")
+  kind        ScanStepKind
+  state       ScanStepState @default(pending)
+  startedAt   DateTime?     @map("started_at")
+  finishedAt  DateTime?     @map("finished_at")
+  inputRef    Json?         @map("input_ref")
+  outputRef   Json?         @map("output_ref")
+  errorCode   String?       @map("error_code")
+  errorMsg    String?       @map("error_msg")
+  scanJob     ScanJob       @relation(fields: [scanJobId], references: [id], onDelete: Cascade)
+
+  @@index([scanJobId])
+  @@map("scan_steps")
+}
+
+// =============================================================================
+// Findings & evidence
+// =============================================================================
+
+enum Severity {
+  info
+  low
+  medium
+  high
+  critical
+}
+
+enum Confidence {
+  low
+  medium
+  high
+}
+
+enum FindingStatus {
+  open
+  in_progress
+  ready_for_retest
+  fixed
+  still_vulnerable
+  accepted_risk
+}
+
+model FindingCandidate {
+  id          String   @id @default(cuid())
+  scanJobId   String   @map("scan_job_id")
+  source      String
+  title       String
+  severity    Severity
+  confidence  Confidence
+  category    String
+  affectedAsset String @map("affected_asset")
+  /// Sanitized evidence object.
+  evidence    Json
+  rawSignal   Json?    @map("raw_signal")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  promotedTo  Finding? @relation(fields: [promotedToId], references: [id])
+  promotedToId String? @map("promoted_to_id")
+
+  @@index([scanJobId])
+  @@map("finding_candidates")
+}
+
+model Finding {
+  id              String        @id @default(cuid())
+  projectId       String        @map("project_id")
+  scanJobId       String        @map("scan_job_id")
+  title           String
+  description     String
+  severity        Severity
+  confidence      Confidence
+  status          FindingStatus @default(open)
+  affectedAsset   String        @map("affected_asset")
+  category        String
+  /// Sanitized evidence (description + evidence_refs[]).
+  evidence        Json
+  fixPrompt       String?       @map("fix_prompt")
+  retestScenario  Json?         @map("retest_scenario")
+  acceptanceCriteria String?    @map("acceptance_criteria")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  project         Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  scanJob         ScanJob       @relation(fields: [scanJobId], references: [id])
+
+  candidates  FindingCandidate[]
+  retestRuns  RetestRun[]
+  approvals   ApprovalRequest[]
+
+  @@index([projectId])
+  @@index([scanJobId])
+  @@map("findings")
+}
+
+// =============================================================================
+// Reports
+// =============================================================================
+
+enum ReportKind {
+  free_snapshot
+  human
+  ai_dev
+}
+
+model Report {
+  id            String     @id @default(cuid())
+  projectId     String     @map("project_id")
+  scanJobId     String     @map("scan_job_id")
+  kind          ReportKind
+  /// Markdown / structured body. MUST be sanitized.
+  body          String
+  /// Object-storage key when an out-of-band export exists (PDF, HTML).
+  storageKey    String?    @map("storage_key")
+  generatedAt   DateTime   @default(now()) @map("generated_at")
+  project       Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  scanJob       ScanJob    @relation(fields: [scanJobId], references: [id])
+
+  @@index([projectId])
+  @@index([scanJobId])
+  @@map("reports")
+}
+
+// =============================================================================
+// Approvals & retest
+// =============================================================================
+
+enum ApprovalState {
+  pending
+  approved
+  denied
+  expired
+}
+
+model ApprovalRequest {
+  id            String        @id @default(cuid())
+  scanJobId     String        @map("scan_job_id")
+  findingId     String?       @map("finding_id")
+  action        String
+  target        String
+  testAccount   String?       @map("test_account")
+  willNotPerform Json         @map("will_not_perform")
+  residualRisk  String        @map("residual_risk")
+  state         ApprovalState @default(pending)
+  expiresAt     DateTime      @map("expires_at")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  scanJob   ScanJob   @relation(fields: [scanJobId], references: [id], onDelete: Cascade)
+  finding   Finding?  @relation(fields: [findingId], references: [id])
+  decision  ApprovalDecision?
+
+  @@index([scanJobId])
+  @@map("approval_requests")
+}
+
+model ApprovalDecision {
+  id                String          @id @default(cuid())
+  approvalRequestId String          @unique @map("approval_request_id")
+  decidedByUserId   String          @map("decided_by_user_id")
+  decision          ApprovalState
+  reason            String?
+  decidedAt         DateTime        @default(now()) @map("decided_at")
+  request           ApprovalRequest @relation(fields: [approvalRequestId], references: [id], onDelete: Cascade)
+  decidedBy         User            @relation(fields: [decidedByUserId], references: [id])
+
+  @@map("approval_decisions")
+}
+
+enum RetestResult {
+  fixed
+  still_vulnerable
+  partially_fixed
+  cannot_verify
+}
+
+enum RetestKind {
+  auto
+  ai_assisted
+  expert
+}
+
+model RetestRun {
+  id              String        @id @default(cuid())
+  findingId       String        @map("finding_id")
+  scanJobId       String?       @map("scan_job_id")
+  kind            RetestKind    @default(ai_assisted)
+  scopeSnapshot   Json          @map("scope_snapshot")
+  scenarioRef     Json          @map("scenario_ref")
+  result          RetestResult?
+  notes           String?
+  startedAt       DateTime?     @map("started_at")
+  finishedAt      DateTime?     @map("finished_at")
+  errorCode       String?       @map("error_code")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  finding         Finding       @relation(fields: [findingId], references: [id], onDelete: Cascade)
+  scanJob         ScanJob?      @relation(fields: [scanJobId], references: [id])
+
+  @@index([findingId])
+  @@map("retest_runs")
+}
+
+// =============================================================================
+// Evidence / credit / audit
+// =============================================================================
+
+model EvidenceItem {
+  id          String   @id @default(cuid())
+  scanJobId   String   @map("scan_job_id")
+  kind        String
+  storageKey  String   @map("storage_key")
+  contentType String?  @map("content_type")
+  /// Always true. We never store raw secrets; ciphertext blobs use a
+  /// separate dedicated column on TestAccount.
+  sanitized   Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([scanJobId])
+  @@map("evidence_items")
+}
+
+model CreditEntry {
+  id          String   @id @default(cuid())
+  projectId   String   @map("project_id")
+  delta       Int
+  reason      String
+  refType     String?  @map("ref_type")
+  refId       String?  @map("ref_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("credit_ledger")
+}
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  organizationId String?  @map("organization_id")
+  userId         String?  @map("user_id")
+  projectId      String?  @map("project_id")
+  scanJobId      String?  @map("scan_job_id")
+  findingId      String?  @map("finding_id")
+  eventType      String   @map("event_type")
+  /// JSON detail (sanitized).
+  detail         Json
+  createdAt      DateTime @default(now()) @map("created_at")
+  user           User?    @relation(fields: [userId], references: [id])
+
+  @@index([organizationId])
+  @@index([projectId])
+  @@index([scanJobId])
+  @@map("audit_logs")
+}
