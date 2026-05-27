@@ -1,0 +1,12 @@
+name: zaproxy
+language: go
+mode: http
+requires_runtime: true
+docker_profile: zaproxy
+internal_base_url: http://zaproxy-adapter:6100
+health_endpoint: /health
+required_env:
+  - ZAP_BASE_URL
+capabilities:
+  - passive_scan
+  - baseline_alerts
