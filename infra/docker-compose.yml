@@ -1,4 +1,4 @@
-# Local development stack for X-hunter AI v1.
+# Local development stack for OpenHunter v1.
 #
 # Bring up: docker compose -f infra/docker-compose.yml up -d
 # Then:     pnpm db:migrate && pnpm db:seed

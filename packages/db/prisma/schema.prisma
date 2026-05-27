@@ -1,4 +1,4 @@
-// Prisma schema for the X-hunter AI Workspace.
+// Prisma schema for the OpenHunter Workspace.
 //
 // Reflects the v1 data model in PLAN_V3.md §15 / ARCHITECTURE.md §6.1.
 // Names use snake_case at the SQL layer (via @@map / @map) so the schema

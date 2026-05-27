@@ -1,6 +1,6 @@
 # @x-hunter/db
 
-Prisma schema and client for the X-hunter AI Workspace.
+Prisma schema and client for the OpenHunter Workspace.
 
 ## Layout
 

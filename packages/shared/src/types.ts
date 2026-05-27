@@ -1,5 +1,5 @@
 /**
- * Shared domain types for the X-hunter AI Workspace.
+ * Shared domain types for the OpenHunter Workspace.
  *
  * These types describe values that cross worker, API, and web boundaries.
  * Database row shapes live in @x-hunter/db (Prisma).
