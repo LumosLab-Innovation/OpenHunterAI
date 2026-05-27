@@ -1,0 +1,8 @@
+bin/
+dist/
+*.test
+*.out
+.env
+.env.local
+!**/runtime/.env.example
+!**/env/*.env.example
