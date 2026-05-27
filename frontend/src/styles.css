@@ -1,0 +1,169 @@
+:root {
+  color-scheme: light;
+  --bg: #f7f7f4;
+  --panel: #ffffff;
+  --ink: #171717;
+  --muted: #666b73;
+  --line: #d9ddd8;
+  --primary: #101010;
+  --danger: #b42318;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family:
+    ui-sans-serif,
+    "Segoe UI",
+    system-ui,
+    sans-serif;
+}
+
+a {
+  color: inherit;
+}
+
+.app {
+  min-height: 100vh;
+}
+
+.topbar {
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  padding: 16px 28px;
+}
+
+.brand {
+  font-weight: 800;
+  text-decoration: none;
+}
+
+nav {
+  display: flex;
+  gap: 14px;
+}
+
+nav a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+nav a.active {
+  color: var(--ink);
+}
+
+.page {
+  margin: 0 auto;
+  max-width: 1120px;
+  padding: 42px 24px;
+}
+
+.hero {
+  max-width: 720px;
+  padding: 72px 0;
+}
+
+.hero h1 {
+  font-size: clamp(48px, 8vw, 88px);
+  line-height: 0.95;
+  margin: 0 0 20px;
+}
+
+.hero p {
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.eyebrow {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.narrow {
+  max-width: 460px;
+}
+
+.stack {
+  display: grid;
+  gap: 12px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+input,
+select,
+button,
+.button {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font: inherit;
+  padding: 10px 12px;
+}
+
+input {
+  min-width: 240px;
+}
+
+button,
+.button {
+  background: white;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.primary,
+button[type="submit"] {
+  background: var(--primary);
+  color: white;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+table {
+  border-collapse: collapse;
+  margin-top: 16px;
+  width: 100%;
+}
+
+td {
+  border-top: 1px solid var(--line);
+  padding: 12px 8px;
+}
+
+.badge {
+  background: #eef0ed;
+  border-radius: 999px;
+  display: inline-flex;
+  padding: 6px 10px;
+}
+
+.error {
+  color: var(--danger);
+}
