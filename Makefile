@@ -14,22 +14,26 @@ INTEGRATION ?= zaproxy
 .PHONY: help install typecheck test build db-generate db-migrate db-seed \
 	up-core down-core up-frontend up-backend up-workers up-integrations up-full down-full \
 	up-service dev-service up-worker dev-worker up-integration dev-integration \
-	check-integrations dev-frontend dev-public-api dev-stack go-build
+	check-integrations dev-frontend dev-public-api dev-stack go-build \
+	app app-down app-worker app-integration dev dev-down logs
 
 help:
-	@echo "OpenHunterAI"
-	@echo "  make install                         Install dependencies inside each TS service"
-	@echo "  make up-full                         Start core + frontend + backend + workers + integrations"
-	@echo "  make down-full                       Stop all docker compose services"
-	@echo "  make dev-frontend                    Run frontend locally"
-	@echo "  make dev-public-api                  Run public API locally"
-	@echo "  make up-service BACKEND=public-api   Start one backend/gateway service"
-	@echo "  make dev-service BACKEND=public-api  Run one TS service locally"
-	@echo "  make up-worker WORKER=orchestrator   Start one Go worker container"
-	@echo "  make dev-worker WORKER=orchestrator  Run one Go worker locally"
-	@echo "  make up-integration INTEGRATION=zaproxy"
-	@echo "  make dev-integration INTEGRATION=nuclei"
-	@echo "  make check-integrations              Health check all integration adapters"
+	@echo "OpenHunterAI - quick commands"
+	@echo "  make app                              Start core + frontend + public-api (default dev stack)"
+	@echo "  make app-worker WORKER=orchestrator   Start app + one worker"
+	@echo "  make app-integration INTEGRATION=zaproxy  Start app + one integration"
+	@echo "  make app-down                         Stop app stack (core+frontend+backend)"
+	@echo "  make dev                              Run frontend + public-api locally in one command"
+	@echo "  make dev-down                         Stop local dev processes from 'make dev'"
+	@echo "  make logs                             Tail logs for frontend + backend + core"
+	@echo ""
+	@echo "OpenHunterAI - detailed commands"
+	@echo "  make up-core | down-core"
+	@echo "  make up-frontend | up-backend | up-workers | up-integrations | up-full | down-full"
+	@echo "  make up-service BACKEND=public-api | dev-service BACKEND=public-api"
+	@echo "  make up-worker WORKER=orchestrator | dev-worker WORKER=orchestrator"
+	@echo "  make up-integration INTEGRATION=zaproxy | dev-integration INTEGRATION=nuclei"
+	@echo "  make install | typecheck | test | build | db-generate | db-migrate | db-seed | go-build"
 
 install:
 	for d in $(TS_SERVICES); do (cd $$d && pnpm install); done
@@ -117,3 +121,38 @@ dev-stack:
 go-build:
 	go work sync
 	for d in workers/* integrations/*; do (cd $$d && go build ./...); done
+
+# --- high-level convenience targets ---
+app:
+	docker compose $(COMPOSE_CORE) $(COMPOSE_FRONTEND) $(COMPOSE_BACKEND) up -d
+
+app-down:
+	docker compose $(COMPOSE_CORE) $(COMPOSE_FRONTEND) $(COMPOSE_BACKEND) down
+
+app-worker: app
+	$(MAKE) up-worker WORKER=$(WORKER)
+
+app-integration: app
+	$(MAKE) up-integration INTEGRATION=$(INTEGRATION)
+
+logs:
+	docker compose $(COMPOSE_CORE) $(COMPOSE_FRONTEND) $(COMPOSE_BACKEND) logs -f --tail=150
+
+DEV_PID_DIR := /tmp/openhunter-dev
+DEV_PUBLIC_API_PID := $(DEV_PID_DIR)/public-api.pid
+DEV_FRONTEND_PID := $(DEV_PID_DIR)/frontend.pid
+
+dev:
+	@mkdir -p $(DEV_PID_DIR)
+	@echo "Starting local dev: public-api + frontend"
+	@cd gateway/public-api && nohup pnpm run dev > /tmp/openhunter-public-api.log 2>&1 & echo $$! > $(DEV_PUBLIC_API_PID)
+	@cd frontend && nohup pnpm run dev > /tmp/openhunter-frontend.log 2>&1 & echo $$! > $(DEV_FRONTEND_PID)
+	@echo "public-api log: /tmp/openhunter-public-api.log"
+	@echo "frontend log:   /tmp/openhunter-frontend.log"
+	@echo "Use 'make dev-down' to stop."
+
+dev-down:
+	@set -e; \
+	if [ -f $(DEV_PUBLIC_API_PID) ]; then kill "$$(cat $(DEV_PUBLIC_API_PID))" 2>/dev/null || true; rm -f $(DEV_PUBLIC_API_PID); fi; \
+	if [ -f $(DEV_FRONTEND_PID) ]; then kill "$$(cat $(DEV_FRONTEND_PID))" 2>/dev/null || true; rm -f $(DEV_FRONTEND_PID); fi; \
+	echo "Local dev processes stopped."
