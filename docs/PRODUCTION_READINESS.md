@@ -1,194 +1,126 @@
-# OpenHunterAI — Production Readiness Checklist (v1)
+# OpenHunterAI - Production Readiness Checklist (v1)
 
-> Scope: what still needs to land **after** secrets / env values are
-> provisioned. Anything related to "missing API key for X" or "missing
-> DB credential" is explicitly **out of scope** here — those are
-> deployment-time configuration, not engineering work.
-
-This file is the conclusion required by the recurring question "what is
-still blocking us from running OpenHunterAI in production?". Everything
-below maps to a real gap in the current codebase, not a roadmap wish.
+> Scope: engineering and operations gaps that must be resolved before production rollout. Missing real secret values are deployment configuration, not engineering work.
 
 ---
 
-## 1. Application / API
+# 1. Canonical docs and product contract
 
-### 1.1 Auth & sessions
-
-- [ ] **`@fastify/jwt` secret rotation.** `apps/api/src/server.ts` falls back to a
-      string literal (`'dev-only-rotate-me'`) if `APP_JWT_SECRET` is unset. In
-      production the server must **refuse to boot** without it. Add an env
-      validation step (Zod) on startup that fails fast.
-- [ ] **Session cookie hardening.** `secure: NODE_ENV === 'production'` is correct;
-      we also need `__Host-` prefix once we serve over a single origin, and a
-      configurable `SameSite=strict` for the dashboard cookie.
-- [ ] **CSRF protection.** All write endpoints accept cookies + JSON. Either add
-      `@fastify/csrf-protection` or require an explicit `X-Requested-With`
-      header on cookie-authenticated POST/PATCH/DELETE. Today nothing stops a
-      third-party origin from posting via `<form>` if the user is signed in.
-- [ ] **Rate limit per route, not global.** `@fastify/rate-limit` is currently
-      applied at 300 req/min globally. `/v1/auth/signin` and `/v1/auth/signup`
-      need their own much-tighter buckets (e.g. 10/min per IP) to slow down
-      credential stuffing.
-- [ ] **Password reset flow.** v1 has signup + signin only. There is no
-      "forgot password" path, no email verification, no MFA. At minimum we need
-      a stub that returns `not_implemented` so the dashboard can render a real
-      link instead of dead-ending the user.
-- [ ] **`/v1/auth/me` payload.** Currently returns whatever the JWT claims
-      contain. We should hydrate from DB so a deleted/disabled user is logged
-      out immediately rather than at the next 7-day expiry.
-
-### 1.2 CORS
-
-- [ ] `apps/api/src/server.ts` registers CORS with `cb(null, true)` — every
-      origin is allowed. Production must restrict to the configured web origin
-      (`PUBLIC_WEB_BASE_URL`) and reject everything else.
-
-### 1.3 Error handling & logging
-
-- [ ] `app.setErrorHandler` returns `INTERNAL / 500` for anything not a
-      `GuardrailError`. That is correct, but we still log the full stack via
-      `logger.error`. We should also attach `request_id` to the response so
-      operators can correlate UI errors to API logs.
-- [ ] **Sentry / OpenTelemetry hook.** The structured logger is fine for stdout
-      tailing; we still need a real error-reporting sink (Sentry, Honeycomb,
-      Datadog, …). Without it, a runtime crash in a worker is invisible.
-
-### 1.4 Input validation
-
-- [ ] Every public route uses Zod, but the global error handler does not
-      translate `ZodError` to a 400 — it falls through to `500 INTERNAL`. Add
-      a dedicated branch:
-      ```ts
-      if (err instanceof ZodError) reply.code(400).send({ error: { code: 'INVALID_INPUT', details: err.flatten() } });
-      ```
-
-### 1.5 Health checks
-
-- [ ] `/v1/health` currently returns 200 unconditionally. Production probes
-      should check Postgres + Redis + (optionally) S3 + ZAP and degrade to
-      `503` if any required dependency is down.
+- [ ] **Docs package model sync.** All canonical docs must use: `Free Hunter Snapshot`, `AI Black-hat Check`, `Authenticated Check`, `Monitor Basic`, `Monitor Pro`, and `Readiness Report View/Export`.
+- [ ] **No stale package tiers.** Public docs must not keep old package tier names as v1 package names.
+- [ ] **Positioning sync.** Public positioning must be `Authorized Attacker-Mindset Security Workspace`, not an uncontrolled black-hat tool.
+- [ ] **Evidence policy sync.** Docs and implementation must agree: no raw evidence persistence; only sanitized reports/findings/summaries.
+- [ ] **Adversarial action model.** Product, security, worker, and acceptance docs must all reference gated validation and forbidden actions.
 
 ---
 
-## 2. Database
+# 2. Application / API
 
-- [ ] **Migration discipline.** `packages/db` ships `schema.prisma`; production
-      must use **only** `prisma migrate deploy` (not `db push`). Add the
-      migrate step to the Dockerfile entrypoint or CI release job.
-- [ ] **Connection pooling.** Prisma + serverless / multiple workers means
-      we need PgBouncer (or `?pgbouncer=true` against a managed pool). Confirm
-      the deploy target supports it.
-- [ ] **Backups.** No backup policy documented. At least a daily logical dump
-      + 14-day retention; ideally PITR if the hosting platform supports it.
-- [ ] **Seed data is dev-only.** `pnpm db:seed` writes deterministic UUIDs and
-      a default-password user. The script must `process.exit(1)` if
-      `NODE_ENV === 'production'`.
+- [ ] **JWT secret validation.** API must refuse to boot in production if `APP_JWT_SECRET` is unset or dev-only.
+- [ ] **Session cookie hardening.** Use secure cookies in production, `__Host-` prefix where topology allows, and strict SameSite policy for dashboard sessions.
+- [ ] **CSRF protection.** Add CSRF protection or require explicit same-origin/write headers for cookie-authenticated POST/PATCH/DELETE.
+- [ ] **Route-specific rate limits.** Tighten `/v1/auth/signin`, `/v1/auth/signup`, domain verification, scan creation, and approval endpoints.
+- [ ] **Input validation errors.** Translate Zod/input validation failures to 400, not generic 500.
+- [ ] **Request correlation.** Return `request_id` on server errors and include it in logs.
+- [ ] **Health checks.** `/v1/health` must check Postgres and Redis. Tool health must expose ZAP/Nuclei/browser readiness separately.
+- [ ] **CORS restriction.** Production CORS must allow only configured web origin(s).
 
 ---
 
-## 3. Workers / Queue
+# 3. Database and storage
 
-- [ ] **BullMQ deployment topology.** `workers/scan-orchestrator` is the only
-      worker that boots a Bull queue. In production we need one separate
-      `node` process per worker family with explicit concurrency and graceful
-      shutdown. Today everything would have to share a single Node host.
-- [ ] **Idempotency keys.** Re-running a scan job through orchestrator does
-      not de-duplicate already-completed steps. A retried job restarts every
-      step from scratch.
-- [ ] **Tool availability surface.** When `ZAP_BASE_URL` or `NUCLEI_BIN` is
-      missing, workers correctly mark the step `skipped + TOOL_UNAVAILABLE`.
-      What we still need: a `/v1/health/tools` endpoint that lets the UI tell
-      the operator **before** they kick off a scan that ZAP/Nuclei are off.
+- [ ] **Migration discipline.** Production uses `prisma migrate deploy`, never `db push`.
+- [ ] **Connection pooling.** Multiple API/worker containers require PgBouncer or managed pooling.
+- [ ] **Backups.** Define daily logical backups and retention; prefer PITR if hosting supports it.
+- [ ] **Seed data guard.** `pnpm db:seed` must refuse to run in production.
+- [ ] **No raw evidence persistence.** DB/object storage must not store raw request/response, raw HAR, raw cookie jar, raw token, raw credential, or unsanitized private data.
+- [ ] **Object storage policy.** Store only sanitized screenshots, sanitized report exports, and sanitized evidence summaries.
 
 ---
 
-## 4. Web / Dashboard
+# 4. Workers / queues / scan orchestration
 
-- [ ] **`/api/*` rewrite vs cookies on real domains.** In dev the Next.js
-      rewrite (`API_BASE_URL=http://localhost:4000`) makes the API look
-      same-origin, so `Set-Cookie` works. In production, either (a) host the
-      web and API behind the same hostname / reverse proxy, or (b) drop the
-      rewrite and have the web hit the API directly + set CORS + a wildcard
-      cookie domain. Pick one explicitly — today the implicit assumption is
-      (a) but nothing in deploy docs enforces it.
-- [ ] **Static asset CDN.** `next start` serves bundles directly. Put a CDN
-      in front (Cloudflare / Fastly) for the marketing pages.
-- [ ] **`<a href>` → `next/link`.** The dashboard uses plain `<a href>` for
-      internal navigation. This works but forces a full reload every click.
-      Migrating to `next/link` will materially speed up the SPA feel without
-      changing routes.
-- [ ] **A11y sweep.** Buttons + inputs have placeholders; we still need
-      `aria-label`s on icon-only controls (lang toggle, terminal traffic
-      dots are decorative — fine — but the lang toggle group needs its
-      label which is now in place). Add `eslint-plugin-jsx-a11y` to CI.
+- [ ] **Per-family worker topology.** Production must run separate containers/processes for orchestrator, browser, ZAP, Nuclei, OpenHack, Strix, report, and retest workers.
+- [ ] **Phase fan-out/fan-in.** Orchestrator should coordinate phases and step queues, not run the whole pipeline as one long sequential process.
+- [ ] **Idempotent scan steps.** Retried jobs must not duplicate already-succeeded steps/findings.
+- [ ] **Stuck job recovery.** Add timeout/reconciler behavior for steps left running after worker crash.
+- [ ] **Tool availability surface.** UI/API should expose ZAP/Nuclei/browser availability before users start scans.
+- [ ] **Coverage gaps.** Tool unavailable/failure must become an explicit coverage gap, not fake success.
+- [ ] **Queue observability.** Track queue depth, active jobs, failed jobs, retry counts, and scan step duration.
 
 ---
 
-## 5. Security guardrails (PR-time)
+# 5. Tool packaging
 
-These are not "missing code" — they are gates that production should refuse
-to skip:
-
-- [ ] **Body size limit.** Currently `bodyLimit: 1 MiB` on the API. Confirm
-      it's tight enough for the largest expected payload (probably evidence
-      uploads from workers, which we route through S3 instead — so 1 MiB is
-      correct for the JSON API itself).
-- [ ] **HTTPS-only on cookies + HSTS.** `@fastify/helmet` is registered with
-      `contentSecurityPolicy: false`. The web app must serve its own strict
-      CSP. We need to enable HSTS with `includeSubDomains; preload` once
-      the production hostname is fixed.
-- [ ] **Evidence sanitizer coverage.** `packages/shared`'s sanitizer is
-      exercised by unit tests, but we should add a **golden-output test**
-      that runs the full report worker on a fixture scan and diff-asserts
-      the output against a checked-in snapshot — to catch regressions where
-      a future change re-introduces a raw secret into a report.
+- [ ] **Per-family Docker images.** Build tagged images for `web`, `api`, `orchestrator`, `browser-worker`, `zap-worker`, `nuclei-worker`, `openhack-worker`, `strix-worker`, `report-worker`, and `retest-worker`.
+- [ ] **Playwright isolation.** Browser worker must run with non-root user where possible, sandbox/seccomp guidance, low concurrency, hard timeout, and egress/scope guardrails.
+- [ ] **Nuclei packaging.** Nuclei worker image must include pinned nuclei binary and internal curated templates only, not unreviewed full template execution by default.
+- [ ] **ZAP daemon packaging.** ZAP must run as pinned image/service with API key, restricted network access, health check, and passive/baseline-only configuration by default.
+- [ ] **Image rollback.** Docker VPS deploy must use immutable tags or digests and documented rollback to prior tag.
 
 ---
 
-## 6. Observability & ops
+# 6. Web / dashboard
 
-- [ ] **Structured logs → log aggregator.** `createLogger` emits JSON to
-      stdout; production needs a log shipper (Vector, Fluent Bit, etc.).
-- [ ] **Metrics.** No Prometheus / OpenTelemetry metrics today. At minimum:
-      `http_requests_total`, `scan_jobs_started_total`,
-      `scan_step_duration_seconds`, `llm_tokens_used_total`.
-- [ ] **Alerting.** Define SLOs (API p95 < 500ms, worker step failure rate
-      < 2%) and wire alerts before opening the doors to external users.
+- [ ] **Production routing decision.** Choose same-host reverse proxy or cross-origin API with strict CORS/cookie domain. Document it.
+- [ ] **Internal navigation.** Replace internal `<a href>` full reloads with framework routing where appropriate.
+- [ ] **Accessibility sweep.** Add labels/aria for controls and CI linting where practical.
+- [ ] **Report export UX.** Readiness Report View/Export must clearly state it is an export mode, not a new scan.
+- [ ] **Free UX boundary.** Free should show report-only output and upgrade path, not full finding board/retest workflow.
 
 ---
 
-## 7. Build & release
+# 7. Security guardrails
 
-- [ ] **`pnpm build` is not exercised by CI.** `.github/workflows/ci.yml`
-      runs `typecheck + test + format + lint`. It must also run `pnpm build`
-      so we catch missing exports / Next.js build errors before merging.
-- [ ] **Dockerfiles for api + web + workers.** `infra/docker/` is present
-      but unaudited. Confirm multi-stage builds, non-root user, no dev deps
-      in the final image, and that they pass a baseline image scan.
-- [ ] **Release versioning.** `package.json` is at `0.1.0` across the board.
-      Pick a release strategy (tagged semver, or `1.0.0-beta.N`) before any
-      external rollout.
+- [ ] **Private/local blocking tests.** Cannot scan private/local/metadata targets.
+- [ ] **Redirect guardrail tests.** Redirect outside allowed scope is blocked and audited.
+- [ ] **Secret redaction tests.** Raw password/token/cookie/API key never appears in logs, prompts, reports, or storage.
+- [ ] **Approval gate tests.** Sensitive validation actions cannot run without approval.
+- [ ] **Retest scope tests.** Retest cannot run outside finding scope and cannot become full-app scan.
+- [ ] **Mock production block.** Production path cannot return mock scan results.
+- [ ] **Forbidden adversarial actions.** Out-of-scope, destructive, credential attack, persistence, evasion, malware, and exfiltration paths must be blocked.
 
 ---
 
-## 8. Documentation
+# 8. LLM gateway
 
-- [ ] Promote `docs/AGENTS.md` workflow to a `CONTRIBUTING.md` so external
-      contributors know which rules they have to follow.
-- [ ] **Runbook.** No `RUNBOOK.md` yet — "how to roll back", "how to drain
-      workers", "how to rotate `APP_JWT_SECRET`". This is the single
-      highest-leverage doc to write before production.
+- [ ] **Provider SDK boundary.** Business logic/workers call only the LLM Gateway.
+- [ ] **Package/use-case routing.** Free, AI Black-hat, Authenticated, Monitor Basic/Pro use-case allowances are enforced.
+- [ ] **Strix 2-pass support.** AI Black-hat/Auth support hypothesis and validation reasoning use cases.
+- [ ] **Budget enforcement.** Token/call budgets stop extra calls and report budget-limited coverage when needed.
+- [ ] **Timeout/retry/fallback.** Provider failures degrade gracefully and never fake output.
+- [ ] **Prompt sanitizer.** Raw credential/raw evidence never reaches provider adapters.
 
 ---
 
-## What we are deliberately NOT doing in v1 (per `AGENTS.md` §2)
+# 9. Observability and ops
 
-These are valid production concerns but explicitly out of scope:
+- [ ] **Structured logs to aggregator.** Ship JSON logs to a central sink.
+- [ ] **Metrics.** At minimum: `http_requests_total`, `scan_jobs_started_total`, `scan_step_duration_seconds`, `queue_depth`, `llm_tokens_used_total`, `tool_unavailable_total`.
+- [ ] **Alerting.** Define SLOs for API p95, worker failure rate, queue backlog, and scan timeout rate.
+- [ ] **Runbook.** Document deploy, rollback, worker drain, secret rotation, stuck job recovery, and ZAP/Nuclei/browser health triage.
 
-- CI/CD auto-retest, GitHub code scanning, Jira integration, VPS agent
-- Mobile / APK audit, Kubernetes orchestration, full DefectDojo integration
-- Multi-tenant enterprise admin features beyond a single organization seed
-- SSO / SAML / OIDC enterprise login
+---
 
-If any of these become required, treat as v2 and reopen the scope contract.
+# 10. Build and release
+
+- [ ] **CI build.** CI must run `pnpm build` in addition to typecheck/test/format/lint.
+- [ ] **Image scan.** Production images should pass baseline image scan and run as non-root where feasible.
+- [ ] **Release versioning.** Pick release tags such as `1.0.0-beta.N` or git-sha image tags before rollout.
+- [ ] **Docker VPS deployment.** Document `docker compose pull`, migrations, `up -d`, health checks, and rollback.
+
+---
+
+# 11. Deliberately not v1
+
+```text
+- CI/CD-based automated retesting
+- GitHub code scanning
+- Jira/Linear integration
+- VPS/cloud/private network scan
+- server agent
+- mobile/APK audit
+- Kubernetes/secureCodeBox orchestration
+- full DefectDojo integration
+- SSO/SAML/OIDC enterprise login
+```

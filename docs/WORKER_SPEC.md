@@ -1,13 +1,12 @@
-# WORKER_SPEC.md — AI White-hat Security Workspace
+# WORKER_SPEC.md - OpenHunterAI
 
-> Tài liệu đặc tả các worker v1.  
-> Mọi worker phải tuân thủ SECURITY_GUARDRAILS.md và chỉ chạy trong verified scope.
+> Worker contracts for v1. Workers are internal integrations, not public packages. Public packages are defined in PRD.
 
 ---
 
 # 1. Worker principles
 
-Mọi worker phải có:
+Every worker must have:
 
 ```text
 - scan_id
@@ -19,34 +18,45 @@ Mọi worker phải có:
 - retry limit
 - structured logs
 - error handling
+- sanitized output contract
 ```
 
-Không worker nào được:
+No worker may:
 
 ```text
-- chạy vô hạn
-- scan ngoài scope
-- log raw secret
+- run forever
+- scan outside scope
+- log raw secrets
+- persist raw evidence
 - silently fail
-- trả fake success
+- fake success
+```
+
+Tool unavailable must be explicit:
+
+```text
+state = skipped
+error_code = TOOL_UNAVAILABLE
+coverage_gap = true
 ```
 
 ---
 
-# 2. Worker list v1
+# 2. Worker families v1
 
 ```text
-browser-inspector
-zap-signal
-nuclei-signal
-openhack-hunter
-strix-core
-llm-gateway
-report
-retest
+scan-orchestrator
+browser-worker
+zap-worker
+nuclei-worker
+openhack-worker
+strix-worker
+report-worker
+retest-worker
+llm-gateway service/library
 ```
 
-Không có worker v1 cho:
+Not v1 workers:
 
 ```text
 github
@@ -60,106 +70,139 @@ secrets
 mobile-apk
 ```
 
+Playwright, ZAP, and Nuclei are internal worker integrations. They are not public-facing packages or product tiers.
+
 ---
 
-# 3. browser-inspector worker
+# 3. Phase pipeline responsibilities
 
-## 3.1. Purpose
+## 3.1. scan-orchestrator
 
-Mở app thật bằng Playwright/CDP và quan sát bề mặt web/app.
+Purpose:
 
-## 3.2. Input
+```text
+Coordinate scan phases, create scan_steps, enqueue ready worker jobs, fan-in results, and mark coverage gaps.
+```
+
+Responsibilities:
+
+```text
+- validate domain verification and authorization
+- freeze scope snapshot
+- create phase-based steps
+- fan-out browser/ZAP/Nuclei/OpenHack where safe
+- fan-in normalized signals
+- trigger Strix Mini Summary or 2-pass Strix
+- trigger report worker
+- avoid duplicate step execution on retry
+```
+
+It must not directly run all tools in a single long sequential pipeline in production.
+
+---
+
+# 4. browser-worker
+
+## 4.1. Purpose
+
+Open the verified web/app with Playwright/CDP and observe real browser behavior.
+
+## 4.2. Input
 
 ```json
 {
   "scan_id": "scan_123",
   "project_id": "proj_123",
-  "target_url": "https://example.com",
+  "mode": "free_hunter_snapshot|ai_blackhat_check|authenticated_check",
+  "target_urls": ["https://example.com"],
   "allowed_hosts": ["example.com"],
+  "allowed_paths": ["/"],
   "excluded_paths": [],
-  "mode": "free|light|standard|auth",
   "test_account_ref": "optional"
 }
-```
-
-## 3.3. Output
-
-```json
-{
-  "routes": [],
-  "api_endpoints": [],
-  "network_summary": {},
-  "cookie_summary": {},
-  "storage_summary": {},
-  "console_errors": [],
-  "screenshots": [],
-  "evidence_refs": []
-}
-```
-
-## 3.4. Guardrails
-
-```text
-- không navigate ngoài allowed_hosts
-- không lưu raw credential
-- không log token/cookie
-- có timeout
-- browser context riêng cho mỗi scan/account
-```
-
----
-
-# 4. zap-signal worker
-
-## 4.1. Purpose
-
-Tạo DAST signal nhanh/rẻ bằng ZAP passive/baseline.
-
-## 4.2. Modes
-
-```text
-free: passive mini
-light: passive/baseline limited
-standard: baseline/passive standard
-auth: passive/baseline trên authenticated traffic nếu có
 ```
 
 ## 4.3. Output
 
 ```json
 {
-  "scanner": "zap",
-  "alerts": [],
-  "finding_candidates": [],
-  "raw_output_ref": "optional"
+  "routes": [],
+  "api_endpoints": [],
+  "network_summary": {},
+  "cookie_attribute_summary": {},
+  "storage_key_summary": {},
+  "console_errors": [],
+  "screenshots": [],
+  "coverage_gaps": []
 }
 ```
 
 ## 4.4. Guardrails
 
 ```text
-- không full active scan mặc định
-- không scan ngoài scope
-- timeout bắt buộc
-- fail thì report lỗi, không fake success
+- block navigation outside allowed scope
+- separate browser context per scan/account
+- no raw credential persistence
+- no raw cookie/storage persistence
+- no full HAR persistence
+- hard timeout
+- low concurrency in production
 ```
 
 ---
 
-# 5. nuclei-signal worker
+# 5. zap-worker
 
 ## 5.1. Purpose
 
-Chạy curated safe templates để tìm exposure/misconfig/known patterns.
+Generate passive/baseline DAST signals through a ZAP daemon or equivalent safe mode.
 
-## 5.2. Profiles
+## 5.2. Modes
+
+```text
+free_hunter_snapshot: passive mini
+ai_blackhat_check: passive/baseline standard-safe
+authenticated_check: passive/baseline on sanitized authenticated traffic metadata if available
+```
+
+## 5.3. Output
+
+```json
+{
+  "scanner": "zap",
+  "profile": "passive-mini|baseline-standard",
+  "candidates": [],
+  "summary": {},
+  "coverage_gaps": []
+}
+```
+
+## 5.4. Guardrails
+
+```text
+- no broad active scan by default
+- no out-of-scope URLs
+- timeout required
+- fail or skip loudly
+- no fake alerts
+```
+
+---
+
+# 6. nuclei-worker
+
+## 6.1. Purpose
+
+Run the Nuclei engine with internal curated templates for exposure/misconfig/known patterns.
+
+## 6.2. Profiles
 
 ```text
 mini-safe
 standard-safe
 ```
 
-## 5.3. Blocked template types
+## 6.3. Blocked template types
 
 ```text
 destructive
@@ -170,26 +213,27 @@ malware
 credential-attack
 ```
 
-## 5.4. Output
+## 6.4. Output
 
 ```json
 {
   "scanner": "nuclei",
-  "template_profile": "mini-safe",
-  "results": [],
-  "finding_candidates": []
+  "template_profile": "mini-safe|standard-safe",
+  "candidates": [],
+  "summary": {},
+  "coverage_gaps": []
 }
 ```
 
 ---
 
-# 6. openhack-hunter worker
+# 7. openhack-worker
 
-## 6.1. Purpose
+## 7.1. Purpose
 
-Tạo Free Hunter Layer và workflow/schema cho finding.
+Create hunter structure, mini hunter outputs, and finding/warning/hardening/coverage-gap schema.
 
-## 6.2. Mini hunters
+## 7.2. Mini hunters
 
 ```text
 Vibe-code Exposure Hunter
@@ -199,55 +243,14 @@ Auth/Session Smoke Hunter
 AI App Smoke Hunter
 ```
 
-## 6.3. Input
+## 7.3. Input
 
 ```json
 {
   "browser_observations": {},
   "zap_candidates": [],
   "nuclei_candidates": [],
-  "mode": "free|light|standard|auth"
-}
-```
-
-## 6.4. Output
-
-```json
-{
-  "findings": [],
-  "warnings": [],
-  "hardening": [],
-  "coverage_gaps": [],
-  "hunter_summary_context": {}
-}
-```
-
----
-
-# 7. strix-core worker
-
-## 7.1. Purpose
-
-Dùng Strix attacker-mindset reasoning để phân tích rủi ro và finding.
-
-## 7.2. Modes
-
-```text
-free: Strix Mini Summary only
-light: limited reasoning
-standard: attacker-mindset reasoning
-auth: attacker-mindset reasoning with authenticated context
-```
-
-## 7.3. Input
-
-```json
-{
-  "compact_security_context": {},
-  "sanitized_evidence": [],
-  "hunter_output": {},
-  "finding_candidates": [],
-  "package": "free|light|standard|auth"
+  "mode": "free_hunter_snapshot|ai_blackhat_check|authenticated_check"
 }
 ```
 
@@ -255,90 +258,104 @@ auth: attacker-mindset reasoning with authenticated context
 
 ```json
 {
+  "candidates": [],
+  "warnings": [],
+  "hardening": [],
+  "coverage_gaps": [],
+  "compact_security_context": {}
+}
+```
+
+---
+
+# 8. strix-worker
+
+## 8.1. Purpose
+
+Run attacker-mindset reasoning on compact sanitized context.
+
+## 8.2. Modes
+
+```text
+free_hunter_snapshot: Strix Mini Summary only
+ai_blackhat_check: hypothesis pass + validation reasoning pass
+authenticated_check: hypothesis + access-control reasoning + validation reasoning
+```
+
+## 8.3. Input
+
+```json
+{
+  "compact_security_context": {},
+  "sanitized_evidence": [],
+  "hunter_output": {},
+  "finding_candidates": [],
+  "package": "free_hunter_snapshot|ai_blackhat_check|authenticated_check",
+  "pass": "mini_summary|hypothesis|validation_reasoning|access_control_reasoning"
+}
+```
+
+## 8.4. Output
+
+```json
+{
   "observations": [],
+  "hypotheses": [],
+  "validation_plan": [],
   "prioritized_findings": [],
   "severity_confidence_updates": [],
   "remediation": [],
   "fix_prompts": [],
-  "retest_proposals": []
+  "retest_proposals": [],
+  "approval_requests": []
 }
 ```
 
-## 7.5. Guardrails
+## 8.5. Guardrails
 
 ```text
-- không nhận raw secret
-- không scan ngoài scope
-- action nhạy cảm phải qua Product Policy Gate
-- không tự chạy destructive action
+- no raw secrets
+- no out-of-scope action
+- no sensitive action without Product Policy Gate/User Approval Gate
+- no destructive action
+- no abuse instructions outside verified scope
 ```
 
 ---
 
-# 8. llm-gateway worker/service
-
-## 8.1. Purpose
-
-Gateway chung cho OpenAI / Claude / DeepSeek.
-
-## 8.2. Responsibilities
-
-```text
-- prompt sanitizer
-- budget check
-- provider routing
-- fallback
-- retry
-- timeout
-- response normalization
-- token/cost/latency logging
-```
-
-## 8.3. Providers
-
-```text
-OpenAIProvider
-ClaudeProvider
-DeepSeekProvider
-```
-
-## 8.4. Rule
-
-Không module nào được gọi trực tiếp provider SDK.  
-Chi tiết trong `LLM_PROVIDER_SPEC.md`.
-
----
-
-# 9. report worker
+# 9. report-worker
 
 ## 9.1. Purpose
 
-Sinh report.
+Generate reports and exports from sanitized findings/summaries.
 
 ## 9.2. Outputs
 
 ```text
-- Free Hunter Snapshot Report
-- Human-readable report
-- AI/dev-readable technical report
+- Hunter Snapshot Report
+- Human-readable Report
+- AI/dev-readable Report
+- Auth Security Report
+- Readiness Report View/Export
 ```
 
 ## 9.3. Guardrails
 
 ```text
-- mọi evidence phải qua sanitizer
-- không raw secret
-- không ghi “100% secure”
-- phải nêu scope/coverage/limitations
+- no raw secrets
+- no raw request/response
+- no raw evidence persistence
+- no absolute security guarantee
+- include scope/coverage/limitations
 ```
 
 ---
 
-# 10. retest worker
+# 10. retest-worker
 
 ## 10.1. Purpose
 
-Manual retest từng finding.
+Manual retest for one finding/scenario.
 
 ## 10.2. Input
 
@@ -347,7 +364,8 @@ Manual retest từng finding.
   "finding_id": "FIND-001",
   "retest_scenario": {},
   "scope_snapshot": {},
-  "user_approval": "required_if_sensitive"
+  "approval_state": "not_required|required|approved|denied",
+  "max_runtime_ms": 60000
 }
 ```
 
@@ -356,7 +374,8 @@ Manual retest từng finding.
 ```json
 {
   "result": "Fixed|Still Vulnerable|Partially Fixed|Cannot Verify",
-  "evidence_refs": [],
+  "sanitized_evidence_refs": [],
+  "coverage_gaps": [],
   "notes": ""
 }
 ```
@@ -364,8 +383,30 @@ Manual retest từng finding.
 ## 10.4. Guardrails
 
 ```text
-- retest phải gắn với finding
-- không scan lại toàn bộ app
-- không chạy tự động sau deploy
-- action nhạy cảm cần User Approval Gate
+- retest must be tied to one finding
+- no full-app rescan
+- no deployment-triggered retest
+- sensitive action requires User Approval Gate
+- no raw evidence persistence
 ```
+
+---
+
+# 11. Docker packaging expectation
+
+Production should use per-family images:
+
+```text
+web
+api
+orchestrator
+browser-worker
+zap-worker
+nuclei-worker
+openhack-worker
+strix-worker
+report-worker
+retest-worker
+```
+
+Browser, ZAP, and Nuclei workers need separate packaging because their runtime dependencies and isolation requirements differ.

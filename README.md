@@ -1,10 +1,43 @@
-# OpenHunterAI
+# OpenHunterAI - Authorized Attacker-Mindset Security Workspace
 
-Microservice-oriented white-hat security workspace. The runtime is split into
-frontend, gateways, backend services, Go workers, and Go integration adapters.
+End-to-end **authorized** security testing workspace for verified public web/app
+targets. The runtime is split into frontend, gateways, backend services, Go
+workers, and Go integration adapters.
 
-`third_party_research/` is reference material only. It is not imported or used as
-runtime code.
+> **Rule zero.** OpenHunterAI only scans domains the operator has proven
+> ownership of. No verified authorization, no scan. No private/local targets. No
+> raw secrets or raw evidence in logs, prompts, reports, or storage.
+
+OpenHunterAI uses attacker-mindset reasoning, but execution is governed by
+verified scope, Product Policy Gate, User Approval Gate, and strict evidence
+sanitization.
+
+## Product Packages
+
+```txt
+Free Hunter Snapshot
+AI Black-hat Check
+Authenticated Check
+Monitor Basic
+Monitor Pro
+Readiness Report View/Export
+```
+
+See the canonical specs in `docs/`:
+
+- `docs/ONE-PAGE.md` - product overview.
+- `docs/PRD.md` - product requirements and package model.
+- `docs/ARCHITECTURE.md` - system architecture.
+- `docs/SECURITY_GUARDRAILS.md` - non-negotiable rules.
+- `docs/WORKER_SPEC.md` - worker contracts.
+- `docs/LLM_PROVIDER_SPEC.md` - LLM gateway contract.
+- `docs/ACCEPTANCE_CRITERIA.md` - must-pass criteria.
+- `docs/PRODUCTION_READINESS.md` - remaining work to be production-ready.
+- `docs/DESIGN.md` - UI/design notes.
+- `docs/AGENTS.md` - operator/agent rules.
+
+`third_party_research/` is reference material only. It is not imported or used
+as runtime code.
 
 ## Structure
 
@@ -26,8 +59,9 @@ third_party_research/      Reference repos only
 ```
 
 Root files are only repo-level controls: `README.md`, `Makefile`, and `go.work`.
-Each TypeScript service owns its own `package.json`, `tsconfig.json`, dependencies,
-and env example under `*/env/*.env.example` or `integrations/*/runtime/.env.example`.
+Each TypeScript service owns its own `package.json`, `tsconfig.json`,
+dependencies, and env example under `*/env/*.env.example` or
+`integrations/*/runtime/.env.example`.
 
 ## Install
 
@@ -115,3 +149,32 @@ Frontend calls `gateway/public-api`. The public API writes business state and
 publishes NATS events. Go workers consume events, call integration adapters, and
 report status through `gateway/internal-api`. Integrations own Docker-first
 runtimes for ZAP, Nuclei, OpenHack, Strix, and Playwright MCP/fallback.
+
+## Operating Principles
+
+1. Scope is frozen. Every scan/retest uses the authorization snapshot captured
+   at job creation.
+2. Policy gates every action. Out-of-scope, private/local, package-exceeded,
+   budget-exceeded, and sensitive-without-approval actions are denied.
+3. Evidence is sanitized. Raw request/response, HAR, cookies, tokens,
+   credentials, and private data are not persisted.
+4. LLM calls go through the Gateway. Business logic does not call provider SDKs
+   directly.
+5. Workers fail loudly. Timeout, tool unavailable, and scanner failures become
+   explicit step failures/skips/coverage gaps.
+6. Retest is manual by finding. Monitor provides history, reminders, quota, and
+   queueing; it is not CI/CD-based automated retesting.
+
+## Not In V1
+
+```txt
+CI/CD-based automated retesting
+deployment-triggered retest
+GitHub code scanning
+Jira/Linear integration
+VPS/cloud/private network scan
+server agent
+mobile/APK audit
+Kubernetes/secureCodeBox orchestration
+full DefectDojo integration
+```

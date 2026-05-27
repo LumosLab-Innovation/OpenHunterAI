@@ -5,7 +5,7 @@ Prisma schema and client for the OpenHunter Workspace.
 ## Layout
 
 - `prisma/schema.prisma` — single source of truth for the v1 data model (see
-  `PLAN_V3_AI_WHITEHAT_SECURITY_WORKSPACE.md` §15 and `ARCHITECTURE.md` §6.1).
+  `ARCHITECTURE.md` §7.1).
 - `src/index.ts` — singleton-style Prisma client factory.
 - `src/seed.ts` — local dev seed.
 

@@ -1,508 +1,459 @@
-# PRD.md — AI White-hat Security Workspace
+# PRD.md - OpenHunterAI
 
-> PRD này chỉ mô tả **feature, user flow, gói dịch vụ, trải nghiệm người dùng và giá trị sản phẩm**.  
-> Không mô tả chi tiết kiến trúc, worker, database, API provider hay implementation nội bộ.  
-> Bản này đã chốt theo cấu trúc gói mới: **Free/Light/Standard/Auth/Launch theo Hunter Layer**.  
-> Trong v1 **không có Expert Human Review**. User approval là feature kiểm soát hành động, không phải human review.
-
----
-
-# 1. Tổng quan sản phẩm
-
-## 1.1. Tên sản phẩm
-
-**AI White-hat Security Workspace**
-
-## 1.2. Mô tả ngắn
-
-AI White-hat Security Workspace là nền tảng kiểm thử bảo mật web/app có kiểm soát. Người dùng nhập domain, xác minh quyền sở hữu, chọn gói kiểm thử, có thể thêm test account, sau đó nhận báo cáo bảo mật dễ hiểu, báo cáo kỹ thuật cho AI/dev, bảng quản lý lỗi và công cụ retest từng lỗi sau khi sửa.
-
-## 1.3. Định vị
-
-Sản phẩm không phải scanner thông thường. Sản phẩm là workspace giúp người dùng đi qua vòng lặp:
-
-```text
-Phát hiện rủi ro → hiểu lỗi → sửa lỗi → retest → chứng minh đã xử lý
-```
-
-## 1.4. Giá trị cốt lõi
-
-```text
-- Free vẫn có “chất hunter”, không chỉ check header/cookie đơn giản.
-- Gói trả phí dùng Strix attacker-mindset để tìm lỗi logic, phân quyền, API behavior và rủi ro khó thấy.
-- OpenHack-style workflow giúp chuẩn hóa hunter layer, schema, report và review package.
-- Report có 2 lớp: dễ hiểu cho founder/client và kỹ thuật cho AI/dev.
-- Finding board giúp quản lý lỗi sau scan.
-- Manual retest giúp kiểm tra lại từng lỗi sau khi sửa, không cần scan lại toàn bộ.
-```
+> PRD nay mo ta feature, user flow, goi dich vu, trai nghiem nguoi dung va tieu chi hoan thanh o muc san pham.
+> PRD khong mo ta chi tiet worker, database, provider, Docker image hay task ky thuat.
+> Dinh vi public: **OpenHunterAI - Authorized Attacker-Mindset Security Workspace**.
 
 ---
 
-# 2. Scope v1
+# 1. Tong quan san pham
 
-## 2.1. V1 làm gì
+## 1.1. Ten san pham
+
+**OpenHunterAI**
+
+## 1.2. Mo ta ngan
+
+OpenHunterAI la workspace kiem thu bao mat web/app public da xac minh domain. San pham mo phong tu duy attacker trong pham vi duoc uy quyen, thu thap tin hieu an toan, tao gia thuyet rui ro, chay validation co kiem soat, roi tra report, finding board va manual retest cho tung loi sau khi sua.
+
+## 1.3. Dinh vi
+
+OpenHunterAI khong phai scanner thong thuong va khong phai cong cu tan cong tuy y.
 
 ```text
-- Nhập domain/URL.
-- Xác minh quyền sở hữu domain.
-- Khai báo phạm vi kiểm thử.
-- Chọn gói Free / Light / Standard / Auth / Launch.
-- Thêm test account nếu muốn kiểm tra phần sau đăng nhập.
-- Hiển thị tiến trình kiểm thử dễ hiểu.
-- Trả Hunter Snapshot / Human Report / AI-dev Report tùy gói.
-- Tạo finding board.
-- Cho phép user chuyển trạng thái lỗi.
-- Cho phép manual retest từng finding.
-- Có User Approval Gate cho hành động nhạy cảm.
+Authorized attacker-mindset testing
+→ evidence-based findings
+→ fix guidance
+→ manual retest
+→ prove fixed
 ```
 
-## 2.2. V1 không làm gì
+## 1.4. Gia tri cot loi
 
 ```text
-- Không GitHub repo access.
-- Không Jira / Linear.
-- Không CI/CD auto retest.
-- Không tự chạy scan sau mỗi lần deploy.
-- Không xác minh VPS / cloud account.
-- Không scan private network.
-- Không cài agent lên server.
-- Không mobile APK audit.
-- Không tự sửa code.
-- Không Expert Human Review trong v1.
-- Không cam kết luôn tìm thấy lỗi.
+- Free van co chat hunter, khong chi check header/cookie.
+- Goi tra phi dung attacker-mindset de tim rui ro logic, phan quyen, API behavior va session flow kho thay.
+- Moi goi dung nhieu lop kiem thu: browser observation, scanner signals, hunter workflow va AI reasoning o muc phu hop.
+- Moi goi deu co report; khac nhau o do sau, muc ky thuat, evidence summary va kha nang export.
+- Finding board va Monitor giup quan ly loi sau scan.
+- Manual retest kiem tra lai tung finding, khong scan lai toan bo app.
 ```
 
 ---
 
-# 3. Đối tượng người dùng
+# 2. Nguoi dung muc tieu
 
-## 3.1. Founder / chủ sản phẩm
-
-Nhu cầu:
+## 2.1. Founder / chu san pham
 
 ```text
-- Biết web/app có rủi ro lớn không.
-- Hiểu lỗi bằng ngôn ngữ dễ hiểu.
-- Biết lỗi nào cần sửa trước.
-- Có report để gửi dev, khách hàng hoặc nhà đầu tư.
+- Muon biet web/app co rui ro lon khong.
+- Muon hieu loi bang ngon ngu de hieu.
+- Muon biet loi nao can sua truoc.
+- Muon co report de gui dev, khach hang hoac nha dau tu.
 ```
 
-## 3.2. Vibe coder / AI builder
-
-Nhu cầu:
+## 2.2. Vibe coder / AI builder
 
 ```text
-- Build app nhanh bằng AI nên dễ thiếu security foundation.
-- Muốn check nhanh lỗi phổ biến.
-- Muốn có fix prompt đưa cho Codex, Claude Code, Cursor, Antigravity hoặc dev.
-- Muốn retest sau khi sửa.
+- Build nhanh bang AI nen de thieu security foundation.
+- Muon check nhanh loi pho bien va rui ro dang chu y.
+- Muon co fix prompt dua cho AI coding agent hoac dev.
+- Muon retest sau khi sua.
 ```
 
-## 3.3. Dev team nhỏ / agency
-
-Nhu cầu:
+## 2.3. Dev team nho / agency
 
 ```text
-- Cần danh sách lỗi rõ ràng.
-- Cần report bàn giao khách hàng.
-- Cần workflow quản lý lỗi tối giản.
-- Không cần Jira/DevSecOps phức tạp trong v1.
+- Can danh sach loi ro rang.
+- Can report ban giao khach hang.
+- Can workflow quan ly loi toi gian.
+- Khong can Jira/DevSecOps phuc tap trong v1.
 ```
 
 ---
 
-# 4. Cấu trúc gói dịch vụ
+# 3. Scope san pham v1
 
-## 4.1. Bảng gói theo Hunter Layer
+## 3.1. V1 lam gi
 
-| Gói | Hunter layer | Mục đích |
+```text
+- Nhap domain/URL.
+- Xac minh quyen so huu domain.
+- Khai bao pham vi kiem thu.
+- Chay Free Hunter Snapshot.
+- Chay AI Black-hat Check.
+- Chay Authenticated Check neu co test account.
+- Them/xoa test account.
+- Hien thi tien trinh kiem thu de hieu.
+- Tra report tuong ung voi tung goi.
+- Tao finding board cho goi tra phi va Monitor.
+- Cho phep user doi trang thai finding.
+- Cho phep manual retest tung finding.
+- Co User Approval Gate cho action nhay cam.
+- Co Readiness Report View/Export nhu paid export mode.
+- Co Monitor Basic / Monitor Pro cho history, reminders va manual retest queue.
+```
+
+## 3.2. V1 khong lam gi
+
+```text
+- Khong GitHub repo access.
+- Khong Jira / Linear integration.
+- Khong CI/CD-based automated retesting.
+- Khong tu chay scan sau moi lan deploy.
+- Khong xac minh VPS / cloud account.
+- Khong scan private network.
+- Khong cai server agent.
+- Khong mobile APK audit.
+- Khong tu sua code.
+- Khong Expert Human Review trong v1.
+- Khong cam ket tim moi lo hong.
+```
+
+---
+
+# 4. Lop kiem thu va adversarial action model
+
+## 4.1. Cac lop kiem thu
+
+| Lop | Vai tro trong san pham | Cach noi voi user |
 |---|---|---|
-| **Free** | OpenHack-style mini hunter + Strix Mini Summary | Snapshot nhanh, có chất hunter, kéo lead |
-| **Light** | OpenHack hunter đầy đủ hơn + limited Strix | Check nhanh app/MVP/vibe-code app với report có giá trị |
-| **Standard** | Strix adversarial core + OpenHack schema/review workflow | Gói chính cho startup chuẩn bị launch/demo |
-| **Auth** | Strix access-control hunter + OpenHack approval/evidence package | Kiểm tra phần sau đăng nhập, session, role, access-control |
-| **Launch** | Strix + OpenHack + readiness package | Gói cao nhất trong v1, dùng trước launch/demo/B2B, không có expert human review |
+| Browser Observation | Mo app that, quan sat route, request/API, cookie, storage, console | "Mo website bang browser that" |
+| ZAP passive/baseline signal | Tin hieu DAST nen cho loi web security pho bien | Khong can nhan manh ten tool |
+| Nuclei curated signal | Kiem tra exposure/misconfig/known pattern bang template noi bo da chon loc | Khong can nhan manh ten tool |
+| OpenHack-style hunter workflow | To chuc mini hunter, schema finding/warning/hardening/coverage gap | Khong can nhan manh ten repo |
+| Strix AI reasoning | Tao attacker hypotheses, uu tien finding, tao fix/retest plan | "AI mo phong tu duy attacker trong scope da xac minh" |
 
-> Ghi chú: “review workflow/package” trong v1 là **workflow/evidence package để user/dev tự xem và approve**, không phải chuyên gia bảo mật review.
+## 4.2. Adversarial Action Model
 
----
+OpenHunterAI co attacker-mindset, nhung execution luon nam trong verified scope va policy gate.
 
-# 5. Gói Free — Vibe-code Hunter Snapshot
+| Level | Ten | Duoc dung cho | Mo ta |
+|---|---|---|---|
+| 0 | Observe | Free+ | Browser observation, route/API discovery, cookie/storage metadata, console signals. |
+| 1 | Safe Signal | Free+ | ZAP passive/baseline, Nuclei curated safe templates, exposure checks. |
+| 2 | Hypothesis | Free+ | Strix/OpenHack tao risk hypothesis tu compact sanitized context. |
+| 3 | Safe Validation | AI Black-hat Check+ | Benign validation trong scope, khong destructive, khong exfiltrate raw data. |
+| 4 | Approval-Gated Validation | Authenticated Check / sensitive retest | Access-control, POST/PUT/PATCH/DELETE, billing/file/email/webhook, High/Critical retest; can User Approval Gate. |
+| Forbidden | Khong bao gio | Tat ca goi | Out-of-scope scan, destructive action, credential attack, persistence, evasion, malware, exfiltration, raw secret logging/reporting. |
 
-## 5.1. Mục tiêu
+## 4.3. Nuclei
 
-Free phải cho user thấy hệ thống có “chất hunter”, không phải chỉ là check header/cookie rẻ tiền.
-
-Free không phải full pentest.
-
-Tên đúng:
+Nuclei khong dung de check codebase. V1 chi dung:
 
 ```text
-Free Vibe-code Hunter Snapshot
+Nuclei engine + internal curated templates
 ```
 
-## 5.2. Hunter layer
+Khong dung:
 
 ```text
-OpenHack-style mini hunter + Strix Mini Summary
-```
-
-## 5.3. Bao gồm
-
-```text
-- Domain verification.
-- Lightweight browser observation.
-- OpenHack-style mini hunter workflow.
-- Mini exposure hunter.
-- Frontend secret/storage hunter.
-- API surface hunter.
-- Auth/session smoke hunter.
-- AI app smoke hunter nếu phát hiện chatbot/LLM.
-- Strix Mini Summary.
-- Snapshot score.
-- Top observations.
-- Findings / warnings / hardening.
-- Public attack surface summary.
-- What we could not test.
-- Recommended next step.
-- 1 simple retest cho lỗi đơn giản nếu có.
-```
-
-## 5.4. Không bao gồm
-
-```text
-- Full Strix adversarial reasoning.
-- Authenticated scan.
-- Multi-account access-control test.
-- Deep business logic testing.
-- AI/dev technical report đầy đủ.
-- Expert Human Review.
-- CI/CD auto retest.
-```
-
-## 5.5. Empty-state
-
-Nếu không tìm thấy lỗi lớn, không ghi:
-
-```text
-Không phát hiện lỗi.
-```
-
-Phải ghi:
-
-```text
-Không phát hiện Critical/High trong phạm vi snapshot hiện tại.
-```
-
-Và kèm:
-
-```text
-- Đã kiểm tra gì.
-- Đã quan sát bao nhiêu route/request/API.
-- Warning/hardening nếu có.
-- Phần chưa kiểm tra được.
-- Bước tiếp theo.
+full nuclei-templates repo chay mac dinh
 ```
 
 ---
 
-# 6. Gói Light — Fast Vibe-code Security Check
+# 5. Cau truc goi v1
 
-## 6.1. Mục tiêu
+## 5.1. One-off checks
 
-Gói rẻ có thể bán, sâu hơn Free nhưng chưa phải full AI adversarial check.
+| Goi | Lop kiem thu chinh | Report mac dinh | Muc dich |
+|---|---|---|---|
+| Free Hunter Snapshot | Browser observation nhe + ZAP/Nuclei mini signals + OpenHack mini hunter + Strix Mini Summary | Hunter Snapshot Report | Check nhanh, keo lead, cho user thay chat hunter |
+| AI Black-hat Check | Browser sau hon + ZAP/Nuclei standard-safe + OpenHack workflow + Strix 2-pass reasoning | Human Report + AI/dev Report | Goi tra phi chinh cho web/app public |
+| Authenticated Check | Toan bo AI Black-hat Check + test account + authenticated observation + access-control reasoning | Auth Security Report + AI/dev Report | Kiem tra sau dang nhap, session, role, access-control |
 
-## 6.2. Hunter layer
+## 5.2. Monitor subscription
 
-```text
-OpenHack hunter đầy đủ hơn + limited Strix
-```
+Monitor khong phai CI/CD, deploy hook hay continuous full scanner. Monitor la subscription cho workspace sau scan:
 
-## 6.3. Bao gồm
+| Goi | Muc dich | Bao gom |
+|---|---|---|
+| Monitor Basic | Duy tri 1 project/domain sau scan | Report/finding history, reminders, manual retest queue, retest quota nho |
+| Monitor Pro | Theo doi nhieu project/domain va lam viec theo team | Nhieu quota hon, team workspace, priority retest queue, longer history |
 
-```text
-- Toàn bộ Free.
-- Browser observation nhiều route hơn.
-- API surface summary đầy đủ hơn.
-- OpenHack hunter workflow đầy đủ hơn.
-- Limited Strix reasoning trên các bề mặt đáng nghi.
-- Human-readable report.
-- Fix prompt cơ bản cho từng finding.
-- Finding board cơ bản.
-- Một số lượt retest đơn giản.
-```
+## 5.3. Readiness Report View/Export
 
-## 6.4. Không bao gồm
+Day la paid export mode, khong phai goi scan rieng.
 
 ```text
-- Full Strix adversarial core.
-- Authenticated access-control check sâu.
-- Multi-account User A/User B test.
-- Expert Human Review.
+- Chi dung sau AI Black-hat Check hoac Authenticated Check.
+- Khong chay scan moi.
+- Tao executive/client-facing export tu sanitized reports/findings.
+- Khong bao gom Expert Human Review trong v1.
+- Khong bao chung rang he thong an toan tuyet doi.
 ```
 
 ---
 
-# 7. Gói Standard — AI White-hat Check
+# 6. Report model
 
-## 7.1. Mục tiêu
-
-Gói chính cho startup, agency hoặc vibe-coded app chuẩn bị launch/demo.
-
-## 7.2. Hunter layer
+## 6.1. Nguyen tac
 
 ```text
-Strix adversarial core + OpenHack schema/review workflow
+- Moi goi scan deu co report.
+- Free chi co Hunter Snapshot Report.
+- AI Black-hat Check va Authenticated Check co report ky thuat cho AI/dev.
+- Readiness Export chi dung sanitized report/finding/evidence summaries.
+- Raw request/response/cookie/token/password khong duoc luu hoac dua vao report.
 ```
 
-## 7.3. Bao gồm
+## 6.2. Report theo goi
+
+| Goi | Report | Noi dung chinh |
+|---|---|---|
+| Free Hunter Snapshot | Hunter Snapshot Report | Score, observations, warnings/hardening, attack surface summary, coverage gaps, next step |
+| AI Black-hat Check | Human-readable Report + AI/dev-readable Report | Findings, severity/confidence, impact, fix guidance, fix prompt, retest scenario |
+| Authenticated Check | Auth Security Report + AI/dev-readable Report | Session/auth/access-control findings, User A/User B observations, sensitive flows, retest plan |
+| Readiness Report View/Export | Executive/Client-facing export | Executive summary, readiness summary, priority fix plan, sanitized evidence summary |
+
+## 6.3. Wording bat buoc
+
+Khong ghi cac ket luan tuyet doi nhu:
 
 ```text
-- Toàn bộ Light.
-- Strix attacker-mindset reasoning trong phạm vi đã xác minh.
-- OpenHack schema để chuẩn hóa finding/report/retest.
-- OpenHack review workflow để gom evidence, reasoning summary, remediation và retest suggestion.
-- Prioritized findings.
-- Severity/confidence.
-- Business impact.
-- Human-readable report.
-- AI/dev-readable technical report.
-- Fix prompt cho AI/dev.
-- Manual retest từng finding.
-- User Approval Gate cho action nhạy cảm.
-```
-
-## 7.4. Không bao gồm
-
-```text
-- Authenticated access-control check sâu nếu không có test account.
-- Expert Human Review.
-- CI/CD auto retest.
-```
-
----
-
-# 8. Gói Auth — Access Control Check
-
-## 8.1. Mục tiêu
-
-Gói tập trung vào lỗi sau đăng nhập: auth/session/role/access-control/API data exposure.
-
-## 8.2. Hunter layer
-
-```text
-Strix access-control hunter + OpenHack approval/evidence package
-```
-
-## 8.3. Yêu cầu đầu vào
-
-```text
-- Domain đã xác minh.
-- Scope đã khai báo.
-- Ít nhất 1 test account.
-- Tốt nhất 2 test accounts: User A / User B.
-- Role label nếu user biết: normal, admin, editor, viewer...
-```
-
-## 8.4. Bao gồm
-
-```text
-- Toàn bộ Standard.
-- Authenticated flow.
-- Session/cookie/token checks.
-- Role boundary checks nếu có role.
-- User A/User B access-control checks nếu có 2 accounts.
-- BOLA/IDOR suspicion and safe validation.
-- Private data exposure checks.
-- Admin-like endpoint visibility.
-- OpenHack approval/evidence package cho finding nhạy cảm.
-- User Approval Gate bắt buộc cho action nhạy cảm.
-- Manual retest cho access-control finding.
-```
-
-## 8.5. Không bao gồm
-
-```text
-- Expert Human Review.
-- Scan ngoài scope.
-- Destructive action mặc định.
-- CI/CD auto retest.
-```
-
----
-
-# 9. Gói Launch — Launch Readiness Check
-
-## 9.1. Mục tiêu
-
-Gói cao nhất trong v1, dùng trước launch, demo khách B2B hoặc gửi report cho đối tác/nhà đầu tư.
-
-## 9.2. Hunter layer
-
-```text
-Strix + OpenHack + readiness package
-```
-
-## 9.3. Bao gồm
-
-```text
-- Standard hoặc Auth tùy scope.
-- Report trình bày kỹ hơn.
-- Readiness summary.
-- Coverage summary.
-- Priority fix plan.
-- Retest package sau khi fix.
-- Evidence package đã sanitize.
-```
-
-## 9.4. Không bao gồm
-
-```text
-- Expert Human Review trong v1.
-- Bảo chứng “100% secure”.
-- CI/CD auto retest.
-```
-
-## 9.5. Wording bắt buộc
-
-Không ghi:
-
-```text
-Đã an toàn tuyệt đối.
+Khong co van de nao.
+He thong da an toan tuyet doi.
 ```
 
 Ghi:
 
 ```text
-Không phát hiện Critical/High trong phạm vi kiểm thử hiện tại.
+Khong phat hien Critical/High trong pham vi kiem thu hien tai.
+```
+
+Va luon kem:
+
+```text
+- scope;
+- coverage;
+- limitations;
+- what we could not test;
+- recommended next step.
 ```
 
 ---
 
-# 10. Monthly / Monitor Plans
+# 7. Free Hunter Snapshot
 
-## 10.1. Nguyên tắc
+## 7.1. Muc tieu
 
-Gói tháng không phải CI/CD auto retest.
+Free phai co gia tri that va co chat hunter, nhung khong phai pentest day du va khong co full adversarial validation.
 
-Gói tháng bán:
+## 7.2. Bao gom
 
 ```text
-- Finding workspace.
-- Report history.
-- Retest quota.
-- Reminders.
-- Risk acceptance.
-- Security score trend.
+- Domain verification.
+- Lightweight browser observation.
+- ZAP passive mini signal.
+- Nuclei internal mini-safe signal.
+- Mini exposure hunter.
+- Frontend secret/storage hunter.
+- API surface hunter.
+- Auth/session smoke hunter.
+- AI app smoke hunter neu phat hien chatbot/LLM.
+- Strix Mini Summary.
+- Hunter Snapshot Report.
 ```
 
-## 10.2. Monitor Lite
+## 7.3. Khong bao gom
+
+```text
+- Finding board.
+- Manual retest workflow.
+- Report history.
+- Full Strix adversarial reasoning.
+- Authenticated scan.
+- Multi-account access-control test.
+- Deep business logic testing.
+- AI/dev technical report day du.
+- Expert Human Review.
+- CI/CD-based automated retesting.
+```
+
+---
+
+# 8. AI Black-hat Check
+
+## 8.1. Muc tieu
+
+Goi tra phi chinh cho web/app public da xac minh domain. Goi nay dung attacker-mindset de tim rui ro sau hon Free nhung van nam trong scope an toan.
+
+## 8.2. Bao gom
+
+```text
+- Toan bo tin hieu Free nhung sau hon.
+- Browser observation nhieu route/API hon.
+- ZAP/Nuclei standard-safe signals.
+- OpenHack schema/workflow de chuan hoa finding/report/retest.
+- Strix 2-pass reasoning:
+  1. hypothesis pass de tao risk areas va validation plan;
+  2. validation reasoning pass de uu tien finding, severity, remediation va retest scenario.
+- Safe validation trong scope.
+- Human-readable report.
+- AI/dev-readable technical report.
+- Fix prompt cho AI/dev.
+- Finding board.
+- Manual retest tung finding.
+- User Approval Gate cho action nhay cam.
+```
+
+## 8.3. Khong bao gom
+
+```text
+- Authenticated access-control check neu user khong cung cap test account.
+- Multi-account User A/User B check.
+- Expert Human Review.
+- CI/CD-based automated retesting.
+```
+
+---
+
+# 9. Authenticated Check
+
+## 9.1. Muc tieu
+
+Kiem tra rui ro sau dang nhap: session, role, access-control, API data exposure, BOLA/IDOR suspicion.
+
+## 9.2. Mode theo test account
+
+```text
+- 1 test account: authenticated observation, auth/session checks, private data exposure signals, admin-like endpoint visibility.
+- 2 test accounts: bat User A/User B access-control checks, BOLA/IDOR suspicion va safe validation.
+```
+
+## 9.3. Yeu cau dau vao
+
+```text
+- Domain da xac minh.
+- Scope da khai bao.
+- It nhat 1 test account.
+- Tot nhat 2 test accounts: User A / User B.
+- Role label neu user biet: normal, admin, editor, viewer...
+```
+
+## 9.4. Bao gom
+
+```text
+- Toan bo AI Black-hat Check.
+- Authenticated browser observation.
+- Session/cookie/token checks.
+- Role boundary checks neu co role.
+- User A/User B access-control checks neu co 2 accounts.
+- BOLA/IDOR suspicion and safe validation.
+- Auth Security Report.
+- AI/dev-readable technical report.
+- User Approval Gate bat buoc cho action nhay cam.
+- Manual retest cho access-control finding.
+```
+
+## 9.5. Khong bao gom
+
+```text
+- Expert Human Review.
+- Scan ngoai scope.
+- Destructive action mac dinh.
+- CI/CD-based automated retesting.
+```
+
+---
+
+# 10. Monitor Plans
+
+## 10.1. Nguyen tac
+
+Monitor la subscription sau scan, khong phai CI/CD hay auto full scan.
+
+```text
+- Luu sanitized reports/findings.
+- Nhac user xu ly loi va mark Ready for Retest.
+- Cung cap manual retest queue va retest quota.
+- Khong tu dong retest tat ca findings.
+- Khong scan lai toan bo app.
+- Khong chay sau deploy.
+```
+
+## 10.2. Monitor Basic
 
 ```text
 - 1 project/domain.
-- Lưu report.
-- Finding board.
-- Retest quota nhỏ.
-- Reminder cơ bản.
+- Report/finding history.
+- Reminder co ban.
+- Manual retest queue.
+- Retest quota nho.
 ```
 
-## 10.3. Monitor Startup
+## 10.3. Monitor Pro
 
 ```text
-- Nhiều project/domain hơn.
-- Report history dài hơn.
-- Retest quota lớn hơn.
-- Status workflow.
-- Risk acceptance.
-- Monthly summary nhẹ.
-```
-
-## 10.4. Monitor Pro
-
-```text
-- Team workspace cơ bản.
-- Nhiều domain hơn.
-- Authenticated findings tracking.
+- Nhieu project/domain hon.
+- Team workspace co ban.
+- Longer report/finding history.
+- Retest quota lon hon.
 - Priority retest queue.
-- Readiness package add-on.
+- Readiness Report View/Export quota hoac discount.
 ```
 
 ---
 
-# 11. User flow chi tiết
+# 11. User flow
 
-## 11.1. Flow tạo project và verify domain
+## 11.1. Tao project va verify domain
 
 ```text
-1. User tạo project.
-2. User nhập domain.
-3. Hệ thống hiển thị lựa chọn verify.
-4. User chọn DNS TXT hoặc /.well-known file.
-5. User hoàn tất verify.
-6. Domain chuyển sang Verified.
-7. User mới được chạy scan.
+1. User tao project.
+2. User nhap domain.
+3. He thong hien thi DNS TXT hoac /.well-known verification.
+4. User hoan tat verify.
+5. Domain chuyen sang Verified.
+6. User tao scan authorization va moi duoc chay scan.
 ```
 
-## 11.2. Flow Free
+## 11.2. Free Hunter Snapshot
 
 ```text
-1. User chọn Free Vibe-code Hunter Snapshot.
-2. User xác nhận scope cơ bản.
-3. Hệ thống chạy OpenHack-style mini hunter.
-4. Hệ thống tạo Strix Mini Summary.
-5. User nhận Snapshot Report.
-6. User thấy top observations, warnings, hardening, coverage gaps.
-7. User được gợi ý nâng lên Light/Standard/Auth nếu cần.
+1. User chon Free Hunter Snapshot.
+2. User xac nhan scope co ban.
+3. He thong chay browser observation nhe + scanner mini signals + OpenHack mini hunter.
+4. He thong tao Strix Mini Summary.
+5. User nhan Hunter Snapshot Report.
+6. User duoc goi y nang len AI Black-hat Check hoac Authenticated Check neu can.
 ```
 
-## 11.3. Flow Light
+## 11.3. AI Black-hat Check
 
 ```text
-1. User chọn Light.
-2. Hệ thống chạy hunter sâu hơn Free.
-3. Limited Strix phân tích các surface đáng nghi.
-4. User nhận human-readable report.
-5. User xem finding board.
-6. User copy fix prompt cơ bản.
-7. User retest lỗi đơn giản sau khi sửa.
+1. User chon AI Black-hat Check.
+2. User xac nhan scope.
+3. He thong chay signal gathering.
+4. Strix tao hypothesis va safe validation plan.
+5. He thong chay safe validation trong scope.
+6. Neu action nhay cam, User Approval Gate hien ra truoc khi chay.
+7. User nhan Human Report va AI/dev Report.
+8. User quan ly finding trong board va manual retest tung finding.
 ```
 
-## 11.4. Flow Standard
+## 11.4. Authenticated Check
 
 ```text
-1. User chọn Standard.
-2. User xác nhận scope.
-3. Hệ thống chạy Strix adversarial core trong verified scope.
-4. OpenHack workflow chuẩn hóa finding/report/retest.
-5. Nếu action nhạy cảm, hệ thống hỏi User Approval Gate.
-6. User nhận human-readable report và AI/dev-readable report.
-7. User sửa lỗi.
-8. User manual retest từng finding.
+1. User chon Authenticated Check.
+2. User them 1 hoac 2 test accounts.
+3. He thong login trong verified scope.
+4. 1 account bat auth/session checks.
+5. 2 accounts bat User A/User B access-control checks.
+6. Action nhay cam phai co User Approval Gate.
+7. User nhan Auth Security Report va AI/dev Report.
+8. User manual retest tung access-control finding.
 ```
 
-## 11.5. Flow Auth
+## 11.5. Monitor
 
 ```text
-1. User chọn Auth.
-2. User thêm test account.
-3. Nếu muốn kiểm tra User A/User B, user thêm 2 accounts.
-4. Hệ thống kiểm tra phần sau đăng nhập.
-5. Action nhạy cảm phải có User Approval Gate.
-6. User nhận Access Control report.
-7. User sửa lỗi.
-8. User retest từng access-control finding.
-```
-
-## 11.6. Flow Launch
-
-```text
-1. User chọn Launch.
-2. User chọn Standard hoặc Auth scope.
-3. Hệ thống chạy kiểm thử theo scope.
-4. User nhận report trình bày kỹ hơn.
-5. User nhận readiness summary.
-6. User fix theo priority plan.
-7. User dùng retest package để kiểm tra lại lỗi sau khi sửa.
+1. User co reports/findings tu paid check.
+2. User chon Monitor Basic hoac Monitor Pro.
+3. He thong luu history, reminders va retest quota.
+4. User mark Ready for Retest hoac queue retest tung finding.
+5. He thong chay retest hep theo finding va cap nhat status.
 ```
 
 ---
@@ -511,110 +462,43 @@ Gói tháng bán:
 
 ## 12.1. Domain Verification
 
-User có thể:
-
 ```text
-- thêm domain;
-- xác minh bằng DNS TXT;
-- xác minh bằng /.well-known file;
-- xem trạng thái pending/verified/failed/expired.
-```
-
-Yêu cầu:
-
-```text
-- domain chưa verified thì không scan được;
-- hướng dẫn verify phải rõ;
-- lỗi verify phải dễ hiểu.
+- Them domain.
+- Verify bang DNS TXT hoac /.well-known file.
+- Xem status pending/verified/failed/expired.
+- Domain chua verified thi khong scan duoc.
 ```
 
 ## 12.2. Scope Setup
 
-User có thể:
-
 ```text
-- chọn allowed host;
-- loại trừ path nhạy cảm;
-- chọn gói scan;
-- xác nhận có quyền kiểm thử.
+- Chon allowed host.
+- Loai tru path nhay cam.
+- Chon goi scan.
+- Xac nhan co quyen kiem thu.
 ```
 
 ## 12.3. Test Account Setup
 
-User có thể:
-
 ```text
-- thêm test account;
-- gắn role nếu biết;
-- thêm User A/User B nếu muốn check access-control;
-- xóa test account.
+- Them test account trong verified scope.
+- Gan role neu biet.
+- Them User A/User B neu muon check access-control.
+- Xoa test account.
+- Test account chi dung trong pham vi domain da xac minh.
 ```
 
-UX phải nói rõ:
+## 12.4. Finding Board
+
+Finding board bat buoc cho AI Black-hat Check, Authenticated Check va Monitor. Free chi co report.
 
 ```text
-Test account chỉ dùng trong phạm vi domain đã xác minh.
-```
-
-## 12.4. Live Progress
-
-Hiển thị milestone:
-
-```text
-- Đang xác minh phạm vi kiểm thử.
-- Đang mở website bằng browser thật.
-- Đang quan sát request/API được frontend gọi.
-- Đang chạy Hunter Snapshot.
-- Đang phân tích các bề mặt rủi ro đáng chú ý.
-- Đang tạo report.
-```
-
-Với Standard/Auth:
-
-```text
-- AI đang mô phỏng tư duy attacker trong phạm vi đã xác minh.
-- Đang kiểm tra các luồng nhạy cảm.
-```
-
-## 12.5. Report
-
-Free:
-
-```text
-Hunter Snapshot Report
-```
-
-Light trở lên:
-
-```text
-- Human-readable report.
-- AI/dev-readable report nếu gói hỗ trợ.
-```
-
-Report phải có:
-
-```text
-- scope;
-- top observations;
-- findings/warnings/hardening;
-- severity/confidence nếu có;
-- business impact;
-- fix guidance;
-- limitations;
-- next steps.
-```
-
-## 12.6. Finding Board
-
-User có thể:
-
-```text
-- xem findings;
-- lọc theo status/severity;
-- mở finding detail;
-- copy fix prompt;
-- đổi trạng thái;
-- bấm retest.
+- Xem findings.
+- Loc theo status/severity.
+- Mo finding detail.
+- Copy fix prompt.
+- Doi trang thai.
+- Queue manual retest neu goi ho tro.
 ```
 
 States:
@@ -630,19 +514,17 @@ Cannot Verify
 Accepted Risk
 ```
 
-## 12.7. Manual Retest
-
-Retest v1:
+## 12.5. Manual Retest
 
 ```text
-- manual;
-- theo từng finding;
-- không scan lại toàn bộ app;
-- không chạy sau deploy;
-- có User Approval Gate nếu action nhạy cảm.
+- Theo tung finding.
+- Khong scan lai toan bo app.
+- Khong chay sau deploy.
+- Kiem tra scope truoc khi chay.
+- Co User Approval Gate neu action nhay cam.
 ```
 
-Kết quả:
+Ket qua:
 
 ```text
 Fixed
@@ -651,108 +533,62 @@ Partially Fixed
 Cannot Verify
 ```
 
-## 12.8. User Approval Gate
-
-Hiển thị trước action nhạy cảm:
-
-```text
-- action sẽ chạy;
-- domain/path liên quan;
-- account sẽ dùng nếu có;
-- điều hệ thống sẽ không làm;
-- Approve / Cancel.
-```
-
 ---
 
 # 13. UX wording
 
-## 13.1. Không hứa quá mức
+Khong dung cac claim marketing tuyet doi hoac imply tan cong tuy y.
 
-Không dùng:
-
-```text
-100% secure.
-Không có lỗi.
-Tìm mọi lỗ hổng.
-```
-
-Dùng:
+Dung:
 
 ```text
-Không phát hiện Critical/High trong phạm vi kiểm thử hiện tại.
-```
-
-## 13.2. Luôn nêu limitation
-
-Ví dụ:
-
-```text
-Chưa kiểm tra được phân quyền sau đăng nhập vì bạn chưa thêm test account.
-```
-
-## 13.3. CTA sau Free
-
-```text
-Muốn kiểm tra lỗi phân quyền, session và dữ liệu sau đăng nhập? Hãy thêm test account và chạy Auth Check.
+Authorized attacker-mindset testing.
+AI mo phong tu duy attacker trong scope da xac minh.
+Khong phat hien Critical/High trong pham vi kiem thu hien tai.
 ```
 
 ---
 
 # 14. Success metrics
 
-## 14.1. Product metrics
-
 ```text
 - Free Snapshot completion rate.
 - Free → paid conversion.
-- Tỷ lệ user thêm test account sau Free.
-- Số report được export.
-- Số finding được mark Ready for Retest.
-- Số retest được chạy.
-- Tỷ lệ finding chuyển Fixed.
-```
-
-## 14.2. Experience metrics
-
-```text
-- User có hiểu report không?
-- Free report có bị cảm giác trống không?
-- User có biết bước tiếp theo không?
-- User có copy fix prompt không?
-- User có quay lại retest không?
+- Free → Authenticated Check conversion.
+- Ty le user them test account sau Free.
+- So report duoc export.
+- So finding duoc mark Ready for Retest.
+- So retest duoc queue/chay.
+- Ty le finding chuyen Fixed.
+- Monitor subscription conversion.
 ```
 
 ---
 
-# 15. Acceptance summary ở mức sản phẩm
+# 15. Acceptance summary o muc san pham
 
-PRD v1 đạt khi sản phẩm cho phép:
+PRD v1 dat khi:
 
 ```text
-- tạo project;
-- thêm và verify domain;
-- chạy Free Hunter Snapshot đúng cấu trúc;
-- chạy Light/Standard/Auth/Launch theo đúng hunter layer;
-- Free report có giá trị dù không tìm thấy lỗi lớn;
-- thêm test account cho Auth;
-- xem finding board;
-- copy AI fix prompt;
-- manual retest từng finding;
-- dùng User Approval Gate cho action nhạy cảm;
-- export human-readable report;
-- export AI/dev-readable report ở gói phù hợp.
+- User tao project, them domain va verify domain.
+- Domain chua verified thi khong scan duoc.
+- Free Hunter Snapshot tra report co gia tri va khong co finding board/retest workflow.
+- AI Black-hat Check co 2-pass Strix, finding board, AI/dev report va manual retest.
+- Authenticated Check phan biet 1-account va 2-account mode.
+- Readiness Report View/Export chi la paid export mode sau paid check.
+- Monitor chi co Basic/Pro va la history/reminders/manual retest queue.
+- Khong raw evidence trong storage/report/LLM prompt.
+- User Approval Gate hoat dong cho action nhay cam.
 ```
 
-Không đạt nếu:
+Khong dat neu:
 
 ```text
-- Free chỉ là header/cookie scan đơn giản;
-- report trả “không có lỗi” mà không có coverage/limitation;
-- package không khớp hunter layer đã chốt;
-- còn ghi Expert Human Review như benefit v1;
-- user không biết bước tiếp theo;
-- không có finding board;
-- không có manual retest;
-- nhầm User Approval Gate với Expert Human Review.
+- Free chi la header/cookie scan don gian.
+- Free co finding board/retest workflow nhu paid.
+- Report tra ket luan tuyet doi ma khong co coverage/limitation.
+- Con old package names nhu package public v1.
+- Monitor bi hieu la CI/CD/deployment-triggered/fully automated scanner.
+- Authenticated Check hua User A/B khi chi co 1 account.
+- PRD lam nguoi doc hieu OpenHunterAI la cong cu tan cong tuy y.
 ```

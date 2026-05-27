@@ -10,12 +10,13 @@
 Trước khi implement bất kỳ task nào, agent phải đọc theo thứ tự:
 
 ```text
-1. PLAN_V3.md
-2. PRD.md
-3. ARCHITECTURE.md
-4. SECURITY_GUARDRAILS.md
-5. TASK_BREAKDOWN.md
-6. ACCEPTANCE_CRITERIA.md
+1. PRD.md
+2. ARCHITECTURE.md
+3. SECURITY_GUARDRAILS.md
+4. ACCEPTANCE_CRITERIA.md
+5. WORKER_SPEC.md
+6. LLM_PROVIDER_SPEC.md
+7. PRODUCTION_READINESS.md
 ```
 
 Nếu nội dung các file mâu thuẫn nhau, ưu tiên theo thứ tự:
@@ -25,8 +26,9 @@ SECURITY_GUARDRAILS.md
 → ACCEPTANCE_CRITERIA.md
 → PRD.md
 → ARCHITECTURE.md
-→ TASK_BREAKDOWN.md
-→ PLAN_V3.md
+→ WORKER_SPEC.md
+→ LLM_PROVIDER_SPEC.md
+→ PRODUCTION_READINESS.md
 ```
 
 ---
@@ -62,8 +64,8 @@ Không tự thêm các phần sau nếu chưa có yêu cầu rõ:
 ```text
 - GitHub repo access.
 - Jira / Linear integration.
-- CI/CD auto retest.
-- Deploy-triggered retest.
+- CI/CD-based automated retesting.
+- Deployment-triggered retest.
 - VPS / instance verification.
 - Cloud account verification.
 - Private network scan.
@@ -154,8 +156,8 @@ Retest trong v1 là manual.
 Không được implement:
 
 ```text
-- CI/CD auto retest.
-- Deploy-triggered retest.
+- CI/CD-based automated retesting.
+- Deployment-triggered retest.
 - Background retest sau mỗi deploy.
 ```
 
@@ -324,7 +326,7 @@ Không tự quyết các vấn đề sau:
 - Đổi pricing/package logic.
 - Bật destructive/active scan sâu.
 - Cho phép scan private/internal target.
-- Cho phép CI/CD auto retest.
+- Cho phép CI/CD-based automated retesting.
 ```
 
 Câu hỏi nên ghi rõ:

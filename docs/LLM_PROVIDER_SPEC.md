@@ -1,54 +1,34 @@
-# LLM_PROVIDER_SPEC.md — Multi-provider LLM Gateway
+# LLM_PROVIDER_SPEC.md - Multi-provider LLM Gateway
 
-> Tài liệu này định nghĩa lớp LLM Provider cho AI White-hat Security Workspace.  
-> Mục tiêu: toàn bộ OpenAI / Claude / DeepSeek phải đi qua một gateway thống nhất, có sanitizer, budget, fallback, logging và provider routing. Không gọi trực tiếp SDK provider rải rác trong business logic.
+> Moi OpenAI / Claude / DeepSeek call phai di qua mot gateway thong nhat co sanitizer, budget, fallback, timeout va logging an toan.
 
 ---
 
-# 1. Mục tiêu
+# 1. Muc tieu
 
-## 1.1. Vì sao cần LLM Gateway?
-
-Hệ thống dùng LLM ở nhiều điểm:
+OpenHunterAI dung LLM cho:
 
 ```text
 - Strix Mini Summary cho Free Hunter Snapshot
-- Strix attacker-mindset reasoning cho Standard/Auth
-- OpenHack-style hunter workflow summary
-- Finding classification
-- Severity/confidence explanation
-- Human-readable report
-- AI/dev-readable report
-- AI fix prompt
-- Retest reasoning cho một số finding cần ngữ cảnh
+- Strix hypothesis pass cho AI Black-hat Check
+- Strix validation reasoning pass cho AI Black-hat/Auth
+- OpenHack-style hunter summary
+- finding classification
+- severity/confidence explanation
+- Human Report
+- AI/dev Report
+- fix prompt
+- retest reasoning cho Monitor/manual retest
 ```
 
-Nếu gọi trực tiếp từng provider ở nhiều nơi, hệ thống sẽ khó kiểm soát:
-
-```text
-- chi phí
-- timeout
-- retry
-- fallback
-- prompt sanitizer
-- token budget
-- logging
-- bảo mật credential
-- thay provider/model
-```
-
-Do đó, mọi LLM call phải đi qua:
-
-```text
-LLM Gateway / Provider Adapter
-```
+Khong module nao duoc goi truc tiep provider SDK ngoai provider adapters.
 
 ---
 
-# 2. Kiến trúc tổng quan
+# 2. Architecture
 
 ```text
-Strix Core / OpenHack Hunter / Report Service / Retest Service
+OpenHack / Strix / Report / Retest
   ↓
 LLM Gateway
   ↓
@@ -65,40 +45,45 @@ Response Normalizer
 Audit + Metrics + Cost Log
 ```
 
-Không module nào được gọi trực tiếp:
-
-```text
-openai.*
-anthropic.*
-deepseek.*
-```
-
-trừ trong provider adapter tương ứng.
-
 ---
 
 # 3. Provider abstraction
 
-## 3.1. Interface chung
+## 3.1. Use cases
 
 ```ts
 export type LLMUseCase =
   | "free_hunter_summary"
   | "openhack_hunter_summary"
-  | "strix_reasoning"
+  | "strix_hypothesis"
+  | "strix_validation_reasoning"
+  | "auth_access_control_reasoning"
   | "finding_classification"
   | "severity_confidence"
   | "human_report"
   | "ai_dev_report"
+  | "auth_report"
+  | "readiness_export"
   | "fix_prompt"
-  | "retest_reasoning";
+  | "monitor_retest_reasoning";
+```
+
+## 3.2. Request / response contract
+
+```ts
+export type PackageTier =
+  | "free_hunter_snapshot"
+  | "ai_blackhat_check"
+  | "authenticated_check"
+  | "monitor_basic"
+  | "monitor_pro";
 
 export interface LLMRequest {
   useCase: LLMUseCase;
   projectId: string;
   scanId?: string;
   findingId?: string;
-  packageTier: "free" | "light" | "standard" | "auth" | "launch";
+  packageTier: PackageTier;
   systemPrompt: string;
   userPrompt: string;
   compactContext?: Record<string, unknown>;
@@ -126,13 +111,9 @@ export interface LLMResponse {
     retryable: boolean;
   };
 }
-
-export interface LLMProvider {
-  generate(request: SanitizedLLMRequest): Promise<LLMResponse>;
-}
 ```
 
-## 3.2. Provider adapters bắt buộc
+Provider adapters:
 
 ```text
 OpenAIProvider
@@ -140,190 +121,142 @@ ClaudeProvider
 DeepSeekProvider
 ```
 
-Mỗi adapter chịu trách nhiệm:
-
-```text
-- map request chung sang format provider cụ thể
-- gọi API provider
-- normalize response về LLMResponse
-- normalize lỗi
-- expose usage/token nếu provider trả về
-```
-
 ---
 
 # 4. Model aliases
 
-Không hardcode model cụ thể trong business logic.  
-Business logic chỉ dùng alias.
+Business logic chi dung alias, khong hardcode model.
 
 ```text
 llm.free.summary
-llm.light.summary
-llm.standard.reasoning
-llm.auth.reasoning
-llm.report.writer
+llm.openhack.summary
+llm.blackhat.hypothesis
+llm.blackhat.validation
+llm.auth.access_control
+llm.report.human
+llm.report.ai_dev
+llm.report.auth
+llm.report.readiness
 llm.fix_prompt.writer
-llm.retest.reasoning
+llm.monitor.retest
 ```
 
-Mapping provider/model nằm trong config:
-
-```yaml
-llm:
-  aliases:
-    llm.free.summary:
-      primary:
-        provider: deepseek
-        model: ${DEEPSEEK_FREE_SUMMARY_MODEL}
-      fallback:
-        provider: openai
-        model: ${OPENAI_FREE_SUMMARY_MODEL}
-
-    llm.standard.reasoning:
-      primary:
-        provider: claude
-        model: ${CLAUDE_STANDARD_REASONING_MODEL}
-      fallback:
-        provider: openai
-        model: ${OPENAI_STANDARD_REASONING_MODEL}
-
-    llm.auth.reasoning:
-      primary:
-        provider: claude
-        model: ${CLAUDE_AUTH_REASONING_MODEL}
-      fallback:
-        provider: openai
-        model: ${OPENAI_AUTH_REASONING_MODEL}
-
-    llm.report.writer:
-      primary:
-        provider: openai
-        model: ${OPENAI_REPORT_MODEL}
-      fallback:
-        provider: deepseek
-        model: ${DEEPSEEK_REPORT_MODEL}
-```
-
-Các biến model cụ thể đặt ở environment/config, không ghi cứng trong code.
+Mapping provider/model nam trong config/env.
 
 ---
 
 # 5. Routing theo package
 
-## 5.1. Free
+## 5.1. Free Hunter Snapshot
 
-Dùng LLM ít nhất có thể.
+Dung LLM it nhat co the.
 
-```text
-- OpenHack-style mini hunter workflow chạy bằng rule/schema trước.
-- Strix Mini Summary chỉ đọc compact context.
-- Không chạy full Strix adversarial reasoning.
-```
-
-Use cases được phép:
+Allowed:
 
 ```text
 free_hunter_summary
 openhack_hunter_summary
 ```
 
-Không được phép:
+Blocked:
 
 ```text
-strix_reasoning full
-deep validation
+strix_hypothesis full
+strix_validation_reasoning
+auth_access_control_reasoning
 multi-step agent loop
 ```
 
-## 5.2. Light
+## 5.2. AI Black-hat Check
 
-Dùng LLM giới hạn.
+Dung 2-pass Strix:
 
 ```text
-- Strix limited reasoning trên suspicious surfaces.
-- Report/fix prompt ngắn.
+1. strix_hypothesis
+   - attacker hypotheses
+   - risk areas
+   - safe validation plan
+
+2. strix_validation_reasoning
+   - findings
+   - severity/confidence
+   - remediation
+   - fix prompt
+   - retest scenario
 ```
 
-Use cases được phép:
+Allowed:
 
 ```text
-openhack_hunter_summary
-finding_classification
-severity_confidence
-human_report
-fix_prompt
-```
-
-## 5.3. Standard
-
-Dùng Strix attacker-mindset reasoning trong verified scope.
-
-Use cases được phép:
-
-```text
-strix_reasoning
+strix_hypothesis
+strix_validation_reasoning
 finding_classification
 severity_confidence
 human_report
 ai_dev_report
 fix_prompt
-retest_reasoning
 ```
 
-## 5.4. Auth
+## 5.3. Authenticated Check
 
-Dùng Strix reasoning với authenticated context đã sanitize.
-
-Yêu cầu:
+Allowed:
 
 ```text
-- không raw password/token/cookie
-- không raw private data
-- context phải qua sanitizer
-- action nhạy cảm phải qua User Approval Gate
+auth_access_control_reasoning
+strix_hypothesis
+strix_validation_reasoning
+finding_classification
+severity_confidence
+human_report
+ai_dev_report
+auth_report
+fix_prompt
 ```
 
-## 5.5. Launch Audit
+Requirements:
 
-Có thể dùng LLM sâu hơn, nhưng Expert Human Review chỉ được ghi nếu có reviewer thật.
+```text
+- context da sanitize
+- khong raw password/token/cookie
+- khong raw private data
+- User Approval Gate cho sensitive validation
+```
+
+## 5.4. Monitor Basic / Pro
+
+Monitor khong tu dong full scan. LLM chi dung cho retest reasoning neu user queue retest va goi/quota cho phep.
+
+Allowed:
+
+```text
+monitor_retest_reasoning
+fix_prompt
+readiness_export neu goi/quota cho phep
+```
 
 ---
 
 # 6. Prompt Sanitizer
 
-## 6.1. Sanitizer bắt buộc
+Truoc moi LLM call phai sanitize.
 
-Mọi prompt đi qua LLM Gateway phải được sanitize.
-
-Phải loại/mask:
+Khong dua vao provider:
 
 ```text
-- password
-- token
-- cookie
-- API key
+- raw password
+- raw token
+- raw cookie
+- raw API key
 - Authorization header
 - session id
-- private user data
+- private user data chua sanitize
+- raw request/response
+- raw HAR
+- raw browser storage
 - raw credential
-- full raw request/response nhạy cảm
 ```
 
-## 6.2. Input cho LLM phải là compact context
-
-Không đưa:
-
-```text
-raw HAR
-full DOM lớn
-full JS bundle
-full logs
-raw browser storage
-raw cookie jar
-```
-
-Đưa:
+LLM input phai la compact context:
 
 ```text
 - route summary
@@ -331,7 +264,7 @@ raw cookie jar
 - cookie attribute summary
 - storage key summary
 - scanner finding candidates
-- sanitized evidence
+- sanitized evidence summary
 - risk observations
 - coverage gaps
 ```
@@ -340,115 +273,68 @@ raw cookie jar
 
 # 7. Budget control
 
-## 7.1. Budget theo package
+Default internal budgets, khong show nhu pricing benefit:
 
 ```yaml
 budgets:
-  free:
+  free_hunter_snapshot:
     max_llm_calls_per_scan: 1
     max_input_tokens_per_call: 6000
     max_output_tokens_per_call: 1200
 
-  light:
-    max_llm_calls_per_scan: 5
-    max_input_tokens_per_call: 10000
-    max_output_tokens_per_call: 2000
-
-  standard:
+  ai_blackhat_check:
     max_llm_calls_per_scan: 20
     max_input_tokens_per_call: 20000
     max_output_tokens_per_call: 4000
 
-  auth:
+  authenticated_check:
     max_llm_calls_per_scan: 35
     max_input_tokens_per_call: 24000
     max_output_tokens_per_call: 5000
+
+  monitor_basic:
+    max_llm_calls_per_retest: 2
+    max_input_tokens_per_call: 10000
+    max_output_tokens_per_call: 2000
+
+  monitor_pro:
+    max_llm_calls_per_retest: 4
+    max_input_tokens_per_call: 16000
+    max_output_tokens_per_call: 3000
 ```
 
-Các số trên là default nội bộ, không hiển thị cho user như benefit.
-
-## 7.2. Không bán hypothesis budget
-
-Không ghi ở pricing:
+Khi vuot budget:
 
 ```text
-Gói này có 10 hypotheses.
-```
-
-Pricing chỉ bán:
-
-```text
-- coverage
-- authenticated context
-- report
-- retest quota
-- evidence
-- expert review nếu có
-```
-
-## 7.3. Khi vượt budget
-
-Nếu vượt budget:
-
-```text
-- dừng LLM calls không cần thiết
-- ghi scan_step = budget_limited
-- report ghi coverage/limitations nếu ảnh hưởng kết quả
-- không silently fail
+- dung LLM calls khong can thiet
+- mark step budget_limited hoac graceful failure
+- report coverage/limitations neu anh huong ket qua
+- khong silently fail
 ```
 
 ---
 
 # 8. Fallback, retry, timeout
 
-## 8.1. Timeout
-
-Mỗi LLM call phải có timeout.
-
 ```text
-free/light: timeout ngắn hơn
-standard/auth: timeout dài hơn nhưng vẫn có hard limit
-```
-
-## 8.2. Retry
-
-Chỉ retry lỗi retryable:
-
-```text
-- network timeout
-- provider overloaded
-- rate limit có backoff
-```
-
-Không retry vô hạn.
-
-## 8.3. Fallback
-
-Nếu provider chính lỗi:
-
-```text
-primary provider → fallback provider → graceful failure
-```
-
-Nếu fallback cũng lỗi:
-
-```text
-- mark LLM step failed
-- dùng deterministic fallback summary nếu có
-- không fake output
+- Moi LLM call co timeout.
+- Chi retry loi retryable: network timeout, provider overloaded, rate limit co backoff.
+- Khong retry vo han.
+- primary provider → fallback provider → graceful failure.
+- Neu fallback cung loi, khong fake output.
 ```
 
 ---
 
 # 9. Observability
 
-Mỗi LLM call phải log metadata an toàn:
+Log metadata an toan:
 
 ```text
 - request_id
 - project_id
 - scan_id
-- finding_id nếu có
+- finding_id neu co
 - use_case
 - provider
 - model_alias
@@ -457,62 +343,42 @@ Mỗi LLM call phải log metadata an toàn:
 - output_tokens
 - estimated_cost
 - status
-- error_code nếu có
+- error_code neu co
 ```
 
-Không log raw prompt nếu prompt có thể chứa dữ liệu nhạy cảm.
-
-Có thể log prompt hash hoặc sanitized prompt preview.
+Khong log raw prompt neu prompt co the chua du lieu nhay cam. Co the log prompt hash hoac sanitized prompt preview.
 
 ---
 
-# 10. Secrets management
+# 10. Required tests
 
-API keys không được hardcode.
-
-Dùng environment/secret manager:
-
-```text
-OPENAI_API_KEY
-ANTHROPIC_API_KEY
-DEEPSEEK_API_KEY
-```
-
-Không commit `.env`.
-
-Không log API key.
-
-Không trả API key ra frontend.
-
----
-
-# 11. Required tests
-
-Phải có tests cho:
+Phai co tests cho:
 
 ```text
 - provider routing by use case
+- package/use-case allowance
 - fallback provider works
 - timeout handling
 - retry limit
 - budget exceeded behavior
-- prompt sanitizer masks token/cookie/password
-- raw credential never reaches provider adapter
+- prompt sanitizer masks token/cookie/password/private data
+- raw credential/raw evidence never reaches provider adapter
 - business logic cannot call provider SDK directly
 ```
 
 ---
 
-# 12. Done criteria
+# 11. Done criteria
 
-LLM Provider Layer được xem là xong khi:
+LLM Provider Layer xong khi:
 
 ```text
 - OpenAIProvider, ClaudeProvider, DeepSeekProvider implement chung interface.
-- Business logic chỉ gọi LLM Gateway.
-- Prompt Sanitizer chạy trước mọi provider call.
-- Budget theo package hoạt động.
-- Fallback hoạt động.
-- Timeout/retry hoạt động.
-- Logs có token/cost/latency metadata.
-- Raw secrets không xuất hiện trong prompt/log/report.
+- Business logic chi goi LLM Gateway.
+- Prompt Sanitizer chay truoc moi provider call.
+- Budget theo package/use case hoat dong.
+- Fallback hoat dong.
+- Timeout/retry hoat dong.
+- Logs co token/cost/latency metadata an toan.
+- Raw secrets/evidence khong xuat hien trong prompt/log/report.
+```

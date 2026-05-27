@@ -1,32 +1,32 @@
-# ARCHITECTURE.md — AI White-hat Security Workspace
+# ARCHITECTURE.md - OpenHunterAI
 
-> Kiến trúc v1 cho sản phẩm kiểm thử bảo mật web/app đã xác minh domain.  
-> V1 không làm GitHub/Jira/CI-CD/VPS/cloud/private network/mobile/SAST.
+> Kien truc v1 cho **Authorized Attacker-Mindset Security Workspace**. He thong chi kiem thu web/app public da verify domain va co scan authorization.
 
 ---
 
-# 1. Scope kiến trúc v1
+# 1. Scope kien truc v1
 
-Hệ thống v1 phục vụ flow:
+He thong phuc vu flow:
 
 ```text
 Domain verified
 → Scope authorization
 → Optional test account
-→ Browser/ZAP/Nuclei/OpenHack/Strix scan
-→ Reports
-→ Finding board
-→ Manual retest
+→ Phase-based signal gathering
+→ Strix hypothesis / validation reasoning
+→ Sanitized reports + findings
+→ Manual retest / Monitor queue
 ```
 
-Không thiết kế cho:
+Khong thiet ke cho:
 
 ```text
-- CI/CD auto retest
+- CI/CD-based automated retesting
+- deployment-triggered retest
 - GitHub code scanning
 - Jira/Linear workflow
-- cloud/VPS scanning
-- private network scan
+- VPS/cloud/private network scan
+- mobile APK audit
 ```
 
 ---
@@ -42,19 +42,21 @@ Postgres / Redis / Object Storage
   ↓
 Scan Orchestrator
   ↓
-Workers
-  - browser-inspector
-  - zap-signal
-  - nuclei-signal
-  - openhack-hunter
-  - strix-core
-  - report
-  - retest
+Step queues / worker families
+  - browser-worker
+  - zap-worker
+  - nuclei-worker
+  - openhack-worker
+  - strix-worker
+  - report-worker
+  - retest-worker
   ↓
 LLM Gateway
   ↓
 OpenAI / Claude / DeepSeek
 ```
+
+V1 co the dung BullMQ + Postgres state. Redis/BullMQ la transport; Postgres la durable source of truth cho `scan_jobs`, `scan_steps`, findings va reports.
 
 ---
 
@@ -62,195 +64,234 @@ OpenAI / Claude / DeepSeek
 
 ## 3.1. apps/web
 
-Customer-facing dashboard.
-
-Chức năng:
+Customer-facing dashboard:
 
 ```text
 - project dashboard
 - domain verification UI
-- scan authorization UI
+- scope authorization UI
 - test account UI
 - scan progress
-- reports
-- finding board
-- manual retest
+- reports/export
+- finding board cho paid checks va Monitor
+- manual retest queue
 - user approval gate
 ```
 
 ## 3.2. apps/api
 
-Backend API.
-
-Chức năng:
+Backend API:
 
 ```text
 - auth/session
-- projects
-- domains
-- verification
-- scan authorization
-- scan jobs
-- findings
-- reports
-- retest
-- billing/credits cơ bản
+- projects/domains/verifications
+- scan authorizations
+- scan jobs/progress
+- findings/reports
+- approvals/retest
+- Monitor subscription state/quotas
+- health/tool availability
 ```
 
 ## 3.3. Scan Orchestrator
 
-Điều phối scan jobs.
-
-Nhiệm vụ:
+Orchestrator la scheduler/state coordinator, khong nen la mot long-running process tu chay tat ca tools.
 
 ```text
-- validate domain verification
-- validate scan authorization
-- create scan steps
-- enqueue workers
-- track progress
-- enforce package gates
-- enforce timeout/budget
+- validate domain verification va authorization
+- tao scope snapshot
+- tao scan_steps theo phase
+- enqueue step jobs cho worker family phu hop
+- fan-out/fan-in phases
+- track progress, timeout, retry, coverage gaps
+- enforce package/budget/policy gates
+- mark completed / completed_with_gaps / failed
 ```
 
-## 3.4. Worker layer
+## 3.4. Worker families
 
-Workers chạy tách khỏi web/API process.
-
-```text
-browser-inspector
-zap-signal
-nuclei-signal
-openhack-hunter
-strix-core
-report
-retest
-```
-
-Mọi worker phải có:
+Workers chay tach khoi web/API process. Moi worker co:
 
 ```text
 - timeout
 - retry limit
+- rate limit neu can
 - structured logs
-- audit events nếu cần
 - scan_id
 - project_id
+- worker_type
+- error handling
+- no fake success
 ```
 
 ---
 
-# 4. Worker architecture
+# 4. Phase fan-out / fan-in scan pipeline
 
-## 4.1. Browser Inspector Worker
+## 4.1. Free Hunter Snapshot
 
-Dùng Playwright/CDP.
+```text
+Phase 0 - precheck
+  verify domain, authorization, scope, private IP blocking
+
+Phase 1 - safe signal fan-out
+  browser lightweight observation
+  ZAP passive mini
+  Nuclei mini-safe
+
+Phase 2 - hunter + summary
+  OpenHack mini hunters
+  Strix Mini Summary
+
+Phase 3 - report
+  Hunter Snapshot Report
+```
+
+Free output la report-only. Free khong tao finding board/retest workflow.
+
+## 4.2. AI Black-hat Check
+
+```text
+Phase 0 - precheck
+  verify domain, authorization, scope, package budget
+
+Phase 1 - signal fan-out
+  browser deeper observation
+  ZAP passive/baseline
+  Nuclei standard-safe
+  OpenHack rule hunters where input is ready
+
+Phase 2 - fan-in normalize
+  merge/dedupe candidates
+  produce compact sanitized context
+  record coverage gaps for failed/skipped tools
+
+Phase 3 - Strix hypothesis pass
+  attacker hypotheses
+  risk areas
+  safe validation plan
+
+Phase 4 - governed validation
+  run safe validation in scope
+  require User Approval Gate for sensitive actions
+
+Phase 5 - Strix validation reasoning + report
+  prioritize findings
+  severity/confidence
+  remediation/fix prompt
+  retest scenario
+  Human Report + AI/dev Report
+```
+
+## 4.3. Authenticated Check
+
+Authenticated Check dung pipeline AI Black-hat Check va them:
+
+```text
+- encrypted test account retrieval
+- authenticated browser context
+- session/cookie/token attribute checks
+- 1-account auth/session/private-data signals
+- 2-account User A/User B access-control checks
+- approval-gated validation for sensitive access-control actions
+```
+
+## 4.4. Monitor retest
+
+Monitor khong scan lai toan bo app. Monitor chi queue manual retest theo finding:
+
+```text
+finding marked Ready for Retest
+→ retest scope snapshot
+→ approval if sensitive
+→ narrow scenario execution
+→ result: Fixed / Still Vulnerable / Partially Fixed / Cannot Verify
+```
+
+---
+
+# 5. Worker architecture
+
+## 5.1. Browser Worker
+
+Dung Playwright/CDP de mo app that.
 
 Input:
 
 ```text
 - scan_id
+- project_id
+- mode: free | ai_blackhat | authenticated
 - target URLs
 - allowed scope
-- optional test account reference
+- excluded paths
+- optional encrypted test account reference
 ```
 
 Output:
 
 ```text
 - route summary
-- network metadata
 - API endpoint summary
-- cookie attributes
+- network metadata
+- cookie attribute summary
 - storage key summary
 - console errors
-- screenshots/snapshots nếu cần
+- sanitized screenshot/evidence refs if safe
 ```
 
-Không output raw secrets.
+Khong persist raw credential, cookie jar, full HAR hoac raw storage values.
 
-## 4.2. ZAP Signal Worker
+## 5.2. ZAP Worker
 
-Dùng ZAP passive/baseline.
-
-Input:
+Dung ZAP passive/baseline signals.
 
 ```text
-- verified target
-- scan profile
-- browser traffic nếu có
+- Free: passive mini
+- AI Black-hat / Authenticated: passive/baseline within scope
+- No broad active scan by default
+- TOOL_UNAVAILABLE → skipped + coverage gap, not fake success
 ```
 
-Output:
+## 5.3. Nuclei Worker
+
+Dung Nuclei engine + internal curated templates.
 
 ```text
-- ZAP alert candidates
-- normalized finding candidates
+- Free: mini-safe profile
+- AI Black-hat / Authenticated: standard-safe profile
+- No destructive/intrusive/bruteforce/dos/malware/credential-attack templates
+- TOOL_UNAVAILABLE → skipped + coverage gap
 ```
 
-Không dùng full active scan mặc định.
+## 5.4. OpenHack Worker
 
-## 4.3. Nuclei Signal Worker
-
-Dùng curated safe templates.
-
-Input:
+Rule/schema hunter layer:
 
 ```text
-- verified target
-- template profile
+- mini exposure hunter
+- frontend secret/storage hunter
+- API surface hunter
+- auth/session smoke hunter
+- AI app smoke hunter if chatbot/LLM detected
+- finding/warning/hardening/coverage gap classification
 ```
 
-Output:
+## 5.5. Strix Worker
+
+Strix la attacker-mindset reasoning, khong phai uncontrolled action runner.
 
 ```text
-- nuclei results
-- normalized finding candidates
+- Free: Mini Summary only.
+- AI Black-hat: hypothesis pass + validation reasoning pass.
+- Authenticated: access-control reasoning with sanitized authenticated context.
 ```
 
-Không chạy destructive/intrusive/bruteforce/dos templates.
-
-## 4.4. OpenHack Hunter Worker
-
-Dùng OpenHack-style workflow/schema.
-
-Input:
+Strix output:
 
 ```text
-- browser observations
-- ZAP/Nuclei candidates
-- compact security context
-```
-
-Output:
-
-```text
-- hunter findings
-- warnings
-- hardening items
-- coverage gaps
-- hunter snapshot sections
-```
-
-Dùng nhiều cho Free/Light.
-
-## 4.5. Strix Core Worker
-
-Dùng Strix attacker-mindset reasoning.
-
-Input:
-
-```text
-- compact security context
-- sanitized evidence
-- OpenHack hunter output
-- finding candidates
-```
-
-Output:
-
-```text
-- adversarial observations
+- attacker hypotheses
+- safe validation plan
 - prioritized findings
 - severity/confidence
 - remediation
@@ -258,94 +299,56 @@ Output:
 - retest scenario proposal
 ```
 
-Action nhạy cảm phải qua Product Policy Gate / User Approval Gate.
+Sensitive action phai qua Product Policy Gate va User Approval Gate.
 
-## 4.6. Report Worker
+## 5.6. Report Worker
 
-Tạo:
+Tao:
 
 ```text
-- Free Hunter Snapshot Report
+- Hunter Snapshot Report
 - Human-readable report
 - AI/dev-readable report
+- Auth Security Report
+- Readiness Report View/Export
 ```
 
-Mọi report phải qua sanitizer.
+Tat ca reports dung sanitized summaries. Khong report raw credential, raw token/cookie, raw request/response nhay cam.
 
-## 4.7. Retest Worker
+## 5.7. Retest Worker
 
-Manual retest theo từng finding.
-
-Input:
+Manual single-finding retest:
 
 ```text
 - finding_id
 - retest_scenario
-- scope snapshot
-- user approval nếu cần
-```
-
-Output:
-
-```text
-Fixed
-Still Vulnerable
-Partially Fixed
-Cannot Verify
+- scope_snapshot
+- approval state if sensitive
+- max runtime
 ```
 
 ---
 
-# 5. LLM Gateway architecture
+# 6. LLM Gateway
 
-## 5.1. Vị trí
-
-```text
-OpenHack Hunter / Strix Core / Report / Retest
-  ↓
-LLM Gateway
-  ↓
-Provider Adapter
-  ↓
-OpenAI / Claude / DeepSeek
-```
-
-## 5.2. Quy tắc
-
-Không module nào gọi trực tiếp provider SDK.
-
-Mọi request đi qua:
+Moi LLM call tu OpenHack, Strix, Report hoac Retest di qua LLM Gateway:
 
 ```text
-- prompt sanitizer
-- budget check
-- provider router
-- timeout/retry/fallback
-- response normalizer
-- metrics logger
+Prompt Sanitizer
+→ Budget & Policy Check
+→ Provider Router
+→ Provider Adapter
+→ Response Normalizer
+→ Audit + Metrics + Cost Log
 ```
 
-## 5.3. Provider adapters
-
-```text
-OpenAIProvider
-ClaudeProvider
-DeepSeekProvider
-```
-
-Chi tiết nằm trong:
-
-```text
-LLM_PROVIDER_SPEC.md
-```
+Business logic khong goi truc tiep provider SDK.
 
 ---
 
-# 6. Data stores
+# 7. Data stores
 
-## 6.1. Postgres
-
-Lưu dữ liệu có cấu trúc:
+## 7.1. Postgres
 
 ```text
 users
@@ -361,145 +364,124 @@ finding_candidates
 findings
 reports
 retest_runs
+approval_requests
+approval_decisions
 credit_ledger
 audit_logs
 ```
 
-## 6.2. Redis
-
-Dùng cho:
+## 7.2. Redis
 
 ```text
-- job queue
-- scan progress
+- job queues
+- queue events/progress
 - worker coordination
-- rate limit
+- rate limits
 ```
 
-## 6.3. Object Storage
+## 7.3. Object Storage
 
-Dùng cho:
+Dung cho sanitized artifacts only:
 
 ```text
-- sanitized evidence
-- screenshots
-- report files
-- raw evidence nếu cần, phải protected/encrypted
+- sanitized screenshots if safe
+- sanitized report exports
+- sanitized evidence summaries
 ```
+
+Khong persist raw request/response, raw HAR, raw cookie, raw token, raw credential hoac private data chua sanitize.
 
 ---
 
-# 7. Security boundaries
+# 8. Security boundaries
 
-## 7.1. Product Policy Gate
+## 8.1. Product Policy Gate
 
 Chặn:
 
 ```text
 - unverified domain
+- expired verification/authorization
 - out-of-scope host/path
 - private/local/metadata IP
-- expired authorization
 - unsupported package action
+- budget exceeded action
 - sensitive action without approval
 ```
 
-## 7.2. Evidence Sanitizer
+## 8.2. Evidence Sanitizer
 
-Chạy trước:
+Chay truoc:
 
 ```text
 - LLM prompt
 - report generation
 - finding display
-- AI/dev report
+- readiness export
+- object storage writes
 ```
 
-Mask:
+## 8.3. User Approval Gate
+
+Bat buoc truoc:
 
 ```text
-password
-token
-cookie
-API key
-Authorization header
-session id
-private data
-```
-
-## 7.3. User Approval Gate
-
-Bắt buộc trước action nhạy cảm:
-
-```text
-- dùng test account
-- access-control retest
+- dung test account cho validation nhay cam
+- access-control validation
 - POST/PUT/PATCH/DELETE
 - billing/payment/file/email/webhook
 - High/Critical retest
+- action co the thay doi du lieu
 ```
 
 ---
 
-# 8. Scan flow
+# 9. Deployment target v1
 
-## 8.1. Free Hunter Snapshot
+Production target dau tien: Docker VPS voi tagged images va rollback ro rang.
 
-```text
-verify domain
-→ scope authorization
-→ browser lightweight observation
-→ ZAP passive mini
-→ Nuclei mini safe
-→ OpenHack mini hunters
-→ Strix Mini Summary via LLM Gateway
-→ Free Hunter Snapshot Report
-```
-
-## 8.2. Standard/Auth
+Per-family images:
 
 ```text
-verify domain
-→ scope authorization
-→ optional test account
-→ browser inspector
-→ ZAP baseline/passive
-→ Nuclei standard-safe
-→ OpenHack workflow
-→ Strix attacker-mindset reasoning via LLM Gateway
-→ findings
-→ reports
-→ manual retest
+openhunter/web:<git-sha>
+openhunter/api:<git-sha>
+openhunter/orchestrator:<git-sha>
+openhunter/browser-worker:<git-sha>
+openhunter/zap-worker:<git-sha>
+openhunter/nuclei-worker:<git-sha>
+openhunter/openhack-worker:<git-sha>
+openhunter/strix-worker:<git-sha>
+openhunter/report-worker:<git-sha>
+openhunter/retest-worker:<git-sha>
 ```
 
----
-
-# 9. Deployment shape v1
-
-MVP/staging có thể chạy bằng:
+Infra services:
 
 ```text
-- apps/web
-- apps/api
-- worker processes
-- Postgres
-- Redis
-- object storage
+postgres
+redis
+object-storage
+reverse-proxy
+zap-daemon if used separately
+observability/log shipper
 ```
 
-Không cần Kubernetes/secureCodeBox trong v1.
+Browser worker can isolation manh nhat: non-root, sandbox/seccomp where possible, concurrency thap, timeout cung, egress guard.
 
 ---
 
 # 10. Architecture acceptance
 
-Kiến trúc được xem là đúng khi:
+Kien truc dung khi:
 
 ```text
-- business logic không gọi trực tiếp LLM provider SDK
-- mọi scan đi qua domain verification + authorization
-- mọi worker có timeout/retry/logs
-- mọi evidence/report đi qua sanitizer
-- retest là manual theo finding
-- không có GitHub/Jira/CI-CD/VPS/cloud modules trong v1
+- Public docs dung package model Free / AI Black-hat / Authenticated / Monitor Basic / Monitor Pro.
+- Moi scan di qua verification + authorization + scope snapshot.
+- Scan pipeline co phase fan-out/fan-in va tool unavailable coverage gaps.
+- Strix co 2-pass cho paid checks va khong tu chay sensitive action.
+- Moi worker co timeout/retry/logs/error handling.
+- Khong persist raw evidence.
+- Moi LLM call di qua LLM Gateway.
+- Retest la manual theo finding.
+- Khong co GitHub/Jira/CI-CD/VPS/cloud/private network modules trong v1.
 ```
