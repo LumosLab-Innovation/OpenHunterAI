@@ -1,6 +1,6 @@
 // Prisma schema for the OpenHunter Workspace.
 //
-// Reflects the v1 data model in PLAN_V3.md §15 / ARCHITECTURE.md §6.1.
+// Reflects the v1 data model in PRD.md and ARCHITECTURE.md.
 // Names use snake_case at the SQL layer (via @@map / @map) so the schema
 // reads cleanly to non-Prisma DBAs while exposing camelCase to TS code.
 
@@ -62,7 +62,7 @@ model Project {
   id             String       @id @default(cuid())
   organizationId String       @map("organization_id")
   name           String
-  packageTier    PackageTier  @default(free) @map("package_tier")
+  packageTier    PackageTier  @default(free_hunter_snapshot) @map("package_tier")
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -79,11 +79,9 @@ model Project {
 }
 
 enum PackageTier {
-  free
-  light
-  standard
-  auth
-  launch
+  free_hunter_snapshot
+  ai_blackhat_check
+  authenticated_check
 }
 
 model Domain {
@@ -183,10 +181,9 @@ enum ScanState {
 }
 
 enum ScanMode {
-  free
-  light
-  standard
-  auth
+  free_hunter_snapshot
+  ai_blackhat_check
+  authenticated_check
 }
 
 model ScanJob {

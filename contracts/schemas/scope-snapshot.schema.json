@@ -10,7 +10,9 @@
     "excludedPaths": { "type": "array", "items": { "type": "string" } },
     "testAccountPermission": { "type": "boolean" },
     "sensitiveActionPermission": { "type": "boolean" },
-    "scanPackage": { "enum": ["free", "light", "standard", "auth", "launch"] },
+    "scanPackage": {
+      "enum": ["free_hunter_snapshot", "ai_blackhat_check", "authenticated_check"]
+    },
     "verifiedDomain": { "type": "string" },
     "capturedAt": { "type": "string", "format": "date-time" }
   }

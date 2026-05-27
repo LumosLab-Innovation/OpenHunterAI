@@ -11,7 +11,7 @@ export interface ScopeSnapshot {
   excludedPaths: string[];
   testAccountPermission: boolean;
   sensitiveActionPermission: boolean;
-  scanPackage: 'free' | 'light' | 'standard' | 'auth' | 'launch';
+  scanPackage: 'free_hunter_snapshot' | 'ai_blackhat_check' | 'authenticated_check';
   verifiedDomain: string;
   capturedAt: string;
 }

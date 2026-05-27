@@ -41,7 +41,7 @@ export interface LLMRequest {
 export interface SanitizedLLMRequest extends LLMRequest {
   /** Set to true by the Prompt Sanitizer; provider adapters must assert this. */
   readonly sanitized: true;
-  /** Resolved alias to use (e.g. `llm.standard.reasoning`). */
+  /** Resolved alias to use (e.g. `llm.blackhat.reasoning`). */
   readonly modelAlias: string;
   /** Resolved provider + model after routing. */
   readonly resolvedProvider: ProviderName;

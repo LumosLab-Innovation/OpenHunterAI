@@ -5,9 +5,9 @@
  * Database row shapes live in @x-hunter/db (Prisma).
  */
 
-export type PackageTier = 'free' | 'light' | 'standard' | 'auth' | 'launch';
+import type { PackageTier } from './packages.js';
 
-export type ScanMode = 'free' | 'light' | 'standard' | 'auth';
+export type { PackageTier, ScanMode } from './packages.js';
 
 export type Severity = 'info' | 'low' | 'medium' | 'high' | 'critical';
 

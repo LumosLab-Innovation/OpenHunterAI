@@ -28,8 +28,11 @@ export class ScansService {
     if (authz.expiresAt && authz.expiresAt < new Date()) {
       throw new GuardrailError('AUTHORIZATION_EXPIRED', 'Scan authorization expired');
     }
-    if (body.mode === 'auth' && authz.scanPackage !== 'auth' && authz.scanPackage !== 'launch') {
-      throw new GuardrailError('PACKAGE_DOES_NOT_PERMIT_ACTION', 'auth mode requires auth or launch package');
+    if (body.mode !== authz.scanPackage) {
+      throw new GuardrailError(
+        'PACKAGE_DOES_NOT_PERMIT_ACTION',
+        `Scan mode ${body.mode} requires matching authorization package ${authz.scanPackage}`,
+      );
     }
 
     const domain = await this.prisma.domain.findUnique({ where: { id: authz.domainId } });

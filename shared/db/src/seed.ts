@@ -41,7 +41,7 @@ async function main() {
       id: 'demo-project-1',
       organizationId: org.id,
       name: 'Demo Project',
-      packageTier: 'free',
+      packageTier: 'free_hunter_snapshot',
     },
   });
 

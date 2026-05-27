@@ -43,7 +43,7 @@ describe('LLMGateway', () => {
         useCase: 'strix_reasoning',
         projectId: 'p1',
         scanId: 's1',
-        packageTier: 'free',
+        packageTier: 'free_hunter_snapshot',
         systemPrompt: 'sys',
         userPrompt: 'hello',
       });
@@ -60,7 +60,7 @@ describe('LLMGateway', () => {
         useCase: 'free_hunter_summary',
         projectId: 'p1',
         scanId: 's1',
-        packageTier: 'free',
+        packageTier: 'free_hunter_snapshot',
         systemPrompt: 'sys',
         userPrompt: 'token: sk-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
         // Use a key value the sanitizer text-pass can't drop fully:
@@ -84,7 +84,7 @@ describe('LLMGateway', () => {
       useCase: 'free_hunter_summary',
       projectId: 'p1',
       scanId: 's1',
-      packageTier: 'free',
+      packageTier: 'free_hunter_snapshot',
       systemPrompt: 'sys',
       userPrompt: 'hello world',
     });
@@ -99,7 +99,7 @@ describe('LLMGateway', () => {
       useCase: 'free_hunter_summary',
       projectId: 'p1',
       scanId: 's1',
-      packageTier: 'free',
+      packageTier: 'free_hunter_snapshot',
       systemPrompt: 'sys',
       userPrompt: 'hello world',
     });
@@ -115,7 +115,7 @@ describe('LLMGateway', () => {
       useCase: 'free_hunter_summary',
       projectId: 'p1',
       scanId: 's1',
-      packageTier: 'free',
+      packageTier: 'free_hunter_snapshot',
       systemPrompt: 'sys',
       userPrompt: 'hello world',
     });
@@ -131,7 +131,7 @@ describe('LLMGateway', () => {
       useCase: 'free_hunter_summary',
       projectId: 'p1',
       scanId: 's1',
-      packageTier: 'free',
+      packageTier: 'free_hunter_snapshot',
       systemPrompt: 'sys',
       userPrompt: 'hello world',
     });
@@ -140,12 +140,12 @@ describe('LLMGateway', () => {
   });
 
   it('enforces max calls per scan', async () => {
-    // Free = 1 call per scan
+    // Free Hunter Snapshot = 1 call per scan
     const first = await gw.generate({
       useCase: 'free_hunter_summary',
       projectId: 'p1',
       scanId: 's-budget',
-      packageTier: 'free',
+      packageTier: 'free_hunter_snapshot',
       systemPrompt: 'sys',
       userPrompt: 'hi',
     });
@@ -156,7 +156,7 @@ describe('LLMGateway', () => {
         useCase: 'free_hunter_summary',
         projectId: 'p1',
         scanId: 's-budget',
-        packageTier: 'free',
+        packageTier: 'free_hunter_snapshot',
         systemPrompt: 'sys',
         userPrompt: 'hi',
       });

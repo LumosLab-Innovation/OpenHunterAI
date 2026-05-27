@@ -19,6 +19,18 @@ interface Authorization {
   allowedHosts: string[];
 }
 
+const SCAN_PACKAGE_OPTIONS = [
+  { value: 'free_hunter_snapshot', label: 'Free Hunter Snapshot' },
+  { value: 'ai_blackhat_check', label: 'AI Black-hat Check' },
+  { value: 'authenticated_check', label: 'Authenticated Check' },
+] as const;
+
+function packageLabel(value?: string) {
+  return (
+    SCAN_PACKAGE_OPTIONS.find((option) => option.value === value)?.label ?? 'Free Hunter Snapshot'
+  );
+}
+
 export function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -53,12 +65,12 @@ export function ProjectsPage() {
       {error && <p className="error">{error}</p>}
       <form className="row" onSubmit={create}>
         <input name="name" placeholder="Project name" required />
-        <select name="packageTier" defaultValue="free">
-          <option value="free">Free</option>
-          <option value="light">Light</option>
-          <option value="standard">Standard</option>
-          <option value="auth">Auth</option>
-          <option value="launch">Launch</option>
+        <select name="packageTier" defaultValue="free_hunter_snapshot">
+          {SCAN_PACKAGE_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
         </select>
         <button type="submit">Create</button>
       </form>
@@ -67,7 +79,7 @@ export function ProjectsPage() {
         render={(p) => (
           <>
             <td>{p.name}</td>
-            <td>{p.packageTier ?? 'free'}</td>
+            <td>{packageLabel(p.packageTier)}</td>
             <td>
               <Link to={`/projects/${p.id}`}>Open</Link>
             </td>
@@ -157,12 +169,12 @@ export function ProjectDetailPage() {
       <DataTable rows={domains} render={(d) => <td>{d.hostname}</td>} />
       <h2>Scan authorizations</h2>
       <form className="row" onSubmit={createAuthorization}>
-        <select name="scanPackage" defaultValue="free">
-          <option value="free">Free</option>
-          <option value="light">Light</option>
-          <option value="standard">Standard</option>
-          <option value="auth">Auth</option>
-          <option value="launch">Launch</option>
+        <select name="scanPackage" defaultValue="free_hunter_snapshot">
+          {SCAN_PACKAGE_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
         </select>
         <input name="allowedHosts" placeholder="example.com,www.example.com" required />
         <button type="submit">Authorize</button>
@@ -171,7 +183,7 @@ export function ProjectDetailPage() {
         rows={auths}
         render={(a) => (
           <>
-            <td>{a.scanPackage}</td>
+            <td>{packageLabel(a.scanPackage)}</td>
             <td>{a.allowedHosts.join(', ')}</td>
             <td>
               <button onClick={() => startScan(a.id, a.scanPackage)}>Start scan</button>
