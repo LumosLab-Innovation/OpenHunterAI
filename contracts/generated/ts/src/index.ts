@@ -10,8 +10,9 @@ export interface ScopeSnapshot {
   allowedPaths: string[];
   excludedPaths: string[];
   testAccountPermission: boolean;
+  authScope: 'none' | 'one_account' | 'two_accounts';
   sensitiveActionPermission: boolean;
-  scanPackage: 'free_hunter_snapshot' | 'ai_blackhat_check' | 'authenticated_check';
+  scanPackage: 'free_hunter' | 'ai_blackhat_mindset_check';
   verifiedDomain: string;
   capturedAt: string;
 }

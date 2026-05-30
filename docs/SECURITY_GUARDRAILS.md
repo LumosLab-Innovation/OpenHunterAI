@@ -53,6 +53,27 @@ Khong bao gio cho phep:
 - huong dan lam dung co kha nang operationalize attack ngoai scope
 ```
 
+## 1.4. Black-hat mindset definition
+
+"Black-hat" in this project means adversarial reasoning style, not unauthorized execution.
+
+Allowed mindset:
+- abuse-path thinking;
+- hypothesis generation;
+- access-control suspicion;
+- API behavior probing;
+- unexpected-risk discovery.
+
+Forbidden execution remains forbidden:
+- unauthorized access;
+- out-of-scope scan;
+- destructive action;
+- credential attack;
+- persistence;
+- evasion;
+- malware;
+- exfiltration.
+
 ---
 
 # 2. Domain, URL va scope guardrails
@@ -187,6 +208,11 @@ LLM chi nhan compact sanitized context. Khong dua:
 - raw private data
 - raw request/response nhay cam
 ```
+
+DeepSeek V4 Flash and DeepSeek V4 Pro only receive compact sanitized context.
+Flash is for triage/ranking.
+Pro is for reasoning supervisor.
+No raw HAR, raw request/response, raw cookie, raw token, raw credential or raw private data may be sent to either model.
 
 ## 4.4. Test account
 
@@ -369,6 +395,25 @@ Dung de:
 ```
 
 Khong dung OpenHack de mo rong scope scan.
+
+---
+
+# Free Hunter guardrails
+
+Free Hunter must:
+- use the same quality workflow class as paid checks;
+- stop after first valuable finding;
+- return at most 1 finding;
+- allow at most 1 monitored finding;
+- allow at most 1 retest for that finding;
+- require 7-day cooldown before searching a new finding unless upgraded;
+- require deleting old monitored finding before monitoring another finding in Free.
+
+Free Hunter must not:
+- expose full paid finding board;
+- run full paid adversarial depth;
+- run multi-account authenticated checks;
+- bypass package budget.
 
 ---
 

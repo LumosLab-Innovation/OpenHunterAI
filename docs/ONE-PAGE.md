@@ -31,15 +31,16 @@ Observe → Hypothesize → Safely Validate → Report → Fix → Retest
 - Nhap domain/URL.
 - Xac minh quyen so huu domain.
 - Khai bao scope va scan authorization.
-- Chay Free Hunter Snapshot.
-- Chay AI Black-hat Check.
-- Chay Authenticated Check neu co test account.
+- Chay Free Hunter voi first valuable finding limit.
+- Chay AI Black-hat Mindset Check.
+- Bat Authenticated Scope neu user cung cap test account.
 - Tao report tuong ung voi tung goi.
 - Tao finding board cho paid checks va Monitor.
 - Manual retest tung finding.
 - User Approval Gate cho action nhay cam.
-- Readiness Report View/Export nhu paid export mode.
-- Monitor Basic / Monitor Pro cho history, reminders va manual retest queue.
+- Monitor Workspace cho finding history, monitored findings, reminders va manual retest queue.
+- Enterprise / PAYG cho nhieu domain/scan/finding/retest/custom usage.
+- Readiness Report View/Export la export mode, khong phai scan moi.
 ```
 
 ### V1 khong lam
@@ -80,8 +81,8 @@ Observe → Hypothesize → Safely Validate → Report → Fix → Retest
 | 0 | Observe | Free+ |
 | 1 | Safe Signal | Free+ |
 | 2 | Hypothesis | Free+ |
-| 3 | Safe Validation | AI Black-hat Check+ |
-| 4 | Approval-Gated Validation | Authenticated Check / sensitive retest |
+| 3 | Safe Validation | AI Black-hat Mindset Check+ |
+| 4 | Approval-Gated Validation | Authenticated Scope / sensitive retest |
 | Forbidden | Out-of-scope, destructive, credential attack, persistence, evasion, malware, exfiltration | Khong bao gio |
 
 ---
@@ -90,21 +91,22 @@ Observe → Hypothesize → Safely Validate → Report → Fix → Retest
 
 | Goi | Gia tri chinh |
 |---|---|
-| Free Hunter Snapshot | Report-only snapshot voi browser observation nhe, mini signals, mini hunters va Strix Mini Summary |
-| AI Black-hat Check | Paid check chinh voi Strix 2-pass, safe validation, finding board, AI/dev report va manual retest |
-| Authenticated Check | Kiem tra sau dang nhap; 1 account cho auth/session, 2 accounts cho User A/B access-control |
-| Monitor Basic | Subscription cho 1 project/domain: history, reminders, manual retest queue, quota nho |
-| Monitor Pro | Nhieu project/domain, team workspace, longer history, priority retest queue |
-| Readiness Report View/Export | Paid export mode sau paid check, khong phai scan moi |
+| Free Hunter | Dung engine tot, dung o first valuable finding, report + monitor 1 finding + 1 retest |
+| AI Black-hat Mindset Check | Paid check chinh: nhieu hypothesis hon, nhieu finding hon, report day du, board, retest |
+| Monitor Workspace | Subscription sau scan: history, reminders, monitored findings, manual retest queue |
+| Enterprise / PAYG | Tra theo domain/scan/finding/retest/escalation/custom quota |
+
+Authenticated Scope nam trong AI Black-hat Mindset Check hoac Enterprise.
+Readiness Report View/Export la export mode, khong phai package.
 
 ---
 
 ## 7. Report va evidence
 
 ```text
-- Free: Hunter Snapshot Report only.
-- AI Black-hat Check: Human Report + AI/dev Report.
-- Authenticated Check: Auth Security Report + AI/dev Report.
+- Free: first valuable finding report hoac coverage report.
+- AI Black-hat Mindset Check: Human Report + AI/dev Report.
+- Authenticated Scope: Auth Security Report + AI/dev Report.
 - Readiness Export: executive/client-facing export tu sanitized summaries.
 - Khong persist raw request/response/cookie/token/password.
 - Reports phai neu scope, coverage, limitations va next step.
@@ -146,10 +148,10 @@ He thong da an toan tuyet doi.
 
 ```text
 - User verify domain bang DNS TXT hoac /.well-known file.
-- Free Hunter Snapshot tra report co gia tri nhung khong co board/retest workflow.
-- AI Black-hat Check co 2-pass Strix, finding board va manual retest.
-- Authenticated Check ho tro 1-account va 2-account mode.
-- Monitor Basic/Pro dung nhu subscription workspace, khong auto scan toan app.
+- Free Hunter tra report co gia tri, dung o first valuable finding, monitor 1 finding va cho 1 retest gioi han.
+- Paid checks co full finding board va manual retest workflow.
+- Authenticated Scope la mode, khong phai public package rieng.
+- Monitor Workspace la package subscription duy nhat cho monitoring trong v1.
 - User Approval Gate chan action nhay cam.
 - Khong raw secret/evidence trong logs/report/LLM prompt/storage.
 - Khong co GitHub/Jira/CI-CD/VPS/cloud/private network trong v1.

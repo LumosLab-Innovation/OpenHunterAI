@@ -31,7 +31,7 @@ export class ScansService {
     if (body.mode !== authz.scanPackage) {
       throw new GuardrailError(
         'PACKAGE_DOES_NOT_PERMIT_ACTION',
-        `Scan mode ${body.mode} requires matching authorization package ${authz.scanPackage}`,
+        `Scan mode ${body.mode} requires matching authorization scan mode ${authz.scanPackage}`,
       );
     }
 
@@ -41,6 +41,7 @@ export class ScansService {
       allowedPaths: authz.allowedPaths as string[],
       excludedPaths: authz.excludedPaths as string[],
       testAccountPermission: authz.testAccountPermission,
+      authScope: authz.authScope,
       sensitiveActionPermission: authz.sensitiveActionPermission,
       scanPackage: authz.scanPackage,
       verifiedDomain: domain?.hostname ?? '',

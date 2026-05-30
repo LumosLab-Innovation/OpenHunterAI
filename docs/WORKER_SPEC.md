@@ -92,7 +92,7 @@ Responsibilities:
 - create phase-based steps
 - fan-out browser/ZAP/Nuclei/OpenHack where safe
 - fan-in normalized signals
-- trigger Strix Mini Summary or 2-pass Strix
+- trigger DeepSeek Flash triage / DeepSeek Pro reasoning according to mode
 - trigger report worker
 - avoid duplicate step execution on retry
 ```
@@ -113,7 +113,7 @@ Open the verified web/app with Playwright/CDP and observe real browser behavior.
 {
   "scan_id": "scan_123",
   "project_id": "proj_123",
-  "mode": "free_hunter_snapshot|ai_blackhat_check|authenticated_check",
+  "mode": "free_hunter|ai_blackhat_mindset_check",
   "target_urls": ["https://example.com"],
   "allowed_hosts": ["example.com"],
   "allowed_paths": ["/"],
@@ -160,9 +160,9 @@ Generate passive/baseline DAST signals through a ZAP daemon or equivalent safe m
 ## 5.2. Modes
 
 ```text
-free_hunter_snapshot: passive mini
-ai_blackhat_check: passive/baseline standard-safe
-authenticated_check: passive/baseline on sanitized authenticated traffic metadata if available
+free_hunter: passive mini
+ai_blackhat_mindset_check: passive/baseline standard-safe
+authenticated_scope: passive/baseline on sanitized authenticated traffic metadata if available
 ```
 
 ## 5.3. Output
@@ -250,7 +250,7 @@ AI App Smoke Hunter
   "browser_observations": {},
   "zap_candidates": [],
   "nuclei_candidates": [],
-  "mode": "free_hunter_snapshot|ai_blackhat_check|authenticated_check"
+  "mode": "free_hunter|ai_blackhat_mindset_check"
 }
 ```
 
@@ -277,9 +277,9 @@ Run attacker-mindset reasoning on compact sanitized context.
 ## 8.2. Modes
 
 ```text
-free_hunter_snapshot: Strix Mini Summary only
-ai_blackhat_check: hypothesis pass + validation reasoning pass
-authenticated_check: hypothesis + access-control reasoning + validation reasoning
+free_hunter: DeepSeek V4 Flash triage + DeepSeek V4 Pro first valuable finding reasoning
+ai_blackhat_mindset_check: DeepSeek V4 Pro hypothesis pass + validation reasoning pass
+authenticated_scope: access-control reasoning with sanitized authenticated context
 ```
 
 ## 8.3. Input
@@ -290,7 +290,7 @@ authenticated_check: hypothesis + access-control reasoning + validation reasonin
   "sanitized_evidence": [],
   "hunter_output": {},
   "finding_candidates": [],
-  "package": "free_hunter_snapshot|ai_blackhat_check|authenticated_check",
+  "package": "free_hunter|ai_blackhat_mindset_check",
   "pass": "mini_summary|hypothesis|validation_reasoning|access_control_reasoning"
 }
 ```

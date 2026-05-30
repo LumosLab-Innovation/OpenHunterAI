@@ -12,11 +12,13 @@ V1 dat toi thieu khi:
 - User verify domain bang DNS TXT hoac /.well-known file.
 - Domain chua verified thi khong scan duoc.
 - User tao scan authorization truoc khi scan.
-- Free Hunter Snapshot tra report co gia tri va khong co finding board/retest workflow.
-- AI Black-hat Check tao reports, findings, finding board va manual retest workflow.
-- Authenticated Check ho tro 1-account auth/session mode va 2-account User A/B access-control mode.
+- Free Hunter dung cung workflow chat luong cao nhung gioi han o first valuable finding.
+- Free Hunter tao report cho finding do, monitor 1 finding va cho 1 retest gioi han.
+- Free khong mo full paid finding board/retest workflow.
+- AI Black-hat Mindset Check tao reports, findings, full finding board va manual retest workflow.
+- Authenticated Scope la mode trong AI Black-hat Mindset Check hoac Enterprise, khong phai public package rieng.
 - User Approval Gate xuat hien truoc action nhay cam.
-- Monitor Basic/Pro la subscription cho history/reminders/manual retest queue, khong auto scan toan app.
+- Monitor Workspace la subscription cho history/reminders/monitored findings/manual retest queue.
 - Khong raw password/token/cookie/API key/raw evidence trong logs/report/LLM prompt/storage.
 ```
 
@@ -84,9 +86,9 @@ Dat khi:
 Dat khi:
 
 ```text
-- Free chi dung Level 0 Observe, Level 1 Safe Signal, Level 2 Hypothesis.
-- AI Black-hat Check co the dung Level 3 Safe Validation trong scope.
-- Authenticated Check va sensitive retest co the dung Level 4 Approval-Gated Validation.
+- Free duoc dung Level 0 Observe, Level 1 Safe Signal, Level 2 Hypothesis va mot buoc limited safe confirmation cho first valuable finding neu khong nhay cam.
+- AI Black-hat Mindset Check co the dung Level 3 Safe Validation trong scope.
+- Authenticated Scope va sensitive retest co the dung Level 4 Approval-Gated Validation.
 - Forbidden actions bi chan: out-of-scope, destructive, credential attack, persistence, evasion, malware, exfiltration.
 - Sensitive action khong chay neu chua co User Approval Gate.
 ```
@@ -102,8 +104,8 @@ Dat khi:
 - Password/credential duoc ma hoa.
 - Raw credential khong xuat hien trong DB plain text, logs, report, LLM/Strix prompt.
 - User xoa duoc test account.
-- Authenticated Check voi 1 account khong overpromise User A/B access-control.
-- Authenticated Check voi 2 accounts bat User A/User B checks neu scope/roles phu hop.
+- Authenticated Scope voi 1 account khong overpromise User A/B access-control.
+- Authenticated Scope voi 2 accounts bat User A/User B checks neu scope/roles phu hop.
 ```
 
 ---
@@ -201,13 +203,15 @@ Khong dat neu Free chi tra header/cookie scan don gian ma khong co Hunter Snapsh
 Dat khi:
 
 ```text
-- Free chi dung Strix Mini Summary.
-- Strix doc compact sanitized context.
-- Output co top observations, risk areas va next steps.
-- Khong chay full adversarial reasoning hoac validation action.
+- DeepSeek V4 Flash triage tu compact sanitized context.
+- DeepSeek V4 Pro chon first valuable finding.
+- Dung sau first valuable finding.
+- Khong full adversarial depth.
+- Khong nhieu validation attempts.
+- Khong sensitive action neu chua approval.
 ```
 
-## 10.2. AI Black-hat Check
+## 10.2. AI Black-hat Mindset Check
 
 Dat khi:
 
@@ -217,7 +221,7 @@ Dat khi:
 - Strix khong tu chay sensitive action neu chua qua Product Policy Gate/User Approval Gate.
 ```
 
-## 10.3. Authenticated Check
+## 10.3. Authenticated Scope
 
 Dat khi:
 
@@ -232,7 +236,7 @@ Dat khi:
 
 # 11. Reports
 
-## 11.1. Free Hunter Snapshot Report
+## 11.1. Free Hunter Report
 
 Dat khi co:
 
@@ -245,7 +249,11 @@ Dat khi co:
 - Recommended next step.
 ```
 
-Free khong can finding board, AI/dev report, report history hoac retest workflow.
+Free khong can full paid board, AI/dev report day du hoac report history.
+Free phai co:
+- report cho first valuable finding hoac coverage report neu khong tim thay;
+- 1 monitored finding slot neu co finding;
+- 1 retest gioi han cho finding do.
 
 ## 11.2. Paid reports
 
@@ -270,7 +278,7 @@ Khong report raw credential, raw token/cookie, raw request/response hoac raw pri
 Dat khi:
 
 ```text
-- Chi tao sau AI Black-hat Check hoac Authenticated Check.
+- Chi tao sau AI Black-hat Mindset Check hoac Authenticated Scope.
 - Khong chay scan moi.
 - Dung sanitized reports/findings/evidence summaries.
 - Khong ghi cam ket he thong an toan tuyet doi.
@@ -283,7 +291,8 @@ Dat khi:
 Dat khi:
 
 ```text
-- Paid checks va Monitor co finding board.
+- Paid checks va Monitor Workspace co finding board.
+- Free co limited finding view cho 1 monitored finding, khong phai full paid finding board.
 - User xem danh sach/detail findings.
 - User loc theo status/severity.
 - User doi trang thai In Progress / Ready for Retest / Accepted Risk.
@@ -308,7 +317,7 @@ Dat khi:
 - Retest co timeout.
 - Retest ghi audit log.
 - Retest cap nhat finding status.
-- Monitor Basic/Pro cap quota, reminders va manual retest queue.
+- Monitor Workspace cap quota, reminders va manual retest queue.
 - Monitor khong tu retest all findings, khong chay sau deploy, khong CI/CD hook.
 ```
 
@@ -370,8 +379,8 @@ Muc tieu ban dau:
 
 ```text
 - Free Snapshot: 3-10 phut.
-- AI Black-hat Check: 20-60 phut.
-- Authenticated Check: 45-120 phut.
+- AI Black-hat Mindset Check: 20-60 phut.
+- Authenticated Scope: 45-120 phut.
 - Simple manual retest: duoi 1 phut khi scenario deterministic.
 ```
 

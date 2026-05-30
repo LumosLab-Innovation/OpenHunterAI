@@ -40,10 +40,10 @@ describe('LLMGateway', () => {
   it('refuses use cases not allowed by package', async () => {
     try {
       await gw.generate({
-        useCase: 'strix_reasoning',
+        useCase: 'blackhat_hypothesis',
         projectId: 'p1',
         scanId: 's1',
-        packageTier: 'free_hunter_snapshot',
+        packageTier: 'free_hunter',
         systemPrompt: 'sys',
         userPrompt: 'hello',
       });
@@ -57,10 +57,10 @@ describe('LLMGateway', () => {
   it('blocks raw secrets in prompt (sanitizer)', async () => {
     try {
       await gw.generate({
-        useCase: 'free_hunter_summary',
+        useCase: 'free_triage_flash',
         projectId: 'p1',
         scanId: 's1',
-        packageTier: 'free_hunter_snapshot',
+        packageTier: 'free_hunter',
         systemPrompt: 'sys',
         userPrompt: 'token: sk-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
         // Use a key value the sanitizer text-pass can't drop fully:
@@ -79,12 +79,12 @@ describe('LLMGateway', () => {
     }
   });
 
-  it('routes free_hunter_summary primary=deepseek, fallback=openai', async () => {
+  it('routes Free Hunter triage primary=deepseek', async () => {
     const res = await gw.generate({
-      useCase: 'free_hunter_summary',
+      useCase: 'free_triage_flash',
       projectId: 'p1',
       scanId: 's1',
-      packageTier: 'free_hunter_snapshot',
+      packageTier: 'free_hunter',
       systemPrompt: 'sys',
       userPrompt: 'hello world',
     });
@@ -92,34 +92,35 @@ describe('LLMGateway', () => {
     expect(res.error).toBeUndefined();
   });
 
-  it('falls back when primary is unconfigured', async () => {
+  it('returns NO_PROVIDER_AVAILABLE when DeepSeek is unconfigured by default', async () => {
     deepseek = stub('deepseek', {}, false);
     gw = new LLMGateway({ providers: { openai, claude, deepseek } });
     const res = await gw.generate({
-      useCase: 'free_hunter_summary',
+      useCase: 'free_triage_flash',
       projectId: 'p1',
       scanId: 's1',
-      packageTier: 'free_hunter_snapshot',
+      packageTier: 'free_hunter',
       systemPrompt: 'sys',
       userPrompt: 'hello world',
     });
-    expect(res.provider).toBe('openai');
+    expect(res.error?.code).toBe('NO_PROVIDER_AVAILABLE');
   });
 
-  it('falls back when primary errors', async () => {
+  it('does not use optional escalation providers by default when primary errors', async () => {
     deepseek = stub('deepseek', {
       error: { code: 'HTTP_500', message: 'boom', retryable: false },
     });
     gw = new LLMGateway({ providers: { openai, claude, deepseek } });
     const res = await gw.generate({
-      useCase: 'free_hunter_summary',
+      useCase: 'free_triage_flash',
       projectId: 'p1',
       scanId: 's1',
-      packageTier: 'free_hunter_snapshot',
+      packageTier: 'free_hunter',
       systemPrompt: 'sys',
       userPrompt: 'hello world',
     });
-    expect(res.provider).toBe('openai');
+    expect(res.provider).toBe('deepseek');
+    expect(res.error?.code).toBe('HTTP_500');
   });
 
   it('returns NO_PROVIDER_AVAILABLE when none configured', async () => {
@@ -128,10 +129,10 @@ describe('LLMGateway', () => {
     deepseek = stub('deepseek', {}, false);
     gw = new LLMGateway({ providers: { openai, claude, deepseek } });
     const res = await gw.generate({
-      useCase: 'free_hunter_summary',
+      useCase: 'free_triage_flash',
       projectId: 'p1',
       scanId: 's1',
-      packageTier: 'free_hunter_snapshot',
+      packageTier: 'free_hunter',
       systemPrompt: 'sys',
       userPrompt: 'hello world',
     });
@@ -140,23 +141,33 @@ describe('LLMGateway', () => {
   });
 
   it('enforces max calls per scan', async () => {
-    // Free Hunter Snapshot = 1 call per scan
+    // Free Hunter = 2 calls per scan: Flash triage + Pro first-finding reasoning.
     const first = await gw.generate({
-      useCase: 'free_hunter_summary',
+      useCase: 'free_triage_flash',
       projectId: 'p1',
       scanId: 's-budget',
-      packageTier: 'free_hunter_snapshot',
+      packageTier: 'free_hunter',
       systemPrompt: 'sys',
       userPrompt: 'hi',
     });
     expect(first.error).toBeUndefined();
 
+    const second = await gw.generate({
+      useCase: 'first_valuable_finding_reasoning_pro',
+      projectId: 'p1',
+      scanId: 's-budget',
+      packageTier: 'free_hunter',
+      systemPrompt: 'sys',
+      userPrompt: 'hi',
+    });
+    expect(second.error).toBeUndefined();
+
     try {
       await gw.generate({
-        useCase: 'free_hunter_summary',
+        useCase: 'free_triage_flash',
         projectId: 'p1',
         scanId: 's-budget',
-        packageTier: 'free_hunter_snapshot',
+        packageTier: 'free_hunter',
         systemPrompt: 'sys',
         userPrompt: 'hi',
       });

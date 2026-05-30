@@ -6,7 +6,13 @@
 
 # 1. Canonical docs and product contract
 
-- [ ] **Docs package model sync.** All canonical docs must use: `Free Hunter Snapshot`, `AI Black-hat Check`, `Authenticated Check`, `Monitor Basic`, `Monitor Pro`, and `Readiness Report View/Export`.
+- [ ] **Docs package model sync.** All canonical docs must use:
+  Free Hunter,
+  AI Black-hat Mindset Check,
+  Monitor Workspace,
+  Enterprise / PAYG.
+  Authenticated Scope must be described as a mode, not a public package.
+  Readiness Report View/Export must be described as report/export mode, not a scan package.
 - [ ] **No stale package tiers.** Public docs must not keep old package tier names as v1 package names.
 - [ ] **Positioning sync.** Public positioning must be `Authorized Attacker-Mindset Security Workspace`, not an uncontrolled black-hat tool.
 - [ ] **Evidence policy sync.** Docs and implementation must agree: no raw evidence persistence; only sanitized reports/findings/summaries.
@@ -66,7 +72,7 @@
 - [ ] **Internal navigation.** Replace internal `<a href>` full reloads with framework routing where appropriate.
 - [ ] **Accessibility sweep.** Add labels/aria for controls and CI linting where practical.
 - [ ] **Report export UX.** Readiness Report View/Export must clearly state it is an export mode, not a new scan.
-- [ ] **Free UX boundary.** Free should show report-only output and upgrade path, not full finding board/retest workflow.
+- [ ] **Free UX boundary.** Free shows first valuable finding report, 1 monitored finding slot, and 1 retest limit. It must not expose full paid finding board/workspace.
 
 ---
 
@@ -85,7 +91,9 @@
 # 8. LLM gateway
 
 - [ ] **Provider SDK boundary.** Business logic/workers call only the LLM Gateway.
-- [ ] **Package/use-case routing.** Free, AI Black-hat, Authenticated, Monitor Basic/Pro use-case allowances are enforced.
+- [ ] **Package/use-case routing.** Free Hunter, AI Black-hat Mindset Check, Authenticated Scope, Monitor Workspace, and Enterprise/PAYG use-case allowances are enforced.
+- [ ] **DeepSeek Flash/Pro routing.** Flash is used for triage/ranking; Pro is used for reasoning supervisor, report, fix prompt and retest reasoning.
+- [ ] **Optional escalation providers are disabled by default and only enabled for Enterprise/PAYG.**
 - [ ] **Strix 2-pass support.** AI Black-hat/Auth support hypothesis and validation reasoning use cases.
 - [ ] **Budget enforcement.** Token/call budgets stop extra calls and report budget-limited coverage when needed.
 - [ ] **Timeout/retry/fallback.** Provider failures degrade gracefully and never fake output.

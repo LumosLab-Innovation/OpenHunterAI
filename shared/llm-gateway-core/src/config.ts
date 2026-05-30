@@ -4,20 +4,23 @@
  * Aliases and budgets are read from environment variables (see
  * shared/llm-gateway-core/env/llm.env.example and LLM_PROVIDER_SPEC.md §4 / §7).
  * Business logic only ever references
- * an alias (e.g. `llm.blackhat.reasoning`) — never a provider or model id.
+ * an alias (e.g. `llm.blackhat.hypothesis.pro`) — never a provider or model id.
  */
 
 import type { AliasRoute, LLMBudget, LLMUseCase, ProviderName } from './types.js';
 import type { PackageTier } from '@x-hunter/shared';
 
 export type ModelAlias =
-  | 'llm.free.summary'
-  | 'llm.hunter.summary'
-  | 'llm.blackhat.reasoning'
-  | 'llm.auth.reasoning'
-  | 'llm.report.writer'
-  | 'llm.fix_prompt.writer'
-  | 'llm.retest.reasoning';
+  | 'llm.free.triage.flash'
+  | 'llm.free.first_finding.pro'
+  | 'llm.blackhat.hypothesis.pro'
+  | 'llm.blackhat.validation.pro'
+  | 'llm.auth_scope.access_control.pro'
+  | 'llm.report.human.pro'
+  | 'llm.report.ai_dev.pro'
+  | 'llm.fix_prompt.pro'
+  | 'llm.monitor.retest.pro'
+  | 'llm.enterprise.escalation.optional';
 
 const ENV = process.env;
 
@@ -27,48 +30,35 @@ function envModel(name: string, fallback: string): string {
 }
 
 export const ALIAS_ROUTES: Record<ModelAlias, AliasRoute> = {
-  'llm.free.summary': {
-    primary: {
-      provider: 'deepseek',
-      model: envModel('DEEPSEEK_FREE_SUMMARY_MODEL', 'deepseek-chat'),
-    },
-    fallback: { provider: 'openai', model: envModel('OPENAI_FREE_SUMMARY_MODEL', 'gpt-4o-mini') },
+  'llm.free.triage.flash': {
+    primary: { provider: 'deepseek', model: envModel('DEEPSEEK_V4_FLASH_MODEL', 'deepseek-v4-flash') },
   },
-  'llm.hunter.summary': {
-    primary: { provider: 'openai', model: envModel('OPENAI_FREE_SUMMARY_MODEL', 'gpt-4o-mini') },
-    fallback: {
-      provider: 'deepseek',
-      model: envModel('DEEPSEEK_FREE_SUMMARY_MODEL', 'deepseek-chat'),
-    },
+  'llm.free.first_finding.pro': {
+    primary: { provider: 'deepseek', model: envModel('DEEPSEEK_V4_PRO_MODEL', 'deepseek-v4-pro') },
   },
-  'llm.blackhat.reasoning': {
-    primary: {
-      provider: 'claude',
-      model: envModel('CLAUDE_BLACKHAT_REASONING_MODEL', 'claude-3-5-sonnet-latest'),
-    },
-    fallback: { provider: 'openai', model: envModel('OPENAI_BLACKHAT_REASONING_MODEL', 'gpt-4o') },
+  'llm.blackhat.hypothesis.pro': {
+    primary: { provider: 'deepseek', model: envModel('DEEPSEEK_V4_PRO_MODEL', 'deepseek-v4-pro') },
   },
-  'llm.auth.reasoning': {
-    primary: {
-      provider: 'claude',
-      model: envModel('CLAUDE_AUTH_REASONING_MODEL', 'claude-3-5-sonnet-latest'),
-    },
-    fallback: { provider: 'openai', model: envModel('OPENAI_AUTH_REASONING_MODEL', 'gpt-4o') },
+  'llm.blackhat.validation.pro': {
+    primary: { provider: 'deepseek', model: envModel('DEEPSEEK_V4_PRO_MODEL', 'deepseek-v4-pro') },
   },
-  'llm.report.writer': {
-    primary: { provider: 'openai', model: envModel('OPENAI_REPORT_MODEL', 'gpt-4o-mini') },
-    fallback: { provider: 'deepseek', model: envModel('DEEPSEEK_REPORT_MODEL', 'deepseek-chat') },
+  'llm.auth_scope.access_control.pro': {
+    primary: { provider: 'deepseek', model: envModel('DEEPSEEK_V4_PRO_MODEL', 'deepseek-v4-pro') },
   },
-  'llm.fix_prompt.writer': {
-    primary: { provider: 'openai', model: envModel('OPENAI_REPORT_MODEL', 'gpt-4o-mini') },
-    fallback: { provider: 'deepseek', model: envModel('DEEPSEEK_REPORT_MODEL', 'deepseek-chat') },
+  'llm.report.human.pro': {
+    primary: { provider: 'deepseek', model: envModel('DEEPSEEK_V4_PRO_MODEL', 'deepseek-v4-pro') },
   },
-  'llm.retest.reasoning': {
-    primary: {
-      provider: 'claude',
-      model: envModel('CLAUDE_RETEST_REASONING_MODEL', 'claude-3-5-sonnet-latest'),
-    },
-    fallback: { provider: 'openai', model: envModel('OPENAI_RETEST_REASONING_MODEL', 'gpt-4o') },
+  'llm.report.ai_dev.pro': {
+    primary: { provider: 'deepseek', model: envModel('DEEPSEEK_V4_PRO_MODEL', 'deepseek-v4-pro') },
+  },
+  'llm.fix_prompt.pro': {
+    primary: { provider: 'deepseek', model: envModel('DEEPSEEK_V4_PRO_MODEL', 'deepseek-v4-pro') },
+  },
+  'llm.monitor.retest.pro': {
+    primary: { provider: 'deepseek', model: envModel('DEEPSEEK_V4_PRO_MODEL', 'deepseek-v4-pro') },
+  },
+  'llm.enterprise.escalation.optional': {
+    primary: { provider: 'deepseek', model: envModel('DEEPSEEK_V4_PRO_MODEL', 'deepseek-v4-pro') },
   },
 };
 
@@ -77,56 +67,77 @@ export const ALIAS_ROUTES: Record<ModelAlias, AliasRoute> = {
  * One alias may cover several use cases.
  */
 export const USE_CASE_TO_ALIAS: Record<LLMUseCase, ModelAlias> = {
-  free_hunter_summary: 'llm.free.summary',
-  openhack_hunter_summary: 'llm.hunter.summary',
-  strix_reasoning: 'llm.blackhat.reasoning',
-  finding_classification: 'llm.blackhat.reasoning',
-  severity_confidence: 'llm.blackhat.reasoning',
-  human_report: 'llm.report.writer',
-  ai_dev_report: 'llm.report.writer',
-  fix_prompt: 'llm.fix_prompt.writer',
-  retest_reasoning: 'llm.retest.reasoning',
+  free_triage_flash: 'llm.free.triage.flash',
+  first_valuable_finding_reasoning_pro: 'llm.free.first_finding.pro',
+  hunter_report_for_first_finding: 'llm.report.human.pro',
+  openhack_hunter_summary: 'llm.free.triage.flash',
+  blackhat_hypothesis: 'llm.blackhat.hypothesis.pro',
+  blackhat_validation: 'llm.blackhat.validation.pro',
+  auth_scope_access_control: 'llm.auth_scope.access_control.pro',
+  finding_classification: 'llm.blackhat.validation.pro',
+  severity_confidence: 'llm.blackhat.validation.pro',
+  human_report: 'llm.report.human.pro',
+  ai_dev_report: 'llm.report.ai_dev.pro',
+  fix_prompt: 'llm.fix_prompt.pro',
+  monitor_retest_reasoning: 'llm.monitor.retest.pro',
+  enterprise_escalation_optional: 'llm.enterprise.escalation.optional',
 };
 
 /** Package → budget. See LLM_PROVIDER_SPEC.md §7.1. */
 export const PACKAGE_BUDGETS: Record<PackageTier, LLMBudget> = {
-  free_hunter_snapshot: {
-    maxLLMCallsPerScan: 1,
+  free_hunter: {
+    maxLLMCallsPerScan: 2,
     maxInputTokensPerCall: 6000,
     maxOutputTokensPerCall: 1200,
     defaultTimeoutMs: 30_000,
-    allowedUseCases: ['free_hunter_summary', 'openhack_hunter_summary'],
+    allowedUseCases: [
+      'free_triage_flash',
+      'first_valuable_finding_reasoning_pro',
+      'hunter_report_for_first_finding',
+    ],
   },
-  ai_blackhat_check: {
-    maxLLMCallsPerScan: 20,
+  ai_blackhat_mindset_check: {
+    maxLLMCallsPerScan: 12,
     maxInputTokensPerCall: 20000,
     maxOutputTokensPerCall: 4000,
     defaultTimeoutMs: 60_000,
     allowedUseCases: [
-      'strix_reasoning',
+      'blackhat_hypothesis',
+      'blackhat_validation',
+      'auth_scope_access_control',
       'finding_classification',
       'severity_confidence',
       'human_report',
       'ai_dev_report',
       'fix_prompt',
-      'retest_reasoning',
+      'monitor_retest_reasoning',
       'openhack_hunter_summary',
     ],
   },
-  authenticated_check: {
-    maxLLMCallsPerScan: 35,
+  monitor_workspace: {
+    maxLLMCallsPerScan: 2,
+    maxInputTokensPerCall: 10000,
+    maxOutputTokensPerCall: 2000,
+    defaultTimeoutMs: 60_000,
+    allowedUseCases: ['monitor_retest_reasoning', 'fix_prompt'],
+  },
+  enterprise_payg: {
+    maxLLMCallsPerScan: 100,
     maxInputTokensPerCall: 24000,
     maxOutputTokensPerCall: 5000,
     defaultTimeoutMs: 90_000,
     allowedUseCases: [
-      'strix_reasoning',
+      'blackhat_hypothesis',
+      'blackhat_validation',
+      'auth_scope_access_control',
       'finding_classification',
       'severity_confidence',
       'human_report',
       'ai_dev_report',
       'fix_prompt',
-      'retest_reasoning',
+      'monitor_retest_reasoning',
       'openhack_hunter_summary',
+      'enterprise_escalation_optional',
     ],
   },
 };

@@ -21,7 +21,8 @@ export class AuthorizationsService {
       data: {
         projectId,
         domainId: domain.id,
-        scanPackage: body.scanPackage,
+        scanPackage: body.scanMode,
+        authScope: body.authScope,
         allowedHosts: body.allowedHosts,
         allowedPaths: body.allowedPaths,
         excludedPaths: body.excludedPaths,

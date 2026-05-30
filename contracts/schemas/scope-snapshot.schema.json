@@ -3,16 +3,15 @@
   "$id": "https://openhunter.local/schemas/scope-snapshot.json",
   "title": "ScopeSnapshot",
   "type": "object",
-  "required": ["allowedHosts", "allowedPaths", "excludedPaths", "testAccountPermission", "sensitiveActionPermission", "scanPackage", "verifiedDomain", "capturedAt"],
+  "required": ["allowedHosts", "allowedPaths", "excludedPaths", "testAccountPermission", "authScope", "sensitiveActionPermission", "scanPackage", "verifiedDomain", "capturedAt"],
   "properties": {
     "allowedHosts": { "type": "array", "items": { "type": "string" } },
     "allowedPaths": { "type": "array", "items": { "type": "string" } },
     "excludedPaths": { "type": "array", "items": { "type": "string" } },
     "testAccountPermission": { "type": "boolean" },
     "sensitiveActionPermission": { "type": "boolean" },
-    "scanPackage": {
-      "enum": ["free_hunter_snapshot", "ai_blackhat_check", "authenticated_check"]
-    },
+    "authScope": { "enum": ["none", "one_account", "two_accounts"] },
+    "scanPackage": { "enum": ["free_hunter", "ai_blackhat_mindset_check"] },
     "verifiedDomain": { "type": "string" },
     "capturedAt": { "type": "string", "format": "date-time" }
   }

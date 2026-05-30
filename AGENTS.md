@@ -59,6 +59,20 @@ Cụ thể:
 - User Approval Gate cho action nhạy cảm.
 ```
 
+Agent không được đổi “black-hat mindset” thành “white-hat audit”, “compliance scan” hoặc checklist scanner.
+
+Đúng intent:
+- authorized black-hat mindset simulation;
+- hypothesis-driven testing;
+- abuse-path reasoning;
+- controlled execution inside verified scope.
+
+Sai intent:
+- generic defensive audit;
+- compliance-only report;
+- scanner-only checklist;
+- uncontrolled offensive tool.
+
 Không tự thêm các phần sau nếu chưa có yêu cầu rõ:
 
 ```text
@@ -234,31 +248,26 @@ Và kèm:
 
 ---
 
-# 7. Quy tắc Free Hunter Snapshot
+# 7. Quy tắc Free Hunter
 
-Free không được gọi là pentest đầy đủ.
+Free Hunter không phải bản engine yếu.
 
-Free phải là:
+Free phải:
+- dùng browser/ZAP/Nuclei/OpenHack pipeline chất lượng cao ở mức giới hạn;
+- dùng DeepSeek V4 Flash cho triage/ranking;
+- dùng DeepSeek V4 Pro cho first valuable finding reasoning;
+- dừng sau 1 valuable finding;
+- tạo report đầy đủ cho finding đó;
+- chỉ monitor 1 finding;
+- chỉ cho 1 retest;
+- áp dụng cooldown 7 ngày để tìm finding mới nếu user không nâng gói.
 
-```text
-Free Vibe-code Hunter Snapshot
-```
-
-Free cần tạo giá trị qua:
-
-```text
-- Browser observation nhẹ.
-- Mini exposure hunter.
-- Frontend secret/storage hunter.
-- API surface hunter.
-- Auth/session smoke hunter.
-- AI app smoke hunter nếu phát hiện chatbot.
-- ZAP passive mini.
-- Nuclei mini safe.
-- Strix Mini Summary.
-```
-
-Free không được chạy full Strix adversarial mode.
+Free không được:
+- mở full paid finding board;
+- trả nhiều findings;
+- monitor nhiều findings;
+- chạy full paid adversarial depth;
+- chạy multi-account Authenticated Scope.
 
 ---
 
@@ -365,11 +374,15 @@ Nếu câu trả lời cho bất kỳ mục nào là “không chắc”, phải
 Agent phải tuân thủ:
 
 ```text
-- Không gọi trực tiếp OpenAI / Claude / DeepSeek SDK trong business logic.
+- Không gọi trực tiếp DeepSeek SDK trong business logic.
 - Mọi LLM call phải đi qua LLM Gateway.
+- V1 production path dùng DeepSeek-first:
+  - DeepSeek V4 Flash = triage/ranking.
+  - DeepSeek V4 Pro = reasoning supervisor/report/fix/retest.
+- OpenAI/Claude không phải default v1; chỉ thêm nếu Enterprise/PAYG escalation được owner xác nhận.
 - Không hardcode model cụ thể trong code nghiệp vụ.
 - Chỉ dùng model alias từ config.
-- Không đưa raw credential/secret vào prompt.
+- Không đưa raw credential/secret/raw evidence vào prompt.
 - Không log raw prompt nếu có dữ liệu nhạy cảm.
 - Nếu cần provider/model mới, tạo adapter/config, không sửa rải rác nhiều service.
 ```

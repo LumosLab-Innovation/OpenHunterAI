@@ -15,20 +15,50 @@ interface Domain {
 
 interface Authorization {
   id: string;
-  scanPackage: string;
+  scanMode?: string;
+  scanPackage?: string;
+  authScope?: string;
   allowedHosts: string[];
 }
 
-const SCAN_PACKAGE_OPTIONS = [
-  { value: 'free_hunter_snapshot', label: 'Free Hunter Snapshot' },
-  { value: 'ai_blackhat_check', label: 'AI Black-hat Check' },
-  { value: 'authenticated_check', label: 'Authenticated Check' },
+const PROJECT_PACKAGE_OPTIONS = [
+  { value: 'free_hunter', label: 'Free Hunter' },
+  { value: 'ai_blackhat_mindset_check', label: 'AI Black-hat Mindset Check' },
+  { value: 'monitor_workspace', label: 'Monitor Workspace' },
+  { value: 'enterprise_payg', label: 'Enterprise / PAYG' },
+] as const;
+
+const SCAN_MODE_OPTIONS = [
+  { value: 'free_hunter', label: 'Free Hunter' },
+  { value: 'ai_blackhat_mindset_check', label: 'AI Black-hat Mindset Check' },
+] as const;
+
+const AUTH_SCOPE_OPTIONS = [
+  { value: 'none', label: 'No authenticated scope' },
+  { value: 'one_account', label: 'Authenticated scope - 1 test account' },
+  { value: 'two_accounts', label: 'Authenticated scope - User A/B' },
 ] as const;
 
 function packageLabel(value?: string) {
   return (
-    SCAN_PACKAGE_OPTIONS.find((option) => option.value === value)?.label ?? 'Free Hunter Snapshot'
+    PROJECT_PACKAGE_OPTIONS.find((option) => option.value === value)?.label ?? 'Free Hunter'
   );
+}
+
+function scanModeLabel(value?: string) {
+  return (
+    SCAN_MODE_OPTIONS.find((option) => option.value === value)?.label ?? 'Free Hunter'
+  );
+}
+
+function authScopeLabel(value?: string) {
+  return (
+    AUTH_SCOPE_OPTIONS.find((option) => option.value === value)?.label ?? 'No authenticated scope'
+  );
+}
+
+function authorizationScanMode(value: Authorization) {
+  return value.scanMode ?? value.scanPackage ?? 'free_hunter';
 }
 
 export function ProjectsPage() {
@@ -65,8 +95,8 @@ export function ProjectsPage() {
       {error && <p className="error">{error}</p>}
       <form className="row" onSubmit={create}>
         <input name="name" placeholder="Project name" required />
-        <select name="packageTier" defaultValue="free_hunter_snapshot">
-          {SCAN_PACKAGE_OPTIONS.map((option) => (
+        <select name="packageTier" defaultValue="free_hunter">
+          {PROJECT_PACKAGE_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
@@ -129,11 +159,12 @@ export function ProjectDetailPage() {
     const res = await apiFetch(`/v1/projects/${id}/authorizations`, {
       method: 'POST',
       body: JSON.stringify({
-        scanPackage: form.get('scanPackage'),
+        scanMode: form.get('scanMode'),
+        authScope: form.get('authScope'),
         allowedHosts,
         allowedPaths: [],
         excludedPaths: [],
-        testAccountPermission: false,
+        testAccountPermission: form.get('authScope') !== 'none',
         sensitiveActionPermission: false,
         consentText: `Authorized scan for ${allowedHosts.join(', ')}`,
       }),
@@ -169,8 +200,15 @@ export function ProjectDetailPage() {
       <DataTable rows={domains} render={(d) => <td>{d.hostname}</td>} />
       <h2>Scan authorizations</h2>
       <form className="row" onSubmit={createAuthorization}>
-        <select name="scanPackage" defaultValue="free_hunter_snapshot">
-          {SCAN_PACKAGE_OPTIONS.map((option) => (
+        <select name="scanMode" defaultValue="free_hunter">
+          {SCAN_MODE_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <select name="authScope" defaultValue="none">
+          {AUTH_SCOPE_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
@@ -183,10 +221,11 @@ export function ProjectDetailPage() {
         rows={auths}
         render={(a) => (
           <>
-            <td>{packageLabel(a.scanPackage)}</td>
+            <td>{scanModeLabel(authorizationScanMode(a))}</td>
+            <td>{authScopeLabel(a.authScope)}</td>
             <td>{a.allowedHosts.join(', ')}</td>
             <td>
-              <button onClick={() => startScan(a.id, a.scanPackage)}>Start scan</button>
+              <button onClick={() => startScan(a.id, authorizationScanMode(a))}>Start scan</button>
             </td>
           </>
         )}

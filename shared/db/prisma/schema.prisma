@@ -62,7 +62,7 @@ model Project {
   id             String       @id @default(cuid())
   organizationId String       @map("organization_id")
   name           String
-  packageTier    PackageTier  @default(free_hunter_snapshot) @map("package_tier")
+  packageTier    PackageTier  @default(free_hunter) @map("package_tier")
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -79,9 +79,10 @@ model Project {
 }
 
 enum PackageTier {
-  free_hunter_snapshot
-  ai_blackhat_check
-  authenticated_check
+  free_hunter
+  ai_blackhat_mindset_check
+  monitor_workspace
+  enterprise_payg
 }
 
 model Domain {
@@ -131,7 +132,8 @@ model ScanAuthorization {
   id                         String      @id @default(cuid())
   projectId                  String      @map("project_id")
   domainId                   String      @map("domain_id")
-  scanPackage                PackageTier @map("scan_package")
+  scanPackage                ScanMode    @map("scan_package")
+  authScope                  AuthenticatedScopeMode @default(none) @map("auth_scope")
   allowedHosts               Json        @map("allowed_hosts")
   allowedPaths               Json        @map("allowed_paths")
   excludedPaths              Json        @map("excluded_paths")
@@ -181,9 +183,14 @@ enum ScanState {
 }
 
 enum ScanMode {
-  free_hunter_snapshot
-  ai_blackhat_check
-  authenticated_check
+  free_hunter
+  ai_blackhat_mindset_check
+}
+
+enum AuthenticatedScopeMode {
+  none
+  one_account
+  two_accounts
 }
 
 model ScanJob {

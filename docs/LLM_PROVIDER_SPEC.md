@@ -1,6 +1,6 @@
-# LLM_PROVIDER_SPEC.md - Multi-provider LLM Gateway
+# LLM_PROVIDER_SPEC.md - DeepSeek-first LLM Gateway
 
-> Moi OpenAI / Claude / DeepSeek call phai di qua mot gateway thong nhat co sanitizer, budget, fallback, timeout va logging an toan.
+> V1 dung DeepSeek-first model stack: DeepSeek V4 Flash cho triage/ranking va DeepSeek V4 Pro cho reasoning supervisor. Optional providers chi dung cho Enterprise/PAYG escalation neu duoc bat ro.
 
 ---
 
@@ -9,16 +9,17 @@
 OpenHunterAI dung LLM cho:
 
 ```text
-- Strix Mini Summary cho Free Hunter Snapshot
-- Strix hypothesis pass cho AI Black-hat Check
-- Strix validation reasoning pass cho AI Black-hat/Auth
-- OpenHack-style hunter summary
-- finding classification
-- severity/confidence explanation
-- Human Report
-- AI/dev Report
-- fix prompt
-- retest reasoning cho Monitor/manual retest
+- Free Hunter triage/ranking.
+- First valuable finding reasoning cho Free Hunter.
+- Hypothesis reasoning cho AI Black-hat Mindset Check.
+- Validation reasoning cho AI Black-hat Mindset Check va Authenticated Scope.
+- OpenHack-style hunter summary.
+- Finding classification.
+- Severity/confidence explanation.
+- Human Report.
+- AI/dev Report.
+- Fix prompt.
+- Retest reasoning cho Monitor/manual retest.
 ```
 
 Khong module nao duoc goi truc tiep provider SDK ngoai provider adapters.
@@ -36,9 +37,13 @@ Prompt Sanitizer
   ↓
 Budget & Policy Check
   ↓
-Provider Router
+Model Router
   ↓
-OpenAIProvider / ClaudeProvider / DeepSeekProvider
+DeepSeekProvider
+  - llm.triage.flash = DeepSeek V4 Flash
+  - llm.reasoning.pro = DeepSeek V4 Pro
+  ↓
+Optional Enterprise/PAYG escalation provider, disabled by default
   ↓
 Response Normalizer
   ↓
@@ -53,11 +58,13 @@ Audit + Metrics + Cost Log
 
 ```ts
 export type LLMUseCase =
-  | "free_hunter_summary"
+  | "free_triage_flash"
+  | "first_valuable_finding_reasoning_pro"
+  | "hunter_report_for_first_finding"
   | "openhack_hunter_summary"
-  | "strix_hypothesis"
-  | "strix_validation_reasoning"
-  | "auth_access_control_reasoning"
+  | "blackhat_hypothesis"
+  | "blackhat_validation"
+  | "auth_scope_access_control"
   | "finding_classification"
   | "severity_confidence"
   | "human_report"
@@ -65,18 +72,18 @@ export type LLMUseCase =
   | "auth_report"
   | "readiness_export"
   | "fix_prompt"
-  | "monitor_retest_reasoning";
+  | "monitor_retest_reasoning"
+  | "enterprise_escalation_optional";
 ```
 
 ## 3.2. Request / response contract
 
 ```ts
 export type PackageTier =
-  | "free_hunter_snapshot"
-  | "ai_blackhat_check"
-  | "authenticated_check"
-  | "monitor_basic"
-  | "monitor_pro";
+  | "free_hunter"
+  | "ai_blackhat_mindset_check"
+  | "monitor_workspace"
+  | "enterprise_payg";
 
 export interface LLMRequest {
   useCase: LLMUseCase;
@@ -84,6 +91,10 @@ export interface LLMRequest {
   scanId?: string;
   findingId?: string;
   packageTier: PackageTier;
+  authScope?: {
+    enabled: boolean;
+    accountMode?: "one_account" | "two_accounts";
+  };
   systemPrompt: string;
   userPrompt: string;
   compactContext?: Record<string, unknown>;
@@ -95,7 +106,7 @@ export interface LLMRequest {
 }
 
 export interface LLMResponse {
-  provider: "openai" | "claude" | "deepseek";
+  provider: "deepseek" | "openai" | "claude";
   modelAlias: string;
   outputText: string;
   outputJson?: unknown;
@@ -116,9 +127,12 @@ export interface LLMResponse {
 Provider adapters:
 
 ```text
-OpenAIProvider
-ClaudeProvider
-DeepSeekProvider
+Required in v1:
+- DeepSeekProvider
+
+Optional, disabled by default:
+- ClaudeProvider
+- OpenAIProvider
 ```
 
 ---
@@ -128,17 +142,16 @@ DeepSeekProvider
 Business logic chi dung alias, khong hardcode model.
 
 ```text
-llm.free.summary
-llm.openhack.summary
-llm.blackhat.hypothesis
-llm.blackhat.validation
-llm.auth.access_control
-llm.report.human
-llm.report.ai_dev
-llm.report.auth
-llm.report.readiness
-llm.fix_prompt.writer
-llm.monitor.retest
+llm.free.triage.flash
+llm.free.first_finding.pro
+llm.blackhat.hypothesis.pro
+llm.blackhat.validation.pro
+llm.auth_scope.access_control.pro
+llm.report.human.pro
+llm.report.ai_dev.pro
+llm.fix_prompt.pro
+llm.monitor.retest.pro
+llm.enterprise.escalation.optional
 ```
 
 Mapping provider/model nam trong config/env.
@@ -147,37 +160,39 @@ Mapping provider/model nam trong config/env.
 
 # 5. Routing theo package
 
-## 5.1. Free Hunter Snapshot
+## 5.1. Free Hunter
 
-Dung LLM it nhat co the.
-
-Allowed:
+Free Hunter allowed:
 
 ```text
-free_hunter_summary
-openhack_hunter_summary
+- free_triage_flash
+- first_valuable_finding_reasoning_pro
+- hunter_report_for_first_finding
 ```
 
-Blocked:
+Free Hunter limits:
 
 ```text
-strix_hypothesis full
-strix_validation_reasoning
-auth_access_control_reasoning
-multi-step agent loop
+- max returned findings = 1
+- max monitored findings = 1
+- max retests = 1
+- cooldown_days = 7
+- no full paid finding board
+- no multi-account auth
+- no full adversarial depth
 ```
 
-## 5.2. AI Black-hat Check
+## 5.2. AI Black-hat Mindset Check
 
-Dung 2-pass Strix:
+Dung DeepSeek V4 Pro reasoning:
 
 ```text
-1. strix_hypothesis
+1. blackhat_hypothesis
    - attacker hypotheses
    - risk areas
    - safe validation plan
 
-2. strix_validation_reasoning
+2. blackhat_validation
    - findings
    - severity/confidence
    - remediation
@@ -188,8 +203,8 @@ Dung 2-pass Strix:
 Allowed:
 
 ```text
-strix_hypothesis
-strix_validation_reasoning
+blackhat_hypothesis
+blackhat_validation
 finding_classification
 severity_confidence
 human_report
@@ -197,14 +212,16 @@ ai_dev_report
 fix_prompt
 ```
 
-## 5.3. Authenticated Check
+## 5.3. Authenticated Scope
+
+Authenticated Scope la mode ben trong AI Black-hat Mindset Check hoac Enterprise/PAYG.
 
 Allowed:
 
 ```text
-auth_access_control_reasoning
-strix_hypothesis
-strix_validation_reasoning
+auth_scope_access_control
+blackhat_hypothesis
+blackhat_validation
 finding_classification
 severity_confidence
 human_report
@@ -222,7 +239,7 @@ Requirements:
 - User Approval Gate cho sensitive validation
 ```
 
-## 5.4. Monitor Basic / Pro
+## 5.4. Monitor Workspace
 
 Monitor khong tu dong full scan. LLM chi dung cho retest reasoning neu user queue retest va goi/quota cho phep.
 
@@ -277,30 +294,24 @@ Default internal budgets, khong show nhu pricing benefit:
 
 ```yaml
 budgets:
-  free_hunter_snapshot:
-    max_llm_calls_per_scan: 1
-    max_input_tokens_per_call: 6000
-    max_output_tokens_per_call: 1200
+  free_hunter:
+    max_triage_calls_flash: 1
+    max_reasoning_calls_pro: 1
+    max_returned_findings: 1
+    max_monitored_findings: 1
+    max_retests: 1
+    cooldown_days: 7
 
-  ai_blackhat_check:
-    max_llm_calls_per_scan: 20
-    max_input_tokens_per_call: 20000
-    max_output_tokens_per_call: 4000
+  ai_blackhat_mindset_check:
+    max_triage_calls_flash: 2
+    max_reasoning_calls_pro: 10
+    max_returned_findings: 10
 
-  authenticated_check:
-    max_llm_calls_per_scan: 35
-    max_input_tokens_per_call: 24000
-    max_output_tokens_per_call: 5000
+  monitor_workspace:
+    max_reasoning_calls_per_retest_pro: 2
 
-  monitor_basic:
-    max_llm_calls_per_retest: 2
-    max_input_tokens_per_call: 10000
-    max_output_tokens_per_call: 2000
-
-  monitor_pro:
-    max_llm_calls_per_retest: 4
-    max_input_tokens_per_call: 16000
-    max_output_tokens_per_call: 3000
+  enterprise_payg:
+    limits: usage_based
 ```
 
 Khi vuot budget:
@@ -320,8 +331,8 @@ Khi vuot budget:
 - Moi LLM call co timeout.
 - Chi retry loi retryable: network timeout, provider overloaded, rate limit co backoff.
 - Khong retry vo han.
-- primary provider → fallback provider → graceful failure.
-- Neu fallback cung loi, khong fake output.
+- DeepSeek-first production path; optional escalation providers chi bat cho Enterprise/PAYG.
+- Neu provider loi, khong fake output.
 ```
 
 ---
@@ -357,7 +368,7 @@ Phai co tests cho:
 ```text
 - provider routing by use case
 - package/use-case allowance
-- fallback provider works
+- optional escalation provider disabled by default
 - timeout handling
 - retry limit
 - budget exceeded behavior
@@ -373,12 +384,11 @@ Phai co tests cho:
 LLM Provider Layer xong khi:
 
 ```text
-- OpenAIProvider, ClaudeProvider, DeepSeekProvider implement chung interface.
+- DeepSeekProvider implement production path.
+- Flash/Pro model aliases hoat dong.
 - Business logic chi goi LLM Gateway.
 - Prompt Sanitizer chay truoc moi provider call.
 - Budget theo package/use case hoat dong.
-- Fallback hoat dong.
-- Timeout/retry hoat dong.
-- Logs co token/cost/latency metadata an toan.
+- Optional OpenAI/Claude providers khong bat buoc cho v1.
 - Raw secrets/evidence khong xuat hien trong prompt/log/report.
 ```

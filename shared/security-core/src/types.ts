@@ -5,9 +5,9 @@
  * Database row shapes live in @x-hunter/db (Prisma).
  */
 
-import type { PackageTier } from './packages.js';
+import type { AuthenticatedScopeMode, PackageTier, ScanMode } from './packages.js';
 
-export type { PackageTier, ScanMode } from './packages.js';
+export type { AuthenticatedScopeMode, CommercialPackage, PackageTier, ScanMode } from './packages.js';
 
 export type Severity = 'info' | 'low' | 'medium' | 'high' | 'critical';
 
@@ -61,7 +61,8 @@ export interface ScopeAuthorization {
 }
 
 export interface ScopeSnapshot extends ScopeAuthorization {
-  scanPackage: PackageTier;
+  scanPackage: ScanMode;
+  authScope: AuthenticatedScopeMode;
   verifiedDomain: string;
   capturedAt: string;
 }

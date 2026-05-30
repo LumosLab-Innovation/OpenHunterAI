@@ -28,6 +28,10 @@ Authorized attacker-mindset testing
 → prove fixed
 ```
 
+Trong PRD nay, "black-hat mindset" nghia la mo phong cach doi thu suy nghi: dat gia thuyet tan cong, tim abuse path, nghi ngo phan quyen, soi API behavior, session flow va cac rui ro khong hien nhien.
+
+No khong co nghia la tan cong trai phep. Moi execution deu bi gioi han boi verified domain, scan authorization, Product Policy Gate, User Approval Gate, budget/runtime limits va evidence sanitization.
+
 ## 1.4. Gia tri cot loi
 
 ```text
@@ -80,18 +84,18 @@ Authorized attacker-mindset testing
 - Nhap domain/URL.
 - Xac minh quyen so huu domain.
 - Khai bao pham vi kiem thu.
-- Chay Free Hunter Snapshot.
-- Chay AI Black-hat Check.
-- Chay Authenticated Check neu co test account.
+- Chay Free Hunter.
+- Chay AI Black-hat Mindset Check.
+- Cho phep bat Authenticated Scope trong AI Black-hat Mindset Check neu user cung cap test account.
 - Them/xoa test account.
 - Hien thi tien trinh kiem thu de hieu.
 - Tra report tuong ung voi tung goi.
-- Tao finding board cho goi tra phi va Monitor.
+- Co Monitor Workspace cho report history, monitored findings, reminders va manual retest queue.
+- Co Enterprise / PAYG cho nhieu domain, nhieu scan, nhieu monitored findings, nhieu retest hoac custom usage.
 - Cho phep user doi trang thai finding.
 - Cho phep manual retest tung finding.
 - Co User Approval Gate cho action nhay cam.
-- Co Readiness Report View/Export nhu paid export mode.
-- Co Monitor Basic / Monitor Pro cho history, reminders va manual retest queue.
+- Co Readiness Report View/Export nhu report/export mode, khong phai scan package rieng.
 ```
 
 ## 3.2. V1 khong lam gi
@@ -133,8 +137,8 @@ OpenHunterAI co attacker-mindset, nhung execution luon nam trong verified scope 
 | 0 | Observe | Free+ | Browser observation, route/API discovery, cookie/storage metadata, console signals. |
 | 1 | Safe Signal | Free+ | ZAP passive/baseline, Nuclei curated safe templates, exposure checks. |
 | 2 | Hypothesis | Free+ | Strix/OpenHack tao risk hypothesis tu compact sanitized context. |
-| 3 | Safe Validation | AI Black-hat Check+ | Benign validation trong scope, khong destructive, khong exfiltrate raw data. |
-| 4 | Approval-Gated Validation | Authenticated Check / sensitive retest | Access-control, POST/PUT/PATCH/DELETE, billing/file/email/webhook, High/Critical retest; can User Approval Gate. |
+| 3 | Safe Validation | AI Black-hat Mindset Check+ | Benign validation trong scope, khong destructive, khong exfiltrate raw data. |
+| 4 | Approval-Gated Validation | Authenticated Scope / sensitive retest | Access-control, POST/PUT/PATCH/DELETE, billing/file/email/webhook, High/Critical retest; can User Approval Gate. |
 | Forbidden | Khong bao gio | Tat ca goi | Out-of-scope scan, destructive action, credential attack, persistence, evasion, malware, exfiltration, raw secret logging/reporting. |
 
 ## 4.3. Nuclei
@@ -155,29 +159,22 @@ full nuclei-templates repo chay mac dinh
 
 # 5. Cau truc goi v1
 
-## 5.1. One-off checks
-
-| Goi | Lop kiem thu chinh | Report mac dinh | Muc dich |
-|---|---|---|---|
-| Free Hunter Snapshot | Browser observation nhe + ZAP/Nuclei mini signals + OpenHack mini hunter + Strix Mini Summary | Hunter Snapshot Report | Check nhanh, keo lead, cho user thay chat hunter |
-| AI Black-hat Check | Browser sau hon + ZAP/Nuclei standard-safe + OpenHack workflow + Strix 2-pass reasoning | Human Report + AI/dev Report | Goi tra phi chinh cho web/app public |
-| Authenticated Check | Toan bo AI Black-hat Check + test account + authenticated observation + access-control reasoning | Auth Security Report + AI/dev Report | Kiem tra sau dang nhap, session, role, access-control |
-
-## 5.2. Monitor subscription
-
-Monitor khong phai CI/CD, deploy hook hay continuous full scanner. Monitor la subscription cho workspace sau scan:
-
-| Goi | Muc dich | Bao gom |
+| Goi | Muc dich | Gioi han / loi ich chinh |
 |---|---|---|
-| Monitor Basic | Duy tri 1 project/domain sau scan | Report/finding history, reminders, manual retest queue, retest quota nho |
-| Monitor Pro | Theo doi nhieu project/domain va lam viec theo team | Nhieu quota hon, team workspace, priority retest queue, longer history |
+| Free Hunter | Chung minh nang luc that cua OpenHunterAI | Chay engine tot, model tot, dung o first valuable finding, report day du cho 1 finding, monitor 1 finding, 1 retest, cooldown 7 ngay |
+| AI Black-hat Mindset Check | Goi tra phi scan chinh | Nhieu hypothesis hon, nhieu finding hon, nhieu validation attempt hon, Human Report, AI/dev Report, finding board, nhieu retest hon |
+| Monitor Workspace | Goi thang giu chan | Theo doi nhieu findings, report history, reminders, retest quota, security trend, quan ly loi sau scan |
+| Enterprise / PAYG | B2B/agency/nhieu domain | Tra theo domain/scan/finding/retest/escalation/custom quota, khong ban unlimited |
 
-## 5.3. Readiness Report View/Export
+Authenticated Scope la mode ben trong AI Black-hat Mindset Check hoac Enterprise, khong phai goi public rieng.
+Readiness Report View/Export la che do trinh bay/export report, khong phai goi scan rieng.
+
+## 5.2. Readiness Report View/Export
 
 Day la paid export mode, khong phai goi scan rieng.
 
 ```text
-- Chi dung sau AI Black-hat Check hoac Authenticated Check.
+- Chi dung sau AI Black-hat Mindset Check hoac Authenticated Scope.
 - Khong chay scan moi.
 - Tao executive/client-facing export tu sanitized reports/findings.
 - Khong bao gom Expert Human Review trong v1.
@@ -192,8 +189,8 @@ Day la paid export mode, khong phai goi scan rieng.
 
 ```text
 - Moi goi scan deu co report.
-- Free chi co Hunter Snapshot Report.
-- AI Black-hat Check va Authenticated Check co report ky thuat cho AI/dev.
+- Free co report cho first valuable finding hoac coverage report neu khong tim thay.
+- AI Black-hat Mindset Check va Authenticated Scope co report ky thuat cho AI/dev.
 - Readiness Export chi dung sanitized report/finding/evidence summaries.
 - Raw request/response/cookie/token/password khong duoc luu hoac dua vao report.
 ```
@@ -202,9 +199,9 @@ Day la paid export mode, khong phai goi scan rieng.
 
 | Goi | Report | Noi dung chinh |
 |---|---|---|
-| Free Hunter Snapshot | Hunter Snapshot Report | Score, observations, warnings/hardening, attack surface summary, coverage gaps, next step |
-| AI Black-hat Check | Human-readable Report + AI/dev-readable Report | Findings, severity/confidence, impact, fix guidance, fix prompt, retest scenario |
-| Authenticated Check | Auth Security Report + AI/dev-readable Report | Session/auth/access-control findings, User A/User B observations, sensitive flows, retest plan |
+| Free Hunter | First Valuable Finding Report / Coverage Report | 1 valuable finding neu co, severity/confidence, remediation, 1 monitored slot, 1 retest, coverage gaps |
+| AI Black-hat Mindset Check | Human-readable Report + AI/dev-readable Report | Findings, severity/confidence, impact, fix guidance, fix prompt, retest scenario |
+| Authenticated Scope | Auth Security Report + AI/dev-readable Report | Session/auth/access-control findings, User A/User B observations, sensitive flows, retest plan |
 | Readiness Report View/Export | Executive/Client-facing export | Executive summary, readiness summary, priority fix plan, sanitized evidence summary |
 
 ## 6.3. Wording bat buoc
@@ -234,7 +231,7 @@ Va luon kem:
 
 ---
 
-# 7. Free Hunter Snapshot
+# 7. Free Hunter
 
 ## 7.1. Muc tieu
 
@@ -252,28 +249,32 @@ Free phai co gia tri that va co chat hunter, nhung khong phai pentest day du va 
 - API surface hunter.
 - Auth/session smoke hunter.
 - AI app smoke hunter neu phat hien chatbot/LLM.
-- Strix Mini Summary.
-- Hunter Snapshot Report.
+- First valuable finding limit.
+- Dung scan sau khi phat hien 1 finding du gia tri.
+- Report day du cho finding do.
+- Monitor 1 finding.
+- 1 retest cho finding do.
+- Neu muon check finding moi: cho cooldown 7 ngay hoac nang goi.
+- Neu muon monitor finding khac trong Free: phai xoa monitor finding cu hoac nang goi.
 ```
 
 ## 7.3. Khong bao gom
 
 ```text
-- Finding board.
-- Manual retest workflow.
-- Report history.
-- Full Strix adversarial reasoning.
-- Authenticated scan.
-- Multi-account access-control test.
+- Full paid finding board.
+- Monitor nhieu findings.
+- Retest nhieu findings.
+- Full adversarial depth.
+- Authenticated Scope.
+- Multi-account User A/User B access-control test.
 - Deep business logic testing.
-- AI/dev technical report day du.
 - Expert Human Review.
 - CI/CD-based automated retesting.
 ```
 
 ---
 
-# 8. AI Black-hat Check
+# 8. AI Black-hat Mindset Check
 
 ## 8.1. Muc tieu
 
@@ -309,9 +310,11 @@ Goi tra phi chinh cho web/app public da xac minh domain. Goi nay dung attacker-m
 
 ---
 
-# 9. Authenticated Check
+# 9. Authenticated Scope trong AI Black-hat Mindset Check
 
 ## 9.1. Muc tieu
+
+Authenticated Scope khong phai goi public rieng. Day la mode kiem thu sau dang nhap trong AI Black-hat Mindset Check hoac Enterprise/PAYG.
 
 Kiem tra rui ro sau dang nhap: session, role, access-control, API data exposure, BOLA/IDOR suspicion.
 
@@ -335,7 +338,7 @@ Kiem tra rui ro sau dang nhap: session, role, access-control, API data exposure,
 ## 9.4. Bao gom
 
 ```text
-- Toan bo AI Black-hat Check.
+- Toan bo AI Black-hat Mindset Check.
 - Authenticated browser observation.
 - Session/cookie/token checks.
 - Role boundary checks neu co role.
@@ -358,41 +361,23 @@ Kiem tra rui ro sau dang nhap: session, role, access-control, API data exposure,
 
 ---
 
-# 10. Monitor Plans
+# 10. Monitor Workspace
 
 ## 10.1. Nguyen tac
 
 Monitor la subscription sau scan, khong phai CI/CD hay auto full scan.
 
 ```text
-- Luu sanitized reports/findings.
-- Nhac user xu ly loi va mark Ready for Retest.
-- Cung cap manual retest queue va retest quota.
-- Khong tu dong retest tat ca findings.
-- Khong scan lai toan bo app.
-- Khong chay sau deploy.
+- report/finding history;
+- monitored findings;
+- reminders;
+- manual retest queue;
+- retest quota;
+- security trend;
+- risk acceptance.
 ```
 
-## 10.2. Monitor Basic
-
-```text
-- 1 project/domain.
-- Report/finding history.
-- Reminder co ban.
-- Manual retest queue.
-- Retest quota nho.
-```
-
-## 10.3. Monitor Pro
-
-```text
-- Nhieu project/domain hon.
-- Team workspace co ban.
-- Longer report/finding history.
-- Retest quota lon hon.
-- Priority retest queue.
-- Readiness Report View/Export quota hoac discount.
-```
+Monitor Workspace co the co quota tier noi bo, nhung public package model chi goi la Monitor Workspace.
 
 ---
 
@@ -409,34 +394,41 @@ Monitor la subscription sau scan, khong phai CI/CD hay auto full scan.
 6. User tao scan authorization va moi duoc chay scan.
 ```
 
-## 11.2. Free Hunter Snapshot
+## 11.2. Free Hunter
 
 ```text
-1. User chon Free Hunter Snapshot.
+1. User chon Free Hunter.
 2. User xac nhan scope co ban.
-3. He thong chay browser observation nhe + scanner mini signals + OpenHack mini hunter.
-4. He thong tao Strix Mini Summary.
-5. User nhan Hunter Snapshot Report.
-6. User duoc goi y nang len AI Black-hat Check hoac Authenticated Check neu can.
+3. He thong chay browser observation nhe + ZAP/Nuclei mini signals + OpenHack mini hunter.
+4. DeepSeek V4 Flash loc nhieu va xep hang suspicious surfaces.
+5. DeepSeek V4 Pro phan tich top evidence de tim first valuable finding.
+6. Neu co 1 valuable finding:
+   - dung scan;
+   - tao report day du cho finding do;
+   - tao 1 monitored finding slot;
+   - cap 1 retest cho finding do.
+7. Neu chua co valuable finding trong budget:
+   - tra coverage report + hardening + limitations.
+8. User duoc goi y nang len AI Black-hat Mindset Check hoac Enterprise/PAYG neu can kiem tra tiep.
 ```
 
-## 11.3. AI Black-hat Check
+## 11.3. AI Black-hat Mindset Check
 
 ```text
-1. User chon AI Black-hat Check.
+1. User chon AI Black-hat Mindset Check.
 2. User xac nhan scope.
 3. He thong chay signal gathering.
-4. Strix tao hypothesis va safe validation plan.
+4. DeepSeek V4 Pro tao hypothesis va safe validation plan.
 5. He thong chay safe validation trong scope.
 6. Neu action nhay cam, User Approval Gate hien ra truoc khi chay.
 7. User nhan Human Report va AI/dev Report.
 8. User quan ly finding trong board va manual retest tung finding.
 ```
 
-## 11.4. Authenticated Check
+## 11.4. Authenticated Scope
 
 ```text
-1. User chon Authenticated Check.
+1. User bat Authenticated Scope trong AI Black-hat Mindset Check hoac Enterprise/PAYG.
 2. User them 1 hoac 2 test accounts.
 3. He thong login trong verified scope.
 4. 1 account bat auth/session checks.
@@ -450,7 +442,7 @@ Monitor la subscription sau scan, khong phai CI/CD hay auto full scan.
 
 ```text
 1. User co reports/findings tu paid check.
-2. User chon Monitor Basic hoac Monitor Pro.
+2. User chon Monitor Workspace.
 3. He thong luu history, reminders va retest quota.
 4. User mark Ready for Retest hoac queue retest tung finding.
 5. He thong chay retest hep theo finding va cap nhat status.
@@ -490,7 +482,7 @@ Monitor la subscription sau scan, khong phai CI/CD hay auto full scan.
 
 ## 12.4. Finding Board
 
-Finding board bat buoc cho AI Black-hat Check, Authenticated Check va Monitor. Free chi co report.
+Finding board bat buoc cho AI Black-hat Mindset Check, Authenticated Scope va Monitor Workspace. Free co limited finding view cho 1 monitored finding, khong phai full paid finding board.
 
 ```text
 - Xem findings.
@@ -554,7 +546,7 @@ Khong phat hien Critical/High trong pham vi kiem thu hien tai.
 ```text
 - Free Snapshot completion rate.
 - Free → paid conversion.
-- Free → Authenticated Check conversion.
+- Ty le user bat Authenticated Scope sau Free.
 - Ty le user them test account sau Free.
 - So report duoc export.
 - So finding duoc mark Ready for Retest.
@@ -572,11 +564,12 @@ PRD v1 dat khi:
 ```text
 - User tao project, them domain va verify domain.
 - Domain chua verified thi khong scan duoc.
-- Free Hunter Snapshot tra report co gia tri va khong co finding board/retest workflow.
-- AI Black-hat Check co 2-pass Strix, finding board, AI/dev report va manual retest.
-- Authenticated Check phan biet 1-account va 2-account mode.
-- Readiness Report View/Export chi la paid export mode sau paid check.
-- Monitor chi co Basic/Pro va la history/reminders/manual retest queue.
+- Free Hunter dung cung workflow chat luong cao nhung gioi han o first valuable finding.
+- Free Hunter tao report cho finding do, monitor 1 finding va cho 1 retest gioi han.
+- Free khong mo full paid finding board/retest workflow.
+- AI Black-hat Mindset Check co hypothesis loop, safe validation, finding board, AI/dev report va manual retest.
+- Authenticated Scope la mode ben trong AI Black-hat Mindset Check hoac Enterprise, khong phai public package rieng.
+- Monitor Workspace la mot public package, khong tach Basic/Pro trong PRD public.
 - Khong raw evidence trong storage/report/LLM prompt.
 - User Approval Gate hoat dong cho action nhay cam.
 ```
@@ -585,10 +578,13 @@ Khong dat neu:
 
 ```text
 - Free chi la header/cookie scan don gian.
-- Free co finding board/retest workflow nhu paid.
+- Free bi mo full board/retest nhu paid.
+- Free khong gioi han first valuable finding.
 - Report tra ket luan tuyet doi ma khong co coverage/limitation.
-- Con old package names nhu package public v1.
+- Authenticated Scope bi trinh bay nhu public package rieng.
+- Monitor quota tiers bi trinh bay nhu public package chinh.
+- Docs lam lech black-hat mindset thanh checklist scanner/compliance audit.
 - Monitor bi hieu la CI/CD/deployment-triggered/fully automated scanner.
-- Authenticated Check hua User A/B khi chi co 1 account.
+- Authenticated Scope hua User A/B khi chi co 1 account.
 - PRD lam nguoi doc hieu OpenHunterAI la cong cu tan cong tuy y.
 ```

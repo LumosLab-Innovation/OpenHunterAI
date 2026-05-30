@@ -12,16 +12,22 @@ OpenHunterAI uses attacker-mindset reasoning, but execution is governed by
 verified scope, Product Policy Gate, User Approval Gate, and strict evidence
 sanitization.
 
+"Black-hat mindset" means adversarial reasoning style: hypothesis generation,
+abuse-path thinking, access-control suspicion, API behavior probing, and
+unexpected-risk discovery. It does not mean unauthorized execution.
+
 ## Product Packages
 
 ```txt
-Free Hunter Snapshot
-AI Black-hat Check
-Authenticated Check
-Monitor Basic
-Monitor Pro
-Readiness Report View/Export
+Free Hunter
+AI Black-hat Mindset Check
+Monitor Workspace
+Enterprise / PAYG
 ```
+
+Authenticated testing is a scope/mode inside AI Black-hat Mindset Check or
+Enterprise, not a separate public package.
+Readiness Report View/Export is a report/export mode, not a scan package.
 
 See the canonical specs in `docs/`:
 

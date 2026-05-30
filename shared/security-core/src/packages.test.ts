@@ -1,29 +1,42 @@
 import { describe, expect, it } from 'vitest';
 import {
-  SCAN_PACKAGE_LABELS,
-  SCAN_PACKAGES,
-  isAuthenticatedScanPackage,
+  COMMERCIAL_PACKAGE_LABELS,
+  COMMERCIAL_PACKAGES,
+  SCAN_MODE_LABELS,
+  SCAN_MODES,
+  isAuthenticatedScopeEnabled,
 } from './packages.js';
 
-describe('scan package model', () => {
-  it('exposes only the v1 canonical scan packages', () => {
-    expect(SCAN_PACKAGES).toEqual([
-      'free_hunter_snapshot',
-      'ai_blackhat_check',
-      'authenticated_check',
+describe('package model', () => {
+  it('separates public commercial packages from executable scan modes', () => {
+    expect(COMMERCIAL_PACKAGES).toEqual([
+      'free_hunter',
+      'ai_blackhat_mindset_check',
+      'monitor_workspace',
+      'enterprise_payg',
+    ]);
+    expect(SCAN_MODES).toEqual([
+      'free_hunter',
+      'ai_blackhat_mindset_check',
     ]);
   });
 
   it('keeps user-facing labels aligned with docs', () => {
-    expect(SCAN_PACKAGE_LABELS).toEqual({
-      free_hunter_snapshot: 'Free Hunter Snapshot',
-      ai_blackhat_check: 'AI Black-hat Check',
-      authenticated_check: 'Authenticated Check',
+    expect(COMMERCIAL_PACKAGE_LABELS).toEqual({
+      free_hunter: 'Free Hunter',
+      ai_blackhat_mindset_check: 'AI Black-hat Mindset Check',
+      monitor_workspace: 'Monitor Workspace',
+      enterprise_payg: 'Enterprise / PAYG',
+    });
+    expect(SCAN_MODE_LABELS).toEqual({
+      free_hunter: 'Free Hunter',
+      ai_blackhat_mindset_check: 'AI Black-hat Mindset Check',
     });
   });
 
-  it('identifies the authenticated scan package explicitly', () => {
-    expect(isAuthenticatedScanPackage('authenticated_check')).toBe(true);
-    expect(isAuthenticatedScanPackage('ai_blackhat_check')).toBe(false);
+  it('treats authenticated testing as scope, not a package', () => {
+    expect(isAuthenticatedScopeEnabled('one_account')).toBe(true);
+    expect(isAuthenticatedScopeEnabled('two_accounts')).toBe(true);
+    expect(isAuthenticatedScopeEnabled('none')).toBe(false);
   });
 });

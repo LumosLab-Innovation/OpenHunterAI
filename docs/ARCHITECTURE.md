@@ -53,7 +53,9 @@ Step queues / worker families
   ↓
 LLM Gateway
   ↓
-OpenAI / Claude / DeepSeek
+DeepSeek V4 Flash / DeepSeek V4 Pro
+  ↓
+Optional Enterprise/PAYG escalation providers
 ```
 
 V1 co the dung BullMQ + Postgres state. Redis/BullMQ la transport; Postgres la durable source of truth cho `scan_jobs`, `scan_steps`, findings va reports.
@@ -128,7 +130,7 @@ Workers chay tach khoi web/API process. Moi worker co:
 
 # 4. Phase fan-out / fan-in scan pipeline
 
-## 4.1. Free Hunter Snapshot
+## 4.1. Free Hunter
 
 ```text
 Phase 0 - precheck
@@ -139,17 +141,29 @@ Phase 1 - safe signal fan-out
   ZAP passive mini
   Nuclei mini-safe
 
-Phase 2 - hunter + summary
+Phase 2 - hunter + triage
   OpenHack mini hunters
-  Strix Mini Summary
+  DeepSeek V4 Flash triage/ranking
+  produce compact sanitized suspicious surfaces
 
-Phase 3 - report
-  Hunter Snapshot Report
+Phase 3 - first valuable finding reasoning
+  DeepSeek V4 Pro reasoning supervisor
+  decide first valuable finding
+  produce severity/confidence/remediation/retest suggestion
+
+Phase 4 - early stop / report
+  if valuable finding found:
+    stop scan
+    create report for that finding
+    create 1 monitored finding slot
+    allow 1 retest
+  else:
+    coverage report + hardening + limitations
 ```
 
-Free output la report-only. Free khong tao finding board/retest workflow.
+Free output la limited workspace: report + 1 monitored finding + 1 retest. Free khong mo full paid finding board/retest workflow.
 
-## 4.2. AI Black-hat Check
+## 4.2. AI Black-hat Mindset Check
 
 ```text
 Phase 0 - precheck
@@ -166,26 +180,23 @@ Phase 2 - fan-in normalize
   produce compact sanitized context
   record coverage gaps for failed/skipped tools
 
-Phase 3 - Strix hypothesis pass
-  attacker hypotheses
-  risk areas
-  safe validation plan
+Phase 3 - hypothesis reasoning
+  DeepSeek V4 Pro creates attacker hypotheses, risk areas, safe validation plan
 
 Phase 4 - governed validation
   run safe validation in scope
   require User Approval Gate for sensitive actions
 
-Phase 5 - Strix validation reasoning + report
-  prioritize findings
-  severity/confidence
-  remediation/fix prompt
-  retest scenario
+Phase 5 - validation reasoning + report
+  DeepSeek V4 Pro prioritizes findings, severity/confidence, remediation/fix prompt, retest scenario
   Human Report + AI/dev Report
 ```
 
-## 4.3. Authenticated Check
+## 4.3. Authenticated Scope branch
 
-Authenticated Check dung pipeline AI Black-hat Check va them:
+Authenticated Scope la branch cua AI Black-hat Mindset Check hoac Enterprise/PAYG, khong phai public scan package rieng.
+
+Authenticated Scope dung pipeline AI Black-hat Mindset Check va them:
 
 ```text
 - encrypted test account retrieval
@@ -475,7 +486,11 @@ Browser worker can isolation manh nhat: non-root, sandbox/seccomp where possible
 Kien truc dung khi:
 
 ```text
-- Public docs dung package model Free / AI Black-hat / Authenticated / Monitor Basic / Monitor Pro.
+- Public docs dung package model: Free Hunter / AI Black-hat Mindset Check / Monitor Workspace / Enterprise PAYG.
+- Authenticated Scope la mode/branch, khong phai public package.
+- Readiness Report View/Export la export mode, khong phai scan package.
+- Free co first valuable finding limit, monitor 1 finding va 1 retest gioi han.
+- LLM stack mac dinh la DeepSeek V4 Flash triage + DeepSeek V4 Pro reasoning supervisor.
 - Moi scan di qua verification + authorization + scope snapshot.
 - Scan pipeline co phase fan-out/fan-in va tool unavailable coverage gaps.
 - Strix co 2-pass cho paid checks va khong tu chay sensitive action.
