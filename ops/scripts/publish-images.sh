@@ -5,7 +5,7 @@ namespace="${DOCKERHUB_NAMESPACE:-${1:-openhunter}}"
 tag="${IMAGE_TAG:-${2:-latest}}"
 push_images="${PUSH:-0}"
 
-nuclei_upstream="${NUCLEI_UPSTREAM_IMAGE:-projectdiscovery/nuclei:latest}"
+nuclei_upstream="${NUCLEI_UPSTREAM_IMAGE:-projectdiscovery/nuclei:v3.4.10}"
 zap_upstream="${ZAP_UPSTREAM_IMAGE:-ghcr.io/zaproxy/zaproxy:stable}"
 
 build_adapter() {

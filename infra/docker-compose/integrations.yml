@@ -3,9 +3,9 @@ services:
     image: ghcr.io/zaproxy/zaproxy:stable
     env_file:
       - ../../integrations/zaproxy/runtime/.env.example
-    command: ["zap.sh", "-daemon", "-host", "0.0.0.0", "-port", "8080", "-config", "api.disablekey=false", "-config", "api.key=${ZAP_API_KEY:-changeme}", "-config", "api.addrs.addr.name=.*", "-config", "api.addrs.addr.regex=true"]
-    ports:
-      - "8090:8080"
+    command: ["sh", "-c", "test -n \"$$ZAP_API_KEY\" && test \"$$ZAP_API_KEY\" != \"changeme\" && zap.sh -daemon -host 0.0.0.0 -port 8080 -config api.disablekey=false -config api.key=\"$$ZAP_API_KEY\" -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true"]
+    expose:
+      - "8080"
 
   zaproxy-adapter:
     build:
@@ -24,6 +24,8 @@ services:
     build:
       context: ../..
       dockerfile: integrations/nuclei/Dockerfile
+      args:
+        NUCLEI_IMAGE: ${NUCLEI_IMAGE:-projectdiscovery/nuclei:v3.4.10}
     env_file:
       - ../../integrations/nuclei/runtime/.env.example
     ports:
@@ -51,5 +53,7 @@ services:
     build:
       context: ../..
       dockerfile: integrations/playwright/Dockerfile
+    env_file:
+      - ../../integrations/playwright/runtime/.env.example
     ports:
       - "6140:6140"

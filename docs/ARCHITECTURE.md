@@ -191,7 +191,7 @@ Provider/model mapping is config behind the LLM Gateway. No business logic hardc
 
 # 9. Deployment Target
 
-First production target: Docker VPS with tagged images and rollback.
+First production target: Docker/Compose host with tagged images and rollback.
 
 Core images:
 

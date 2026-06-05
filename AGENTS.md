@@ -46,6 +46,8 @@ Cụ thể:
 ```text
 - Domain verification.
 - Scope authorization.
+- User-selected Target Type, Surface Flags, Test Intensity Mode.
+- Deterministic Scan Plan from package tier, target type, surface flags, auth scope, intensity, verified scope, policy gates, approval gates, and quota.
 - Optional test account.
 - Browser Inspector bằng Playwright/CDP.
 - ZAP passive/baseline signal.
@@ -238,7 +240,7 @@ Và kèm:
 
 Free Hunter không phải bản yếu và không phải pentest đầy đủ.
 
-Free dùng cùng Target Type và Test Intensity Mode model như paid nếu user đủ điều kiện và chấp nhận rủi ro, nhưng bị giới hạn:
+Free dùng cùng Target Type, Surface Flags và Test Intensity Mode model như paid nếu user đủ điều kiện và chấp nhận rủi ro, nhưng bị giới hạn:
 
 ```text
 - max_returned_findings = 1
@@ -360,7 +362,7 @@ Agent phải tuân thủ:
 - Mọi LLM call phải đi qua LLM Gateway.
 - Không hardcode model cụ thể trong code nghiệp vụ.
 - Chỉ dùng model alias từ config.
-- Không đưa raw credential/secret vào prompt.
+- Không đưa raw credential/secret/raw evidence/raw request-response/HAR/browser storage/private data vào prompt.
 - Không log raw prompt nếu có dữ liệu nhạy cảm.
 - Nếu cần provider/model mới, tạo adapter/config, không sửa rải rác nhiều service.
 ```
