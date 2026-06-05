@@ -11,11 +11,15 @@ func main() {
 	bin := env("NUCLEI_BIN", "nuclei")
 	http.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
 		out, err := exec.Command(bin, "-version").CombinedOutput()
-		_ = json.NewEncoder(w).Encode(map[string]any{"ok": true, "service": "nuclei-adapter", "runtime_available": err == nil, "version": string(out)})
+		runtimeAvailable := err == nil
+		if !runtimeAvailable {
+			w.WriteHeader(http.StatusServiceUnavailable)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{"ok": runtimeAvailable, "service": "nuclei-adapter", "runtime_available": runtimeAvailable, "version": string(out)})
 	})
 	http.HandleFunc("/scan", func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusAccepted)
-		_ = json.NewEncoder(w).Encode(map[string]any{"accepted": true, "tool": "nuclei"})
+		w.WriteHeader(http.StatusNotImplemented)
+		_ = json.NewEncoder(w).Encode(map[string]any{"code": "TOOL_UNAVAILABLE", "tool": "nuclei", "message": "Nuclei execution is disabled until curated templates are packaged and enforced"})
 	})
 	_ = http.ListenAndServe(":"+env("PORT", "6110"), nil)
 }

@@ -25,11 +25,12 @@ export class AuthorizationsService {
       );
     }
 
-    const domain = await this.prisma.domain.findFirst({
+    const allowedHosts = [...new Set(body.allowedHosts.map((host) => host.trim().toLowerCase()))];
+    const domains = await this.prisma.domain.findMany({
       where: {
         projectId,
         project: { organizationId: orgId },
-        hostname: { in: body.allowedHosts },
+        hostname: { in: allowedHosts },
         verifications: {
           some: {
             status: 'verified',
@@ -37,8 +38,16 @@ export class AuthorizationsService {
           },
         },
       },
+      select: { id: true, hostname: true },
     });
-    if (!domain) throw new GuardrailError('DOMAIN_NOT_VERIFIED', 'Allowed host must be verified before authorization');
+    const verifiedHosts = new Set(domains.map((domain: { hostname: string }) => domain.hostname.toLowerCase()));
+    const unverifiedHosts = allowedHosts.filter((host) => !verifiedHosts.has(host));
+    if (unverifiedHosts.length > 0) {
+      throw new GuardrailError('DOMAIN_NOT_VERIFIED', 'Every allowed host must be verified before authorization', {
+        unverifiedHosts,
+      });
+    }
+    const domain = domains[0];
 
     const requiredAccounts = authScopeRequiresAccounts(body.authScope);
     if (requiredAccounts > 0) {
@@ -66,12 +75,11 @@ export class AuthorizationsService {
         targetType: body.targetType,
         testIntensityMode: body.testIntensityMode,
         surfaceFlags: body.surfaceFlags,
-        allowedHosts: body.allowedHosts,
+        allowedHosts,
         allowedPaths: body.allowedPaths,
         excludedPaths: body.excludedPaths,
-        testAccountPermission: body.testAccountPermission ?? body.authScope !== 'none',
-        sensitiveActionPermission:
-          body.sensitiveActionPermission ?? (body.testIntensityMode !== 'safe_discovery' || body.authScope !== 'none'),
+        testAccountPermission: body.authScope !== 'none',
+        sensitiveActionPermission: body.testIntensityMode === 'aggressive_staging',
         aggressiveStagingRiskAccepted: body.aggressiveStagingRiskAccepted,
         consentText: body.consentText,
         acceptedByUserId: userId,
