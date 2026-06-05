@@ -234,31 +234,22 @@ Và kèm:
 
 ---
 
-# 7. Quy tắc Free Hunter Snapshot
+# 7. Quy tắc Free Hunter
 
-Free không được gọi là pentest đầy đủ.
+Free Hunter không phải bản yếu và không phải pentest đầy đủ.
 
-Free phải là:
-
-```text
-Free Vibe-code Hunter Snapshot
-```
-
-Free cần tạo giá trị qua:
+Free dùng cùng Target Type và Test Intensity Mode model như paid nếu user đủ điều kiện và chấp nhận rủi ro, nhưng bị giới hạn:
 
 ```text
-- Browser observation nhẹ.
-- Mini exposure hunter.
-- Frontend secret/storage hunter.
-- API surface hunter.
-- Auth/session smoke hunter.
-- AI app smoke hunter nếu phát hiện chatbot.
-- ZAP passive mini.
-- Nuclei mini safe.
-- Strix Mini Summary.
+- max_returned_findings = 1
+- max_monitored_findings = 1
+- max_retests = 1
+- cooldown_days = 7
 ```
 
-Free không được chạy full Strix adversarial mode.
+Free phải dừng sau first valuable finding. Nếu không có valuable finding trong budget, trả coverage report + hardening + limitations.
+
+Free không được mở full paid finding board/retest workspace. Free chỉ có limited finding view cho 1 monitored finding.
 
 ---
 

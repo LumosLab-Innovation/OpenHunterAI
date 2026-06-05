@@ -40,10 +40,10 @@ describe('LLMGateway', () => {
   it('refuses use cases not allowed by package', async () => {
     try {
       await gw.generate({
-        useCase: 'strix_reasoning',
+        useCase: 'attacker_hypothesis',
         projectId: 'p1',
         scanId: 's1',
-        packageTier: 'free_hunter_snapshot',
+        packageTier: 'free_hunter',
         systemPrompt: 'sys',
         userPrompt: 'hello',
       });
@@ -57,10 +57,10 @@ describe('LLMGateway', () => {
   it('blocks raw secrets in prompt (sanitizer)', async () => {
     try {
       await gw.generate({
-        useCase: 'free_hunter_summary',
+        useCase: 'signal_summary',
         projectId: 'p1',
         scanId: 's1',
-        packageTier: 'free_hunter_snapshot',
+        packageTier: 'free_hunter',
         systemPrompt: 'sys',
         userPrompt: 'token: sk-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
         // Use a key value the sanitizer text-pass can't drop fully:
@@ -79,12 +79,12 @@ describe('LLMGateway', () => {
     }
   });
 
-  it('routes free_hunter_summary primary=deepseek, fallback=openai', async () => {
+  it('routes signal_summary through low_reasoning_model primary=deepseek, fallback=openai', async () => {
     const res = await gw.generate({
-      useCase: 'free_hunter_summary',
+      useCase: 'signal_summary',
       projectId: 'p1',
       scanId: 's1',
-      packageTier: 'free_hunter_snapshot',
+      packageTier: 'free_hunter',
       systemPrompt: 'sys',
       userPrompt: 'hello world',
     });
@@ -96,10 +96,10 @@ describe('LLMGateway', () => {
     deepseek = stub('deepseek', {}, false);
     gw = new LLMGateway({ providers: { openai, claude, deepseek } });
     const res = await gw.generate({
-      useCase: 'free_hunter_summary',
+      useCase: 'signal_summary',
       projectId: 'p1',
       scanId: 's1',
-      packageTier: 'free_hunter_snapshot',
+      packageTier: 'free_hunter',
       systemPrompt: 'sys',
       userPrompt: 'hello world',
     });
@@ -112,10 +112,10 @@ describe('LLMGateway', () => {
     });
     gw = new LLMGateway({ providers: { openai, claude, deepseek } });
     const res = await gw.generate({
-      useCase: 'free_hunter_summary',
+      useCase: 'signal_summary',
       projectId: 'p1',
       scanId: 's1',
-      packageTier: 'free_hunter_snapshot',
+      packageTier: 'free_hunter',
       systemPrompt: 'sys',
       userPrompt: 'hello world',
     });
@@ -128,10 +128,10 @@ describe('LLMGateway', () => {
     deepseek = stub('deepseek', {}, false);
     gw = new LLMGateway({ providers: { openai, claude, deepseek } });
     const res = await gw.generate({
-      useCase: 'free_hunter_summary',
+      useCase: 'signal_summary',
       projectId: 'p1',
       scanId: 's1',
-      packageTier: 'free_hunter_snapshot',
+      packageTier: 'free_hunter',
       systemPrompt: 'sys',
       userPrompt: 'hello world',
     });
@@ -140,23 +140,40 @@ describe('LLMGateway', () => {
   });
 
   it('enforces max calls per scan', async () => {
-    // Free Hunter Snapshot = 1 call per scan
+    // Free Hunter = 3 calls per scan
     const first = await gw.generate({
-      useCase: 'free_hunter_summary',
+      useCase: 'signal_summary',
       projectId: 'p1',
       scanId: 's-budget',
-      packageTier: 'free_hunter_snapshot',
+      packageTier: 'free_hunter',
       systemPrompt: 'sys',
       userPrompt: 'hi',
     });
     expect(first.error).toBeUndefined();
 
+    await gw.generate({
+      useCase: 'candidate_dedupe',
+      projectId: 'p1',
+      scanId: 's-budget',
+      packageTier: 'free_hunter',
+      systemPrompt: 'sys',
+      userPrompt: 'hi',
+    });
+    await gw.generate({
+      useCase: 'first_valuable_finding',
+      projectId: 'p1',
+      scanId: 's-budget',
+      packageTier: 'free_hunter',
+      systemPrompt: 'sys',
+      userPrompt: 'hi',
+    });
+
     try {
       await gw.generate({
-        useCase: 'free_hunter_summary',
+        useCase: 'signal_summary',
         projectId: 'p1',
         scanId: 's-budget',
-        packageTier: 'free_hunter_snapshot',
+        packageTier: 'free_hunter',
         systemPrompt: 'sys',
         userPrompt: 'hi',
       });

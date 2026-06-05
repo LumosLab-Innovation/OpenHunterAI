@@ -1,117 +1,86 @@
 # OpenHunterAI - Authorized Attacker-Mindset Security Workspace
 
-End-to-end **authorized** security testing workspace for verified public web/app
-targets. The runtime is split into frontend, gateways, backend services, Go
-workers, and Go integration adapters.
+OpenHunterAI performs authorized security testing for verified public web/app targets. It uses attacker-mindset reasoning, but execution is governed by verified scope, Target Type, Surface Flags, Test Intensity Mode, package quota, policy gates, approval gates, rate limits, and strict data-handling policy.
 
-> **Rule zero.** OpenHunterAI only scans domains the operator has proven
-> ownership of. No verified authorization, no scan. No private/local targets. No
-> raw secrets or raw evidence in logs, prompts, reports, or storage.
+Rule zero: no verified authorization, no scan. No private/local targets. No raw credentials, cookies, tokens, HAR, sensitive request/response, or raw secrets in logs, prompts, reports, or storage.
 
-OpenHunterAI uses attacker-mindset reasoning, but execution is governed by
-verified scope, Product Policy Gate, User Approval Gate, and strict evidence
-sanitization.
+## Public Packages
 
-## Product Packages
-
-```txt
-Free Hunter Snapshot
-AI Black-hat Check
-Authenticated Check
-Monitor Basic
-Monitor Pro
-Readiness Report View/Export
+```text
+Free Hunter
+AI Black-hat Mindset Check
+Monitor Workspace
+Enterprise / PAYG
 ```
 
-See the canonical specs in `docs/`:
+Authenticated Scope is an auth scope inside AI Black-hat Mindset Check or Enterprise / PAYG, not a public package. Readiness Report View/Export is report/export mode, not a scan package.
 
-- `docs/ONE-PAGE.md` - product overview.
-- `docs/PRD.md` - product requirements and package model.
-- `docs/ARCHITECTURE.md` - system architecture.
-- `docs/SECURITY_GUARDRAILS.md` - non-negotiable rules.
-- `docs/WORKER_SPEC.md` - worker contracts.
-- `docs/LLM_PROVIDER_SPEC.md` - LLM gateway contract.
-- `docs/ACCEPTANCE_CRITERIA.md` - must-pass criteria.
-- `docs/PRODUCTION_READINESS.md` - remaining work to be production-ready.
-- `docs/DESIGN.md` - UI/design notes.
-- `AGENTS.md` - operator/agent rules.
+## Product Inputs
 
-`third_party_research/` is reference material only. It is not imported or used
-as runtime code.
+```text
+Target Type:
+  static_content_website
+  interactive_web_app
+  api_service
+  ai_llm_application
+
+Test Intensity Mode:
+  safe_discovery
+  controlled_attack_simulation
+  aggressive_staging
+
+Auth Scope:
+  none
+  one_account
+  two_accounts
+```
+
+Free Hunter uses the same model as paid but is quota-limited to first valuable finding, one monitored finding, one retest, and 7-day cooldown.
 
 ## Structure
 
-```txt
+```text
 frontend/                  Vite + React dashboard
-gateway/public-api/        Express public API, auth, public /v1/* routes
-gateway/internal-api/      Private API for worker/service callbacks
-backend/control-plane/     Projects, domains, authorizations, scan lifecycle
-backend/findings/          Findings and retest domain service
-backend/reporting/         Report domain service
+gateway/public-api/        Express public API
+gateway/internal-api/      Private worker/service callbacks
+backend/*                  Domain services
 workers/*                  Go worker services
-integrations/*             Go adapters + Docker runtime per tool
-shared/*                   Shared TS packages: db, events, security, llm, queue
+integrations/*             Packaged tool adapter runtimes
+shared/*                   Shared TS packages
 contracts/                 OpenAPI, AsyncAPI, JSON Schema, generated types
-infra/docker-compose/      Compose files split by runtime layer
-infra/env/                 Core infra env examples
-ops/scripts/               Local dev scripts
-third_party_research/      Reference repos only
+infra/                     Compose/env/runtime docs
+ops/scripts/               Local/dev/image scripts
+third_party_research/      Reference only, not runtime code
 ```
 
-Root files are only repo-level controls: `README.md`, `Makefile`, and `go.work`.
-Each TypeScript service owns its own `package.json`, `tsconfig.json`,
-dependencies, and env example under `*/env/*.env.example` or
-`integrations/*/runtime/.env.example`.
+## Runtime Boundary
 
-## Install
+Core calls integration adapters through ports/contracts. Core does not import tool internals.
+
+```text
+orchestrator/worker
+→ integration adapter
+→ packaged runtime image
+→ sanitized signal output
+```
+
+See `infra/INTEGRATIONS.md`.
+
+## Install And Run
 
 ```bash
 make install
-```
-
-Generate Prisma client and prepare DB:
-
-```bash
 make up-core
 make db-generate
 make db-migrate
 make db-seed
 ```
 
-## Run For Dev
-
-Run the full Docker stack:
+Run the app:
 
 ```bash
-make up-full
-```
-
-Run frontend and public API locally:
-
-```bash
-make dev-frontend      # http://localhost:3001
-make dev-public-api    # http://localhost:4000
-```
-
-Run one backend/gateway service:
-
-```bash
-make up-service BACKEND=public-api
-make up-service BACKEND=internal-api
-make up-service BACKEND=control-plane
-make up-service BACKEND=findings
-make up-service BACKEND=reporting
-
-make dev-service BACKEND=public-api
-```
-
-Run one worker:
-
-```bash
-make up-worker WORKER=orchestrator
-make up-worker WORKER=nuclei-signal
-
-make dev-worker WORKER=zap-signal
+make app
+make dev
 ```
 
 Run one integration:
@@ -122,59 +91,18 @@ make up-integration INTEGRATION=nuclei
 make up-integration INTEGRATION=openhack
 make up-integration INTEGRATION=strix
 make up-integration INTEGRATION=playwright
-
-make dev-integration INTEGRATION=nuclei
-make check-integrations
 ```
-
-## Env Files
-
-Examples are split by owner:
-
-```txt
-infra/env/core.env.example
-frontend/env/frontend.env.example
-gateway/public-api/env/public-api.env.example
-gateway/internal-api/env/internal-api.env.example
-backend/*/env/*.env.example
-workers/*/env/*.env.example
-integrations/*/runtime/.env.example
-shared/db/env/db.env.example
-shared/llm-gateway-core/env/llm.env.example
-```
-
-## Current Runtime Flow
-
-Frontend calls `gateway/public-api`. The public API writes business state and
-publishes NATS events. Go workers consume events, call integration adapters, and
-report status through `gateway/internal-api`. Integrations own Docker-first
-runtimes for ZAP, Nuclei, OpenHack, Strix, and Playwright MCP/fallback.
-
-## Operating Principles
-
-1. Scope is frozen. Every scan/retest uses the authorization snapshot captured
-   at job creation.
-2. Policy gates every action. Out-of-scope, private/local, package-exceeded,
-   budget-exceeded, and sensitive-without-approval actions are denied.
-3. Evidence is sanitized. Raw request/response, HAR, cookies, tokens,
-   credentials, and private data are not persisted.
-4. LLM calls go through the Gateway. Business logic does not call provider SDKs
-   directly.
-5. Workers fail loudly. Timeout, tool unavailable, and scanner failures become
-   explicit step failures/skips/coverage gaps.
-6. Retest is manual by finding. Monitor provides history, reminders, quota, and
-   queueing; it is not CI/CD-based automated retesting.
 
 ## Not In V1
 
-```txt
+```text
 CI/CD-based automated retesting
 deployment-triggered retest
-GitHub code scanning
-Jira/Linear integration
+GitHub/Jira integration
 VPS/cloud/private network scan
 server agent
-mobile/APK audit
-Kubernetes/secureCodeBox orchestration
-full DefectDojo integration
+mobile APK audit
+SAST/SCA/secrets scanning
+unrestricted aggressive/offensive mode
+external artifact storage core dependency
 ```

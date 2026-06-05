@@ -3,16 +3,58 @@
   "$id": "https://openhunter.local/schemas/scope-snapshot.json",
   "title": "ScopeSnapshot",
   "type": "object",
-  "required": ["allowedHosts", "allowedPaths", "excludedPaths", "testAccountPermission", "sensitiveActionPermission", "scanPackage", "verifiedDomain", "capturedAt"],
+  "required": [
+    "allowedHosts",
+    "allowedPaths",
+    "excludedPaths",
+    "testAccountPermission",
+    "sensitiveActionPermission",
+    "packageTier",
+    "scanMode",
+    "authScope",
+    "targetType",
+    "testIntensityMode",
+    "surfaceFlags",
+    "aggressiveStagingRiskAccepted",
+    "verifiedDomain",
+    "capturedAt"
+  ],
   "properties": {
     "allowedHosts": { "type": "array", "items": { "type": "string" } },
     "allowedPaths": { "type": "array", "items": { "type": "string" } },
     "excludedPaths": { "type": "array", "items": { "type": "string" } },
     "testAccountPermission": { "type": "boolean" },
     "sensitiveActionPermission": { "type": "boolean" },
-    "scanPackage": {
-      "enum": ["free_hunter_snapshot", "ai_blackhat_check", "authenticated_check"]
+    "packageTier": {
+      "enum": ["free_hunter", "ai_blackhat_mindset_check", "monitor_workspace", "enterprise_payg"]
     },
+    "scanMode": {
+      "enum": ["free_hunter", "ai_blackhat_mindset_check"]
+    },
+    "authScope": {
+      "enum": ["none", "one_account", "two_accounts"]
+    },
+    "targetType": {
+      "enum": ["static_content_website", "interactive_web_app", "api_service", "ai_llm_application"]
+    },
+    "testIntensityMode": {
+      "enum": ["safe_discovery", "controlled_attack_simulation", "aggressive_staging"]
+    },
+    "surfaceFlags": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "has_login": { "type": "boolean" },
+        "has_test_account": { "type": "boolean" },
+        "has_api_docs": { "type": "boolean" },
+        "has_file_upload": { "type": "boolean" },
+        "has_payment": { "type": "boolean" },
+        "has_admin_dashboard": { "type": "boolean" },
+        "has_webhook": { "type": "boolean" },
+        "has_chatbot_or_rag_or_tool_calling": { "type": "boolean" }
+      }
+    },
+    "aggressiveStagingRiskAccepted": { "type": "boolean" },
     "verifiedDomain": { "type": "string" },
     "capturedAt": { "type": "string", "format": "date-time" }
   }

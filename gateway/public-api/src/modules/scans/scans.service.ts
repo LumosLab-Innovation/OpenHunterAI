@@ -1,6 +1,6 @@
 import { publishEvent } from '@openhunter/event-core';
 import { getPrisma } from '@x-hunter/db';
-import { GuardrailError } from '@x-hunter/shared';
+import { buildScanPlan, DEFAULT_SURFACE_FLAGS, GuardrailError, type SurfaceFlags } from '@x-hunter/shared';
 import type { CreateScanBody } from './scans.dto.js';
 
 export class ScansService {
@@ -28,31 +28,48 @@ export class ScansService {
     if (authz.expiresAt && authz.expiresAt < new Date()) {
       throw new GuardrailError('AUTHORIZATION_EXPIRED', 'Scan authorization expired');
     }
-    if (body.mode !== authz.scanPackage) {
-      throw new GuardrailError(
-        'PACKAGE_DOES_NOT_PERMIT_ACTION',
-        `Scan mode ${body.mode} requires matching authorization package ${authz.scanPackage}`,
-      );
-    }
-
     const domain = await this.prisma.domain.findUnique({ where: { id: authz.domainId } });
+    const project = await this.prisma.project.findUnique({ where: { id: projectId } });
+    const surfaceFlags = { ...DEFAULT_SURFACE_FLAGS, ...(authz.surfaceFlags as Partial<SurfaceFlags>) };
     const scope = {
       allowedHosts: authz.allowedHosts as string[],
       allowedPaths: authz.allowedPaths as string[],
       excludedPaths: authz.excludedPaths as string[],
       testAccountPermission: authz.testAccountPermission,
       sensitiveActionPermission: authz.sensitiveActionPermission,
-      scanPackage: authz.scanPackage,
+      packageTier: project?.packageTier ?? 'free_hunter',
+      scanMode: authz.scanMode,
+      authScope: authz.authScope,
+      targetType: authz.targetType,
+      testIntensityMode: authz.testIntensityMode,
+      surfaceFlags,
+      aggressiveStagingRiskAccepted: authz.aggressiveStagingRiskAccepted,
       verifiedDomain: domain?.hostname ?? '',
       capturedAt: new Date().toISOString(),
     };
+    const scanPlan = buildScanPlan({
+      packageTier: scope.packageTier,
+      scanMode: authz.scanMode,
+      targetType: authz.targetType,
+      surfaceFlags,
+      authScope: authz.authScope,
+      testIntensityMode: authz.testIntensityMode,
+      allowedHosts: scope.allowedHosts,
+      allowedPaths: scope.allowedPaths,
+      excludedPaths: scope.excludedPaths,
+    });
 
     const scan = await this.prisma.scanJob.create({
       data: {
         projectId,
         authorizationId: authz.id,
         initiatorUserId: userId,
-        mode: body.mode,
+        mode: authz.scanMode,
+        targetType: authz.targetType,
+        authScope: authz.authScope,
+        testIntensityMode: authz.testIntensityMode,
+        surfaceFlags,
+        scanPlan,
         state: 'queued',
         scopeSnapshot: scope,
       },
@@ -61,8 +78,9 @@ export class ScansService {
       scanId: scan.id,
       projectId,
       authorizationId: authz.id,
-      mode: body.mode,
+      mode: authz.scanMode,
       scope,
+      scanPlan,
     });
     return scan;
   }

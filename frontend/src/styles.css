@@ -113,6 +113,28 @@ nav a.active {
   margin: 16px 0;
 }
 
+.checkbox-grid {
+  display: grid;
+  gap: 8px 14px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  width: 100%;
+}
+
+.checkbox-grid label,
+.risk-copy {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  gap: 8px;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+  width: 100%;
+}
+
 input,
 select,
 button,

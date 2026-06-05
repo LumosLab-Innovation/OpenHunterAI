@@ -10,13 +10,16 @@
 import type { PackageTier } from '@x-hunter/shared';
 
 export type LLMUseCase =
-  | 'free_hunter_summary'
-  | 'openhack_hunter_summary'
-  | 'strix_reasoning'
-  | 'finding_classification'
-  | 'severity_confidence'
-  | 'human_report'
-  | 'ai_dev_report'
+  | 'signal_summary'
+  | 'candidate_dedupe'
+  | 'suspicious_surface_ranking'
+  | 'first_valuable_finding'
+  | 'attacker_hypothesis'
+  | 'validation_plan'
+  | 'access_control_reasoning'
+  | 'api_reasoning'
+  | 'llm_app_reasoning'
+  | 'report_generation'
   | 'fix_prompt'
   | 'retest_reasoning';
 

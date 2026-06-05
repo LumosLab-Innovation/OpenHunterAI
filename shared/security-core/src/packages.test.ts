@@ -1,29 +1,38 @@
 import { describe, expect, it } from 'vitest';
 import {
-  SCAN_PACKAGE_LABELS,
-  SCAN_PACKAGES,
-  isAuthenticatedScanPackage,
+  AUTH_SCOPES,
+  COMMERCIAL_PACKAGES,
+  DEFAULT_SURFACE_FLAGS,
+  packageAllowsScanMode,
+  PACKAGE_LABELS,
+  SCAN_MODES,
+  TARGET_TYPES,
+  TEST_INTENSITY_MODES,
 } from './packages.js';
 
-describe('scan package model', () => {
-  it('exposes only the v1 canonical scan packages', () => {
-    expect(SCAN_PACKAGES).toEqual([
-      'free_hunter_snapshot',
-      'ai_blackhat_check',
-      'authenticated_check',
+describe('product package model', () => {
+  it('exposes the canonical public packages and scan modes', () => {
+    expect(COMMERCIAL_PACKAGES).toEqual([
+      'free_hunter',
+      'ai_blackhat_mindset_check',
+      'monitor_workspace',
+      'enterprise_payg',
     ]);
+    expect(SCAN_MODES).toEqual(['free_hunter', 'ai_blackhat_mindset_check']);
   });
 
-  it('keeps user-facing labels aligned with docs', () => {
-    expect(SCAN_PACKAGE_LABELS).toEqual({
-      free_hunter_snapshot: 'Free Hunter Snapshot',
-      ai_blackhat_check: 'AI Black-hat Check',
-      authenticated_check: 'Authenticated Check',
-    });
+  it('keeps authenticated scope as an onboard dimension, not a public package', () => {
+    expect(AUTH_SCOPES).toEqual(['none', 'one_account', 'two_accounts']);
+    expect(TARGET_TYPES).toContain('api_service');
+    expect(TEST_INTENSITY_MODES).toContain('controlled_attack_simulation');
+    expect(DEFAULT_SURFACE_FLAGS.has_chatbot_or_rag_or_tool_calling).toBe(false);
   });
 
-  it('identifies the authenticated scan package explicitly', () => {
-    expect(isAuthenticatedScanPackage('authenticated_check')).toBe(true);
-    expect(isAuthenticatedScanPackage('ai_blackhat_check')).toBe(false);
+  it('maps package permission to scan modes', () => {
+    expect(PACKAGE_LABELS.enterprise_payg).toBe('Enterprise / PAYG');
+    expect(packageAllowsScanMode('free_hunter', 'free_hunter')).toBe(true);
+    expect(packageAllowsScanMode('free_hunter', 'ai_blackhat_mindset_check')).toBe(false);
+    expect(packageAllowsScanMode('monitor_workspace', 'free_hunter')).toBe(false);
+    expect(packageAllowsScanMode('enterprise_payg', 'ai_blackhat_mindset_check')).toBe(true);
   });
 });

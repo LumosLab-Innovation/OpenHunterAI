@@ -1,22 +1,26 @@
 import { describe, expect, it } from 'vitest';
-import { PACKAGE_BUDGETS } from './config.js';
+import { PACKAGE_BUDGETS, USE_CASE_TO_ALIAS } from './config.js';
 
-describe('LLM package budgets', () => {
-  it('uses only canonical v1 scan package keys', () => {
+describe('LLM package budgets and aliases', () => {
+  it('uses canonical commercial package keys', () => {
     expect(Object.keys(PACKAGE_BUDGETS).sort()).toEqual([
-      'ai_blackhat_check',
-      'authenticated_check',
-      'free_hunter_snapshot',
+      'ai_blackhat_mindset_check',
+      'enterprise_payg',
+      'free_hunter',
+      'monitor_workspace',
     ]);
   });
 
-  it('maps canonical packages to the intended existing budget profiles', () => {
-    const budgets = PACKAGE_BUDGETS as Record<string, (typeof PACKAGE_BUDGETS)[keyof typeof PACKAGE_BUDGETS]>;
+  it('routes product logic through low/high reasoning aliases', () => {
+    expect(USE_CASE_TO_ALIAS.signal_summary).toBe('low_reasoning_model');
+    expect(USE_CASE_TO_ALIAS.candidate_dedupe).toBe('low_reasoning_model');
+    expect(USE_CASE_TO_ALIAS.first_valuable_finding).toBe('high_reasoning_model');
+    expect(USE_CASE_TO_ALIAS.validation_plan).toBe('high_reasoning_model');
+  });
 
-    expect(budgets.free_hunter_snapshot.maxLLMCallsPerScan).toBe(1);
-    expect(budgets.ai_blackhat_check.maxLLMCallsPerScan).toBe(20);
-    expect(budgets.authenticated_check.maxLLMCallsPerScan).toBe(35);
-    expect(budgets.ai_blackhat_check.allowedUseCases).toContain('strix_reasoning');
-    expect(budgets.authenticated_check.allowedUseCases).toContain('retest_reasoning');
+  it('enforces Free Hunter limits while allowing first valuable finding reasoning', () => {
+    expect(PACKAGE_BUDGETS.free_hunter.maxLLMCallsPerScan).toBe(3);
+    expect(PACKAGE_BUDGETS.free_hunter.allowedUseCases).toContain('first_valuable_finding');
+    expect(PACKAGE_BUDGETS.free_hunter.allowedUseCases).not.toContain('attacker_hypothesis');
   });
 });

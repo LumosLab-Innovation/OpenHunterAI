@@ -62,7 +62,7 @@ model Project {
   id             String       @id @default(cuid())
   organizationId String       @map("organization_id")
   name           String
-  packageTier    PackageTier  @default(free_hunter_snapshot) @map("package_tier")
+  packageTier    PackageTier  @default(free_hunter) @map("package_tier")
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -79,9 +79,10 @@ model Project {
 }
 
 enum PackageTier {
-  free_hunter_snapshot
-  ai_blackhat_check
-  authenticated_check
+  free_hunter
+  ai_blackhat_mindset_check
+  monitor_workspace
+  enterprise_payg
 }
 
 model Domain {
@@ -131,12 +132,17 @@ model ScanAuthorization {
   id                         String      @id @default(cuid())
   projectId                  String      @map("project_id")
   domainId                   String      @map("domain_id")
-  scanPackage                PackageTier @map("scan_package")
+  scanMode                   ScanMode    @map("scan_mode")
+  authScope                  AuthScope   @default(none) @map("auth_scope")
+  targetType                 TargetType  @map("target_type")
+  testIntensityMode          TestIntensityMode @map("test_intensity_mode")
+  surfaceFlags               Json        @map("surface_flags")
   allowedHosts               Json        @map("allowed_hosts")
   allowedPaths               Json        @map("allowed_paths")
   excludedPaths              Json        @map("excluded_paths")
   testAccountPermission      Boolean     @default(false) @map("test_account_permission")
   sensitiveActionPermission  Boolean     @default(false) @map("sensitive_action_permission")
+  aggressiveStagingRiskAccepted Boolean @default(false) @map("aggressive_staging_risk_accepted")
   consentText                String      @map("consent_text")
   acceptedByUserId           String      @map("accepted_by_user_id")
   expiresAt                  DateTime?   @map("expires_at")
@@ -181,9 +187,27 @@ enum ScanState {
 }
 
 enum ScanMode {
-  free_hunter_snapshot
-  ai_blackhat_check
-  authenticated_check
+  free_hunter
+  ai_blackhat_mindset_check
+}
+
+enum AuthScope {
+  none
+  one_account
+  two_accounts
+}
+
+enum TargetType {
+  static_content_website
+  interactive_web_app
+  api_service
+  ai_llm_application
+}
+
+enum TestIntensityMode {
+  safe_discovery
+  controlled_attack_simulation
+  aggressive_staging
 }
 
 model ScanJob {
@@ -192,6 +216,11 @@ model ScanJob {
   authorizationId    String              @map("authorization_id")
   initiatorUserId     String             @map("initiator_user_id")
   mode                ScanMode
+  targetType          TargetType         @map("target_type")
+  authScope           AuthScope          @default(none) @map("auth_scope")
+  testIntensityMode   TestIntensityMode  @map("test_intensity_mode")
+  surfaceFlags        Json               @map("surface_flags")
+  scanPlan            Json?              @map("scan_plan")
   state               ScanState          @default(queued)
   scopeSnapshot       Json               @map("scope_snapshot")
   startedAt           DateTime?          @map("started_at")
@@ -332,7 +361,7 @@ model Finding {
 // =============================================================================
 
 enum ReportKind {
-  free_snapshot
+  free_hunter
   human
   ai_dev
 }
@@ -344,8 +373,6 @@ model Report {
   kind          ReportKind
   /// Markdown / structured body. MUST be sanitized.
   body          String
-  /// Object-storage key when an out-of-band export exists (PDF, HTML).
-  storageKey    String?    @map("storage_key")
   generatedAt   DateTime   @default(now()) @map("generated_at")
   project       Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
   scanJob       ScanJob    @relation(fields: [scanJobId], references: [id])
@@ -409,9 +436,8 @@ enum RetestResult {
 }
 
 enum RetestKind {
-  auto
+  manual
   ai_assisted
-  expert
 }
 
 model RetestRun {
@@ -435,23 +461,8 @@ model RetestRun {
 }
 
 // =============================================================================
-// Evidence / credit / audit
+// Credit / audit
 // =============================================================================
-
-model EvidenceItem {
-  id          String   @id @default(cuid())
-  scanJobId   String   @map("scan_job_id")
-  kind        String
-  storageKey  String   @map("storage_key")
-  contentType String?  @map("content_type")
-  /// Always true. We never store raw secrets; ciphertext blobs use a
-  /// separate dedicated column on TestAccount.
-  sanitized   Boolean  @default(true)
-  createdAt   DateTime @default(now()) @map("created_at")
-
-  @@index([scanJobId])
-  @@map("evidence_items")
-}
 
 model CreditEntry {
   id          String   @id @default(cuid())

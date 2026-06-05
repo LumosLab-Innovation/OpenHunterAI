@@ -1,142 +1,125 @@
-/**
- * Alias config + budget config for the LLM Gateway.
- *
- * Aliases and budgets are read from environment variables (see
- * shared/llm-gateway-core/env/llm.env.example and LLM_PROVIDER_SPEC.md §4 / §7).
- * Business logic only ever references
- * an alias (e.g. `llm.blackhat.reasoning`) — never a provider or model id.
- */
-
 import type { AliasRoute, LLMBudget, LLMUseCase, ProviderName } from './types.js';
 import type { PackageTier } from '@x-hunter/shared';
 
-export type ModelAlias =
-  | 'llm.free.summary'
-  | 'llm.hunter.summary'
-  | 'llm.blackhat.reasoning'
-  | 'llm.auth.reasoning'
-  | 'llm.report.writer'
-  | 'llm.fix_prompt.writer'
-  | 'llm.retest.reasoning';
+export type ModelAlias = 'low_reasoning_model' | 'high_reasoning_model';
 
 const ENV = process.env;
 
+function envProvider(name: string, fallback: ProviderName): ProviderName {
+  const value = ENV[name] as ProviderName | undefined;
+  return value === 'openai' || value === 'claude' || value === 'deepseek' ? value : fallback;
+}
+
 function envModel(name: string, fallback: string): string {
-  const v = ENV[name];
-  return v && v.length > 0 ? v : fallback;
+  const value = ENV[name];
+  return value && value.length > 0 ? value : fallback;
 }
 
 export const ALIAS_ROUTES: Record<ModelAlias, AliasRoute> = {
-  'llm.free.summary': {
+  low_reasoning_model: {
     primary: {
-      provider: 'deepseek',
-      model: envModel('DEEPSEEK_FREE_SUMMARY_MODEL', 'deepseek-chat'),
+      provider: envProvider('LLM_LOW_REASONING_PROVIDER', 'deepseek'),
+      model: envModel('LLM_LOW_REASONING_MODEL', 'deepseek-v4-flash'),
     },
-    fallback: { provider: 'openai', model: envModel('OPENAI_FREE_SUMMARY_MODEL', 'gpt-4o-mini') },
-  },
-  'llm.hunter.summary': {
-    primary: { provider: 'openai', model: envModel('OPENAI_FREE_SUMMARY_MODEL', 'gpt-4o-mini') },
     fallback: {
-      provider: 'deepseek',
-      model: envModel('DEEPSEEK_FREE_SUMMARY_MODEL', 'deepseek-chat'),
+      provider: envProvider('LLM_LOW_REASONING_FALLBACK_PROVIDER', 'openai'),
+      model: envModel('LLM_LOW_REASONING_FALLBACK_MODEL', 'gpt-4o-mini'),
     },
   },
-  'llm.blackhat.reasoning': {
+  high_reasoning_model: {
     primary: {
-      provider: 'claude',
-      model: envModel('CLAUDE_BLACKHAT_REASONING_MODEL', 'claude-3-5-sonnet-latest'),
+      provider: envProvider('LLM_HIGH_REASONING_PROVIDER', 'deepseek'),
+      model: envModel('LLM_HIGH_REASONING_MODEL', 'deepseek-v4-pro'),
     },
-    fallback: { provider: 'openai', model: envModel('OPENAI_BLACKHAT_REASONING_MODEL', 'gpt-4o') },
-  },
-  'llm.auth.reasoning': {
-    primary: {
-      provider: 'claude',
-      model: envModel('CLAUDE_AUTH_REASONING_MODEL', 'claude-3-5-sonnet-latest'),
+    fallback: {
+      provider: envProvider('LLM_HIGH_REASONING_FALLBACK_PROVIDER', 'openai'),
+      model: envModel('LLM_HIGH_REASONING_FALLBACK_MODEL', 'gpt-4o'),
     },
-    fallback: { provider: 'openai', model: envModel('OPENAI_AUTH_REASONING_MODEL', 'gpt-4o') },
-  },
-  'llm.report.writer': {
-    primary: { provider: 'openai', model: envModel('OPENAI_REPORT_MODEL', 'gpt-4o-mini') },
-    fallback: { provider: 'deepseek', model: envModel('DEEPSEEK_REPORT_MODEL', 'deepseek-chat') },
-  },
-  'llm.fix_prompt.writer': {
-    primary: { provider: 'openai', model: envModel('OPENAI_REPORT_MODEL', 'gpt-4o-mini') },
-    fallback: { provider: 'deepseek', model: envModel('DEEPSEEK_REPORT_MODEL', 'deepseek-chat') },
-  },
-  'llm.retest.reasoning': {
-    primary: {
-      provider: 'claude',
-      model: envModel('CLAUDE_RETEST_REASONING_MODEL', 'claude-3-5-sonnet-latest'),
-    },
-    fallback: { provider: 'openai', model: envModel('OPENAI_RETEST_REASONING_MODEL', 'gpt-4o') },
   },
 };
 
-/**
- * Mapping from use case → alias.
- * One alias may cover several use cases.
- */
 export const USE_CASE_TO_ALIAS: Record<LLMUseCase, ModelAlias> = {
-  free_hunter_summary: 'llm.free.summary',
-  openhack_hunter_summary: 'llm.hunter.summary',
-  strix_reasoning: 'llm.blackhat.reasoning',
-  finding_classification: 'llm.blackhat.reasoning',
-  severity_confidence: 'llm.blackhat.reasoning',
-  human_report: 'llm.report.writer',
-  ai_dev_report: 'llm.report.writer',
-  fix_prompt: 'llm.fix_prompt.writer',
-  retest_reasoning: 'llm.retest.reasoning',
+  signal_summary: 'low_reasoning_model',
+  candidate_dedupe: 'low_reasoning_model',
+  suspicious_surface_ranking: 'low_reasoning_model',
+  first_valuable_finding: 'high_reasoning_model',
+  attacker_hypothesis: 'high_reasoning_model',
+  validation_plan: 'high_reasoning_model',
+  access_control_reasoning: 'high_reasoning_model',
+  api_reasoning: 'high_reasoning_model',
+  llm_app_reasoning: 'high_reasoning_model',
+  report_generation: 'high_reasoning_model',
+  fix_prompt: 'high_reasoning_model',
+  retest_reasoning: 'high_reasoning_model',
 };
 
-/** Package → budget. See LLM_PROVIDER_SPEC.md §7.1. */
 export const PACKAGE_BUDGETS: Record<PackageTier, LLMBudget> = {
-  free_hunter_snapshot: {
-    maxLLMCallsPerScan: 1,
+  free_hunter: {
+    maxLLMCallsPerScan: 3,
     maxInputTokensPerCall: 6000,
     maxOutputTokensPerCall: 1200,
     defaultTimeoutMs: 30_000,
-    allowedUseCases: ['free_hunter_summary', 'openhack_hunter_summary'],
-  },
-  ai_blackhat_check: {
-    maxLLMCallsPerScan: 20,
-    maxInputTokensPerCall: 20000,
-    maxOutputTokensPerCall: 4000,
-    defaultTimeoutMs: 60_000,
     allowedUseCases: [
-      'strix_reasoning',
-      'finding_classification',
-      'severity_confidence',
-      'human_report',
-      'ai_dev_report',
-      'fix_prompt',
-      'retest_reasoning',
-      'openhack_hunter_summary',
+      'signal_summary',
+      'candidate_dedupe',
+      'suspicious_surface_ranking',
+      'first_valuable_finding',
+      'report_generation',
     ],
   },
-  authenticated_check: {
-    maxLLMCallsPerScan: 35,
-    maxInputTokensPerCall: 24000,
+  ai_blackhat_mindset_check: {
+    maxLLMCallsPerScan: 24,
+    maxInputTokensPerCall: 22000,
     maxOutputTokensPerCall: 5000,
-    defaultTimeoutMs: 90_000,
+    defaultTimeoutMs: 75_000,
     allowedUseCases: [
-      'strix_reasoning',
-      'finding_classification',
-      'severity_confidence',
-      'human_report',
-      'ai_dev_report',
+      'signal_summary',
+      'candidate_dedupe',
+      'suspicious_surface_ranking',
+      'first_valuable_finding',
+      'attacker_hypothesis',
+      'validation_plan',
+      'access_control_reasoning',
+      'api_reasoning',
+      'llm_app_reasoning',
+      'report_generation',
       'fix_prompt',
       'retest_reasoning',
-      'openhack_hunter_summary',
+    ],
+  },
+  monitor_workspace: {
+    maxLLMCallsPerScan: 4,
+    maxInputTokensPerCall: 12000,
+    maxOutputTokensPerCall: 2500,
+    defaultTimeoutMs: 45_000,
+    allowedUseCases: ['report_generation', 'fix_prompt', 'retest_reasoning'],
+  },
+  enterprise_payg: {
+    maxLLMCallsPerScan: 60,
+    maxInputTokensPerCall: 30000,
+    maxOutputTokensPerCall: 6000,
+    defaultTimeoutMs: 90_000,
+    allowedUseCases: [
+      'signal_summary',
+      'candidate_dedupe',
+      'suspicious_surface_ranking',
+      'first_valuable_finding',
+      'attacker_hypothesis',
+      'validation_plan',
+      'access_control_reasoning',
+      'api_reasoning',
+      'llm_app_reasoning',
+      'report_generation',
+      'fix_prompt',
+      'retest_reasoning',
     ],
   },
 };
 
-/** Resolve which alias to use for a given use case. */
 export function aliasFor(useCase: LLMUseCase): ModelAlias {
   return USE_CASE_TO_ALIAS[useCase];
 }
 
-/** Resolve the AliasRoute for an alias. */
 export function routeFor(alias: ModelAlias): AliasRoute {
   return ALIAS_ROUTES[alias];
 }
