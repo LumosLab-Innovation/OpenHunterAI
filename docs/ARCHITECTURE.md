@@ -1,365 +1,147 @@
 # ARCHITECTURE.md - OpenHunterAI
 
-> Kien truc v1 cho **Authorized Attacker-Mindset Security Workspace**. He thong chi kiem thu web/app public da verify domain va co scan authorization.
+> V1 architecture for an **Authorized Attacker-Mindset Security Workspace**. Only verified public web/app targets are in scope.
 
 ---
 
-# 1. Scope kien truc v1
-
-He thong phuc vu flow:
+# 1. High-Level Flow
 
 ```text
-Domain verified
-→ Scope authorization
-→ Optional test account
-→ Phase-based signal gathering
-→ Strix hypothesis / validation reasoning
-→ Sanitized reports + findings
-→ Manual retest / Monitor queue
+web dashboard
+→ public API
+→ Postgres + NATS/queue
+→ scan orchestrator
+→ deterministic Scan Plan
+→ worker families / integration adapters
+→ LLM Gateway
+→ sanitized findings/reports in Postgres
+→ manual retest / Monitor Workspace
 ```
 
-Khong thiet ke cho:
-
-```text
-- CI/CD-based automated retesting
-- deployment-triggered retest
-- GitHub code scanning
-- Jira/Linear workflow
-- VPS/cloud/private network scan
-- mobile APK audit
-```
+Core v1 stores sanitized reports/findings in Postgres. External artifact storage is not a core v1 dependency. It may return later only for downloadable sanitized PDF/HTML export, screenshots, or evidence packages with explicit artifact policy.
 
 ---
 
-# 2. High-level architecture
+# 2. Product Model In Architecture
+
+Public packages:
 
 ```text
-apps/web
-  ↓
-apps/api
-  ↓
-Postgres / Redis / Object Storage
-  ↓
-Scan Orchestrator
-  ↓
-Step queues / worker families
-  - browser-worker
-  - zap-worker
-  - nuclei-worker
-  - openhack-worker
-  - strix-worker
-  - report-worker
-  - retest-worker
-  ↓
-LLM Gateway
-  ↓
-DeepSeek V4 Flash / DeepSeek V4 Pro
-  ↓
-Optional Enterprise/PAYG escalation providers
+free_hunter
+ai_blackhat_mindset_check
+monitor_workspace
+enterprise_payg
 ```
 
-V1 co the dung BullMQ + Postgres state. Redis/BullMQ la transport; Postgres la durable source of truth cho `scan_jobs`, `scan_steps`, findings va reports.
+Scan modes:
+
+```text
+free_hunter
+ai_blackhat_mindset_check
+```
+
+Auth Scope is stored as:
+
+```text
+none
+one_account
+two_accounts
+```
+
+Authenticated Scope is a scope/mode inside AI Black-hat Mindset Check or Enterprise / PAYG, not a public package.
 
 ---
 
-# 3. Main components
+# 3. Scan Plan Builder
 
-## 3.1. apps/web
-
-Customer-facing dashboard:
+The orchestrator builds a deterministic Scan Plan from:
 
 ```text
-- project dashboard
-- domain verification UI
-- scope authorization UI
-- test account UI
-- scan progress
-- reports/export
-- finding board cho paid checks va Monitor
-- manual retest queue
-- user approval gate
-```
-
-## 3.2. apps/api
-
-Backend API:
-
-```text
-- auth/session
-- projects/domains/verifications
-- scan authorizations
-- scan jobs/progress
-- findings/reports
-- approvals/retest
-- Monitor subscription state/quotas
-- health/tool availability
-```
-
-## 3.3. Scan Orchestrator
-
-Orchestrator la scheduler/state coordinator, khong nen la mot long-running process tu chay tat ca tools.
-
-```text
-- validate domain verification va authorization
-- tao scope snapshot
-- tao scan_steps theo phase
-- enqueue step jobs cho worker family phu hop
-- fan-out/fan-in phases
-- track progress, timeout, retry, coverage gaps
-- enforce package/budget/policy gates
-- mark completed / completed_with_gaps / failed
-```
-
-## 3.4. Worker families
-
-Workers chay tach khoi web/API process. Moi worker co:
-
-```text
-- timeout
-- retry limit
-- rate limit neu can
-- structured logs
-- scan_id
-- project_id
-- worker_type
-- error handling
-- no fake success
-```
-
----
-
-# 4. Phase fan-out / fan-in scan pipeline
-
-## 4.1. Free Hunter
-
-```text
-Phase 0 - precheck
-  verify domain, authorization, scope, private IP blocking
-
-Phase 1 - safe signal fan-out
-  browser lightweight observation
-  ZAP passive mini
-  Nuclei mini-safe
-
-Phase 2 - hunter + triage
-  OpenHack mini hunters
-  DeepSeek V4 Flash triage/ranking
-  produce compact sanitized suspicious surfaces
-
-Phase 3 - first valuable finding reasoning
-  DeepSeek V4 Pro reasoning supervisor
-  decide first valuable finding
-  produce severity/confidence/remediation/retest suggestion
-
-Phase 4 - early stop / report
-  if valuable finding found:
-    stop scan
-    create report for that finding
-    create 1 monitored finding slot
-    allow 1 retest
-  else:
-    coverage report + hardening + limitations
-```
-
-Free output la limited workspace: report + 1 monitored finding + 1 retest. Free khong mo full paid finding board/retest workflow.
-
-## 4.2. AI Black-hat Mindset Check
-
-```text
-Phase 0 - precheck
-  verify domain, authorization, scope, package budget
-
-Phase 1 - signal fan-out
-  browser deeper observation
-  ZAP passive/baseline
-  Nuclei standard-safe
-  OpenHack rule hunters where input is ready
-
-Phase 2 - fan-in normalize
-  merge/dedupe candidates
-  produce compact sanitized context
-  record coverage gaps for failed/skipped tools
-
-Phase 3 - hypothesis reasoning
-  DeepSeek V4 Pro creates attacker hypotheses, risk areas, safe validation plan
-
-Phase 4 - governed validation
-  run safe validation in scope
-  require User Approval Gate for sensitive actions
-
-Phase 5 - validation reasoning + report
-  DeepSeek V4 Pro prioritizes findings, severity/confidence, remediation/fix prompt, retest scenario
-  Human Report + AI/dev Report
-```
-
-## 4.3. Authenticated Scope branch
-
-Authenticated Scope la branch cua AI Black-hat Mindset Check hoac Enterprise/PAYG, khong phai public scan package rieng.
-
-Authenticated Scope dung pipeline AI Black-hat Mindset Check va them:
-
-```text
-- encrypted test account retrieval
-- authenticated browser context
-- session/cookie/token attribute checks
-- 1-account auth/session/private-data signals
-- 2-account User A/User B access-control checks
-- approval-gated validation for sensitive access-control actions
-```
-
-## 4.4. Monitor retest
-
-Monitor khong scan lai toan bo app. Monitor chi queue manual retest theo finding:
-
-```text
-finding marked Ready for Retest
-→ retest scope snapshot
-→ approval if sensitive
-→ narrow scenario execution
-→ result: Fixed / Still Vulnerable / Partially Fixed / Cannot Verify
-```
-
----
-
-# 5. Worker architecture
-
-## 5.1. Browser Worker
-
-Dung Playwright/CDP de mo app that.
-
-Input:
-
-```text
-- scan_id
-- project_id
-- mode: free | ai_blackhat | authenticated
-- target URLs
-- allowed scope
-- excluded paths
-- optional encrypted test account reference
+packageTier
+scanMode
+targetType
+surfaceFlags
+authScope
+testIntensityMode
+allowedHosts/paths
+policy gates
+budget/quota
 ```
 
 Output:
 
 ```text
-- route summary
-- API endpoint summary
-- network metadata
-- cookie attribute summary
-- storage key summary
-- console errors
-- sanitized screenshot/evidence refs if safe
+enabledWorkers
+enabledHunters
+skippedHunters with reason
+allowedValidationLevel
+budgets
+requiresApprovalForSensitiveActions
+notes / coverage expectations
 ```
 
-Khong persist raw credential, cookie jar, full HAR hoac raw storage values.
-
-## 5.2. ZAP Worker
-
-Dung ZAP passive/baseline signals.
-
-```text
-- Free: passive mini
-- AI Black-hat / Authenticated: passive/baseline within scope
-- No broad active scan by default
-- TOOL_UNAVAILABLE → skipped + coverage gap, not fake success
-```
-
-## 5.3. Nuclei Worker
-
-Dung Nuclei engine + internal curated templates.
-
-```text
-- Free: mini-safe profile
-- AI Black-hat / Authenticated: standard-safe profile
-- No destructive/intrusive/bruteforce/dos/malware/credential-attack templates
-- TOOL_UNAVAILABLE → skipped + coverage gap
-```
-
-## 5.4. OpenHack Worker
-
-Rule/schema hunter layer:
-
-```text
-- mini exposure hunter
-- frontend secret/storage hunter
-- API surface hunter
-- auth/session smoke hunter
-- AI app smoke hunter if chatbot/LLM detected
-- finding/warning/hardening/coverage gap classification
-```
-
-## 5.5. Strix Worker
-
-Strix la attacker-mindset reasoning, khong phai uncontrolled action runner.
-
-```text
-- Free: Mini Summary only.
-- AI Black-hat: hypothesis pass + validation reasoning pass.
-- Authenticated: access-control reasoning with sanitized authenticated context.
-```
-
-Strix output:
-
-```text
-- attacker hypotheses
-- safe validation plan
-- prioritized findings
-- severity/confidence
-- remediation
-- fix prompt
-- retest scenario proposal
-```
-
-Sensitive action phai qua Product Policy Gate va User Approval Gate.
-
-## 5.6. Report Worker
-
-Tao:
-
-```text
-- Hunter Snapshot Report
-- Human-readable report
-- AI/dev-readable report
-- Auth Security Report
-- Readiness Report View/Export
-```
-
-Tat ca reports dung sanitized summaries. Khong report raw credential, raw token/cookie, raw request/response nhay cam.
-
-## 5.7. Retest Worker
-
-Manual single-finding retest:
-
-```text
-- finding_id
-- retest_scenario
-- scope_snapshot
-- approval state if sensitive
-- max runtime
-```
+There is no profiler worker. LLM does not select Target Type or worker set.
 
 ---
 
-# 6. LLM Gateway
+# 4. Worker / Integration Runtime Boundary
 
-Moi LLM call tu OpenHack, Strix, Report hoac Retest di qua LLM Gateway:
+Workers and adapters are internal. Public package names are never worker names.
 
 ```text
-Prompt Sanitizer
-→ Budget & Policy Check
-→ Provider Router
-→ Provider Adapter
-→ Response Normalizer
-→ Audit + Metrics + Cost Log
+browser-worker
+zap-worker
+nuclei-worker
+openhack-worker
+strix-worker
+report-worker
+retest-worker
 ```
 
-Business logic khong goi truc tiep provider SDK.
+Integration runtimes are packaged behind adapter ports:
+
+```text
+core/orchestrator
+→ adapter health/execution API
+→ packaged runtime image
+→ sanitized signal output
+```
+
+Core does not import or know tool internals. Tool unavailable becomes skipped/coverage_gap, never fake success.
 
 ---
 
-# 7. Data stores
+# 5. Target Type Matrix
 
-## 7.1. Postgres
+| Target Type | Browser | ZAP | Nuclei | OpenHack | Strix |
+|---|---|---|---|---|---|
+| static_content_website | light | passive mini | exposure/config mini | content exposure + hardening | candidate only |
+| interactive_web_app | medium/deep | passive/baseline | standard-safe | API/session/auth/admin-like | hypothesis + validation reasoning |
+| api_service | docs/UI only | API passive/spec if available | API exposure/templates | API surface/auth/data | API abuse/data exposure reasoning |
+| ai_llm_application | chat-focused | hygiene only | exposure only | prompt/RAG/tool-call hunters | prompt/RAG/tool-call reasoning |
+
+---
+
+# 6. Test Intensity
+
+```text
+safe_discovery
+  observe, passive/baseline, hypothesis, little/no validation
+
+controlled_attack_simulation
+  controlled validation in scope, benign PoC where allowed, default paid mode
+
+aggressive_staging
+  staging/dev/test only, more hypothesis/validation attempts, explicit risk acceptance
+```
+
+Aggressive Staging is still blocked from malware, persistence, stealth/evasion, credential stuffing/bruteforce, destructive wipe, raw secret exfiltration, and out-of-scope scan.
+
+---
+
+# 7. Data Stores
+
+Postgres:
 
 ```text
 users
@@ -381,81 +163,41 @@ credit_ledger
 audit_logs
 ```
 
-## 7.2. Redis
+NATS/queue:
 
 ```text
-- job queues
-- queue events/progress
-- worker coordination
-- rate limits
+job events
+scan step coordination
+worker progress
+rate-limit / retry coordination
 ```
 
-## 7.3. Object Storage
-
-Dung cho sanitized artifacts only:
-
-```text
-- sanitized screenshots if safe
-- sanitized report exports
-- sanitized evidence summaries
-```
-
-Khong persist raw request/response, raw HAR, raw cookie, raw token, raw credential hoac private data chua sanitize.
+No raw evidence persistence in DB, logs, reports, prompts, or storage.
 
 ---
 
-# 8. Security boundaries
+# 8. LLM Gateway
 
-## 8.1. Product Policy Gate
-
-Chặn:
+Business logic calls aliases only:
 
 ```text
-- unverified domain
-- expired verification/authorization
-- out-of-scope host/path
-- private/local/metadata IP
-- unsupported package action
-- budget exceeded action
-- sensitive action without approval
+low_reasoning_model
+high_reasoning_model
 ```
 
-## 8.2. Evidence Sanitizer
-
-Chay truoc:
-
-```text
-- LLM prompt
-- report generation
-- finding display
-- readiness export
-- object storage writes
-```
-
-## 8.3. User Approval Gate
-
-Bat buoc truoc:
-
-```text
-- dung test account cho validation nhay cam
-- access-control validation
-- POST/PUT/PATCH/DELETE
-- billing/payment/file/email/webhook
-- High/Critical retest
-- action co the thay doi du lieu
-```
+Provider/model mapping is config behind the LLM Gateway. No business logic hardcodes OpenAI, Claude, Anthropic, DeepSeek, or model ids.
 
 ---
 
-# 9. Deployment target v1
+# 9. Deployment Target
 
-Production target dau tien: Docker VPS voi tagged images va rollback ro rang.
+First production target: Docker VPS with tagged images and rollback.
 
-Per-family images:
+Core images:
 
 ```text
 openhunter/web:<git-sha>
-openhunter/api:<git-sha>
+openhunter/public-api:<git-sha>
 openhunter/orchestrator:<git-sha>
 openhunter/browser-worker:<git-sha>
 openhunter/zap-worker:<git-sha>
@@ -466,37 +208,22 @@ openhunter/report-worker:<git-sha>
 openhunter/retest-worker:<git-sha>
 ```
 
+Integration adapter images:
+
+```text
+openhunter/zaproxy-adapter:<git-sha>
+openhunter/nuclei-adapter:<git-sha>
+openhunter/openhack-adapter:<git-sha>
+openhunter/strix-adapter:<git-sha>
+openhunter/playwright-adapter:<git-sha>
+```
+
 Infra services:
 
 ```text
 postgres
-redis
-object-storage
+nats/queue
 reverse-proxy
-zap-daemon if used separately
 observability/log shipper
-```
-
-Browser worker can isolation manh nhat: non-root, sandbox/seccomp where possible, concurrency thap, timeout cung, egress guard.
-
----
-
-# 10. Architecture acceptance
-
-Kien truc dung khi:
-
-```text
-- Public docs dung package model: Free Hunter / AI Black-hat Mindset Check / Monitor Workspace / Enterprise PAYG.
-- Authenticated Scope la mode/branch, khong phai public package.
-- Readiness Report View/Export la export mode, khong phai scan package.
-- Free co first valuable finding limit, monitor 1 finding va 1 retest gioi han.
-- LLM stack mac dinh la DeepSeek V4 Flash triage + DeepSeek V4 Pro reasoning supervisor.
-- Moi scan di qua verification + authorization + scope snapshot.
-- Scan pipeline co phase fan-out/fan-in va tool unavailable coverage gaps.
-- Strix co 2-pass cho paid checks va khong tu chay sensitive action.
-- Moi worker co timeout/retry/logs/error handling.
-- Khong persist raw evidence.
-- Moi LLM call di qua LLM Gateway.
-- Retest la manual theo finding.
-- Khong co GitHub/Jira/CI-CD/VPS/cloud/private network modules trong v1.
+zap daemon if used separately
 ```

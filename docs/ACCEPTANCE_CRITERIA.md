@@ -1,410 +1,134 @@
 # ACCEPTANCE_CRITERIA.md - OpenHunterAI
 
-> Dieu kien "lam xong dung" cho v1. Neu chua dat cac tieu chi nay thi khong xem la production-ready.
+> Conditions for v1 to be considered correct.
 
 ---
 
-# 1. Global acceptance criteria
+# 1. Product Contract
 
-V1 dat toi thieu khi:
+V1 is accepted when:
 
 ```text
-- User verify domain bang DNS TXT hoac /.well-known file.
-- Domain chua verified thi khong scan duoc.
-- User tao scan authorization truoc khi scan.
-- Free Hunter dung cung workflow chat luong cao nhung gioi han o first valuable finding.
-- Free Hunter tao report cho finding do, monitor 1 finding va cho 1 retest gioi han.
-- Free khong mo full paid finding board/retest workflow.
-- AI Black-hat Mindset Check tao reports, findings, full finding board va manual retest workflow.
-- Authenticated Scope la mode trong AI Black-hat Mindset Check hoac Enterprise, khong phai public package rieng.
-- User Approval Gate xuat hien truoc action nhay cam.
-- Monitor Workspace la subscription cho history/reminders/monitored findings/manual retest queue.
-- Khong raw password/token/cookie/API key/raw evidence trong logs/report/LLM prompt/storage.
+public packages are Free Hunter / AI Black-hat Mindset Check / Monitor Workspace / Enterprise / PAYG
+Authenticated Scope is auth_scope, not a package
+Readiness Report View/Export is export mode, not scan package
+Monitor sub-tiers are not public package names
+Free Hunter is not report-only and not a weak scanner
 ```
 
 ---
 
-# 2. Domain verification va blocking
+# 2. Authorization And Onboard
 
-## 2.1. DNS TXT
-
-Dat khi:
+Scan authorization must require:
 
 ```text
-- He thong sinh token.
-- UI huong dan user them TXT record.
-- Backend kiem tra TXT record dung token.
-- Neu dung token, domain status = verified.
-- Neu sai/khong co record, status van pending/failed.
-- Verified domain co verified_at.
-- Expired verification khong cho scan.
+verified domain
+allowed_hosts / allowed_paths / excluded_paths
+scanMode
+authScope
+targetType
+testIntensityMode
+surfaceFlags
+risk acceptance for aggressive_staging
 ```
 
-## 2.2. Well-known file
-
-Dat khi:
+Validation:
 
 ```text
-- He thong sinh token.
-- UI huong dan user tao file.
-- Backend GET dung path.
-- Noi dung file khop token thi verified.
-- Chi hostname tuong ung duoc verify.
-```
-
-## 2.3. Blocking
-
-Dat khi:
-
-```text
-- Domain chua verified khong tao duoc scan job.
-- Private/local IP bi reject.
-- Metadata endpoint bi reject.
-- URL co userinfo/trick parsing bi reject hoac normalize an toan.
-- Redirect ngoai scope bi block.
+authScope none requires no test account
+authScope one_account requires >= 1 test account
+authScope two_accounts requires >= 2 test accounts
+aggressive_staging requires explicit staging/dev/test acceptance
 ```
 
 ---
 
-# 3. Scan authorization va scope
+# 3. Scan Plan
 
-Dat khi:
+Scan Plan builder is accepted when:
 
 ```text
-- User phai tao scan authorization truoc scan.
-- Authorization luu allowed_hosts, allowed_paths, excluded_paths, package, consent.
-- Scan chi chay tren allowed_hosts.
-- Excluded paths khong bi scan/retest.
-- Moi scan job co authorization_id.
-- Authorization snapshot duoc luu va dung cho in-flight scan/retest.
+each Target Type enables the documented worker/hunter set
+Free quotas are enforced
+Free can use every Target Type and Test Intensity Mode if authorized
+skippedHunters include reason
+LLM does not choose Target Type or worker set
+profiler worker does not exist
 ```
 
 ---
 
-# 4. Adversarial Action Model
+# 4. Free Hunter
 
-Dat khi:
+Free Hunter is accepted when:
 
 ```text
-- Free duoc dung Level 0 Observe, Level 1 Safe Signal, Level 2 Hypothesis va mot buoc limited safe confirmation cho first valuable finding neu khong nhay cam.
-- AI Black-hat Mindset Check co the dung Level 3 Safe Validation trong scope.
-- Authenticated Scope va sensitive retest co the dung Level 4 Approval-Gated Validation.
-- Forbidden actions bi chan: out-of-scope, destructive, credential attack, persistence, evasion, malware, exfiltration.
-- Sensitive action khong chay neu chua co User Approval Gate.
+max_returned_findings = 1
+max_monitored_findings = 1
+max_retests = 1
+cooldown_days = 7
+first valuable finding stops expensive steps
+one limited monitored finding view exists
+one retest quota exists
+no full paid board/retest workspace is opened
+no valuable finding returns coverage/hardening/limitations
 ```
 
 ---
 
-# 5. Test account
-
-Dat khi:
+# 5. Worker/Tool Behavior
 
 ```text
-- User them test account voi login_url thuoc verified scope.
-- Password/credential duoc ma hoa.
-- Raw credential khong xuat hien trong DB plain text, logs, report, LLM/Strix prompt.
-- User xoa duoc test account.
-- Authenticated Scope voi 1 account khong overpromise User A/B access-control.
-- Authenticated Scope voi 2 accounts bat User A/User B checks neu scope/roles phu hop.
+ZAP = passive/baseline DAST signal layer
+Nuclei = curated known-pattern/exposure/misconfig templates only
+OpenHack = scenario-first hunter workflow/schema layer
+Strix = attacker-mindset reasoning + controlled validation planning
+```
+
+Workers must fail loudly, never fake success, and never persist raw evidence.
+
+---
+
+# 6. LLM Gateway
+
+Accepted when:
+
+```text
+business logic calls only LLM Gateway
+low_reasoning_model and high_reasoning_model resolve from env/config
+provider/model names are not hardcoded in business logic
+prompt sanitizer blocks raw secrets/evidence
+budget/timeout/retry/fallback do not fake output
 ```
 
 ---
 
-# 6. Browser observation
+# 7. Storage
 
-Dat khi:
-
-```text
-- Worker mo browser context rieng cho moi scan/account.
-- Worker capture route/API metadata, cookie attributes, storage key names/token-like indicators, console errors.
-- Worker khong navigate ngoai scope.
-- Worker co timeout.
-- Worker khong persist raw credential, raw cookie jar, raw storage values hoac raw HAR.
-- Output la sanitized summary hoac sanitized evidence refs.
-```
-
-Free mode dat khi:
+Accepted when:
 
 ```text
-- Chay lightweight observation.
-- Khong can test account.
-- Tra attack surface summary trong Hunter Snapshot Report.
-```
-
-Authenticated mode dat khi:
-
-```text
-- Login bang test account trong verified scope.
-- Capture authenticated context da sanitize.
-- Khong leak credential/session secret.
+external artifact storage is absent from v1 core docs/env/code path
+sanitized reports/findings are stored in Postgres
+raw credentials/cookies/tokens/HAR/request/response are not stored/logged/reported
+detected secrets store only masked fingerprint/hash/metadata
 ```
 
 ---
 
-# 7. ZAP Signal Worker
+# 8. Not V1
 
-Dat khi:
-
-```text
-- Free chay passive mini hoac equivalent safe mode.
-- AI Black-hat/Authenticated chay passive/baseline trong scope.
-- Worker co timeout.
-- Worker khong chay broad active scan mac dinh.
-- Output normalize thanh FindingCandidate hoac coverage gap.
-- Tool fail/unavailable thi ghi skipped/failed ro, khong fake success.
-```
-
----
-
-# 8. Nuclei Signal Worker
-
-Dat khi:
+Fail if implementation adds:
 
 ```text
-- Chi chay internal curated safe templates.
-- Khong chay destructive/intrusive/bruteforce/dos/malware/credential-attack templates.
-- Co timeout/rate limit.
-- Free dung mini-safe profile.
-- AI Black-hat/Authenticated dung standard-safe profile.
-- Output normalize thanh FindingCandidate hoac coverage gap.
-```
-
----
-
-# 9. OpenHack-style Hunter Workflow
-
-Free report dat khi co output tu mini hunters:
-
-```text
-- Vibe-code Exposure Hunter.
-- Frontend Secret & Storage Hunter.
-- API Surface Hunter.
-- Auth/Session Smoke Hunter.
-- AI App Smoke Hunter neu phat hien chatbot/LLM.
-```
-
-Moi output duoc phan loai thanh:
-
-```text
-- Finding
-- Warning
-- Hardening
-- CoverageGap
-```
-
-Khong dat neu Free chi tra header/cookie scan don gian ma khong co Hunter Snapshot structure.
-
----
-
-# 10. Strix Core
-
-## 10.1. Free
-
-Dat khi:
-
-```text
-- DeepSeek V4 Flash triage tu compact sanitized context.
-- DeepSeek V4 Pro chon first valuable finding.
-- Dung sau first valuable finding.
-- Khong full adversarial depth.
-- Khong nhieu validation attempts.
-- Khong sensitive action neu chua approval.
-```
-
-## 10.2. AI Black-hat Mindset Check
-
-Dat khi:
-
-```text
-- Strix hypothesis pass tao risk areas va safe validation plan.
-- Validation reasoning pass uu tien findings, severity/confidence, remediation, fix prompt, retest scenario.
-- Strix khong tu chay sensitive action neu chua qua Product Policy Gate/User Approval Gate.
-```
-
-## 10.3. Authenticated Scope
-
-Dat khi:
-
-```text
-- Strix doc authenticated context da sanitize.
-- 1 account mode tap trung auth/session/private-data exposure.
-- 2 account mode tap trung User A/User B access-control/BOLA/IDOR suspicion.
-- Sensitive access-control validation can User Approval Gate.
-```
-
----
-
-# 11. Reports
-
-## 11.1. Free Hunter Report
-
-Dat khi co:
-
-```text
-- Snapshot score.
-- Top observations.
-- Findings/warnings/hardening.
-- Public attack surface summary.
-- Coverage gaps / what we could not test.
-- Recommended next step.
-```
-
-Free khong can full paid board, AI/dev report day du hoac report history.
-Free phai co:
-- report cho first valuable finding hoac coverage report neu khong tim thay;
-- 1 monitored finding slot neu co finding;
-- 1 retest gioi han cho finding do.
-
-## 11.2. Paid reports
-
-AI Black-hat/Auth reports dat khi co:
-
-```text
-- Executive/human summary.
-- Scope tested.
-- Top risks.
-- Severity/confidence.
-- Business impact.
-- Priority fix plan.
-- Sanitized evidence summary.
-- AI/dev-readable fix prompt and retest scenario.
-- Limitations.
-```
-
-Khong report raw credential, raw token/cookie, raw request/response hoac raw private data.
-
-## 11.3. Readiness Report View/Export
-
-Dat khi:
-
-```text
-- Chi tao sau AI Black-hat Mindset Check hoac Authenticated Scope.
-- Khong chay scan moi.
-- Dung sanitized reports/findings/evidence summaries.
-- Khong ghi cam ket he thong an toan tuyet doi.
-```
-
----
-
-# 12. Finding Board
-
-Dat khi:
-
-```text
-- Paid checks va Monitor Workspace co finding board.
-- Free co limited finding view cho 1 monitored finding, khong phai full paid finding board.
-- User xem danh sach/detail findings.
-- User loc theo status/severity.
-- User doi trang thai In Progress / Ready for Retest / Accepted Risk.
-- Finding co severity/confidence/status.
-- Finding co sanitized evidence summary.
-- Finding co fix suggestion va copy AI fix prompt neu goi ho tro.
-- Finding co retest button neu supported va quota/approval cho phep.
-```
-
-Free khong dat neu bat buoc user vao full finding board/retest workflow.
-
----
-
-# 13. Manual Retest va Monitor
-
-Dat khi:
-
-```text
-- Retest gan voi finding_id cu the.
-- Retest khong scan lai toan bo app.
-- Retest kiem tra scope truoc khi chay.
-- Retest co timeout.
-- Retest ghi audit log.
-- Retest cap nhat finding status.
-- Monitor Workspace cap quota, reminders va manual retest queue.
-- Monitor khong tu retest all findings, khong chay sau deploy, khong CI/CD hook.
-```
-
-Ket qua hop le:
-
-```text
-Fixed
-Still Vulnerable
-Partially Fixed
-Cannot Verify
-```
-
----
-
-# 14. User Approval Gate
-
-Dat khi approval hien truoc action nhay cam:
-
-```text
-- action can chay
-- domain/path lien quan
-- account dung neu co
-- rui ro
-- dieu se khong thuc hien
-- approve/cancel
-```
-
-Neu user cancel:
-
-```text
-- action khong chay
-- audit log ghi denied
-```
-
----
-
-# 15. Production readiness blockers
-
-Khong production-ready neu con:
-
-```text
-- scan domain chua verified
-- private/local/metadata IP scan duoc
-- redirect ngoai scope van bi follow
-- raw secret/evidence lo trong log/report/prompt/storage
-- worker khong timeout
-- report dung mock data trong production
-- retest chay ngoai scope
-- Strix/sensitive action khong qua policy/approval
-- Free report khong co gia tri khi khong thay loi nghiem trong
-- docs con old public package names
-```
-
----
-
-# 16. Performance acceptance
-
-Muc tieu ban dau:
-
-```text
-- Free Snapshot: 3-10 phut.
-- AI Black-hat Mindset Check: 20-60 phut.
-- Authenticated Scope: 45-120 phut.
-- Simple manual retest: duoi 1 phut khi scenario deterministic.
-```
-
-Neu timeout:
-
-```text
-- scan khong treo vo han
-- step failed/skipped/coverage gap ro rang
-- report neu partial/timeout neu anh huong ket qua
-```
-
----
-
-# 17. LLM Provider Layer acceptance
-
-Dat khi:
-
-```text
-- Moi LLM call qua LLM Gateway.
-- Business logic khong goi truc tiep provider SDK.
-- Provider chon qua model alias/config.
-- Prompt Sanitizer chay truoc moi provider call.
-- Budget theo package/use case hoat dong.
-- Timeout/retry/fallback hoat dong.
-- Token/cost/latency log bang metadata an toan.
-- Raw password/token/cookie/API key/raw evidence khong xuat hien trong prompt/log/report.
+CI/CD retest
+deployment-triggered retest
+GitHub/Jira integration
+cloud/VPS/private network scan
+server agent
+mobile APK audit
+SAST/SCA/secrets scanning
+unrestricted aggressive/offensive mode
+white-hat audit/compliance repositioning
 ```

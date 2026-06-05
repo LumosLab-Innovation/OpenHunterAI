@@ -5,9 +5,24 @@
  * Database row shapes live in @x-hunter/db (Prisma).
  */
 
-import type { AuthenticatedScopeMode, PackageTier, ScanMode } from './packages.js';
+import type {
+  AuthScope,
+  PackageTier,
+  ScanMode,
+  SurfaceFlags,
+  TargetType,
+  TestIntensityMode,
+} from './packages.js';
 
-export type { AuthenticatedScopeMode, CommercialPackage, PackageTier, ScanMode } from './packages.js';
+export type {
+  AuthScope,
+  CommercialPackage,
+  PackageTier,
+  ScanMode,
+  SurfaceFlags,
+  TargetType,
+  TestIntensityMode,
+} from './packages.js';
 
 export type Severity = 'info' | 'low' | 'medium' | 'high' | 'critical';
 
@@ -58,11 +73,16 @@ export interface ScopeAuthorization {
   testAccountPermission: boolean;
   /** Whether sensitive (POST/PUT/PATCH/DELETE, billing, file, email, webhook) actions may be attempted. */
   sensitiveActionPermission: boolean;
+  scanMode: ScanMode;
+  authScope: AuthScope;
+  targetType: TargetType;
+  testIntensityMode: TestIntensityMode;
+  surfaceFlags: SurfaceFlags;
+  aggressiveStagingRiskAccepted: boolean;
 }
 
 export interface ScopeSnapshot extends ScopeAuthorization {
-  scanPackage: ScanMode;
-  authScope: AuthenticatedScopeMode;
+  packageTier: PackageTier;
   verifiedDomain: string;
   capturedAt: string;
 }
@@ -70,7 +90,7 @@ export interface ScopeSnapshot extends ScopeAuthorization {
 export interface FindingEvidence {
   /** Short, sanitized excerpt of evidence (text or structured). */
   description: string;
-  /** Reference to evidence object in object storage. */
+  /** Sanitized artifact references only; no raw evidence persistence in v1 core. */
   evidenceRefs?: string[];
   /** Was the evidence run through the sanitizer? Must be true for any report. */
   sanitized: true;
@@ -108,7 +128,7 @@ export interface CompactSecurityContext {
     domain?: string;
     path?: string;
   }>;
-  storageKeySummary: Array<{
+  browserStorageKeySummary: Array<{
     scope: 'localStorage' | 'sessionStorage';
     keyName: string;
     looksTokenLike: boolean;

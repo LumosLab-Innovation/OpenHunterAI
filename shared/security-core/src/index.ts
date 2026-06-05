@@ -1,5 +1,6 @@
 export * from './types.js';
 export * from './packages.js';
+export * from './scan-plan.js';
 export * from './url.js';
 export * from './scope.js';
 export * from './sanitizer.js';

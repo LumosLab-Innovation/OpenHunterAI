@@ -40,7 +40,7 @@ describe('LLMGateway', () => {
   it('refuses use cases not allowed by package', async () => {
     try {
       await gw.generate({
-        useCase: 'blackhat_hypothesis',
+        useCase: 'attacker_hypothesis',
         projectId: 'p1',
         scanId: 's1',
         packageTier: 'free_hunter',
@@ -57,7 +57,7 @@ describe('LLMGateway', () => {
   it('blocks raw secrets in prompt (sanitizer)', async () => {
     try {
       await gw.generate({
-        useCase: 'free_triage_flash',
+        useCase: 'signal_summary',
         projectId: 'p1',
         scanId: 's1',
         packageTier: 'free_hunter',
@@ -79,9 +79,9 @@ describe('LLMGateway', () => {
     }
   });
 
-  it('routes Free Hunter triage primary=deepseek', async () => {
+  it('routes signal_summary through low_reasoning_model primary=deepseek, fallback=openai', async () => {
     const res = await gw.generate({
-      useCase: 'free_triage_flash',
+      useCase: 'signal_summary',
       projectId: 'p1',
       scanId: 's1',
       packageTier: 'free_hunter',
@@ -92,35 +92,34 @@ describe('LLMGateway', () => {
     expect(res.error).toBeUndefined();
   });
 
-  it('returns NO_PROVIDER_AVAILABLE when DeepSeek is unconfigured by default', async () => {
+  it('falls back when primary is unconfigured', async () => {
     deepseek = stub('deepseek', {}, false);
     gw = new LLMGateway({ providers: { openai, claude, deepseek } });
     const res = await gw.generate({
-      useCase: 'free_triage_flash',
+      useCase: 'signal_summary',
       projectId: 'p1',
       scanId: 's1',
       packageTier: 'free_hunter',
       systemPrompt: 'sys',
       userPrompt: 'hello world',
     });
-    expect(res.error?.code).toBe('NO_PROVIDER_AVAILABLE');
+    expect(res.provider).toBe('openai');
   });
 
-  it('does not use optional escalation providers by default when primary errors', async () => {
+  it('falls back when primary errors', async () => {
     deepseek = stub('deepseek', {
       error: { code: 'HTTP_500', message: 'boom', retryable: false },
     });
     gw = new LLMGateway({ providers: { openai, claude, deepseek } });
     const res = await gw.generate({
-      useCase: 'free_triage_flash',
+      useCase: 'signal_summary',
       projectId: 'p1',
       scanId: 's1',
       packageTier: 'free_hunter',
       systemPrompt: 'sys',
       userPrompt: 'hello world',
     });
-    expect(res.provider).toBe('deepseek');
-    expect(res.error?.code).toBe('HTTP_500');
+    expect(res.provider).toBe('openai');
   });
 
   it('returns NO_PROVIDER_AVAILABLE when none configured', async () => {
@@ -129,7 +128,7 @@ describe('LLMGateway', () => {
     deepseek = stub('deepseek', {}, false);
     gw = new LLMGateway({ providers: { openai, claude, deepseek } });
     const res = await gw.generate({
-      useCase: 'free_triage_flash',
+      useCase: 'signal_summary',
       projectId: 'p1',
       scanId: 's1',
       packageTier: 'free_hunter',
@@ -141,9 +140,9 @@ describe('LLMGateway', () => {
   });
 
   it('enforces max calls per scan', async () => {
-    // Free Hunter = 2 calls per scan: Flash triage + Pro first-finding reasoning.
+    // Free Hunter = 3 calls per scan
     const first = await gw.generate({
-      useCase: 'free_triage_flash',
+      useCase: 'signal_summary',
       projectId: 'p1',
       scanId: 's-budget',
       packageTier: 'free_hunter',
@@ -152,19 +151,26 @@ describe('LLMGateway', () => {
     });
     expect(first.error).toBeUndefined();
 
-    const second = await gw.generate({
-      useCase: 'first_valuable_finding_reasoning_pro',
+    await gw.generate({
+      useCase: 'candidate_dedupe',
       projectId: 'p1',
       scanId: 's-budget',
       packageTier: 'free_hunter',
       systemPrompt: 'sys',
       userPrompt: 'hi',
     });
-    expect(second.error).toBeUndefined();
+    await gw.generate({
+      useCase: 'first_valuable_finding',
+      projectId: 'p1',
+      scanId: 's-budget',
+      packageTier: 'free_hunter',
+      systemPrompt: 'sys',
+      userPrompt: 'hi',
+    });
 
     try {
       await gw.generate({
-        useCase: 'free_triage_flash',
+        useCase: 'signal_summary',
         projectId: 'p1',
         scanId: 's-budget',
         packageTier: 'free_hunter',

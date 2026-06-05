@@ -1,158 +1,97 @@
 # ONE-PAGE.md - OpenHunterAI
 
-## 1. Dinh nghia ngan
+**OpenHunterAI - Authorized Attacker-Mindset Security Workspace**
 
-**OpenHunterAI** la **Authorized Attacker-Mindset Security Workspace** cho web/app public da xac minh domain. Nguoi dung verify domain, khai bao scope, chay security check co kiem soat, nhan report da sanitize, quan ly findings va manual retest tung loi sau khi sua.
+OpenHunterAI tests verified public web/app targets with attacker-mindset reasoning, deterministic scan planning, strict policy gates, and sanitized reporting.
 
-OpenHunterAI khong phai scanner thong thuong va khong phai cong cu tan cong tuy y. San pham mo phong tu duy attacker trong pham vi duoc uy quyen:
-
-```text
-Observe → Hypothesize → Safely Validate → Report → Fix → Retest
-```
-
----
-
-## 2. Nguoi dung muc tieu
-
-| Nhom nguoi dung | Nhu cau chinh |
-|---|---|
-| Founder / chu san pham | Biet app co rui ro lon khong va co report gui dev/khach hang/nha dau tu |
-| Vibe coder / AI builder | Check nhanh app build bang AI, co fix prompt va buoc tiep theo ro |
-| Dev team nho | Co danh sach loi uu tien, sua va retest tung finding |
-| Agency web/app | Kiem tra san pham truoc khi ban giao, co report de chia se |
-
----
-
-## 3. Scope v1
-
-### V1 lam
+## Public Packages
 
 ```text
-- Nhap domain/URL.
-- Xac minh quyen so huu domain.
-- Khai bao scope va scan authorization.
-- Chay Free Hunter voi first valuable finding limit.
-- Chay AI Black-hat Mindset Check.
-- Bat Authenticated Scope neu user cung cap test account.
-- Tao report tuong ung voi tung goi.
-- Tao finding board cho paid checks va Monitor.
-- Manual retest tung finding.
-- User Approval Gate cho action nhay cam.
-- Monitor Workspace cho finding history, monitored findings, reminders va manual retest queue.
-- Enterprise / PAYG cho nhieu domain/scan/finding/retest/custom usage.
-- Readiness Report View/Export la export mode, khong phai scan moi.
+Free Hunter
+AI Black-hat Mindset Check
+Monitor Workspace
+Enterprise / PAYG
 ```
 
-### V1 khong lam
+Not packages:
 
 ```text
-- Khong GitHub repo access.
-- Khong Jira / Linear integration.
-- Khong CI/CD-based automated retesting.
-- Khong deployment-triggered retest.
-- Khong VPS/cloud/private network scan.
-- Khong server agent.
-- Khong mobile APK audit.
-- Khong tu sua code.
-- Khong Expert Human Review trong v1.
-- Khong cam ket tim moi lo hong.
+Authenticated Scope = auth_scope inside paid/enterprise checks
+Readiness Report View/Export = report/export mode
+Monitor sub-tiers = optional internal quota tiers
 ```
 
----
+## Free Hunter
 
-## 4. Cac lop kiem thu
-
-| Thanh phan | Vai tro |
-|---|---|
-| Browser Observation | Mo app that, quan sat route, API, cookie, storage, console |
-| ZAP passive/baseline signal | Tin hieu DAST nen cho loi web security pho bien |
-| Nuclei curated signal | Exposure/misconfig/known pattern bang internal curated templates |
-| OpenHack-style workflow | Mini hunters, schema finding/warning/hardening/coverage gap |
-| Strix AI reasoning | Attacker hypotheses, severity/confidence, fix/retest plan |
-| Product Policy Gate | Kiem soat scope, package, budget, sensitive actions |
-| User Approval Gate | User approve truoc action nhay cam |
-
----
-
-## 5. Adversarial Action Model
-
-| Level | Ten | Goi dung |
-|---|---|---|
-| 0 | Observe | Free+ |
-| 1 | Safe Signal | Free+ |
-| 2 | Hypothesis | Free+ |
-| 3 | Safe Validation | AI Black-hat Mindset Check+ |
-| 4 | Approval-Gated Validation | Authenticated Scope / sensitive retest |
-| Forbidden | Out-of-scope, destructive, credential attack, persistence, evasion, malware, exfiltration | Khong bao gio |
-
----
-
-## 6. Goi v1
-
-| Goi | Gia tri chinh |
-|---|---|
-| Free Hunter | Dung engine tot, dung o first valuable finding, report + monitor 1 finding + 1 retest |
-| AI Black-hat Mindset Check | Paid check chinh: nhieu hypothesis hon, nhieu finding hon, report day du, board, retest |
-| Monitor Workspace | Subscription sau scan: history, reminders, monitored findings, manual retest queue |
-| Enterprise / PAYG | Tra theo domain/scan/finding/retest/escalation/custom quota |
-
-Authenticated Scope nam trong AI Black-hat Mindset Check hoac Enterprise.
-Readiness Report View/Export la export mode, khong phai package.
-
----
-
-## 7. Report va evidence
+Free Hunter is not weak. It uses the same Target Type and Test Intensity Mode model as paid, but stops at first valuable finding.
 
 ```text
-- Free: first valuable finding report hoac coverage report.
-- AI Black-hat Mindset Check: Human Report + AI/dev Report.
-- Authenticated Scope: Auth Security Report + AI/dev Report.
-- Readiness Export: executive/client-facing export tu sanitized summaries.
-- Khong persist raw request/response/cookie/token/password.
-- Reports phai neu scope, coverage, limitations va next step.
+max_returned_findings = 1
+max_monitored_findings = 1
+max_retests = 1
+cooldown_days = 7
 ```
 
-Neu khong thay loi nghiem trong, ghi:
+If no valuable finding is found in budget, user gets coverage, hardening, limitations, and next steps.
+
+## Onboard Inputs
+
+Target Type:
 
 ```text
-Khong phat hien Critical/High trong pham vi kiem thu hien tai.
+static_content_website
+interactive_web_app
+api_service
+ai_llm_application
 ```
 
-Khong ghi cac ket luan tuyet doi nhu:
+Surface Flags:
 
 ```text
-Khong co van de nao.
-He thong da an toan tuyet doi.
+has_login
+has_test_account
+has_api_docs
+has_file_upload
+has_payment
+has_admin_dashboard
+has_webhook
+has_chatbot_or_rag_or_tool_calling
 ```
 
----
-
-## 8. Guardrails bat buoc
+Test Intensity:
 
 ```text
-- No verified ownership / authorization → no scan.
-- Khong scan ngoai allowed scope.
-- Khong follow redirect ngoai scope.
-- Khong scan private/local/metadata IP.
-- Khong log raw password/token/cookie/API key.
-- Khong dua raw credential/secret vao LLM prompt.
-- Khong luu raw evidence.
-- Khong destructive action mac dinh.
-- Moi LLM call di qua LLM Gateway.
-- Retest v1 la manual theo finding, khong phai CI/CD-based automated retesting.
+safe_discovery
+controlled_attack_simulation
+aggressive_staging
 ```
 
----
+Aggressive Staging is staging/dev/test only and always blocks destructive/offensive unrestricted behavior.
 
-## 9. Tieu chi v1 dat
+## Scan Plan
+
+Orchestrator builds a deterministic plan from package, target type, surface flags, auth scope, intensity, verified scope, gates, and quota. LLM does not choose target type or worker set.
+
+## Worker Roles
 
 ```text
-- User verify domain bang DNS TXT hoac /.well-known file.
-- Free Hunter tra report co gia tri, dung o first valuable finding, monitor 1 finding va cho 1 retest gioi han.
-- Paid checks co full finding board va manual retest workflow.
-- Authenticated Scope la mode, khong phai public package rieng.
-- Monitor Workspace la package subscription duy nhat cho monitoring trong v1.
-- User Approval Gate chan action nhay cam.
-- Khong raw secret/evidence trong logs/report/LLM prompt/storage.
-- Khong co GitHub/Jira/CI-CD/VPS/cloud/private network trong v1.
+ZAP = passive/baseline DAST signal
+Nuclei = curated known-pattern/exposure/misconfig signal
+OpenHack = scenario-first hunter workflow + schema
+Strix = attacker-mindset reasoning + controlled validation planning
 ```
+
+## LLM
+
+Business logic uses:
+
+```text
+low_reasoning_model
+high_reasoning_model
+```
+
+Provider/model mapping is config behind LLM Gateway.
+
+## Not V1
+
+No CI/CD retest, GitHub/Jira integration, VPS/cloud/private network scan, mobile APK audit, server agent, SAST/SCA/secrets scanning, raw evidence persistence, or external artifact storage core dependency.

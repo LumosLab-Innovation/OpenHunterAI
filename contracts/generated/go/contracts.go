@@ -13,7 +13,13 @@ type ScopeSnapshot struct {
 	ExcludedPaths             []string `json:"excludedPaths"`
 	TestAccountPermission     bool     `json:"testAccountPermission"`
 	SensitiveActionPermission bool     `json:"sensitiveActionPermission"`
-	ScanPackage               string   `json:"scanPackage"`
+	PackageTier               string   `json:"packageTier"`
+	ScanMode                  string   `json:"scanMode"`
+	AuthScope                 string   `json:"authScope"`
+	TargetType                string   `json:"targetType"`
+	TestIntensityMode         string   `json:"testIntensityMode"`
+	SurfaceFlags              map[string]bool `json:"surfaceFlags"`
+	AggressiveStagingRiskAccepted bool `json:"aggressiveStagingRiskAccepted"`
 	VerifiedDomain            string   `json:"verifiedDomain"`
 	CapturedAt                string   `json:"capturedAt"`
 }
