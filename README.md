@@ -100,7 +100,6 @@ make up-integration INTEGRATION=zaproxy
 make up-integration INTEGRATION=nuclei
 make up-integration INTEGRATION=openhack
 make up-integration INTEGRATION=strix
-make up-integration INTEGRATION=playwright
 ```
 
 ## Not In V1

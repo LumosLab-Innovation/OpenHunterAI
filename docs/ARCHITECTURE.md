@@ -215,7 +215,6 @@ openhunter/zaproxy-adapter:<git-sha>
 openhunter/nuclei-adapter:<git-sha>
 openhunter/openhack-adapter:<git-sha>
 openhunter/strix-adapter:<git-sha>
-openhunter/playwright-adapter:<git-sha>
 ```
 
 Infra services:

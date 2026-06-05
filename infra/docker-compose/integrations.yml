@@ -48,12 +48,3 @@ services:
       - ../../integrations/strix/runtime/.env.example
     ports:
       - "6130:6130"
-
-  playwright-adapter:
-    build:
-      context: ../..
-      dockerfile: integrations/playwright/Dockerfile
-    env_file:
-      - ../../integrations/playwright/runtime/.env.example
-    ports:
-      - "6140:6140"

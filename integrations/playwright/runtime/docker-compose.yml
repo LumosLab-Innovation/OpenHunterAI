@@ -1,7 +1,0 @@
-services:
-  playwright-adapter:
-    build:
-      context: ../../..
-      dockerfile: integrations/playwright/Dockerfile
-    ports:
-      - "6140:6140"

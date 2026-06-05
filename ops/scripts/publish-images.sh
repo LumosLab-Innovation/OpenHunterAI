@@ -30,7 +30,7 @@ echo "Pulling upstream tool images"
 docker pull "${nuclei_upstream}"
 docker pull "${zap_upstream}"
 
-for integration in zaproxy nuclei openhack strix playwright; do
+for integration in zaproxy nuclei openhack strix; do
   build_adapter "${integration}"
 done
 
@@ -43,7 +43,6 @@ Images ready:
   NUCLEI_ADAPTER_IMAGE=${namespace}/nuclei-adapter:${tag}
   OPENHACK_ADAPTER_IMAGE=${namespace}/openhack-adapter:${tag}
   STRIX_ADAPTER_IMAGE=${namespace}/strix-adapter:${tag}
-  PLAYWRIGHT_ADAPTER_IMAGE=${namespace}/playwright-adapter:${tag}
 
 Use PUSH=1 to publish after docker login:
   DOCKERHUB_NAMESPACE=${namespace} IMAGE_TAG=${tag} PUSH=1 ops/scripts/publish-images.sh
