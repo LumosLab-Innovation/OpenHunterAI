@@ -75,6 +75,8 @@ type LLMUseCase =
 
 Free Hunter may use high reasoning for `first_valuable_finding`, but is still limited by first finding/one monitored finding/one retest/7-day cooldown.
 
+For reports, LLM output is recommendation-only. It may summarize sanitized facts, propose ranking reasons, and draft wording. It must not create new findings, reference unknown finding IDs, override severity policy, or add evidence that is not present in sanitized inputs.
+
 ---
 
 # 4. Prompt And Data Policy

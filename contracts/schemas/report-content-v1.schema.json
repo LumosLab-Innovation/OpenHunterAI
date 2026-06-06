@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openhunter.ai/schemas/report-content-v1.schema.json",
+  "title": "OpenHunterAI Report Content v1",
+  "type": "object",
+  "required": [
+    "formatVersion",
+    "reportType",
+    "packageTier",
+    "scanMode",
+    "targetType",
+    "authScope",
+    "testIntensityMode",
+    "surfaceFlags",
+    "ownerSummary",
+    "findings",
+    "developerFixPack",
+    "coverage",
+    "hardeningRecommendations",
+    "retestAndMonitor",
+    "generatedAt"
+  ],
+  "properties": {
+    "formatVersion": { "const": "report_v1" },
+    "reportType": { "enum": ["finding_report", "coverage_only"] },
+    "packageTier": { "type": "string" },
+    "scanMode": { "enum": ["free_hunter", "ai_blackhat_mindset_check"] },
+    "targetType": {
+      "enum": ["static_content_website", "interactive_web_app", "api_service", "ai_llm_application"]
+    },
+    "authScope": { "enum": ["none", "one_account", "two_accounts"] },
+    "testIntensityMode": {
+      "enum": ["safe_discovery", "controlled_attack_simulation", "aggressive_staging"]
+    },
+    "surfaceFlags": { "type": "object", "additionalProperties": { "type": "boolean" } },
+    "ownerSummary": {
+      "type": "object",
+      "required": [
+        "headline",
+        "riskLevel",
+        "whatWasTested",
+        "topRiskOrOutcome",
+        "businessImpact",
+        "recommendedNextAction"
+      ]
+    },
+    "findings": { "type": "array" },
+    "developerFixPack": { "type": "array" },
+    "coverage": { "type": "object" },
+    "hardeningRecommendations": { "type": "array", "items": { "type": "string" } },
+    "retestAndMonitor": { "type": "object" },
+    "generatedAt": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": true
+}

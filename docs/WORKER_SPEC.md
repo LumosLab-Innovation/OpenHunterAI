@@ -28,6 +28,12 @@ No worker receives a legacy authenticated package/mode. Authenticated behavior i
 
 ---
 
+# 2. Report Worker
+
+`report-worker` is the canonical report generator. It writes sanitized `report_v1` draft sections, validates LLM ranking recommendations against existing findings/candidates, finalizes immutable report versions, and never stores raw evidence or export files.
+
+---
+
 # 2. Worker Principles
 
 Workers must have timeout, retry limit, structured logs, `scan_id`, `project_id`, `worker_type`, error handling, and sanitized output.
@@ -87,6 +93,8 @@ cooldown_days = 7
 ```
 
 If a valuable finding is promoted, remaining expensive hypothesis/validation steps stop. If none is found in budget, report coverage, hardening, and limitations.
+
+Free Hunter must not create fake low-severity findings just to populate a report.
 
 ---
 
