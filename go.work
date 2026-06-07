@@ -3,10 +3,10 @@ go 1.22
 use (
   ./workers/orchestrator
   ./workers/browser-inspector
-  ./workers/zap-signal
-  ./workers/nuclei-signal
-  ./workers/openhack-hunter
-  ./workers/strix-core
+  ./workers/Z
+  ./workers/N
+  ./workers/O
+  ./workers/S
   ./workers/retest
   ./integrations/zaproxy
   ./integrations/nuclei
