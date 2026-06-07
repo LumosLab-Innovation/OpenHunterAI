@@ -18,7 +18,9 @@ web dashboard
 → manual retest / Monitor Workspace
 ```
 
-Core v1 stores sanitized reports/findings in Postgres. External artifact storage is not a core v1 dependency. It may return later only for downloadable sanitized PDF/HTML export, screenshots, or evidence packages with explicit artifact policy.
+Core v1 stores sanitized reports/findings in Postgres. External artifact storage is not a core v1 dependency. HTML/PDF exports are rendered on demand from sanitized report JSON and are not stored as files.
+
+Reports use `report_v1` structured JSON snapshots in Postgres. Draft report sections stream to the UI through SSE while a scan runs.
 
 ---
 
@@ -156,6 +158,7 @@ scan_steps
 finding_candidates
 findings
 reports
+report_draft_sections
 retest_runs
 approval_requests
 approval_decisions
@@ -191,7 +194,7 @@ Provider/model mapping is config behind the LLM Gateway. No business logic hardc
 
 # 9. Deployment Target
 
-First production target: Docker VPS with tagged images and rollback.
+First production target: Docker/Compose host with tagged images and rollback.
 
 Core images:
 
@@ -215,7 +218,6 @@ openhunter/zaproxy-adapter:<git-sha>
 openhunter/nuclei-adapter:<git-sha>
 openhunter/openhack-adapter:<git-sha>
 openhunter/strix-adapter:<git-sha>
-openhunter/playwright-adapter:<git-sha>
 ```
 
 Infra services:

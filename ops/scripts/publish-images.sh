@@ -5,7 +5,7 @@ namespace="${DOCKERHUB_NAMESPACE:-${1:-openhunter}}"
 tag="${IMAGE_TAG:-${2:-latest}}"
 push_images="${PUSH:-0}"
 
-nuclei_upstream="${NUCLEI_UPSTREAM_IMAGE:-projectdiscovery/nuclei:latest}"
+nuclei_upstream="${NUCLEI_UPSTREAM_IMAGE:-projectdiscovery/nuclei:v3.4.10}"
 zap_upstream="${ZAP_UPSTREAM_IMAGE:-ghcr.io/zaproxy/zaproxy:stable}"
 
 build_adapter() {
@@ -30,7 +30,7 @@ echo "Pulling upstream tool images"
 docker pull "${nuclei_upstream}"
 docker pull "${zap_upstream}"
 
-for integration in zaproxy nuclei openhack strix playwright; do
+for integration in zaproxy nuclei openhack strix; do
   build_adapter "${integration}"
 done
 
@@ -43,7 +43,6 @@ Images ready:
   NUCLEI_ADAPTER_IMAGE=${namespace}/nuclei-adapter:${tag}
   OPENHACK_ADAPTER_IMAGE=${namespace}/openhack-adapter:${tag}
   STRIX_ADAPTER_IMAGE=${namespace}/strix-adapter:${tag}
-  PLAYWRIGHT_ADAPTER_IMAGE=${namespace}/playwright-adapter:${tag}
 
 Use PUSH=1 to publish after docker login:
   DOCKERHUB_NAMESPACE=${namespace} IMAGE_TAG=${tag} PUSH=1 ops/scripts/publish-images.sh

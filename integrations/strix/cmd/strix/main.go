@@ -4,15 +4,22 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"os/exec"
 )
 
 func main() {
 	http.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
-		_ = json.NewEncoder(w).Encode(map[string]any{"ok": true, "service": "strix-adapter", "runtime_bin": env("STRIX_BIN", "strix")})
+		runtimeBin := env("STRIX_BIN", "strix")
+		_, err := exec.LookPath(runtimeBin)
+		runtimeAvailable := err == nil
+		if !runtimeAvailable {
+			w.WriteHeader(http.StatusServiceUnavailable)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{"ok": runtimeAvailable, "service": "strix-adapter", "runtime_available": runtimeAvailable, "runtime_bin": runtimeBin})
 	})
 	http.HandleFunc("/reason", func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusAccepted)
-		_ = json.NewEncoder(w).Encode(map[string]any{"accepted": true, "tool": "strix"})
+		w.WriteHeader(http.StatusNotImplemented)
+		_ = json.NewEncoder(w).Encode(map[string]any{"code": "TOOL_UNAVAILABLE", "tool": "strix", "message": "Strix runtime is not wired in this adapter image"})
 	})
 	_ = http.ListenAndServe(":"+env("PORT", "6130"), nil)
 }

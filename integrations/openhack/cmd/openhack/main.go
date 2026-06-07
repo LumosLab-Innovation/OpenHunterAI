@@ -8,11 +8,16 @@ import (
 
 func main() {
 	http.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
-		_ = json.NewEncoder(w).Encode(map[string]any{"ok": true, "service": "openhack-adapter", "runtime_root": env("OPENHACK_ROOT", "/runtime/openhack")})
+		runtimeRoot := env("OPENHACK_ROOT", "/runtime/openhack")
+		runtimeAvailable := pathExists(runtimeRoot)
+		if !runtimeAvailable {
+			w.WriteHeader(http.StatusServiceUnavailable)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{"ok": runtimeAvailable, "service": "openhack-adapter", "runtime_available": runtimeAvailable, "runtime_root": runtimeRoot})
 	})
 	http.HandleFunc("/hunt", func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusAccepted)
-		_ = json.NewEncoder(w).Encode(map[string]any{"accepted": true, "tool": "openhack"})
+		w.WriteHeader(http.StatusNotImplemented)
+		_ = json.NewEncoder(w).Encode(map[string]any{"code": "TOOL_UNAVAILABLE", "tool": "openhack", "message": "OpenHack runtime is not wired in this adapter image"})
 	})
 	_ = http.ListenAndServe(":"+env("PORT", "6120"), nil)
 }
@@ -22,4 +27,9 @@ func env(key, fallback string) string {
 		return v
 	}
 	return fallback
+}
+
+func pathExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
 }

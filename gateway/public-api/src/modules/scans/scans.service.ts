@@ -1,6 +1,7 @@
 import { publishEvent } from '@openhunter/event-core';
 import { getPrisma } from '@x-hunter/db';
 import { buildScanPlan, DEFAULT_SURFACE_FLAGS, GuardrailError, type SurfaceFlags } from '@x-hunter/shared';
+import { createInitialReportDraft } from '../reports/reports.service.js';
 import type { CreateScanBody } from './scans.dto.js';
 
 export class ScansService {
@@ -16,7 +17,7 @@ export class ScansService {
   get(id: string, orgId: string) {
     return this.prisma.scanJob.findFirst({
       where: { id, project: { organizationId: orgId } },
-      include: { steps: true },
+      include: { steps: true, reports: { orderBy: { version: 'desc' } }, reportDraftSections: true },
     });
   }
 
@@ -74,6 +75,7 @@ export class ScansService {
         scopeSnapshot: scope,
       },
     });
+    await createInitialReportDraft(this.prisma, scan.id);
     await publishEvent('scan.created', {
       scanId: scan.id,
       projectId,

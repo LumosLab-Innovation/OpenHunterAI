@@ -113,6 +113,10 @@ external artifact storage is absent from v1 core docs/env/code path
 sanitized reports/findings are stored in Postgres
 raw credentials/cookies/tokens/HAR/request/response are not stored/logged/reported
 detected secrets store only masked fingerprint/hash/metadata
+report_v1 structured JSON is the canonical report snapshot
+draft sections stream over SSE
+HTML/PDF exports are generated on demand and not persisted as artifacts
+LLM ranking recommendations cannot invent findings or override deterministic policy
 ```
 
 ---

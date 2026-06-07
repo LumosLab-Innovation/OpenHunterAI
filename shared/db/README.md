@@ -23,6 +23,6 @@ pnpm run studio      # open Prisma Studio
 
 - All credentials and personal secrets are AES-256-GCM ciphertext (`credentialCipher`).
 - The schema does **not** store raw passwords, cookies, or tokens anywhere.
-- `evidence_items.sanitized` defaults to `true` — workers must run the
-  evidence sanitizer before insert.
+- Finding candidate/finding/report evidence is stored only as sanitized JSON;
+  workers must run the evidence sanitizer before insert.
 - `audit_logs.detail` is always sanitized JSON.

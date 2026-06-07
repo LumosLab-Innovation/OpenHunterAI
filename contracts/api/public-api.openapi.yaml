@@ -28,3 +28,55 @@ paths:
       responses:
         "200":
           description: Scan queued
+  /v1/scans/{id}/report-draft:
+    get:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Current structured report draft sections
+  /v1/scans/{id}/report-events:
+    get:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Server-sent report draft updates
+  /v1/reports/{id}:
+    get:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Final or draft report snapshot with latest overlay
+  /v1/reports/{id}/export:
+    get:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: format
+          in: query
+          schema:
+            enum: [html, pdf]
+        - name: view
+          in: query
+          schema:
+            enum: [snapshot, latest]
+      responses:
+        "200":
+          description: On-demand sanitized HTML/PDF export

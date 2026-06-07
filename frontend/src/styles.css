@@ -164,6 +164,7 @@ button[type="submit"] {
 
 .actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   margin-top: 28px;
 }
@@ -188,4 +189,39 @@ td {
 
 .error {
   color: var(--danger);
+}
+
+.report-header {
+  align-items: flex-start;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.report-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin: 18px 0;
+}
+
+.report-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.report-item {
+  border-top: 1px solid var(--line);
+  padding: 14px 0;
+}
+
+pre {
+  background: #f4f5f2;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  max-width: 100%;
+  overflow: auto;
+  padding: 12px;
+  white-space: pre-wrap;
 }

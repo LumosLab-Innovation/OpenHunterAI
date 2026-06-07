@@ -33,6 +33,16 @@ Auth Scope:
   none
   one_account
   two_accounts
+
+Surface Flags:
+  has_login
+  has_test_account
+  has_api_docs
+  has_file_upload
+  has_payment
+  has_admin_dashboard
+  has_webhook
+  has_chatbot_or_rag_or_tool_calling
 ```
 
 Free Hunter uses the same model as paid but is quota-limited to first valuable finding, one monitored finding, one retest, and 7-day cooldown.
@@ -90,7 +100,6 @@ make up-integration INTEGRATION=zaproxy
 make up-integration INTEGRATION=nuclei
 make up-integration INTEGRATION=openhack
 make up-integration INTEGRATION=strix
-make up-integration INTEGRATION=playwright
 ```
 
 ## Not In V1

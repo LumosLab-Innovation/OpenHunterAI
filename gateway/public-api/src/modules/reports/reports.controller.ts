@@ -12,3 +12,16 @@ export async function getReport(req: Request, res: Response) {
   }
   res.json({ report });
 }
+
+export async function exportReport(req: Request, res: Response) {
+  const format = req.query.format === 'pdf' ? 'pdf' : 'html';
+  const view = req.query.view === 'snapshot' ? 'snapshot' : 'latest';
+  const exported = await service.export(req.params.id!, currentUser(req).orgId, format, view);
+  if (!exported) {
+    res.status(404).json({ error: { code: 'NOT_FOUND' } });
+    return;
+  }
+  res.setHeader('Content-Type', exported.contentType);
+  res.setHeader('Content-Disposition', `attachment; filename="${exported.filename}"`);
+  res.send(exported.body);
+}

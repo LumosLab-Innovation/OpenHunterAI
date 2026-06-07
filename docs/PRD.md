@@ -210,6 +210,27 @@ Reports never include raw credentials, raw cookies, raw tokens, raw HAR, sensiti
 
 If a secret/key is detected, store only masked fingerprint/hash/metadata and recommend rotate/revoke.
 
+The canonical report output is `report_v1` structured JSON, not free-form Markdown. User-facing views are rendered from this sanitized snapshot:
+
+```text
+Owner Summary
+Developer Fix Pack
+Retest / Monitor Actions
+Coverage / Limitations
+```
+
+Report generation streams draft sections over SSE while the scan runs. Final reports are immutable versions; current finding/retest state is returned as a latest overlay.
+
+HTML/PDF export is generated on demand from sanitized report JSON. Export files are not persisted, and external artifact storage is not a v1 core dependency.
+
+Free Hunter report behavior:
+
+```text
+- valuable finding found: return one ranked finding + limited monitored finding + one retest path
+- no valuable finding: return coverage_only report with coverage, hardening, limitations, and next steps
+- never create fake low-severity findings to fill the report
+```
+
 Readiness Report View/Export is an export mode from sanitized reports/findings. It is not a scan package and does not run a new scan.
 
 Monitor Workspace stores history, reminders, quota, limited/full finding workspace depending on package, and manual retest queue. Monitor does not auto scan all findings, run after deploy, or implement CI/CD retest.

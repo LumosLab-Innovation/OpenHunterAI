@@ -27,11 +27,9 @@ export const CreateAuthorizationBody = z.object({
   testIntensityMode: z.enum(TEST_INTENSITY_MODES).default('safe_discovery'),
   surfaceFlags: SurfaceFlagsSchema,
   aggressiveStagingRiskAccepted: z.boolean().default(false),
-  allowedHosts: z.array(z.string().min(1)),
+  allowedHosts: z.array(z.string().min(1)).min(1),
   allowedPaths: z.array(z.string()).default([]),
   excludedPaths: z.array(z.string()).default([]),
-  testAccountPermission: z.boolean().optional(),
-  sensitiveActionPermission: z.boolean().optional(),
   consentText: z.string().min(10).max(4096),
 });
 

@@ -12,6 +12,5 @@ use (
   ./integrations/nuclei
   ./integrations/openhack
   ./integrations/strix
-  ./integrations/playwright
   ./contracts/generated/go
 )

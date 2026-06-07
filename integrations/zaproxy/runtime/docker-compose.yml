@@ -1,6 +1,6 @@
 services:
   zap:
     image: ${ZAP_IMAGE:-ghcr.io/zaproxy/zaproxy:stable}
-    command: ["zap.sh", "-daemon", "-host", "0.0.0.0", "-port", "8080", "-config", "api.disablekey=false", "-config", "api.key=${ZAP_API_KEY:-changeme}", "-config", "api.addrs.addr.name=.*", "-config", "api.addrs.addr.regex=true"]
-    ports:
-      - "8090:8080"
+    command: ["sh", "-c", "test -n \"$$ZAP_API_KEY\" && test \"$$ZAP_API_KEY\" != \"changeme\" && zap.sh -daemon -host 0.0.0.0 -port 8080 -config api.disablekey=false -config api.key=\"$$ZAP_API_KEY\" -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true"]
+    expose:
+      - "8080"

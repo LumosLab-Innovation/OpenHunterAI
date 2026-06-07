@@ -10,6 +10,7 @@
 - [ ] Legacy authenticated package/mode is removed; authenticated behavior is `authScope`.
 - [ ] Free Hunter quotas are enforced: one returned finding, one monitored finding, one retest, 7-day cooldown.
 - [ ] Target Type + Surface Flags + Test Intensity Mode drive deterministic Scan Plan.
+- [ ] `report_v1` structured JSON is the canonical report contract.
 - [ ] No profiler worker.
 - [ ] No external artifact storage in core v1 docs/env/code path.
 
@@ -47,7 +48,16 @@
 
 ---
 
-# 5. Deliberately Not V1
+# 5. Reporting And Export
+
+- [ ] Report draft SSE is org-scoped, authenticated, and does not leak cross-tenant updates.
+- [ ] Report content is sanitized before DB insert and before HTML/PDF export.
+- [ ] HTML/PDF export is generated on demand and does not persist files.
+- [ ] LLM ranking is recommendation-only and cannot create findings or override policy.
+
+---
+
+# 6. Deliberately Not V1
 
 ```text
 CI/CD-based automated retesting

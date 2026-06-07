@@ -17,8 +17,8 @@ func main() {
 		_ = json.NewEncoder(w).Encode(map[string]any{"ok": true, "service": "zaproxy-adapter", "runtime_available": available, "base_url": baseURL})
 	})
 	http.HandleFunc("/scan/passive", func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusAccepted)
-		_ = json.NewEncoder(w).Encode(map[string]any{"accepted": true, "tool": "zaproxy"})
+		w.WriteHeader(http.StatusNotImplemented)
+		_ = json.NewEncoder(w).Encode(map[string]any{"code": "TOOL_UNAVAILABLE", "tool": "zaproxy", "message": "ZAP passive scan execution is not wired in this adapter yet"})
 	})
 	_ = http.ListenAndServe(":"+env("PORT", "6100"), nil)
 }

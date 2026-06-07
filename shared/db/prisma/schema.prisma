@@ -236,6 +236,7 @@ model ScanJob {
   steps             ScanStep[]
   findings          Finding[]
   reports           Report[]
+  reportDraftSections ReportDraftSection[]
   approvalRequests  ApprovalRequest[]
   retestRuns        RetestRun[]
 
@@ -366,20 +367,69 @@ enum ReportKind {
   ai_dev
 }
 
+enum ReportState {
+  draft
+  final
+  superseded
+}
+
+enum ReportDraftSectionKey {
+  scope
+  coverage
+  signals
+  ranking
+  findings
+  hardening
+  retest
+  limitations
+}
+
+enum ReportDraftSectionState {
+  pending
+  running
+  ready
+  failed
+}
+
 model Report {
   id            String     @id @default(cuid())
   projectId     String     @map("project_id")
   scanJobId     String     @map("scan_job_id")
   kind          ReportKind
-  /// Markdown / structured body. MUST be sanitized.
-  body          String
+  version       Int        @default(1)
+  state         ReportState @default(draft)
+  formatVersion String     @default("report_v1") @map("format_version")
+  /// Structured sanitized canonical content.
+  content       Json
+  /// Optional sanitized Markdown render cache.
+  markdown      String?
+  finalizedAt   DateTime?  @map("finalized_at")
   generatedAt   DateTime   @default(now()) @map("generated_at")
   project       Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
   scanJob       ScanJob    @relation(fields: [scanJobId], references: [id])
 
   @@index([projectId])
   @@index([scanJobId])
+  @@unique([scanJobId, version])
   @@map("reports")
+}
+
+model ReportDraftSection {
+  id          String                  @id @default(cuid())
+  scanJobId   String                  @map("scan_job_id")
+  sectionKey  ReportDraftSectionKey   @map("section_key")
+  state       ReportDraftSectionState @default(pending)
+  /// Structured sanitized section content.
+  content     Json                    @default("{}")
+  errorCode   String?                 @map("error_code")
+  errorMsg    String?                 @map("error_msg")
+  createdAt   DateTime                @default(now()) @map("created_at")
+  updatedAt   DateTime                @updatedAt @map("updated_at")
+  scanJob     ScanJob                 @relation(fields: [scanJobId], references: [id], onDelete: Cascade)
+
+  @@unique([scanJobId, sectionKey])
+  @@index([scanJobId])
+  @@map("report_draft_sections")
 }
 
 // =============================================================================
