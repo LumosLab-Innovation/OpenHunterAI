@@ -19,39 +19,39 @@ services:
     ports:
       - "5110:5110"
 
-  zap-signal:
+  Z:
     build:
       context: ../..
-      dockerfile: workers/zap-signal/Dockerfile
+      dockerfile: workers/Z/Dockerfile
     env_file:
-      - ../../workers/zap-signal/env/zap-signal.env.example
+      - ../../workers/Z/env/Z.env.example
     ports:
       - "5120:5120"
 
-  nuclei-signal:
+  N:
     build:
       context: ../..
-      dockerfile: workers/nuclei-signal/Dockerfile
+      dockerfile: workers/N/Dockerfile
     env_file:
-      - ../../workers/nuclei-signal/env/nuclei-signal.env.example
+      - ../../workers/N/env/N.env.example
     ports:
       - "5130:5130"
 
-  openhack-hunter:
+  O:
     build:
       context: ../..
-      dockerfile: workers/openhack-hunter/Dockerfile
+      dockerfile: workers/O/Dockerfile
     env_file:
-      - ../../workers/openhack-hunter/env/openhack-hunter.env.example
+      - ../../workers/O/env/O.env.example
     ports:
       - "5140:5140"
 
-  strix-core:
+  S:
     build:
       context: ../..
-      dockerfile: workers/strix-core/Dockerfile
+      dockerfile: workers/S/Dockerfile
     env_file:
-      - ../../workers/strix-core/env/strix-core.env.example
+      - ../../workers/S/env/S.env.example
     ports:
       - "5150:5150"
 
