@@ -1,5 +1,0 @@
-type=xpath
-condition=and
-part=body
-value=/html/body/div/p[2]/a
-value=//title[contains(text(), "Example")]

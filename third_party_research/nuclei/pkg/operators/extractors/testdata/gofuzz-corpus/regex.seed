@@ -1,4 +1,0 @@
-type=regex
-group=1
-value=token=([a-z0-9]+)
-value=https?://([^\s"']+)

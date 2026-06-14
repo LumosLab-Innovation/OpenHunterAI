@@ -1,4 +1,0 @@
-type=xpath
-attribute=href
-value=/html/body/div/p[2]/a
-value=//link

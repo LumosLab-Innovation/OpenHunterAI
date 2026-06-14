@@ -376,3 +376,23 @@ Khi implement tính năng dùng LLM, phải kiểm tra:
 - fallback/timeout/retry đã có chưa?
 - output đã normalize chưa?
 ```
+
+---
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in this repo's GitHub Issues (`ViCore-Technology/OpenHunterAI`), managed via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
+### Upstream enrichment
+
+Enriching hunters/playbooks/reasoning from upstream sources (OpenHack, Strix, Nuclei, ZAP, Claude-BugHunter) is **manual only** — no auto sync, no cron, no submodule, no full-repo vendoring. See `docs/MANUAL_UPSTREAM_ENRICHMENT_POLICY.md`, `docs/UPSTREAM_SOURCES.md`, and `tools/enrichment/upstream-sources.json`. Every enriched item carries provenance (`shared/security-core/src/hunter-provenance.ts`).
