@@ -50,15 +50,23 @@ function UserMenu() {
   if (!user) return null;
   const initial = (user.displayName ?? user.email ?? '?').charAt(0).toUpperCase();
   return (
-    <div className="flex items-center gap-3">
-      <div className="hidden text-right sm:block">
-        <p className="text-xs font-medium text-ink">{user.displayName ?? user.email}</p>
-        {user.orgName && <p className="text-data text-[11px] text-ink-faint">{user.orgName}</p>}
+    <div className="grid w-full min-w-0 gap-3">
+      <div className="flex min-w-0 items-center gap-3">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-hairline-strong bg-surface-raised text-xs font-700 text-signal">
+          {initial}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-xs font-medium text-ink" title={user.displayName ?? user.email}>
+            {user.displayName ?? user.email}
+          </p>
+          {user.orgName && (
+            <p className="text-data truncate text-[11px] text-ink-faint" title={user.orgName}>
+              {user.orgName}
+            </p>
+          )}
+        </div>
       </div>
-      <span className="flex h-8 w-8 items-center justify-center rounded-full border border-hairline-strong bg-surface-raised text-xs font-700 text-signal">
-        {initial}
-      </span>
-      <Button variant="ghost" size="sm" onClick={() => void signOut()}>
+      <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => void signOut()}>
         Sign out
       </Button>
     </div>

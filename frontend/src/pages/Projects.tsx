@@ -1,6 +1,15 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { CheckCircle2, FolderKanban, Globe, Plus, RefreshCw, ShieldCheck } from 'lucide-react';
+import {
+  Check,
+  CheckCircle2,
+  Clipboard,
+  FolderKanban,
+  Globe,
+  Plus,
+  RefreshCw,
+  ShieldCheck,
+} from 'lucide-react';
 import { apiFetch } from '../lib/api';
 import { PACKAGE_OPTIONS, labelFor, TARGET_TYPE_OPTIONS, SCAN_MODE_OPTIONS } from '../lib/product';
 import { PageHeader } from '../components/PageHeader';
@@ -8,7 +17,7 @@ import { AuthorizationWizard } from '../components/AuthorizationWizard';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { ButtonLink } from '../components/ui/ButtonLink';
-import { Card, CardBody, CardHeader, CardTitle } from '../components/ui/Card';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle } from '../components/ui/Card';
 import { Field, Input, Select } from '../components/ui/Field';
 import { EmptyState, ErrorState } from '../components/ui/States';
 import { SkeletonRows } from '../components/ui/Loading';
@@ -146,6 +155,7 @@ export function ProjectDetailPage() {
   const [verificationInstructions, setVerificationInstructions] = useState<
     Record<string, VerificationInstructions>
   >({});
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [busyDomainId, setBusyDomainId] = useState<string | null>(null);
   const [startingAuthorizationId, setStartingAuthorizationId] = useState<string | null>(null);
 
@@ -222,9 +232,19 @@ export function ProjectDetailPage() {
     }
   }
 
+  async function copyValue(key: string, value: string) {
+    await navigator.clipboard.writeText(value);
+    setCopiedKey(key);
+    window.setTimeout(() => setCopiedKey((current) => (current === key ? null : current)), 1600);
+  }
+
   useEffect(() => {
     void load();
   }, [id]);
+
+  const hasDomain = domains.length > 0;
+  const hasVerifiedDomain = domains.some((domain) => domain.verified);
+  const hasAuthorization = auths.length > 0;
 
   return (
     <div>
@@ -240,10 +260,22 @@ export function ProjectDetailPage() {
 
       {error && <ErrorState message={error} className="mb-4" onRetry={() => void load()} />}
 
+      <ProjectGuide
+        hasDomain={hasDomain}
+        hasVerifiedDomain={hasVerifiedDomain}
+        hasAuthorization={hasAuthorization}
+        onNewAuthorization={() => setShowWizard(true)}
+      />
+
       {/* Domains */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Domains</CardTitle>
+          <div className="grid gap-1">
+            <CardTitle>Domains</CardTitle>
+            <CardDescription>
+              Add a hostname, publish the generated DNS TXT record, then check DNS before creating scan scope.
+            </CardDescription>
+          </div>
         </CardHeader>
         <CardBody className="grid gap-4">
           <form className="flex flex-wrap items-end gap-3" onSubmit={addDomain}>
@@ -289,7 +321,7 @@ export function ProjectDetailPage() {
                             disabled={busyDomainId === d.id}
                             onClick={() => void requestVerification(d.id)}
                           >
-                            Verify
+                            Get TXT record
                           </Button>
                           {d.verification && (
                             <Button
@@ -318,17 +350,33 @@ export function ProjectDetailPage() {
                   <p className="mb-3 text-sm font-medium text-ink">
                     DNS TXT verification for {domain.hostname}
                   </p>
+                  <p className="mb-4 text-sm leading-relaxed text-ink-muted">
+                    Create this TXT record in your DNS provider. DNS propagation can take a few
+                    minutes; after it appears, click Check DNS above.
+                  </p>
                   <dl className="grid gap-3 text-sm sm:grid-cols-2">
                     <div>
                       <dt className="text-xs uppercase text-ink-faint">Record name</dt>
-                      <dd className="mt-1 break-all font-mono text-xs text-ink">
-                        {instructions.recordName}
+                      <dd className="mt-1 flex min-w-0 items-center gap-2">
+                        <code className="min-w-0 flex-1 break-all rounded border border-hairline bg-canvas px-2 py-1 font-mono text-xs text-ink">
+                          {instructions.recordName}
+                        </code>
+                        <CopyButton
+                          copied={copiedKey === `${domain.id}:name`}
+                          onClick={() => void copyValue(`${domain.id}:name`, instructions.recordName)}
+                        />
                       </dd>
                     </div>
                     <div>
                       <dt className="text-xs uppercase text-ink-faint">TXT value</dt>
-                      <dd className="mt-1 break-all font-mono text-xs text-ink">
-                        {instructions.recordValue}
+                      <dd className="mt-1 flex min-w-0 items-center gap-2">
+                        <code className="min-w-0 flex-1 break-all rounded border border-hairline bg-canvas px-2 py-1 font-mono text-xs text-ink">
+                          {instructions.recordValue}
+                        </code>
+                        <CopyButton
+                          copied={copiedKey === `${domain.id}:value`}
+                          onClick={() => void copyValue(`${domain.id}:value`, instructions.recordValue)}
+                        />
                       </dd>
                     </div>
                   </dl>
@@ -341,7 +389,12 @@ export function ProjectDetailPage() {
       {/* Authorizations */}
       <Card>
         <CardHeader>
-          <CardTitle>Scan authorizations</CardTitle>
+          <div className="grid gap-1">
+            <CardTitle>Scan authorizations</CardTitle>
+            <CardDescription>
+              Define allowed hosts, target type, auth scope, and test intensity. A scan can only start from an authorization.
+            </CardDescription>
+          </div>
           {!showWizard && (
             <Button size="sm" onClick={() => setShowWizard(true)}>
               <ShieldCheck className="h-4 w-4" /> New authorization
@@ -401,5 +454,91 @@ export function ProjectDetailPage() {
         </CardBody>
       </Card>
     </div>
+  );
+}
+
+function ProjectGuide({
+  hasDomain,
+  hasVerifiedDomain,
+  hasAuthorization,
+  onNewAuthorization,
+}: {
+  hasDomain: boolean;
+  hasVerifiedDomain: boolean;
+  hasAuthorization: boolean;
+  onNewAuthorization: () => void;
+}) {
+  const steps = [
+    {
+      label: 'Add domain',
+      done: hasDomain,
+      body: 'Register the hostname you own or control.',
+    },
+    {
+      label: 'Verify ownership',
+      done: hasVerifiedDomain,
+      body: 'Publish the TXT record, wait for DNS, then check it.',
+    },
+    {
+      label: 'Authorize scan',
+      done: hasAuthorization,
+      body: 'Set scope, target type, auth scope, and intensity.',
+    },
+    {
+      label: 'Start scan',
+      done: false,
+      body: 'Run from an authorization and follow the scan report.',
+    },
+  ];
+
+  const currentStep = steps.find((step) => !step.done);
+
+  return (
+    <section className="mb-6 rounded-lg border border-hairline bg-surface px-5 py-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-sm font-700 text-ink">Next step: {currentStep?.label ?? 'Start scan'}</p>
+          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-ink-muted">
+            {currentStep?.body ?? 'Use a saved authorization to launch the pipeline.'}
+          </p>
+        </div>
+        {hasVerifiedDomain && !hasAuthorization && (
+          <Button size="sm" onClick={onNewAuthorization}>
+            <ShieldCheck className="h-4 w-4" /> New authorization
+          </Button>
+        )}
+      </div>
+      <ol className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        {steps.map((step, index) => (
+          <li
+            key={step.label}
+            className="rounded border border-hairline bg-canvas px-3 py-2"
+          >
+            <div className="flex items-center gap-2 text-xs font-700 uppercase tracking-wider text-ink-muted">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-hairline-strong text-[10px] text-signal">
+                {step.done ? <Check className="h-3 w-3" /> : index + 1}
+              </span>
+              {step.label}
+            </div>
+            <p className="mt-2 text-xs leading-relaxed text-ink-faint">{step.body}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function CopyButton({ copied, onClick }: { copied: boolean; onClick: () => void }) {
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      className="h-8 w-8 shrink-0"
+      aria-label={copied ? 'Copied' : 'Copy'}
+      onClick={onClick}
+    >
+      {copied ? <Check className="h-4 w-4 text-signal" /> : <Clipboard className="h-4 w-4" />}
+    </Button>
   );
 }
