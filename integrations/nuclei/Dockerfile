@@ -1,6 +1,6 @@
 ARG NUCLEI_IMAGE=projectdiscovery/nuclei:v3.4.10
 
-FROM golang:1.22-alpine AS build
+FROM golang:1.26-alpine AS build
 WORKDIR /src
 COPY integrations/nuclei/go.mod ./
 COPY integrations/nuclei ./

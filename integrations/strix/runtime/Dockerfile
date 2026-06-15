@@ -7,12 +7,12 @@
 #     provider; set the matching *_API_KEY in runtime/.env). Business logic still
 #     routes through the LLM Gateway; this key is for the Strix runtime only.
 #   - Accept the operational posture of running an autonomous offensive agent,
-#     constrained to verified, authorized targets only (AGENTS.md §4.3).
+#     constrained to verified, authorized targets only (AGENTS.md ?4.3).
 #   - Strix uses a Docker sandbox backend (STRIX_RUNTIME_BACKEND=docker); the
 #     host must expose a Docker socket or set an alternative backend.
 
 # --- Build the Go adapter ---
-FROM golang:1.22-alpine AS build
+FROM golang:1.26-alpine AS build
 WORKDIR /src
 COPY integrations/strix/go.mod ./
 COPY integrations/strix ./
