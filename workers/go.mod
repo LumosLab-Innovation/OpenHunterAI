@@ -1,6 +1,6 @@
 module openhunter/workers
 
-go 1.22
+go 1.23
 
 require (
 	github.com/chromedp/chromedp v0.9.5
