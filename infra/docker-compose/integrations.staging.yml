@@ -15,3 +15,5 @@ services:
     image: openhunter/nuclei-adapter:staging
   openhack-adapter:
     image: openhunter/openhack-adapter:staging
+  strix-adapter:
+    image: openhunter/strix-adapter:staging
