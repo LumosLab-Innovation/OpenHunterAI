@@ -20,6 +20,7 @@ type ScanProgress struct {
 	Expected  int             `json:"expected"`
 	Completed int             `json:"completed"`
 	Signals   int             `json:"signals"`
+	Finalizing bool           `json:"finalizing"`
 	Finalized bool            `json:"finalized"`
 	Workers   map[string]bool `json:"workers"` // worker types already counted (idempotency)
 }
@@ -77,18 +78,16 @@ func (kv *KV) MarkCompleted(ctx context.Context, scanID, workerType string, sign
 		if p.Workers == nil {
 			p.Workers = map[string]bool{}
 		}
-		// Idempotent: ignore a duplicate completion for the same worker.
+		// Idempotent: duplicate completions must not increment counters, but
+		// they may still retry a failed finalization once all workers are done.
 		if p.Workers[workerType] {
-			return p, false, nil
+			return p, shouldFinalizeProgress(p), nil
 		}
 		p.Workers[workerType] = true
 		p.Completed++
 		p.Signals += signals
 
-		shouldFinalize := !p.Finalized && p.Expected > 0 && p.Completed >= p.Expected
-		if shouldFinalize {
-			p.Finalized = true
-		}
+		shouldFinalize := shouldFinalizeProgress(p)
 		data, err := json.Marshal(p)
 		if err != nil {
 			return ScanProgress{}, false, err
@@ -108,9 +107,10 @@ func (kv *KV) MarkCompleted(ctx context.Context, scanID, workerType string, sign
 	return ScanProgress{}, false, errors.New("kv update: too many revision conflicts")
 }
 
-// ClaimFinalize atomically claims the finalize action for a scan, returning true
-// only for the first caller. Used by the Free Hunter early-finalize path so two
-// triggers (early signal + all-complete) never finalize twice.
+// ClaimFinalize atomically claims the finalize action for a scan, returning
+// true only for the first caller. It marks a transient finalizing state; callers
+// must CompleteFinalize after a successful report finalize or ReleaseFinalize
+// after a failed attempt so NATS redelivery can retry.
 func (kv *KV) ClaimFinalize(ctx context.Context, scanID string) (bool, error) {
 	for attempt := 0; attempt < 10; attempt++ {
 		entry, err := kv.store.Get(ctx, scanID)
@@ -121,10 +121,10 @@ func (kv *KV) ClaimFinalize(ctx context.Context, scanID string) (bool, error) {
 		if err := json.Unmarshal(entry.Value(), &p); err != nil {
 			return false, err
 		}
-		if p.Finalized {
+		if p.Finalized || p.Finalizing {
 			return false, nil
 		}
-		p.Finalized = true
+		p.Finalizing = true
 		data, _ := json.Marshal(p)
 		_, err = kv.store.Update(ctx, scanID, data, entry.Revision())
 		if err == nil {
@@ -135,4 +135,40 @@ func (kv *KV) ClaimFinalize(ctx context.Context, scanID string) (bool, error) {
 		}
 	}
 	return false, errors.New("kv claim finalize: too many conflicts")
+}
+
+func (kv *KV) CompleteFinalize(ctx context.Context, scanID string) error {
+	return kv.updateFinalizeState(ctx, scanID, true, false)
+}
+
+func (kv *KV) ReleaseFinalize(ctx context.Context, scanID string) error {
+	return kv.updateFinalizeState(ctx, scanID, false, false)
+}
+
+func (kv *KV) updateFinalizeState(ctx context.Context, scanID string, finalized, finalizing bool) error {
+	for attempt := 0; attempt < 10; attempt++ {
+		entry, err := kv.store.Get(ctx, scanID)
+		if err != nil {
+			return err
+		}
+		var p ScanProgress
+		if err := json.Unmarshal(entry.Value(), &p); err != nil {
+			return err
+		}
+		p.Finalized = finalized
+		p.Finalizing = finalizing
+		data, _ := json.Marshal(p)
+		_, err = kv.store.Update(ctx, scanID, data, entry.Revision())
+		if err == nil {
+			return nil
+		}
+		if attempt == 9 {
+			return err
+		}
+	}
+	return errors.New("kv finalize state: too many conflicts")
+}
+
+func shouldFinalizeProgress(p ScanProgress) bool {
+	return !p.Finalized && !p.Finalizing && p.Expected > 0 && p.Completed >= p.Expected
 }

@@ -37,6 +37,11 @@ export async function getReportDraft(req: Request, res: Response) {
 export async function streamReportEvents(req: Request, res: Response) {
   const user = currentUser(req);
   const scanId = req.params.id!;
+  const existingDraft = await reports.getDraft(scanId, user.orgId);
+  if (!existingDraft) {
+    res.status(404).json({ error: { code: 'NOT_FOUND' } });
+    return;
+  }
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');

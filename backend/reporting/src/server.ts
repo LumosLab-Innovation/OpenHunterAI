@@ -15,6 +15,12 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json());
 app.get('/health', (_req, res) => res.json({ ok: true, service: 'reporting' }));
 
+const asyncRoute =
+  (handler: express.RequestHandler): express.RequestHandler =>
+  (req, res, next) => {
+    Promise.resolve(handler(req, res, next)).catch(next);
+  };
+
 // Worker/orchestrator callbacks into /internal/* require the shared worker
 // token (set WORKER_TOKEN on both sides). Mirrors gateway/internal-api.
 let warnedMissingToken = false;
@@ -39,11 +45,11 @@ app.use('/internal', (req, res, next) => {
   next();
 });
 
-app.get('/internal/reports', async (_req, res) => {
+app.get('/internal/reports', asyncRoute(async (_req, res) => {
   res.json({ reports: await prisma.report.findMany({ orderBy: { generatedAt: 'desc' }, take: 50 }) });
-});
+}));
 
-app.post('/internal/reports/:scanId/draft-sections/:sectionKey', async (req, res) => {
+app.post('/internal/reports/:scanId/draft-sections/:sectionKey', asyncRoute(async (req, res) => {
   const scan = await prisma.scanJob.findUnique({ where: { id: req.params.scanId! } });
   if (!scan) {
     res.status(404).json({ error: { code: 'SCAN_NOT_FOUND' } });
@@ -74,9 +80,9 @@ app.post('/internal/reports/:scanId/draft-sections/:sectionKey', async (req, res
   // Push an SSE-visible event so subscribed clients refresh without polling.
   await publishEvent(`report.${scan.id}.section`, { sectionKey: req.params.sectionKey, state: section.state });
   res.json({ section });
-});
+}));
 
-app.post('/internal/reports/:scanId/finalize', async (req, res) => {
+app.post('/internal/reports/:scanId/finalize', asyncRoute(async (req, res) => {
   const scan = await prisma.scanJob.findUnique({
     where: { id: req.params.scanId! },
     include: {
@@ -134,6 +140,11 @@ app.post('/internal/reports/:scanId/finalize', async (req, res) => {
   // Notify SSE subscribers that the report is finalized so they close cleanly.
   await publishEvent(`report.${scan.id}.finalized`, { reportId: report.id, version });
   res.json({ report });
+}));
+
+app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('[reporting] request_failed', err instanceof Error ? err.message : err);
+  res.status(500).json({ error: { code: 'INTERNAL_ERROR' } });
 });
 
 app.listen(port, '0.0.0.0', () => console.log(`reporting listening on ${port}`));

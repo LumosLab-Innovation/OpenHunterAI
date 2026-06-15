@@ -9,28 +9,36 @@
 x-worker-env: &worker-env
   NATS_URL: nats://nats:4222
   INTERNAL_API_URL: http://internal-api:4100
+  FINDINGS_URL: http://findings:4300
   REPORTING_URL: http://reporting:4400
-  WORKER_TOKEN: staging-worker-token
+  WORKER_TOKEN: ${WORKER_TOKEN:?Set WORKER_TOKEN in the staging env file}
 
 services:
   Z:
     image: openhunter/worker-z:staging
+    restart: unless-stopped
     environment: { ZAPROXY_INTEGRATION_URL: http://zaproxy-adapter:6100, <<: *worker-env }
   N:
     image: openhunter/worker-n:staging
+    restart: unless-stopped
     environment: { NUCLEI_INTEGRATION_URL: http://nuclei-adapter:6110, <<: *worker-env }
   O:
     image: openhunter/worker-o:staging
+    restart: unless-stopped
     environment: { OPENHACK_INTEGRATION_URL: http://openhack-adapter:6120, <<: *worker-env }
   S:
     image: openhunter/worker-s:staging
+    restart: unless-stopped
     environment: { STRIX_INTEGRATION_URL: http://strix-adapter:6130, <<: *worker-env }
   orchestrator:
-    image: openhunter/worker-orchestrator:staging
+    image: asia-southeast1-docker.pkg.dev/project-a7c4b503-2c06-444f-a8a/openhunter/worker-orchestrator:staging
+    restart: unless-stopped
     environment: { <<: *worker-env }
   browser-inspector:
     image: openhunter/worker-browser:staging
+    restart: unless-stopped
     environment: { <<: *worker-env }
   retest:
     image: openhunter/worker-retest:staging
+    restart: unless-stopped
     environment: { OPENHACK_INTEGRATION_URL: http://openhack-adapter:6120, <<: *worker-env }

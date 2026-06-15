@@ -107,7 +107,7 @@ export class BillingService {
       return { processed: true };
     }
 
-    if (body.type === 'order.paid' || body.type === 'order.created') {
+    if (body.type === 'order.paid') {
       await this.prisma.payment.upsert({
         where: { provider_providerRef: { provider: 'polar', providerRef: body.data.id } },
         create: {

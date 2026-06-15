@@ -1,7 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { LLMGateway } from '@x-hunter/llm-gateway';
 import type { LLMProvider, LLMResponse, ProviderName, SanitizedLLMRequest } from '@x-hunter/llm-gateway';
-import { deterministicRanking, parseTriageOutput, triageCandidates, type CandidateSummary } from './triage.js';
+import {
+  deterministicRanking,
+  parseTriageOutput,
+  selectPromotionCandidates,
+  triageCandidates,
+  type CandidateSummary,
+} from './triage.js';
 
 const candidates: CandidateSummary[] = [
   { id: 'c1', title: 'XSS', severity: 'high', confidence: 'medium', category: 'xss', affectedAsset: '/a' },
@@ -93,5 +99,35 @@ describe('triageCandidates', () => {
     });
     expect(rec.rankedIds).toEqual(['c1']);
     expect(rec.fallback).toBe(true);
+  });
+});
+
+describe('selectPromotionCandidates', () => {
+  it('promotes only valuable candidates with sanitized evidence and respects Free Hunter quota', () => {
+    const selected = selectPromotionCandidates(
+      [
+        { id: 'info', title: 'Info', severity: 'info', confidence: 'high', category: 'headers', affectedAsset: '/', evidence: { description: 'ok', sanitized: true } },
+        { id: 'weak', title: 'Weak', severity: 'medium', confidence: 'low', category: 'auth', affectedAsset: '/a', evidence: { description: 'ok', sanitized: true } },
+        { id: 'good', title: 'Good', severity: 'high', confidence: 'medium', category: 'auth', affectedAsset: '/b', evidence: { description: 'ok', sanitized: true } },
+        { id: 'raw', title: 'Raw', severity: 'critical', confidence: 'high', category: 'secret', affectedAsset: '/c', evidence: { rawRequest: 'GET /token=secret' } },
+      ],
+      { rankedIds: ['raw', 'good', 'weak', 'info', 'invented'], duplicateClusters: [], fallback: false },
+      { scanMode: 'free_hunter' },
+    );
+
+    expect(selected.map((candidate) => candidate.id)).toEqual(['good']);
+  });
+
+  it('does not let model-ranked unknown ids or duplicate cluster members create extra findings', () => {
+    const selected = selectPromotionCandidates(
+      [
+        { id: 'a', title: 'A', severity: 'critical', confidence: 'high', category: 'api', affectedAsset: '/a', evidence: { description: 'sanitized', sanitized: true } },
+        { id: 'b', title: 'B', severity: 'high', confidence: 'high', category: 'api', affectedAsset: '/b', evidence: { description: 'sanitized', sanitized: true } },
+      ],
+      { rankedIds: ['unknown', 'b', 'a'], duplicateClusters: [['b', 'a'], ['unknown', 'a']], fallback: false },
+      { scanMode: 'ai_blackhat_mindset_check', maxFindings: 10 },
+    );
+
+    expect(selected.map((candidate) => candidate.id)).toEqual(['b']);
   });
 });

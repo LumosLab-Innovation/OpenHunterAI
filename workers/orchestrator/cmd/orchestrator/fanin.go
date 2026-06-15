@@ -17,6 +17,8 @@ type finalizer interface {
 type progressTracker interface {
 	MarkCompleted(ctx context.Context, scanID, workerType string, signals int) (bus.ScanProgress, bool, error)
 	ClaimFinalize(ctx context.Context, scanID string) (bool, error)
+	CompleteFinalize(ctx context.Context, scanID string) error
+	ReleaseFinalize(ctx context.Context, scanID string) error
 }
 
 // stateSetter is the minimal scan-state surface the fan-in needs.
@@ -28,13 +30,9 @@ type stateSetter interface {
 // when the scan reaches a finalize condition, trigger report finalization and
 // mark the scan completed in the database.
 //
-// Two finalize conditions:
-//   - all expected workers completed (MarkCompleted reports shouldFinalize), or
-//   - Free Hunter early stop: in free_hunter mode the scan stops after the first
-//     valuable finding, so a non-zero signal count cuts off remaining workers
-//     (WORKER_SPEC §5).
-//
-// Both paths are guarded by the KV Finalized flag so finalize fires exactly once.
+// Finalization is triggered only after all expected workers complete. Free
+// Hunter's "first valuable finding" limit is enforced by candidate promotion
+// and report generation, not by raw signal count.
 func handleCompleted(ctx context.Context, kv progressTracker, rep finalizer, state stateSetter, env *events.Envelope, log *wlog.Logger) error {
 	var c events.WorkerCompletedPayload
 	if err := env.Decode(&c); err != nil {
@@ -49,30 +47,30 @@ func handleCompleted(ctx context.Context, kv progressTracker, rep finalizer, sta
 	}
 	log.Info("worker_completed", "completed", progress.Completed, "expected", progress.Expected, "signals", progress.Signals)
 
-	reason := "all_workers_completed"
-	if !shouldFinalize && progress.Mode == "free_hunter" && progress.Signals > 0 {
+	if shouldFinalize {
 		claimed, err := kv.ClaimFinalize(ctx, c.ScanID)
 		if err != nil {
 			log.Error("claim_finalize_failed", "err", err.Error())
 			return err
 		}
-		if claimed {
-			shouldFinalize = true
-			reason = "free_hunter_first_finding"
+		if !claimed {
+			log.Info("scan_finalize_claim_lost")
+			return nil
 		}
-	}
-
-	if shouldFinalize {
 		if err := rep.Finalize(ctx, c.ScanID); err != nil {
+			_ = kv.ReleaseFinalize(ctx, c.ScanID)
 			log.Error("finalize_failed", "err", err.Error())
 			return err
+		}
+		if err := kv.CompleteFinalize(ctx, c.ScanID); err != nil {
+			log.Warn("complete_finalize_failed", "err", err.Error())
 		}
 		if state != nil {
 			if err := state.SetState(ctx, c.ScanID, "completed", ""); err != nil {
 				log.Warn("set_state_completed_failed", "err", err.Error())
 			}
 		}
-		log.Info("scan_finalized", "reason", reason)
+		log.Info("scan_finalized", "reason", "all_workers_completed")
 	}
 	return nil
 }

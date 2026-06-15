@@ -19,6 +19,7 @@ import { billingRoutes } from './modules/billing/billing.routes.js';
 export function createApp() {
   const app = express();
 
+  app.set('trust proxy', 1);
   app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
   // Allow the SPA origin(s) with credentials. CORS_ORIGINS is a comma-separated
   // allowlist (e.g. https://openhunterai.pages.dev); falls back to reflecting any

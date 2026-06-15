@@ -16,6 +16,7 @@ export interface CandidateSummary {
   confidence: string;
   category: string;
   affectedAsset: string;
+  evidence?: unknown;
 }
 
 export interface TriageRecommendation {
@@ -98,6 +99,7 @@ export async function triageCandidates(
   args: { projectId: string; scanId: string; packageTier: PackageTier; candidates: CandidateSummary[] },
 ): Promise<TriageRecommendation> {
   const { candidates } = args;
+  const llmCandidates = candidates.map(({ evidence: _evidence, ...candidate }) => candidate);
   if (candidates.length <= 1) {
     return { rankedIds: candidates.map((c) => c.id), duplicateClusters: [], fallback: true };
   }
@@ -109,7 +111,7 @@ export async function triageCandidates(
       scanId: args.scanId,
       packageTier: args.packageTier,
       systemPrompt: SYSTEM_PROMPT,
-      userPrompt: JSON.stringify({ candidates }),
+      userPrompt: JSON.stringify({ candidates: llmCandidates }),
       requireJson: true,
     });
     if (res.error || !res.outputText) {
@@ -123,4 +125,55 @@ export async function triageCandidates(
   } catch {
     return { rankedIds: deterministicRanking(candidates), duplicateClusters: [], fallback: true };
   }
+}
+
+export interface PromotionCandidate extends CandidateSummary {
+  evidence: unknown;
+}
+
+export function selectPromotionCandidates(
+  candidates: PromotionCandidate[],
+  recommendation: TriageRecommendation,
+  args: { scanMode: string; maxFindings?: number },
+): PromotionCandidate[] {
+  const byId = new Map(candidates.map((candidate) => [candidate.id, candidate]));
+  const duplicateIds = new Set<string>();
+  for (const cluster of recommendation.duplicateClusters) {
+    const knownCluster = cluster.filter((id) => byId.has(id));
+    for (const duplicateId of knownCluster.slice(1)) {
+      duplicateIds.add(duplicateId);
+    }
+  }
+
+  const ranked = [...recommendation.rankedIds, ...deterministicRanking(candidates)];
+  const seen = new Set<string>();
+  const packageMaxFindings = args.scanMode === 'free_hunter' ? 1 : 50;
+  const maxFindings = Math.min(packageMaxFindings, args.maxFindings ?? packageMaxFindings);
+  if (maxFindings <= 0) return [];
+  const selected: PromotionCandidate[] = [];
+
+  for (const id of ranked) {
+    if (seen.has(id) || duplicateIds.has(id)) continue;
+    seen.add(id);
+    const candidate = byId.get(id);
+    if (!candidate || !isValuableCandidate(candidate) || !hasSanitizedEvidence(candidate.evidence)) continue;
+    selected.push(candidate);
+    if (selected.length >= maxFindings) break;
+  }
+
+  return selected;
+}
+
+function isValuableCandidate(candidate: CandidateSummary): boolean {
+  return (SEVERITY_ORDER[candidate.severity] ?? 0) >= SEVERITY_ORDER.medium &&
+    (CONFIDENCE_ORDER[candidate.confidence] ?? 0) >= CONFIDENCE_ORDER.medium;
+}
+
+function hasSanitizedEvidence(evidence: unknown): boolean {
+  if (!evidence || typeof evidence !== 'object') return false;
+  const value = evidence as Record<string, unknown>;
+  if (value.rawRequest || value.rawResponse || value.rawHar || value.rawCookie || value.rawToken || value.rawSecret) {
+    return false;
+  }
+  return typeof value.description === 'string' || value.sanitized === true || Array.isArray(value.evidenceRefs);
 }

@@ -38,7 +38,11 @@ func main() {
 		log.Error("ensure_kv_failed", "err", err.Error())
 		os.Exit(1)
 	}
-	rep := newReportClient(env("REPORTING_URL", "http://reporting:4400"), os.Getenv("WORKER_TOKEN"))
+	rep := newReportClient(
+		env("REPORTING_URL", "http://reporting:4400"),
+		env("FINDINGS_URL", "http://findings:4300"),
+		os.Getenv("WORKER_TOKEN"),
+	)
 	state := callback.New(env("INTERNAL_API_URL", "http://internal-api:4100"), os.Getenv("WORKER_TOKEN"))
 
 	go serveHealth(env("PORT", "5100"), service)

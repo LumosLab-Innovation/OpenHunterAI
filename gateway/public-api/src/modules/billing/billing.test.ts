@@ -2,8 +2,23 @@ import { describe, it, expect } from 'vitest';
 import { verifySePayAuth, extractPaymentRef, sepayEventId, verifySePayHmac } from './sepay.js';
 import { verifyPolarSignature, mapPolarProductToTier, mapPolarStatus, polarEventId } from './polar.js';
 import { createHmac } from 'node:crypto';
+import { findSePayTopupOption, parseSePayTopupCatalog } from './sepay-catalog.js';
 
 describe('sepay', () => {
+  it('uses only server-configured top-up amounts and credits', () => {
+    const catalog = 'single_scan:990000:1,team_pack:4500000:5';
+    expect(parseSePayTopupCatalog(catalog)).toEqual([
+      { id: 'single_scan', amount: 990000, credits: 1 },
+      { id: 'team_pack', amount: 4500000, credits: 5 },
+    ]);
+    expect(findSePayTopupOption(catalog, 'single_scan')).toEqual({
+      id: 'single_scan',
+      amount: 990000,
+      credits: 1,
+    });
+    expect(findSePayTopupOption(catalog, 'client_supplied')).toBeNull();
+  });
+
   it('verifies the Apikey header constant-time', () => {
     expect(verifySePayAuth('Apikey secret123', 'secret123')).toBe(true);
     expect(verifySePayAuth('apikey secret123', 'secret123')).toBe(true);

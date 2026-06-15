@@ -10,7 +10,3 @@ third_party_research
 infra/docker-compose
 ops
 docs
-frontend
-# Go workers/integrations are built by their own images, not the TS image.
-workers
-integrations

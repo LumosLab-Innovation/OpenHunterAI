@@ -1,3 +1,0 @@
-allowBuilds:
-  '@prisma/client': set this to true or false
-  esbuild: set this to true or false

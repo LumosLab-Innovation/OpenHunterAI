@@ -31,11 +31,33 @@ export class ScansService {
     if (authz.expiresAt && authz.expiresAt < new Date()) {
       throw new GuardrailError('AUTHORIZATION_EXPIRED', 'Scan authorization expired');
     }
-    const domain = await this.prisma.domain.findUnique({ where: { id: authz.domainId } });
+    const allowedHosts = authz.allowedHosts as string[];
+    const domains = await this.prisma.domain.findMany({
+      where: {
+        projectId,
+        project: { organizationId: orgId },
+        hostname: { in: allowedHosts },
+        verifications: {
+          some: {
+            status: 'verified',
+            OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+          },
+        },
+      },
+      select: { id: true, hostname: true },
+    });
+    const verifiedHosts = new Set(domains.map((domain: { hostname: string }) => domain.hostname.toLowerCase()));
+    const unverifiedHosts = allowedHosts.filter((host) => !verifiedHosts.has(host.toLowerCase()));
+    if (unverifiedHosts.length > 0) {
+      throw new GuardrailError('DOMAIN_NOT_VERIFIED', 'Every allowed host must still be verified before scan creation', {
+        unverifiedHosts,
+      });
+    }
+    const domain = domains.find((d: { id: string }) => d.id === authz.domainId) ?? domains[0];
     const project = await this.prisma.project.findUnique({ where: { id: projectId } });
     const surfaceFlags = { ...DEFAULT_SURFACE_FLAGS, ...(authz.surfaceFlags as Partial<SurfaceFlags>) };
     const scope = {
-      allowedHosts: authz.allowedHosts as string[],
+      allowedHosts,
       allowedPaths: authz.allowedPaths as string[],
       excludedPaths: authz.excludedPaths as string[],
       testAccountPermission: authz.testAccountPermission,
