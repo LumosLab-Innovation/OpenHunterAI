@@ -2,10 +2,12 @@ import { publishEvent } from '@openhunter/event-core';
 import { getPrisma } from '@x-hunter/db';
 import { buildScanPlan, DEFAULT_SURFACE_FLAGS, GuardrailError, type SurfaceFlags } from '@x-hunter/shared';
 import { createInitialReportDraft } from '../reports/reports.service.js';
+import { EntitlementService } from '../billing/entitlement.service.js';
 import type { CreateScanBody } from './scans.dto.js';
 
 export class ScansService {
   private readonly prisma = getPrisma();
+  private readonly entitlements = new EntitlementService();
 
   list(orgId: string) {
     return this.prisma.scanJob.findMany({
@@ -60,6 +62,10 @@ export class ScansService {
       excludedPaths: scope.excludedPaths,
     });
 
+    // Billing entitlement gate: confirm the project may run this tier (and
+    // consume a PAYG credit) before any scan job is created.
+    await this.entitlements.assertCanScan(projectId, orgId, scope.packageTier);
+
     const scan = await this.prisma.scanJob.create({
       data: {
         projectId,
@@ -69,10 +75,10 @@ export class ScansService {
         targetType: authz.targetType,
         authScope: authz.authScope,
         testIntensityMode: authz.testIntensityMode,
-        surfaceFlags,
-        scanPlan,
+        surfaceFlags: surfaceFlags as object,
+        scanPlan: scanPlan as object,
         state: 'queued',
-        scopeSnapshot: scope,
+        scopeSnapshot: scope as object,
       },
     });
     await createInitialReportDraft(this.prisma, scan.id);

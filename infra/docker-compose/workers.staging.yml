@@ -1,0 +1,36 @@
+# Override: give workers explicit lowercase image names. Compose derives image
+# names from the project + service name, but services Z/N/O/S are uppercase and
+# Docker rejects uppercase repository names ("must be lowercase"). Pinning
+# `image:` here keeps the rest of workers.yml intact.
+#
+# Also point every worker at the in-cluster NATS + internal-api (their env files
+# default to localhost, which fails inside containers) and share WORKER_TOKEN so
+# callbacks authenticate against internal-api.
+x-worker-env: &worker-env
+  NATS_URL: nats://nats:4222
+  INTERNAL_API_URL: http://internal-api:4100
+  REPORTING_URL: http://reporting:4400
+  WORKER_TOKEN: staging-worker-token
+
+services:
+  Z:
+    image: openhunter/worker-z:staging
+    environment: { ZAPROXY_INTEGRATION_URL: http://zaproxy-adapter:6100, <<: *worker-env }
+  N:
+    image: openhunter/worker-n:staging
+    environment: { NUCLEI_INTEGRATION_URL: http://nuclei-adapter:6110, <<: *worker-env }
+  O:
+    image: openhunter/worker-o:staging
+    environment: { OPENHACK_INTEGRATION_URL: http://openhack-adapter:6120, <<: *worker-env }
+  S:
+    image: openhunter/worker-s:staging
+    environment: { STRIX_INTEGRATION_URL: http://strix-adapter:6130, <<: *worker-env }
+  orchestrator:
+    image: openhunter/worker-orchestrator:staging
+    environment: { <<: *worker-env }
+  browser-inspector:
+    image: openhunter/worker-browser:staging
+    environment: { <<: *worker-env }
+  retest:
+    image: openhunter/worker-retest:staging
+    environment: { OPENHACK_INTEGRATION_URL: http://openhack-adapter:6120, <<: *worker-env }

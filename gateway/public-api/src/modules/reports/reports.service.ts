@@ -161,11 +161,11 @@ export async function createInitialReportDraft(prisma: ReturnType<typeof getPris
       version: 1,
       state: 'draft',
       formatVersion: REPORT_FORMAT_VERSION,
-      content,
+      content: content as object,
       markdown,
     },
     update: {
-      content,
+      content: content as object,
       markdown,
     },
   });

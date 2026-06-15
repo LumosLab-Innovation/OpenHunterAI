@@ -47,10 +47,14 @@ export function readSession(token?: string): SessionUser | null {
 }
 
 export function setSessionCookie(res: Response, token: string) {
+  // For a cross-site frontend (e.g. openhunterai.pages.dev calling the API on
+  // *.run.app), the browser only sends the cookie if it is SameSite=None;Secure.
+  // Controlled via COOKIE_CROSS_SITE so local dev can keep Lax.
+  const crossSite = process.env.COOKIE_CROSS_SITE === 'true';
   res.cookie(cookieName, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: crossSite || process.env.NODE_ENV === 'production',
+    sameSite: crossSite ? 'none' : 'lax',
     path: '/',
     maxAge: 1000 * 60 * 60 * 24 * 7,
   });

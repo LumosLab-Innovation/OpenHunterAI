@@ -10,7 +10,7 @@
     "start": "node dist/server.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "echo 'lint: no rules (public-api)'",
-    "test": "echo 'no tests (public-api)'"
+    "test": "vitest run"
   },
   "dependencies": {
     "@openhunter/event-core": "file:../../shared/event-core",
@@ -29,6 +29,7 @@
     "@types/express": "^4.17.21",
     "@types/node": "^20.11.30",
     "tsx": "^4.7.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
   }
 }

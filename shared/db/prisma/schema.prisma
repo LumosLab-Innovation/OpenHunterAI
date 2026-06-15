@@ -5,7 +5,14 @@
 // reads cleanly to non-Prisma DBAs while exposing camelCase to TS code.
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // Generate into a fixed path inside @x-hunter/db so every workspace service
+  // resolves the SAME generated client (avoids pnpm's multiple isolated
+  // @prisma/client copies, only one of which `prisma generate` populates).
+  output        = "../generated/client"
+  // Include the Debian OpenSSL 3.x engine so the client runs on node:22-slim
+  // (Bookworm) images, plus the local native target for dev.
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -26,6 +33,9 @@ model Organization {
 
   users    User[]
   projects Project[]
+
+  payments      Payment[]
+  subscriptions Subscription[]
 
   @@map("organizations")
 }
@@ -74,6 +84,8 @@ model Project {
   findings           Finding[]
   reports            Report[]
   creditLedger       CreditEntry[]
+  payments           Payment[]
+  subscriptions      Subscription[]
 
   @@map("projects")
 }
@@ -526,6 +538,92 @@ model CreditEntry {
 
   @@index([projectId])
   @@map("credit_ledger")
+}
+
+// =============================================================================
+// Payments & subscriptions
+// =============================================================================
+
+enum PaymentProvider {
+  sepay
+  polar
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  failed
+  refunded
+  expired
+}
+
+// A one-time payment (SePay VND top-up / PAYG) or the order backing a Polar
+// purchase. Idempotency is enforced via providerRef so a replayed webhook does
+// not double-credit.
+model Payment {
+  id             String          @id @default(cuid())
+  organizationId String          @map("organization_id")
+  projectId      String?         @map("project_id")
+  provider       PaymentProvider
+  /// Provider-side reference (SePay transaction id / Polar order id). Unique per provider.
+  providerRef    String          @map("provider_ref")
+  amount         Int
+  currency       String          @default("VND")
+  status         PaymentStatus   @default(pending)
+  /// Credits to grant on success (PAYG top-up). Null for subscription orders.
+  creditDelta    Int?            @map("credit_delta")
+  /// Sanitized provider metadata (never raw PII / card data).
+  metadata       Json?
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  project        Project?        @relation(fields: [projectId], references: [id])
+
+  @@unique([provider, providerRef])
+  @@index([organizationId])
+  @@map("payments")
+}
+
+enum SubscriptionStatus {
+  active
+  past_due
+  canceled
+  expired
+}
+
+// A recurring subscription, currently Polar (Merchant-of-Record). Drives the
+// project package tier while active.
+model Subscription {
+  id                String             @id @default(cuid())
+  organizationId    String             @map("organization_id")
+  projectId         String?            @map("project_id")
+  provider          PaymentProvider    @default(polar)
+  /// Provider subscription id (unique per provider).
+  externalId        String             @map("external_id")
+  status            SubscriptionStatus @default(active)
+  packageTier       PackageTier        @map("package_tier")
+  currentPeriodEnd  DateTime?          @map("current_period_end")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  project           Project?           @relation(fields: [projectId], references: [id])
+
+  @@unique([provider, externalId])
+  @@index([organizationId])
+  @@map("subscriptions")
+}
+
+// Webhook idempotency ledger: every processed provider event is recorded so a
+// redelivered webhook is a no-op (provider + eventId unique).
+model WebhookEvent {
+  id          String          @id @default(cuid())
+  provider    PaymentProvider
+  eventId     String          @map("event_id")
+  eventType   String          @map("event_type")
+  processedAt DateTime        @default(now()) @map("processed_at")
+
+  @@unique([provider, eventId])
+  @@map("webhook_events")
 }
 
 model AuditLog {

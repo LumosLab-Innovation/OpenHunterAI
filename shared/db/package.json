@@ -5,6 +5,11 @@
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "files": [
+    "src",
+    "generated",
+    "prisma"
+  ],
   "exports": {
     ".": {
       "types": "./src/index.ts",

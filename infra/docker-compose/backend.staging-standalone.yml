@@ -1,0 +1,80 @@
+# Standalone staging compose for the 3 image-based backend services.
+# Does NOT inherit backend.yml, so no `- ../..:/app` bind-mount overlays the
+# image (that mount was hiding the baked-in shared/db/generated/ Prisma client).
+#
+# Run alongside core.yml on the VM:
+#   docker compose -f core.yml -f backend.staging-standalone.yml up -d --build
+#
+# postgres/nats come from core.yml on the same compose project network.
+services:
+  public-api:
+    image: openhunter/public-api:staging
+    build:
+      context: ../..
+      dockerfile: gateway/public-api/Dockerfile
+    env_file:
+      - ../../gateway/public-api/env/public-api.env.example
+    environment:
+      DATABASE_URL: postgresql://xhunter:xhunter@postgres:5432/xhunter?schema=public
+      NATS_URL: nats://nats:4222
+      API_PORT: 4000
+      APP_JWT_SECRET: dev-only-rotate-me
+      EVENTS_DISABLED: "false"
+      WORKER_TOKEN: staging-worker-token
+    ports:
+      - "4000:4000"
+    depends_on:
+      - postgres
+      - nats
+
+  internal-api:
+    image: openhunter/internal-api:staging
+    build:
+      context: ../..
+      dockerfile: gateway/internal-api/Dockerfile
+    env_file:
+      - ../../gateway/internal-api/env/internal-api.env.example
+    environment:
+      INTERNAL_API_PORT: 4100
+      DATABASE_URL: postgresql://xhunter:xhunter@postgres:5432/xhunter?schema=public
+      NATS_URL: nats://nats:4222
+      WORKER_TOKEN: staging-worker-token
+    ports:
+      - "4100:4100"
+    depends_on:
+      - postgres
+      - nats
+
+  findings:
+    image: openhunter/findings:staging
+    build:
+      context: ../..
+      dockerfile: backend/findings/Dockerfile
+    env_file:
+      - ../../backend/findings/env/findings.env.example
+    environment:
+      FINDINGS_PORT: 4300
+      DATABASE_URL: postgresql://xhunter:xhunter@postgres:5432/xhunter?schema=public
+      WORKER_TOKEN: staging-worker-token
+    ports:
+      - "4300:4300"
+    depends_on:
+      - postgres
+
+  reporting:
+    image: openhunter/reporting:staging
+    build:
+      context: ../..
+      dockerfile: backend/reporting/Dockerfile
+    env_file:
+      - ../../backend/reporting/env/reporting.env.example
+    environment:
+      REPORTING_PORT: 4400
+      DATABASE_URL: postgresql://xhunter:xhunter@postgres:5432/xhunter?schema=public
+      NATS_URL: nats://nats:4222
+      WORKER_TOKEN: staging-worker-token
+    ports:
+      - "4400:4400"
+    depends_on:
+      - postgres
+      - nats

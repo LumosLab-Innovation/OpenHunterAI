@@ -1,0 +1,17 @@
+# Staging override for integration adapters:
+#  - share a real ZAP_API_KEY between the ZAP daemon and the zaproxy adapter
+#    (the daemon refuses to start with the placeholder "changeme" key)
+#  - lowercase/stable image names are fine here (services are already lowercase)
+services:
+  zap:
+    environment:
+      ZAP_API_KEY: staging-zap-key
+  zaproxy-adapter:
+    image: openhunter/zaproxy-adapter:staging
+    environment:
+      ZAP_BASE_URL: http://zap:8080
+      ZAP_API_KEY: staging-zap-key
+  nuclei-adapter:
+    image: openhunter/nuclei-adapter:staging
+  openhack-adapter:
+    image: openhunter/openhack-adapter:staging

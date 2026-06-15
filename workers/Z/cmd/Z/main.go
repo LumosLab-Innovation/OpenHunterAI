@@ -1,26 +1,36 @@
+// Worker Z drives the ZAP passive/baseline DAST signal layer through the
+// zaproxy integration adapter. It is not an active attacker; it only requests
+// passive/baseline signal and returns sanitized output.
 package main
 
 import (
-	"encoding/json"
-	"log"
-	"net/http"
+	"context"
 	"os"
+	"time"
+
+	"openhunter/workers/shared/events"
+	"openhunter/workers/shared/runner"
+	"openhunter/workers/shared/signal"
+	"openhunter/workers/shared/worker"
 )
 
 func main() {
-	service := env("SERVICE_NAME", "Z")
-	http.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"ok": true, "service": service, "integration_url": env("ZAPROXY_INTEGRATION_URL", "http://zaproxy-adapter:6100"),
-		})
-	})
-	http.HandleFunc("/run", func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusAccepted)
-		_ = json.NewEncoder(w).Encode(map[string]any{"accepted": true, "service": service})
-	})
-	addr := ":" + env("PORT", "5120")
-	log.Printf("%s listening on %s", service, addr)
-	log.Fatal(http.ListenAndServe(addr, nil))
+	runner.Serve(runner.Config{
+		WorkerType:     env("SERVICE_NAME", "Z"),
+		Subject:        events.SubjectWorkerZAP,
+		Durable:        "worker-zap",
+		Port:           env("PORT", "5120"),
+		NATSURL:        env("NATS_URL", "nats://localhost:4222"),
+		InternalAPIURL: env("INTERNAL_API_URL", "http://internal-api:4100"),
+		WorkerToken:    os.Getenv("WORKER_TOKEN"),
+		Timeout:        4 * time.Minute,
+	}, run)
+}
+
+func run(ctx context.Context, in events.WorkerRunPayload) worker.Result {
+	return signal.Run(ctx, in,
+		env("ZAPROXY_INTEGRATION_URL", "http://zaproxy-adapter:6100"),
+		"/run", "passive_baseline", nil)
 }
 
 func env(key, fallback string) string {
