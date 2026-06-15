@@ -28,7 +28,7 @@ export class EncryptionKeyMissingError extends Error {
 }
 
 function loadKey(): Buffer {
-  const raw = process.env.APP_ENCRYPTION_KEY;
+  const raw = process.env.APP_ENCRYPTION_KEY?.trim();
   if (!raw) {
     throw new EncryptionKeyMissingError();
   }
