@@ -1,1 +1,0 @@
-# Use MCP for playwright

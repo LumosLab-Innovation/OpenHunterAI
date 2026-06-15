@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OpenHunterAI Upstream Sources Registry",
+  "type": "object",
+  "required": ["version", "sources"],
+  "additionalProperties": true,
+  "properties": {
+    "version": { "type": "integer" },
+    "description": { "type": "string" },
+    "defaults": { "type": "object" },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "url",
+          "role",
+          "importMode",
+          "currentVendorState",
+          "isRuntimeDependency",
+          "canVendorFull",
+          "canSubmodule",
+          "allowedUse",
+          "forbiddenUse"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": ["openhunter_core", "openhack", "strix", "zap", "nuclei", "claude_bughunter"]
+          },
+          "url": { "type": "string" },
+          "ref": { "type": "string" },
+          "license": { "type": "string" },
+          "role": { "type": "string" },
+          "importMode": {
+            "type": "string",
+            "enum": ["native", "reference_only", "reasoning_guide", "runtime_adapter", "curated_content"]
+          },
+          "currentVendorState": {
+            "type": "string",
+            "enum": [
+              "native",
+              "curated_subset_in_third_party_research",
+              "adapter_runtime_only",
+              "reference_external_only",
+              "full_vendored_in_third_party_research"
+            ]
+          },
+          "vendoredPaths": { "type": "array", "items": { "type": "string" } },
+          "isRuntimeDependency": { "type": "boolean" },
+          "canVendorFull": { "type": "boolean" },
+          "canSubmodule": { "type": "boolean" },
+          "allowedUse": { "type": "array", "items": { "type": "string" } },
+          "forbiddenUse": { "type": "array", "items": { "type": "string" } },
+          "inScopeSkills": { "type": "array", "items": { "type": "string" } },
+          "outOfScopeSkillsRejected": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

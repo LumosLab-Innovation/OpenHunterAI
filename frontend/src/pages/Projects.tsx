@@ -1,18 +1,29 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { FolderKanban, Globe, Plus, ShieldCheck } from 'lucide-react';
 import { apiFetch } from '../lib/api';
+import { PACKAGE_OPTIONS, labelFor, TARGET_TYPE_OPTIONS, SCAN_MODE_OPTIONS } from '../lib/product';
+import { PageHeader } from '../components/PageHeader';
+import { AuthorizationWizard } from '../components/AuthorizationWizard';
+import { Badge } from '../components/ui/Badge';
+import { Button } from '../components/ui/Button';
+import { ButtonLink } from '../components/ui/ButtonLink';
+import { Card, CardBody, CardHeader, CardTitle } from '../components/ui/Card';
+import { Field, Input, Select } from '../components/ui/Field';
+import { EmptyState, ErrorState } from '../components/ui/States';
+import { SkeletonRows } from '../components/ui/Loading';
+import { Table, TD, TH, THead, TR } from '../components/ui/Table';
 
 interface Project {
   id: string;
   name: string;
   packageTier?: string;
 }
-
 interface Domain {
   id: string;
   hostname: string;
+  verified?: boolean;
 }
-
 interface Authorization {
   id: string;
   scanMode: string;
@@ -22,64 +33,17 @@ interface Authorization {
   allowedHosts: string[];
 }
 
-const PACKAGE_OPTIONS = [
-  { value: 'free_hunter', label: 'Free Hunter' },
-  { value: 'ai_blackhat_mindset_check', label: 'AI Black-hat Mindset Check' },
-  { value: 'monitor_workspace', label: 'Monitor Workspace' },
-  { value: 'enterprise_payg', label: 'Enterprise / PAYG' },
-] as const;
-
-const SCAN_MODE_OPTIONS = [
-  { value: 'free_hunter', label: 'Free Hunter' },
-  { value: 'ai_blackhat_mindset_check', label: 'AI Black-hat Mindset Check' },
-] as const;
-
-const TARGET_TYPE_OPTIONS = [
-  { value: 'static_content_website', label: 'Static / Content Website' },
-  { value: 'interactive_web_app', label: 'Interactive Web App' },
-  { value: 'api_service', label: 'API Service' },
-  { value: 'ai_llm_application', label: 'AI / LLM Application' },
-] as const;
-
-const INTENSITY_OPTIONS = [
-  { value: 'safe_discovery', label: 'Safe Discovery' },
-  { value: 'controlled_attack_simulation', label: 'Controlled Attack Simulation' },
-  { value: 'aggressive_staging', label: 'Aggressive Staging' },
-] as const;
-
-const AUTH_SCOPE_OPTIONS = [
-  { value: 'none', label: 'None' },
-  { value: 'one_account', label: 'One test account' },
-  { value: 'two_accounts', label: 'Two test accounts / User A-B' },
-] as const;
-
-const SURFACE_FLAGS = [
-  ['has_login', 'Login'],
-  ['has_test_account', 'Test account'],
-  ['has_api_docs', 'API docs'],
-  ['has_file_upload', 'File upload'],
-  ['has_payment', 'Payment'],
-  ['has_admin_dashboard', 'Admin dashboard'],
-  ['has_webhook', 'Webhook'],
-  ['has_chatbot_or_rag_or_tool_calling', 'Chatbot / RAG / tool calling'],
-] as const;
-
-function packageLabel(value?: string) {
-  return PACKAGE_OPTIONS.find((option) => option.value === value)?.label ?? 'Free Hunter';
-}
-
-function scanModeLabel(value?: string) {
-  return SCAN_MODE_OPTIONS.find((option) => option.value === value)?.label ?? 'Free Hunter';
-}
-
 export function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   async function load() {
+    setLoading(true);
     const res = await apiFetch<{ projects: Project[] }>('/v1/projects');
     if (res.ok) setProjects(res.data.projects);
     else setError(res.error.message ?? `HTTP ${res.status}`);
+    setLoading(false);
   }
 
   async function create(e: FormEvent<HTMLFormElement>) {
@@ -101,33 +65,63 @@ export function ProjectsPage() {
   }, []);
 
   return (
-    <section className="panel">
-      <h1>Projects</h1>
-      {error && <p className="error">{error}</p>}
-      <form className="row" onSubmit={create}>
-        <input name="name" placeholder="Project name" required />
-        <select name="packageTier" defaultValue="free_hunter">
-          {PACKAGE_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <button type="submit">Create</button>
-      </form>
-      <DataTable
-        rows={projects}
-        render={(p) => (
-          <>
-            <td>{p.name}</td>
-            <td>{packageLabel(p.packageTier)}</td>
-            <td>
-              <Link to={`/projects/${p.id}`}>Open</Link>
-            </td>
-          </>
-        )}
+    <div>
+      <PageHeader
+        title="Projects"
+        description="Each project holds its domains, scan authorizations, and findings."
       />
-    </section>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>New project</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <form className="flex flex-wrap items-end gap-3" onSubmit={create}>
+            <Field label="Name" htmlFor="name" className="min-w-[200px] flex-1" required>
+              <Input id="name" name="name" placeholder="Acme production" required />
+            </Field>
+            <Field label="Package" htmlFor="packageTier" className="min-w-[200px]">
+              <Select id="packageTier" name="packageTier" defaultValue="free_hunter">
+                {PACKAGE_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Button type="submit">
+              <Plus className="h-4 w-4" /> Create
+            </Button>
+          </form>
+        </CardBody>
+      </Card>
+
+      {error && <ErrorState message={error} className="mb-4" onRetry={() => void load()} />}
+
+      {loading ? (
+        <SkeletonRows rows={3} />
+      ) : projects.length === 0 ? (
+        <EmptyState
+          icon={FolderKanban}
+          title="No projects yet"
+          description="Create your first project above to start verifying domains and authorizing scans."
+        />
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {projects.map((p) => (
+            <Link key={p.id} to={`/projects/${p.id}`}>
+              <Card className="h-full p-5 transition-colors hover:border-signal/50">
+                <FolderKanban className="h-5 w-5 text-signal" />
+                <h3 className="mt-3 font-display text-base font-700 text-ink">{p.name}</h3>
+                <Badge tone="neutral" className="mt-2">
+                  {labelFor(PACKAGE_OPTIONS, p.packageTier, 'Free Hunter')}
+                </Badge>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -136,14 +130,19 @@ export function ProjectDetailPage() {
   const [domains, setDomains] = useState<Domain[]>([]);
   const [auths, setAuths] = useState<Authorization[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [showWizard, setShowWizard] = useState(false);
 
   async function load() {
+    setLoading(true);
     const [d, a] = await Promise.all([
       apiFetch<{ domains: Domain[] }>(`/v1/projects/${id}/domains`),
       apiFetch<{ authorizations: Authorization[] }>(`/v1/projects/${id}/authorizations`),
     ]);
     if (d.ok) setDomains(d.data.domains);
     if (a.ok) setAuths(a.data.authorizations);
+    if (!d.ok) setError(d.error.message ?? `HTTP ${d.status}`);
+    setLoading(false);
   }
 
   async function addDomain(e: FormEvent<HTMLFormElement>) {
@@ -152,38 +151,6 @@ export function ProjectDetailPage() {
     const res = await apiFetch(`/v1/projects/${id}/domains`, {
       method: 'POST',
       body: JSON.stringify({ hostname: String(form.get('hostname')).trim().toLowerCase() }),
-    });
-    if (!res.ok) setError(res.error.message ?? `HTTP ${res.status}`);
-    else {
-      e.currentTarget.reset();
-      await load();
-    }
-  }
-
-  async function createAuthorization(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const allowedHosts = String(form.get('allowedHosts'))
-      .split(',')
-      .map((v) => v.trim())
-      .filter(Boolean);
-    const surfaceFlags = Object.fromEntries(
-      SURFACE_FLAGS.map(([key]) => [key, form.get(key) === 'on']),
-    );
-    const res = await apiFetch(`/v1/projects/${id}/authorizations`, {
-      method: 'POST',
-      body: JSON.stringify({
-        scanMode: form.get('scanMode'),
-        authScope: form.get('authScope'),
-        targetType: form.get('targetType'),
-        testIntensityMode: form.get('testIntensityMode'),
-        surfaceFlags,
-        aggressiveStagingRiskAccepted: form.get('aggressiveStagingRiskAccepted') === 'on',
-        allowedHosts,
-        allowedPaths: [],
-        excludedPaths: [],
-        consentText: `Authorized scan for ${allowedHosts.join(', ')}`,
-      }),
     });
     if (!res.ok) setError(res.error.message ?? `HTTP ${res.status}`);
     else {
@@ -205,96 +172,119 @@ export function ProjectDetailPage() {
   }, [id]);
 
   return (
-    <section className="panel">
-      <h1>Project {id.slice(0, 8)}</h1>
-      {error && <p className="error">{error}</p>}
-      <h2>Domains</h2>
-      <form className="row" onSubmit={addDomain}>
-        <input name="hostname" placeholder="example.com" required />
-        <button type="submit">Add domain</button>
-      </form>
-      <DataTable rows={domains} render={(d) => <td>{d.hostname}</td>} />
-      <h2>Scan authorizations</h2>
-      <form className="row" onSubmit={createAuthorization}>
-        <select name="scanMode" defaultValue="free_hunter">
-          {SCAN_MODE_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <select name="targetType" defaultValue="interactive_web_app">
-          {TARGET_TYPE_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <select name="testIntensityMode" defaultValue="safe_discovery">
-          {INTENSITY_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <select name="authScope" defaultValue="none">
-          {AUTH_SCOPE_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <input name="allowedHosts" placeholder="example.com,www.example.com" required />
-        <div className="checkbox-grid">
-          {SURFACE_FLAGS.map(([key, label]) => (
-            <label key={key}>
-              <input type="checkbox" name={key} /> {label}
-            </label>
-          ))}
-        </div>
-        <label className="risk-copy">
-          <input type="checkbox" name="aggressiveStagingRiskAccepted" /> Aggressive Staging is only
-          for staging/dev/test targets I control.
-        </label>
-        <p className="muted">
-          Controlled and aggressive modes may create test data, trigger alerts, or add load. Raw
-          secrets are not stored; sensitive actions still require approval gates.
-        </p>
-        <button type="submit">Authorize</button>
-      </form>
-      <DataTable
-        rows={auths}
-        render={(a) => (
-          <>
-            <td>{scanModeLabel(a.scanMode)}</td>
-            <td>{a.targetType ?? '-'}</td>
-            <td>{a.authScope ?? 'none'}</td>
-            <td>{a.testIntensityMode ?? '-'}</td>
-            <td>{a.allowedHosts.join(', ')}</td>
-            <td>
-              <button onClick={() => startScan(a.id)}>Start scan</button>
-            </td>
-          </>
-        )}
+    <div>
+      <PageHeader
+        title="Project"
+        description={<span className="text-data text-xs text-ink-faint">{id}</span>}
+        actions={
+          <ButtonLink to="/projects" variant="ghost" size="sm">
+            ← All projects
+          </ButtonLink>
+        }
       />
-    </section>
-  );
-}
 
-function DataTable<T extends { id: string }>({
-  rows,
-  render,
-}: {
-  rows: T[];
-  render: (row: T) => React.ReactNode;
-}) {
-  return (
-    <table>
-      <tbody>
-        {rows.map((row) => (
-          <tr key={row.id}>{render(row)}</tr>
-        ))}
-      </tbody>
-    </table>
+      {error && <ErrorState message={error} className="mb-4" onRetry={() => void load()} />}
+
+      {/* Domains */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Domains</CardTitle>
+        </CardHeader>
+        <CardBody className="grid gap-4">
+          <form className="flex flex-wrap items-end gap-3" onSubmit={addDomain}>
+            <Field label="Hostname" htmlFor="hostname" className="min-w-[220px] flex-1" required>
+              <Input id="hostname" name="hostname" placeholder="example.com" required />
+            </Field>
+            <Button type="submit" variant="secondary">
+              <Plus className="h-4 w-4" /> Add domain
+            </Button>
+          </form>
+          {loading ? (
+            <SkeletonRows rows={2} />
+          ) : domains.length === 0 ? (
+            <EmptyState icon={Globe} title="No domains" description="Add a hostname to verify ownership before scanning." />
+          ) : (
+            <Table>
+              <THead>
+                <TR>
+                  <TH>Hostname</TH>
+                  <TH>Status</TH>
+                </TR>
+              </THead>
+              <tbody>
+                {domains.map((d) => (
+                  <TR key={d.id}>
+                    <TD className="text-data">{d.hostname}</TD>
+                    <TD>
+                      <Badge tone={d.verified ? 'signal' : 'medium'}>
+                        {d.verified ? 'verified' : 'pending'}
+                      </Badge>
+                    </TD>
+                  </TR>
+                ))}
+              </tbody>
+            </Table>
+          )}
+        </CardBody>
+      </Card>
+
+      {/* Authorizations */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Scan authorizations</CardTitle>
+          {!showWizard && (
+            <Button size="sm" onClick={() => setShowWizard(true)}>
+              <ShieldCheck className="h-4 w-4" /> New authorization
+            </Button>
+          )}
+        </CardHeader>
+        <CardBody className="grid gap-4">
+          {showWizard ? (
+            <AuthorizationWizard
+              projectId={id}
+              onCancel={() => setShowWizard(false)}
+              onCreated={() => {
+                setShowWizard(false);
+                void load();
+              }}
+            />
+          ) : auths.length === 0 ? (
+            <EmptyState
+              icon={ShieldCheck}
+              title="No authorizations"
+              description="Create an immutable scan authorization to define scope and intensity."
+              action={<Button onClick={() => setShowWizard(true)}>New authorization</Button>}
+            />
+          ) : (
+            <Table>
+              <THead>
+                <TR>
+                  <TH>Mode</TH>
+                  <TH>Target</TH>
+                  <TH>Intensity</TH>
+                  <TH>Hosts</TH>
+                  <TH className="text-right">Action</TH>
+                </TR>
+              </THead>
+              <tbody>
+                {auths.map((a) => (
+                  <TR key={a.id}>
+                    <TD>{labelFor(SCAN_MODE_OPTIONS, a.scanMode, a.scanMode)}</TD>
+                    <TD>{labelFor(TARGET_TYPE_OPTIONS, a.targetType, a.targetType ?? '—')}</TD>
+                    <TD className="text-data text-xs">{a.testIntensityMode ?? '—'}</TD>
+                    <TD className="text-data text-xs">{a.allowedHosts.join(', ')}</TD>
+                    <TD className="text-right">
+                      <Button size="sm" variant="secondary" onClick={() => void startScan(a.id)}>
+                        Start scan
+                      </Button>
+                    </TD>
+                  </TR>
+                ))}
+              </tbody>
+            </Table>
+          )}
+        </CardBody>
+      </Card>
+    </div>
   );
 }

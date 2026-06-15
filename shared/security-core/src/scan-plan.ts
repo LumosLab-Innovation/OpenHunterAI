@@ -10,6 +10,30 @@ import type {
 export type WorkerProfile = 'light' | 'medium' | 'deep' | 'mini' | 'standard_safe' | 'hygiene' | 'candidate_only';
 export type ValidationLevel = 'observe_only' | 'safe_signal' | 'controlled_validation' | 'approval_gated_validation';
 
+/**
+ * Canonical hunter ids the deterministic Scan Plan can emit (enabled or skipped).
+ * Provenance metadata (hunter-provenance.ts) must reference ids from this set,
+ * which keeps upstream enrichment from drifting away from the scan plan.
+ */
+export const HUNTER_IDS = [
+  'content_exposure',
+  'hardening',
+  'auth_session_smoke',
+  'api_surface',
+  'session_auth',
+  'admin_like_surface',
+  'api_auth',
+  'data_exposure',
+  'ai_prompt',
+  'rag_exposure',
+  'tool_calling',
+  'authenticated_access_control',
+  'api_docs_browser_observation',
+  'ai_deep_reasoning',
+] as const;
+
+export type HunterId = (typeof HUNTER_IDS)[number];
+
 export interface ScanPlanInput {
   packageTier: PackageTier;
   scanMode: ScanMode;
@@ -24,8 +48,8 @@ export interface ScanPlanInput {
 
 export interface ScanPlan {
   enabledWorkers: Record<string, WorkerProfile>;
-  enabledHunters: string[];
-  skippedHunters: Array<{ hunter: string; reason: string }>;
+  enabledHunters: HunterId[];
+  skippedHunters: Array<{ hunter: HunterId; reason: string }>;
   allowedValidationLevel: ValidationLevel;
   budgets: {
     maxReturnedFindings: number;
@@ -62,9 +86,9 @@ export function buildScanPlan(input: ScanPlanInput): ScanPlan {
   const isAggressive = input.testIntensityMode === 'aggressive_staging';
   const budgets = isFree ? FREE_BUDGET : PAID_BUDGET;
   const notes: string[] = [];
-  const skippedHunters: Array<{ hunter: string; reason: string }> = [];
+  const skippedHunters: Array<{ hunter: HunterId; reason: string }> = [];
   const enabledWorkers: Record<string, WorkerProfile> = {};
-  const enabledHunters: string[] = [];
+  const enabledHunters: HunterId[] = [];
 
   if (isFree) {
     notes.push('Free Hunter stops after the first valuable finding and exposes one limited monitored finding.');

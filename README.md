@@ -60,7 +60,7 @@ shared/*                   Shared TS packages
 contracts/                 OpenAPI, AsyncAPI, JSON Schema, generated types
 infra/                     Compose/env/runtime docs
 ops/scripts/               Local/dev/image scripts
-third_party_research/      Reference only, not runtime code
+third_party_research/      Curated upstream reference (OpenHack + Strix skills), not runtime code
 ```
 
 ## Runtime Boundary

@@ -1,3 +1,0 @@
-type=dsl
-value=to_upper(hello)
-value=contains(to_lower(all_headers), "server")

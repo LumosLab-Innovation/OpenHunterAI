@@ -1,4 +1,0 @@
-type=dsl
-condition=or
-value=contains(body, "PING")
-value=contains(tolower(all_headers), "server")
