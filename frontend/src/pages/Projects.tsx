@@ -6,9 +6,11 @@ import {
   Clipboard,
   FolderKanban,
   Globe,
+  KeyRound,
   Plus,
   RefreshCw,
   ShieldCheck,
+  Trash2,
 } from 'lucide-react';
 import { apiFetch } from '../lib/api';
 import { PACKAGE_OPTIONS, labelFor, TARGET_TYPE_OPTIONS, SCAN_MODE_OPTIONS } from '../lib/product';
@@ -147,8 +149,10 @@ export function ProjectsPage() {
 export function ProjectDetailPage() {
   const { id = '' } = useParams();
   const navigate = useNavigate();
+  const [project, setProject] = useState<Project | null>(null);
   const [domains, setDomains] = useState<Domain[]>([]);
   const [auths, setAuths] = useState<Authorization[]>([]);
+  const [testAccounts, setTestAccounts] = useState<TestAccount[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showWizard, setShowWizard] = useState(false);
@@ -158,16 +162,25 @@ export function ProjectDetailPage() {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [busyDomainId, setBusyDomainId] = useState<string | null>(null);
   const [startingAuthorizationId, setStartingAuthorizationId] = useState<string | null>(null);
+  const [deleteProjectOpen, setDeleteProjectOpen] = useState(false);
+  const [deleteConfirmName, setDeleteConfirmName] = useState('');
+  const [deletingProject, setDeletingProject] = useState(false);
 
   async function load() {
     setLoading(true);
-    const [d, a] = await Promise.all([
+    const [p, d, a, t] = await Promise.all([
+      apiFetch<{ project: Project }>(`/v1/projects/${id}`),
       apiFetch<{ domains: Domain[] }>(`/v1/projects/${id}/domains`),
       apiFetch<{ authorizations: Authorization[] }>(`/v1/projects/${id}/authorizations`),
+      apiFetch<{ testAccounts: TestAccount[] }>(`/v1/projects/${id}/test-accounts`),
     ]);
+    if (p.ok) setProject(p.data.project);
     if (d.ok) setDomains(d.data.domains);
     if (a.ok) setAuths(a.data.authorizations);
+    if (t.ok) setTestAccounts(t.data.testAccounts);
+    if (!p.ok) setError(p.error.message ?? `HTTP ${p.status}`);
     if (!d.ok) setError(d.error.message ?? `HTTP ${d.status}`);
+    if (!t.ok) setError(t.error.message ?? `HTTP ${t.status}`);
     setLoading(false);
   }
 
@@ -238,6 +251,46 @@ export function ProjectDetailPage() {
     window.setTimeout(() => setCopiedKey((current) => (current === key ? null : current)), 1600);
   }
 
+  async function createTestAccount(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const res = await apiFetch(`/v1/projects/${id}/test-accounts`, {
+      method: 'POST',
+      body: JSON.stringify({
+        label: form.get('label'),
+        loginUrl: form.get('loginUrl'),
+        username: form.get('username'),
+        password: form.get('password'),
+        notes: form.get('notes') || undefined,
+      }),
+    });
+    if (!res.ok) setError(res.error.message ?? `HTTP ${res.status}`);
+    else {
+      e.currentTarget.reset();
+      await load();
+    }
+  }
+
+  async function deleteTestAccount(accountId: string) {
+    const res = await apiFetch(`/v1/projects/${id}/test-accounts/${accountId}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) setError(res.error.message ?? `HTTP ${res.status}`);
+    else await load();
+  }
+
+  async function deleteProject() {
+    if (!project || deleteConfirmName !== project.name || deletingProject) return;
+    setDeletingProject(true);
+    const res = await apiFetch(`/v1/projects/${id}`, {
+      method: 'DELETE',
+      body: JSON.stringify({ confirmName: deleteConfirmName }),
+    });
+    setDeletingProject(false);
+    if (!res.ok) setError(res.error.message ?? `HTTP ${res.status}`);
+    else navigate('/projects');
+  }
+
   useEffect(() => {
     void load();
   }, [id]);
@@ -250,16 +303,42 @@ export function ProjectDetailPage() {
   return (
     <div>
       <PageHeader
-        title="Project"
+        title={project?.name ?? 'Project'}
         description={<span className="text-data text-xs text-ink-faint">{id}</span>}
         actions={
-          <ButtonLink to="/projects" variant="ghost" size="sm">
-            ← All projects
-          </ButtonLink>
+          <>
+            <ButtonLink to="/projects" variant="ghost" size="sm">
+              ← All projects
+            </ButtonLink>
+            {project && (
+              <Button
+                type="button"
+                variant="danger"
+                size="sm"
+                onClick={() => setDeleteProjectOpen((open) => !open)}
+              >
+                <Trash2 className="h-4 w-4" /> Delete project
+              </Button>
+            )}
+          </>
         }
       />
 
       {error && <ErrorState message={error} className="mb-4" onRetry={() => void load()} />}
+
+      {deleteProjectOpen && project && (
+        <DeleteProjectPanel
+          projectName={project.name}
+          confirmName={deleteConfirmName}
+          deleting={deletingProject}
+          onConfirmNameChange={setDeleteConfirmName}
+          onCancel={() => {
+            setDeleteProjectOpen(false);
+            setDeleteConfirmName('');
+          }}
+          onDelete={() => void deleteProject()}
+        />
+      )}
 
       <ProjectGuide
         hasDomain={hasDomain}
@@ -403,6 +482,75 @@ export function ProjectDetailPage() {
         </CardBody>
       </Card>
 
+      {/* Test accounts */}
+      <Card className="mb-6">
+        <CardHeader>
+          <div className="grid gap-1">
+            <CardTitle>Test accounts</CardTitle>
+            <CardDescription>
+              Optional sandbox login credentials for authenticated testing. Use throwaway accounts only; never use a personal or production admin account.
+            </CardDescription>
+          </div>
+        </CardHeader>
+        <CardBody className="grid gap-4">
+          <form className="grid gap-3 lg:grid-cols-[1fr_1.2fr_1fr_1fr] lg:items-end" onSubmit={createTestAccount}>
+            <Field label="Label" htmlFor="test-label" required>
+              <Input id="test-label" name="label" placeholder="User A" required />
+            </Field>
+            <Field label="Login URL" htmlFor="test-login-url" required>
+              <Input id="test-login-url" name="loginUrl" placeholder="https://kopymatch.com/login" required />
+            </Field>
+            <Field label="Username / email" htmlFor="test-username" required>
+              <Input id="test-username" name="username" placeholder="test@example.com" required />
+            </Field>
+            <Field label="Password" htmlFor="test-password" required>
+              <Input id="test-password" name="password" type="password" placeholder="Stored encrypted" required />
+            </Field>
+            <Field label="Notes" htmlFor="test-notes" className="lg:col-span-3">
+              <Input id="test-notes" name="notes" placeholder="Role, permissions, or reset instructions" />
+            </Field>
+            <Button type="submit" variant="secondary">
+              <KeyRound className="h-4 w-4" /> Add test account
+            </Button>
+          </form>
+          {testAccounts.length === 0 ? (
+            <div className="rounded border border-hairline bg-canvas px-4 py-3 text-sm leading-relaxed text-ink-muted">
+              No test accounts saved. Choose <span className="text-ink">No accounts</span> in Auth Scope unless you want the scanner to log in with a test user.
+            </div>
+          ) : (
+            <Table>
+              <THead>
+                <TR>
+                  <TH>Label</TH>
+                  <TH>Login URL</TH>
+                  <TH>Username</TH>
+                  <TH className="text-right">Action</TH>
+                </TR>
+              </THead>
+              <tbody>
+                {testAccounts.map((account) => (
+                  <TR key={account.id}>
+                    <TD>{account.label}</TD>
+                    <TD className="text-data text-xs">{account.loginUrl}</TD>
+                    <TD className="text-data text-xs">{account.identityEmail ?? '—'}</TD>
+                    <TD className="text-right">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="danger"
+                        onClick={() => void deleteTestAccount(account.id)}
+                      >
+                        Delete
+                      </Button>
+                    </TD>
+                  </TR>
+                ))}
+              </tbody>
+            </Table>
+          )}
+        </CardBody>
+      </Card>
+
       {/* Authorizations */}
       <Card>
         <CardHeader>
@@ -423,6 +571,7 @@ export function ProjectDetailPage() {
             <AuthorizationWizard
               projectId={id}
               verifiedHosts={verifiedHosts}
+              testAccountCount={testAccounts.length}
               onCancel={() => setShowWizard(false)}
               onCreated={() => {
                 setShowWizard(false);
@@ -473,6 +622,15 @@ export function ProjectDetailPage() {
       </Card>
     </div>
   );
+}
+
+interface TestAccount {
+  id: string;
+  label: string;
+  loginUrl: string;
+  identityEmail?: string | null;
+  notes?: string | null;
+  createdAt?: string;
 }
 
 function ProjectGuide({
@@ -558,5 +716,50 @@ function CopyButton({ copied, onClick }: { copied: boolean; onClick: () => void 
     >
       {copied ? <Check className="h-4 w-4 text-signal" /> : <Clipboard className="h-4 w-4" />}
     </Button>
+  );
+}
+
+function DeleteProjectPanel({
+  projectName,
+  confirmName,
+  deleting,
+  onConfirmNameChange,
+  onCancel,
+  onDelete,
+}: {
+  projectName: string;
+  confirmName: string;
+  deleting: boolean;
+  onConfirmNameChange: (value: string) => void;
+  onCancel: () => void;
+  onDelete: () => void;
+}) {
+  const canDelete = confirmName === projectName;
+  return (
+    <section className="mb-6 rounded-lg border border-critical/40 bg-critical/10 px-5 py-4">
+      <div className="grid gap-2">
+        <h2 className="font-display text-lg font-700 text-critical">Delete project</h2>
+        <p className="max-w-2xl text-sm leading-relaxed text-ink-muted">
+          This permanently deletes the project, domains, authorizations, scans, findings, reports, and saved test accounts.
+          Type <span className="text-data text-ink">{projectName}</span> to confirm.
+        </p>
+      </div>
+      <div className="mt-4 flex flex-wrap items-end gap-3">
+        <Field label="Project name" htmlFor="delete-confirm-name" className="min-w-[260px] flex-1">
+          <Input
+            id="delete-confirm-name"
+            value={confirmName}
+            onChange={(event) => onConfirmNameChange(event.target.value)}
+            placeholder={projectName}
+          />
+        </Field>
+        <Button type="button" variant="ghost" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="button" variant="danger" disabled={!canDelete || deleting} onClick={onDelete}>
+          <Trash2 className="h-4 w-4" /> {deleting ? 'Deleting...' : 'Delete permanently'}
+        </Button>
+      </div>
+    </section>
   );
 }

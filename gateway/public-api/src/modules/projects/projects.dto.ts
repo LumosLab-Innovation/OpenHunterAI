@@ -6,4 +6,9 @@ export const CreateProjectBody = z.object({
   packageTier: z.enum(COMMERCIAL_PACKAGES).default('free_hunter'),
 });
 
+export const DeleteProjectBody = z.object({
+  confirmName: z.string().min(1).max(128),
+});
+
 export type CreateProjectBody = z.infer<typeof CreateProjectBody>;
+export type DeleteProjectBody = z.infer<typeof DeleteProjectBody>;

@@ -16,4 +16,16 @@ export class ProjectsRepository {
       data: { organizationId: orgId, name: body.name, packageTier: body.packageTier },
     });
   }
+
+  find(projectId: string, orgId: string) {
+    return this.prisma.project.findFirst({
+      where: { id: projectId, organizationId: orgId },
+    });
+  }
+
+  delete(projectId: string) {
+    return this.prisma.project.delete({
+      where: { id: projectId },
+    });
+  }
 }

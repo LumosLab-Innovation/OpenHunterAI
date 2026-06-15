@@ -15,6 +15,7 @@ import { reportRoutes } from './modules/reports/reports.routes.js';
 import { scanRoutes } from './modules/scans/scans.routes.js';
 import { approvalRoutes } from './modules/approvals/approvals.routes.js';
 import { billingRoutes } from './modules/billing/billing.routes.js';
+import { testAccountRoutes } from './modules/test-accounts/test-accounts.routes.js';
 
 export function createApp() {
   const app = express();
@@ -45,6 +46,7 @@ export function createApp() {
   app.use('/v1/auth', authRoutes);
   app.use('/v1/projects', projectRoutes);
   app.use('/v1', domainRoutes);
+  app.use('/v1', testAccountRoutes);
   app.use('/v1/projects', authorizationRoutes);
   app.use('/v1', scanRoutes);
   app.use('/v1', findingRoutes);

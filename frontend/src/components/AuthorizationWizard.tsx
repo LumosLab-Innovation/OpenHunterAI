@@ -80,11 +80,13 @@ function OptionCard({
 export function AuthorizationWizard({
   projectId,
   verifiedHosts = [],
+  testAccountCount = 0,
   onCreated,
   onCancel,
 }: {
   projectId: string;
   verifiedHosts?: string[];
+  testAccountCount?: number;
   onCreated: () => void;
   onCancel: () => void;
 }) {
@@ -105,13 +107,17 @@ export function AuthorizationWizard({
     .map((v) => v.trim().toLowerCase())
     .filter(Boolean);
   const hasAllowedHosts = allowedHosts.length > 0;
-  const canSubmit = hasAllowedHosts && (!isAggressive || s.riskAccepted);
+  const requiredTestAccounts = s.authScope === 'two_accounts' ? 2 : s.authScope === 'one_account' ? 1 : 0;
+  const hasRequiredTestAccounts = testAccountCount >= requiredTestAccounts;
+  const canSubmit = hasAllowedHosts && hasRequiredTestAccounts && (!isAggressive || s.riskAccepted);
 
   async function submit() {
     if (!canSubmit) {
       setError(
         hasAllowedHosts
-          ? 'Accept the staging risk statement before authorizing this scan.'
+          ? hasRequiredTestAccounts
+            ? 'Accept the staging risk statement before authorizing this scan.'
+            : `Auth scope ${s.authScope} requires ${requiredTestAccounts} saved test account(s).`
           : 'Verify at least one domain before authorizing a scan.',
       );
       return;
@@ -252,6 +258,9 @@ export function AuthorizationWizard({
               ))}
             </div>
             <Field label="Authenticated scope">
+              <p className="mb-3 text-sm leading-relaxed text-ink-muted">
+                Choose <span className="text-ink">No accounts</span> for public-only testing. Choose one/two accounts only when you have created throwaway test users for the target app below this form.
+              </p>
               <div className="grid gap-2 sm:grid-cols-3">
                 {AUTH_SCOPE_OPTIONS.map((o) => (
                   <OptionCard
@@ -263,6 +272,11 @@ export function AuthorizationWizard({
                 ))}
               </div>
             </Field>
+            {requiredTestAccounts > testAccountCount && (
+              <div className="rounded border border-medium/40 bg-medium/10 px-3 py-2 text-sm text-medium">
+                This scope needs {requiredTestAccounts} saved test account(s). You currently have {testAccountCount}. Go back to Test accounts and add throwaway credentials, or select No accounts.
+              </div>
+            )}
             {isAggressive && (
               <label className="flex items-start gap-3 rounded-lg border border-high/40 bg-high/10 p-4 text-sm text-ink">
                 <Checkbox
@@ -286,6 +300,11 @@ export function AuthorizationWizard({
             {!hasAllowedHosts && (
               <div className="rounded border border-medium/40 bg-medium/10 px-3 py-2 text-sm text-medium">
                 You cannot authorize a scan yet because no verified host is in scope.
+              </div>
+            )}
+            {!hasRequiredTestAccounts && (
+              <div className="rounded border border-medium/40 bg-medium/10 px-3 py-2 text-sm text-medium">
+                Auth scope {s.authScope} requires {requiredTestAccounts} saved test account(s). Add test accounts first, or choose No accounts.
               </div>
             )}
             <dl className="grid gap-3 rounded-lg border border-hairline bg-surface-raised p-5 text-sm">
