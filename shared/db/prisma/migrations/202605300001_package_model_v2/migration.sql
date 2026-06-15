@@ -26,6 +26,29 @@ BEGIN
       )::"PackageTier";
 
     ALTER TABLE "projects" ALTER COLUMN "package_tier" SET DEFAULT 'free_hunter';
+
+    IF EXISTS (
+      SELECT 1
+      FROM information_schema.columns
+      WHERE table_name = 'scan_authorizations'
+        AND column_name = 'scan_package'
+    ) THEN
+      ALTER TABLE "scan_authorizations"
+        ALTER COLUMN "scan_package" TYPE "PackageTier"
+        USING (
+          CASE "scan_package"::text
+            WHEN 'free_hunter_snapshot' THEN 'free_hunter'
+            WHEN 'ai_blackhat_check' THEN 'ai_blackhat_mindset_check'
+            WHEN 'authenticated_check' THEN 'ai_blackhat_mindset_check'
+            WHEN 'free_hunter' THEN 'free_hunter'
+            WHEN 'ai_blackhat_mindset_check' THEN 'ai_blackhat_mindset_check'
+            WHEN 'monitor_workspace' THEN 'monitor_workspace'
+            WHEN 'enterprise_payg' THEN 'enterprise_payg'
+            ELSE 'free_hunter'
+          END
+        )::"PackageTier";
+    END IF;
+
     DROP TYPE "PackageTier_old";
   END IF;
 

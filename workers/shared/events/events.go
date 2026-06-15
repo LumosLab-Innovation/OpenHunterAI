@@ -15,11 +15,11 @@ const (
 	SubjectRetestRequested = "retest.requested"
 
 	// Orchestrator fan-out subjects (one per worker family).
-	SubjectWorkerBrowser = "worker.browser.run"
-	SubjectWorkerZAP     = "worker.zap.run"
-	SubjectWorkerNuclei  = "worker.nuclei.run"
+	SubjectWorkerBrowser  = "worker.browser.run"
+	SubjectWorkerZAP      = "worker.zap.run"
+	SubjectWorkerNuclei   = "worker.nuclei.run"
 	SubjectWorkerOpenHack = "worker.openhack.run"
-	SubjectWorkerStrix   = "worker.strix.run"
+	SubjectWorkerStrix    = "worker.strix.run"
 
 	// Fan-in subject: a worker publishes this when its run is complete.
 	SubjectWorkerCompleted = "worker.completed"
@@ -84,20 +84,20 @@ type ScanCreatedPayload struct {
 
 // ScopeSnapshot mirrors contracts/generated/go ScopeSnapshot.
 type ScopeSnapshot struct {
-	AllowedHosts              []string        `json:"allowedHosts"`
-	AllowedPaths              []string        `json:"allowedPaths"`
-	ExcludedPaths             []string        `json:"excludedPaths"`
-	TestAccountPermission     bool            `json:"testAccountPermission"`
-	SensitiveActionPermission bool            `json:"sensitiveActionPermission"`
-	PackageTier               string          `json:"packageTier"`
-	ScanMode                  string          `json:"scanMode"`
-	AuthScope                 string          `json:"authScope"`
-	TargetType                string          `json:"targetType"`
-	TestIntensityMode         string          `json:"testIntensityMode"`
-	SurfaceFlags              map[string]bool `json:"surfaceFlags"`
-	AggressiveStagingRiskAccepted bool        `json:"aggressiveStagingRiskAccepted"`
-	VerifiedDomain            string          `json:"verifiedDomain"`
-	CapturedAt                string          `json:"capturedAt"`
+	AllowedHosts                  []string        `json:"allowedHosts"`
+	AllowedPaths                  []string        `json:"allowedPaths"`
+	ExcludedPaths                 []string        `json:"excludedPaths"`
+	TestAccountPermission         bool            `json:"testAccountPermission"`
+	SensitiveActionPermission     bool            `json:"sensitiveActionPermission"`
+	PackageTier                   string          `json:"packageTier"`
+	ScanMode                      string          `json:"scanMode"`
+	AuthScope                     string          `json:"authScope"`
+	TargetType                    string          `json:"targetType"`
+	TestIntensityMode             string          `json:"testIntensityMode"`
+	SurfaceFlags                  map[string]bool `json:"surfaceFlags"`
+	AggressiveStagingRiskAccepted bool            `json:"aggressiveStagingRiskAccepted"`
+	VerifiedDomain                string          `json:"verifiedDomain"`
+	CapturedAt                    string          `json:"capturedAt"`
 }
 
 // WorkerRunPayload is the input handed to a signal worker by the orchestrator.
@@ -132,13 +132,18 @@ type WorkerCompletedPayload struct {
 // RetestRequestedPayload is the payload of a retest.requested event. Retest is
 // finding-scoped and manual in v1 (WORKER_SPEC §0 / AGENTS §4.4).
 type RetestRequestedPayload struct {
-	RetestRunID    string          `json:"retestRunId"`
-	FindingID      string          `json:"findingId"`
-	ScanID         string          `json:"scanId"`
-	ProjectID      string          `json:"projectId"`
-	VerifiedDomain string          `json:"verifiedDomain"`
-	AllowedHosts   []string        `json:"allowedHosts"`
-	AllowedPaths   []string        `json:"allowedPaths"`
-	ExcludedPaths  []string        `json:"excludedPaths"`
-	RetestScenario json.RawMessage `json:"retestScenario"`
+	RetestRunID       string          `json:"retestRunId"`
+	FindingID         string          `json:"findingId"`
+	ScanID            string          `json:"scanId"`
+	ProjectID         string          `json:"projectId"`
+	ScanMode          string          `json:"scanMode"`
+	TargetType        string          `json:"targetType"`
+	AuthScope         string          `json:"authScope"`
+	TestIntensityMode string          `json:"testIntensityMode"`
+	SurfaceFlags      map[string]bool `json:"surfaceFlags"`
+	VerifiedDomain    string          `json:"verifiedDomain"`
+	AllowedHosts      []string        `json:"allowedHosts"`
+	AllowedPaths      []string        `json:"allowedPaths"`
+	ExcludedPaths     []string        `json:"excludedPaths"`
+	RetestScenario    json.RawMessage `json:"retestScenario"`
 }

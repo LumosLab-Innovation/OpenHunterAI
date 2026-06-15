@@ -141,7 +141,7 @@ ${findingLines}
 ## Coverage
 
 - Target type: ${content.coverage.targetType}
-- Workers run: ${content.coverage.workersRun.join(', ') || 'none'}
+- Pipeline: ${content.coverage.workersRun.join(', ') || 'none'}
 - Hunters run: ${content.coverage.huntersRun.join(', ') || 'none'}
 - Limitations: ${content.coverage.limitations.join('; ') || 'none'}
 `);

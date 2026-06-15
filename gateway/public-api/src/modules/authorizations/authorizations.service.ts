@@ -1,5 +1,5 @@
 import { getPrisma } from '@x-hunter/db';
-import { authScopeRequiresAccounts, GuardrailError, packageAllowsScanMode } from '@x-hunter/shared';
+import { authScopeRequiresAccounts, GuardrailError, normalizeUrl, packageAllowsScanMode } from '@x-hunter/shared';
 import type { CreateAuthorizationBody } from './authorizations.dto.js';
 
 export class AuthorizationsService {
@@ -25,7 +25,7 @@ export class AuthorizationsService {
       );
     }
 
-    const allowedHosts = [...new Set(body.allowedHosts.map((host) => host.trim().toLowerCase()))];
+    const allowedHosts = normalizeAllowedHostsForAuthorization(body.allowedHosts);
     const domains = await this.prisma.domain.findMany({
       where: {
         projectId,
@@ -86,4 +86,15 @@ export class AuthorizationsService {
       },
     });
   }
+}
+
+export function normalizeAllowedHostsForAuthorization(hosts: string[]): string[] {
+  return [
+    ...new Set(
+      hosts.map((host) => {
+        const trimmed = host.trim().toLowerCase();
+        return normalizeUrl(`https://${trimmed}`).hostname;
+      }),
+    ),
+  ];
 }

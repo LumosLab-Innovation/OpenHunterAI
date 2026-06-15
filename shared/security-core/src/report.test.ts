@@ -48,7 +48,7 @@ const baseReport: ReportContentV1 = {
   developerFixPack: [],
   coverage: {
     targetType: 'interactive_web_app',
-    workersRun: ['browser'],
+    workersRun: ['browser_inspector', 'Z_signal', 'N_signal', 'O_hunter', 'S_core'],
     huntersRun: ['session'],
     skippedHunters: [],
     coverageGaps: [],

@@ -70,7 +70,7 @@ export class CallbacksService {
   async recordStep(scanId: string, result: WorkerStepResult) {
     const kind = KIND_MAP[result.workerType] ?? 'report';
     const state = STATE_MAP[result.state] ?? 'failed';
-    return this.prisma.scanStep.create({
+    const step = await this.prisma.scanStep.create({
       data: {
         scanJobId: scanId,
         kind: kind as never,
@@ -88,6 +88,14 @@ export class CallbacksService {
         errorMsg: result.errorMsg ? sanitizeText(result.errorMsg) : null,
       },
     });
+    const retestUpdate = retestUpdateFromWorkerResult(result);
+    if (retestUpdate) {
+      await this.prisma.retestRun.update({
+        where: { id: retestUpdate.retestRunId },
+        data: retestUpdate.data,
+      });
+    }
+    return step;
   }
 
   /** Records sanitized signals as finding candidates for later promotion. */
@@ -110,4 +118,40 @@ export class CallbacksService {
     }));
     return this.prisma.findingCandidate.createMany({ data: rows });
   }
+}
+
+type RetestResultValue = 'fixed' | 'still_vulnerable' | 'partially_fixed' | 'cannot_verify';
+const RETEST_RESULTS = new Set<RetestResultValue>(['fixed', 'still_vulnerable', 'partially_fixed', 'cannot_verify']);
+
+export function retestUpdateFromWorkerResult(result: WorkerStepResult): null | {
+  retestRunId: string;
+  data: {
+    result: RetestResultValue;
+    notes: string | null;
+    startedAt: Date | null;
+    finishedAt: Date;
+    errorCode: string | null;
+  };
+} {
+  if (result.workerType !== 'retest') return null;
+  const retestRunId = typeof result.meta?.retestRunId === 'string' ? result.meta.retestRunId : '';
+  if (!retestRunId) return null;
+  const rawResult = typeof result.meta?.result === 'string' ? result.meta.result : '';
+  const retestResult: RetestResultValue =
+    result.state === 'done' && isRetestResult(rawResult) ? rawResult : 'cannot_verify';
+  const notes = result.state === 'done' ? result.summary : result.errorMsg || result.summary || null;
+  return {
+    retestRunId,
+    data: {
+      result: retestResult,
+      notes: notes ? sanitizeText(notes) : null,
+      startedAt: result.startedAt ? new Date(result.startedAt) : null,
+      finishedAt: result.finishedAt ? new Date(result.finishedAt) : new Date(),
+      errorCode: result.state === 'done' ? null : result.errorCode ?? null,
+    },
+  };
+}
+
+function isRetestResult(value: string): value is RetestResultValue {
+  return RETEST_RESULTS.has(value as RetestResultValue);
 }

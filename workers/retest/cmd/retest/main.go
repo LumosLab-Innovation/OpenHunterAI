@@ -69,6 +69,8 @@ func handle(ctx context.Context, cb *callback.Client, e *events.Envelope, log *w
 
 	run := events.WorkerRunPayload{
 		ScanID: p.ScanID, ProjectID: p.ProjectID, WorkerType: "retest",
+		ScanMode: p.ScanMode, TargetType: p.TargetType, AuthScope: p.AuthScope,
+		TestIntensityMode: p.TestIntensityMode, SurfaceFlags: p.SurfaceFlags,
 		AllowedHosts: p.AllowedHosts, AllowedPaths: p.AllowedPaths, ExcludedPaths: p.ExcludedPaths,
 		VerifiedDomain: p.VerifiedDomain,
 	}

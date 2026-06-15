@@ -30,7 +30,7 @@ func eligibleWorkers(plan scanPlanShape) []string {
 	out := make([]string, 0, len(plan.EnabledWorkers))
 	for key := range plan.EnabledWorkers {
 		if _, ok := workerSubjects[key]; ok {
-			out = append(out, key)
+			out = append(out, workerCode(key))
 		}
 	}
 	return out
@@ -91,14 +91,31 @@ func fanOut(ctx context.Context, pub publisher, env *events.Envelope, log *wlog.
 			AllowedPaths:      sc.Scope.AllowedPaths,
 			ExcludedPaths:     sc.Scope.ExcludedPaths,
 			VerifiedDomain:    sc.Scope.VerifiedDomain,
-			WorkerType:        workerKey,
+			WorkerType:        workerCode(workerKey),
 		}
 		if err := pub.Publish(ctx, subject, run); err != nil {
 			log.Error("fan_out_publish_failed", "worker", workerKey, "err", err.Error())
 			return dispatched, err
 		}
 		log.Info("worker_dispatched", "worker", workerKey, "subject", subject)
-		dispatched = append(dispatched, workerKey)
+		dispatched = append(dispatched, workerCode(workerKey))
 	}
 	return dispatched, nil
+}
+
+func workerCode(workerKey string) string {
+	switch workerKey {
+	case "browser", "browser-inspector":
+		return "browser-inspector"
+	case "zap", "Z":
+		return "Z"
+	case "nuclei", "N":
+		return "N"
+	case "openhack", "O":
+		return "O"
+	case "strix", "S":
+		return "S"
+	default:
+		return workerKey
+	}
 }

@@ -61,7 +61,7 @@ func TestFanOutDispatchesEnabledWorkers(t *testing.T) {
 		t.Fatalf("fanOut: %v", err)
 	}
 	sort.Strings(got)
-	want := []string{"browser", "nuclei", "openhack", "strix", "zap"}
+	want := []string{"N", "O", "S", "Z", "browser-inspector"}
 	if len(got) != len(want) {
 		t.Fatalf("dispatched %v, want %v", got, want)
 	}
@@ -75,7 +75,7 @@ func TestFanOutDispatchesEnabledWorkers(t *testing.T) {
 		if run.ScanID != "scan_1" || run.ProjectID != "proj_1" {
 			t.Errorf("%s payload ids = %s/%s", key, run.ScanID, run.ProjectID)
 		}
-		if run.WorkerType != key {
+		if run.WorkerType != workerCode(key) {
 			t.Errorf("%s workerType = %s", key, run.WorkerType)
 		}
 		if len(run.AllowedHosts) != 1 || run.AllowedHosts[0] != "example.com" {
@@ -94,8 +94,8 @@ func TestFanOutSkipsUnknownWorker(t *testing.T) {
 	if err != nil {
 		t.Fatalf("fanOut: %v", err)
 	}
-	if len(got) != 1 || got[0] != "zap" {
-		t.Errorf("dispatched %v, want [zap]", got)
+	if len(got) != 1 || got[0] != "Z" {
+		t.Errorf("dispatched %v, want [Z]", got)
 	}
 	if _, ok := pub.published[events.SubjectWorkerZAP]; !ok {
 		t.Error("zap should be dispatched")

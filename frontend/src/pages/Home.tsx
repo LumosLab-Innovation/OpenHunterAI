@@ -16,7 +16,7 @@ import { cn } from '../lib/cn';
 
 const STEPS = [
   { icon: ShieldCheck, title: 'Verify & authorize', body: 'Prove domain ownership and create an immutable scan authorization. No verified scope, no scan.' },
-  { icon: ScanLine, title: 'Run the pipeline', body: 'A deterministic Scan Plan drives the hunter workers and integration adapters within your scope.' },
+  { icon: ScanLine, title: 'Run the pipeline', body: 'A deterministic Scan Plan drives browser inspection plus Z/N/O/S stages within your scope.' },
   { icon: Crosshair, title: 'Triage findings', body: 'Sanitized evidence becomes ranked findings on a board — raw secrets never leave the boundary.' },
   { icon: FileCheck2, title: 'Report & retest', body: 'Owner summary, developer fix pack, and coverage. Retest each finding manually when you are ready.' },
 ];

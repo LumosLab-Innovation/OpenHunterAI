@@ -292,7 +292,7 @@ function buildReportContent(scan: any): ReportContentV1 {
     })),
     coverage: {
       targetType: scan.targetType,
-      workersRun: Object.keys(scanPlan.enabledWorkers ?? {}),
+      workersRun: Object.keys(scanPlan.enabledWorkers ?? {}).map(displayUnitCode),
       huntersRun: scanPlan.enabledHunters ?? [],
       skippedHunters: scanPlan.skippedHunters ?? [],
       coverageGaps: coverageOnly ? ['No valuable finding was confirmed within this scan budget.'] : [],
@@ -311,6 +311,28 @@ function buildReportContent(scan: any): ReportContentV1 {
     },
     generatedAt: new Date().toISOString(),
   });
+}
+
+function displayUnitCode(key: string): string {
+  switch (key) {
+    case 'browser':
+    case 'browser-inspector':
+      return 'browser_inspector';
+    case 'zap':
+    case 'Z':
+      return 'Z_signal';
+    case 'nuclei':
+    case 'N':
+      return 'N_signal';
+    case 'openhack':
+    case 'O':
+      return 'O_hunter';
+    case 'strix':
+    case 'S':
+      return 'S_core';
+    default:
+      return key;
+  }
 }
 
 function renderSimplePdf(markdown: string): Buffer {

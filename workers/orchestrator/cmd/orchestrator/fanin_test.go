@@ -17,10 +17,12 @@ type fakeKV struct {
 	releaseCalls   int
 	markCalls      int
 	claimCalls     int
+	lastWorkerType string
 }
 
 func (f *fakeKV) MarkCompleted(_ context.Context, _, workerType string, signals int) (bus.ScanProgress, bool, error) {
 	f.markCalls++
+	f.lastWorkerType = workerType
 	f.progress.Completed++
 	f.progress.Signals += signals
 	return f.progress, f.finalizeOnMark, nil
@@ -94,6 +96,17 @@ func TestHandleCompletedFinalizesWhenAllDone(t *testing.T) {
 	}
 	if len(st.transitions) != 1 || st.transitions[0] != "completed" {
 		t.Errorf("transitions = %v, want [completed]", st.transitions)
+	}
+}
+
+func TestHandleCompletedKeepsShortWorkerCodes(t *testing.T) {
+	kv := &fakeKV{finalizeOnMark: false}
+	rep := &fakeFinalizer{}
+	if err := handleCompleted(context.Background(), kv, rep, &fakeState{}, completedEnv(t, "ai_blackhat_mindset_check", 0), wlog.New(wlog.Fields{})); err != nil {
+		t.Fatalf("handleCompleted: %v", err)
+	}
+	if kv.lastWorkerType != "Z" {
+		t.Errorf("workerType recorded = %q, want Z", kv.lastWorkerType)
 	}
 }
 

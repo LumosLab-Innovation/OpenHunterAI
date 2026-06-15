@@ -38,6 +38,7 @@ func handleCompleted(ctx context.Context, kv progressTracker, rep finalizer, sta
 	if err := env.Decode(&c); err != nil {
 		return err
 	}
+	c.WorkerType = workerCode(c.WorkerType)
 	log = log.With("scan_id", c.ScanID, "worker_type", c.WorkerType)
 
 	progress, shouldFinalize, err := kv.MarkCompleted(ctx, c.ScanID, c.WorkerType, c.SignalCount)

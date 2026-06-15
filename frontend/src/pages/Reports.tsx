@@ -273,7 +273,7 @@ export function ReportDetailPage() {
 
           {/* Coverage */}
           <Section title="Coverage">
-            <Stat label="Workers" value={(content.coverage?.workersRun ?? []).join(', ') || 'none'} />
+            <Stat label="Pipeline" value={(content.coverage?.workersRun ?? []).map(pipelineCode).join(', ') || 'none'} />
             <Stat label="Hunters" value={(content.coverage?.huntersRun ?? []).join(', ') || 'none'} />
             {(content.coverage?.limitations ?? []).length > 0 && (
               <div className="grid gap-1">
@@ -290,6 +290,33 @@ export function ReportDetailPage() {
       )}
     </div>
   );
+}
+
+function pipelineCode(kind: string): string {
+  switch (kind) {
+    case 'browser':
+    case 'browser_inspector':
+    case 'browser-inspector':
+      return 'browser_inspector';
+    case 'zap':
+    case 'zap_signal':
+    case 'Z':
+      return 'Z_signal';
+    case 'nuclei':
+    case 'nuclei_signal':
+    case 'N':
+      return 'N_signal';
+    case 'openhack':
+    case 'openhack_hunter':
+    case 'O':
+      return 'O_hunter';
+    case 'strix':
+    case 'strix_core':
+    case 'S':
+      return 'S_core';
+    default:
+      return kind;
+  }
 }
 
 function Stat({ label, value }: { label: string; value: string }) {

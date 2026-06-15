@@ -148,7 +148,7 @@ export function ScanDetailPage() {
                   key={step.kind}
                   className="flex items-center justify-between rounded border border-hairline px-3 py-2"
                 >
-                  <span className="text-data text-xs text-ink">{step.kind}</span>
+                  <span className="text-data text-xs text-ink">{pipelineCode(step.kind)}</span>
                   <StatusBadge state={step.state} />
                 </div>
               ))
@@ -170,7 +170,7 @@ export function ScanDetailPage() {
           <CardBody className="grid gap-3">
             {draftSections.length === 0 ? (
               <p className="text-sm text-ink-muted">
-                Draft sections will appear here as workers produce sanitized output.
+                Draft sections will appear here as pipeline stages produce sanitized output.
               </p>
             ) : (
               draftSections.map((section) => (
@@ -190,4 +190,31 @@ export function ScanDetailPage() {
       </div>
     </div>
   );
+}
+
+function pipelineCode(kind: string): string {
+  switch (kind) {
+    case 'browser':
+    case 'browser_inspector':
+    case 'browser-inspector':
+      return 'browser_inspector';
+    case 'zap':
+    case 'zap_signal':
+      return 'Z_signal';
+    case 'nuclei':
+    case 'nuclei_signal':
+      return 'N_signal';
+    case 'openhack':
+    case 'openhack_hunter':
+      return 'O_hunter';
+    case 'strix':
+    case 'strix_core':
+      return 'S_core';
+    case 'report':
+      return 'RPT';
+    case 'retest':
+      return 'RT';
+    default:
+      return kind;
+  }
 }

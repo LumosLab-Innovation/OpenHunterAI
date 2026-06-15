@@ -7,13 +7,14 @@
 
 import * as pkg from '../generated/client/index.js';
 const PrismaClient = (pkg as any).PrismaClient;
-import { createHash } from 'node:crypto';
+import { randomBytes, scryptSync } from 'node:crypto';
 
 const prisma = new PrismaClient();
 
 function hashPassword(password: string): string {
-  // Dev-only hash. Production should use scrypt/argon2 via a separate utility.
-  return createHash('sha256').update(password).digest('hex');
+  const salt = randomBytes(16);
+  const derived = scryptSync(password, salt, 32);
+  return `scrypt$${salt.toString('hex')}$${derived.toString('hex')}`;
 }
 
 async function main() {
@@ -25,7 +26,7 @@ async function main() {
 
   const user = await prisma.user.upsert({
     where: { email: 'demo@xhunter.local' },
-    update: {},
+    update: { passwordHash: hashPassword('demo-pass-rotate-me') },
     create: {
       email: 'demo@xhunter.local',
       organizationId: org.id,
