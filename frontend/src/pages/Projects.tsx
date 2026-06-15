@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { FolderKanban, Globe, Plus, ShieldCheck } from 'lucide-react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { CheckCircle2, FolderKanban, Globe, Plus, RefreshCw, ShieldCheck } from 'lucide-react';
 import { apiFetch } from '../lib/api';
 import { PACKAGE_OPTIONS, labelFor, TARGET_TYPE_OPTIONS, SCAN_MODE_OPTIONS } from '../lib/product';
 import { PageHeader } from '../components/PageHeader';
@@ -23,6 +23,10 @@ interface Domain {
   id: string;
   hostname: string;
   verified?: boolean;
+  verification?: {
+    status: string;
+    lastError?: string | null;
+  } | null;
 }
 interface Authorization {
   id: string;
@@ -31,6 +35,12 @@ interface Authorization {
   authScope?: string;
   testIntensityMode?: string;
   allowedHosts: string[];
+}
+
+interface VerificationInstructions {
+  recordName: string;
+  recordValue: string;
+  expiresAt?: string;
 }
 
 export function ProjectsPage() {
@@ -127,11 +137,17 @@ export function ProjectsPage() {
 
 export function ProjectDetailPage() {
   const { id = '' } = useParams();
+  const navigate = useNavigate();
   const [domains, setDomains] = useState<Domain[]>([]);
   const [auths, setAuths] = useState<Authorization[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showWizard, setShowWizard] = useState(false);
+  const [verificationInstructions, setVerificationInstructions] = useState<
+    Record<string, VerificationInstructions>
+  >({});
+  const [busyDomainId, setBusyDomainId] = useState<string | null>(null);
+  const [startingAuthorizationId, setStartingAuthorizationId] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
@@ -160,11 +176,50 @@ export function ProjectDetailPage() {
   }
 
   async function startScan(authId: string) {
-    const res = await apiFetch(`/v1/projects/${id}/scans`, {
+    if (startingAuthorizationId) return;
+    setStartingAuthorizationId(authId);
+    const res = await apiFetch<{ scan: { id: string } }>(`/v1/projects/${id}/scans`, {
       method: 'POST',
       body: JSON.stringify({ authorizationId: authId }),
     });
+    setStartingAuthorizationId(null);
     if (!res.ok) setError(res.error.message ?? `HTTP ${res.status}`);
+    else navigate(`/scans/${res.data.scan.id}`);
+  }
+
+  async function requestVerification(domainId: string) {
+    setBusyDomainId(domainId);
+    setError(null);
+    const res = await apiFetch<{ verification: VerificationInstructions }>(
+      `/v1/projects/${id}/domains/${domainId}/verification`,
+      { method: 'POST' },
+    );
+    setBusyDomainId(null);
+    if (!res.ok) setError(res.error.message ?? `HTTP ${res.status}`);
+    else {
+      setVerificationInstructions((current) => ({
+        ...current,
+        [domainId]: res.data.verification,
+      }));
+      await load();
+    }
+  }
+
+  async function checkVerification(domainId: string) {
+    setBusyDomainId(domainId);
+    setError(null);
+    const res = await apiFetch<{ verification: { verified: boolean; message?: string } }>(
+      `/v1/projects/${id}/domains/${domainId}/verification/check`,
+      { method: 'POST' },
+    );
+    setBusyDomainId(null);
+    if (!res.ok) setError(res.error.message ?? `HTTP ${res.status}`);
+    else {
+      if (!res.data.verification.verified) {
+        setError(res.data.verification.message ?? 'DNS verification is still pending.');
+      }
+      await load();
+    }
   }
 
   useEffect(() => {
@@ -209,6 +264,7 @@ export function ProjectDetailPage() {
                 <TR>
                   <TH>Hostname</TH>
                   <TH>Status</TH>
+                  <TH className="text-right">Action</TH>
                 </TR>
               </THead>
               <tbody>
@@ -220,11 +276,65 @@ export function ProjectDetailPage() {
                         {d.verified ? 'verified' : 'pending'}
                       </Badge>
                     </TD>
+                    <TD className="text-right">
+                      {d.verified ? (
+                        <span className="inline-flex items-center gap-1 text-xs text-signal">
+                          <CheckCircle2 className="h-4 w-4" /> Verified
+                        </span>
+                      ) : (
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            disabled={busyDomainId === d.id}
+                            onClick={() => void requestVerification(d.id)}
+                          >
+                            Verify
+                          </Button>
+                          {d.verification && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              disabled={busyDomainId === d.id}
+                              onClick={() => void checkVerification(d.id)}
+                            >
+                              <RefreshCw className="h-4 w-4" /> Check DNS
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </TD>
                   </TR>
                 ))}
               </tbody>
             </Table>
           )}
+          {domains
+            .filter((domain) => verificationInstructions[domain.id])
+            .map((domain) => {
+              const instructions = verificationInstructions[domain.id]!;
+              return (
+                <div key={domain.id} className="border-t border-hairline pt-4">
+                  <p className="mb-3 text-sm font-medium text-ink">
+                    DNS TXT verification for {domain.hostname}
+                  </p>
+                  <dl className="grid gap-3 text-sm sm:grid-cols-2">
+                    <div>
+                      <dt className="text-xs uppercase text-ink-faint">Record name</dt>
+                      <dd className="mt-1 break-all font-mono text-xs text-ink">
+                        {instructions.recordName}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs uppercase text-ink-faint">TXT value</dt>
+                      <dd className="mt-1 break-all font-mono text-xs text-ink">
+                        {instructions.recordValue}
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+              );
+            })}
         </CardBody>
       </Card>
 
@@ -274,8 +384,13 @@ export function ProjectDetailPage() {
                     <TD className="text-data text-xs">{a.testIntensityMode ?? '—'}</TD>
                     <TD className="text-data text-xs">{a.allowedHosts.join(', ')}</TD>
                     <TD className="text-right">
-                      <Button size="sm" variant="secondary" onClick={() => void startScan(a.id)}>
-                        Start scan
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        disabled={startingAuthorizationId !== null}
+                        onClick={() => void startScan(a.id)}
+                      >
+                        {startingAuthorizationId === a.id ? 'Starting…' : 'Start scan'}
                       </Button>
                     </TD>
                   </TR>

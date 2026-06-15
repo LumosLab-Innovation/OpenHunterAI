@@ -48,7 +48,7 @@ export class FindingsService {
       data: {
         findingId: finding.id,
         scanJobId: finding.scanJobId,
-        kind: finding.severity === 'critical' || finding.severity === 'high' ? 'ai_assisted' : 'auto',
+        kind: finding.severity === 'critical' || finding.severity === 'high' ? 'ai_assisted' : 'manual',
         scopeSnapshot: finding.scanJob.scopeSnapshot ?? {},
         scenarioRef: finding.retestScenario,
       },

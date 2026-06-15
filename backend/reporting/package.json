@@ -12,7 +12,9 @@
     "test": "echo 'no tests (reporting)'"
   },
   "dependencies": {
+    "@openhunter/event-core": "file:../../shared/event-core",
     "@x-hunter/db": "file:../../shared/db",
+    "@x-hunter/llm-gateway": "file:../../shared/llm-gateway-core",
     "@x-hunter/shared": "file:../../shared/security-core",
     "express": "^4.19.2",
     "helmet": "^7.1.0"

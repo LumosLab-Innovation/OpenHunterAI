@@ -1,0 +1,33 @@
+# Staging override: build internal-api / findings / reporting as images instead
+# of dev-mode (pnpm install + tsx watch with mounted source). This bakes
+# `prisma generate` + client propagation into the image (see each Dockerfile),
+# fixing the "@prisma/client does not provide export 'Prisma'" runtime crash.
+# tsx is installed globally in each image, so the image CMD (tsx src/server.ts)
+# runs without depending on pnpm's nested bin layout — no command override here.
+#
+# Usage (on the VM):
+#   docker compose -f core.yml -f backend.yml -f backend.staging.yml up -d --build
+services:
+  internal-api:
+    image: openhunter/internal-api:staging
+    build:
+      context: ../..
+      dockerfile: gateway/internal-api/Dockerfile
+    command: ["tsx", "src/server.ts"]
+    volumes: []
+
+  findings:
+    image: openhunter/findings:staging
+    build:
+      context: ../..
+      dockerfile: backend/findings/Dockerfile
+    command: ["tsx", "src/server.ts"]
+    volumes: []
+
+  reporting:
+    image: openhunter/reporting:staging
+    build:
+      context: ../..
+      dockerfile: backend/reporting/Dockerfile
+    command: ["tsx", "src/server.ts"]
+    volumes: []

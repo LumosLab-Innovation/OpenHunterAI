@@ -5,7 +5,8 @@
  * Never run in production. The default user password is meant for local use.
  */
 
-import { PrismaClient } from '@prisma/client';
+import * as pkg from '../generated/client/index.js';
+const PrismaClient = (pkg as any).PrismaClient;
 import { createHash } from 'node:crypto';
 
 const prisma = new PrismaClient();

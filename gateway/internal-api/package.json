@@ -12,6 +12,8 @@
     "test": "echo 'no tests (internal-api)'"
   },
   "dependencies": {
+    "@x-hunter/db": "file:../../shared/db",
+    "@x-hunter/shared": "file:../../shared/security-core",
     "express": "^4.19.2",
     "helmet": "^7.1.0"
   },

@@ -1,0 +1,12 @@
+# Keep the Docker build context small and avoid copying host (Windows) symlinked
+# node_modules / pnpm stores and build artifacts into the image.
+**/node_modules
+**/dist
+**/.turbo
+.git
+.github
+**/*.log
+third_party_research
+infra/docker-compose
+ops
+docs

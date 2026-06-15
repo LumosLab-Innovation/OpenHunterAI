@@ -1,13 +1,7 @@
 go 1.22
 
 use (
-  ./workers/orchestrator
-  ./workers/browser-inspector
-  ./workers/Z
-  ./workers/N
-  ./workers/O
-  ./workers/S
-  ./workers/retest
+  ./workers
   ./integrations/zaproxy
   ./integrations/nuclei
   ./integrations/openhack

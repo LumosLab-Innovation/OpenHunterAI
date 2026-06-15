@@ -1,0 +1,9 @@
+.git
+.github
+**/node_modules
+**/dist
+**/.turbo
+**/*.log
+third_party_research
+docs
+ops

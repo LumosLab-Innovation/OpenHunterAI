@@ -11,6 +11,29 @@ import {
 export class ReportsService {
   private readonly prisma = getPrisma();
 
+  list(orgId: string) {
+    return this.prisma.report.findMany({
+      where: { state: 'final', project: { organizationId: orgId } },
+      select: {
+        id: true,
+        projectId: true,
+        scanJobId: true,
+        version: true,
+        state: true,
+        kind: true,
+        content: true,
+        generatedAt: true,
+        finalizedAt: true,
+      },
+      orderBy: { generatedAt: 'desc' },
+    }).then((reports: any[]) =>
+      reports.map((report) => ({
+        ...report,
+        headline: sanitizeText(report.content?.ownerSummary?.headline ?? 'OpenHunterAI report'),
+      })),
+    );
+  }
+
   async get(id: string, orgId: string) {
     const report = await this.prisma.report.findFirst({
       where: { id, project: { organizationId: orgId } },
@@ -39,10 +62,18 @@ export class ReportsService {
         body: Buffer.from(html, 'utf8'),
       };
     }
+    const markdown =
+      view === 'latest'
+        ? `${renderReportMarkdown(content)}
+
+## Latest Status
+
+${renderOverlayMarkdown(envelope.latestOverlay)}`
+        : renderReportMarkdown(content);
     return {
       contentType: 'application/pdf',
       filename: `openhunter-report-${id}.pdf`,
-      body: renderSimplePdf(renderReportMarkdown(content)),
+      body: renderSimplePdf(markdown),
     };
   }
 
@@ -66,7 +97,13 @@ export class ReportsService {
   }
 
   private toEnvelope(report: any) {
-    const findings = report.scanJob.findings ?? [];
+    const snapshotFindingIds = new Set(
+      ((report.content as ReportContentV1)?.findings ?? []).map((finding: { id: string }) => finding.id),
+    );
+    const findings =
+      report.scanJob.mode === 'free_hunter'
+        ? (report.scanJob.findings ?? []).filter((finding: any) => snapshotFindingIds.has(finding.id)).slice(0, 1)
+        : (report.scanJob.findings ?? []);
     const latestOverlay = {
       findingStatuses: findings.map((finding: any) => ({
         id: finding.id,
@@ -111,6 +148,27 @@ export class ReportsService {
       },
     };
   }
+}
+
+function renderOverlayMarkdown(overlay: {
+  findingStatuses: Array<{ id: string; status: string; severity: string }>;
+  retestStates: Array<{ findingId: string; result: string | null }>;
+  monitor: { maxMonitoredFindings: number; maxRetests: number; cooldownDays: number };
+}) {
+  const statuses =
+    overlay.findingStatuses.length > 0
+      ? overlay.findingStatuses.map((finding) => `- ${finding.id}: ${finding.status} (${finding.severity})`).join('\n')
+      : '- No current finding status.';
+  const retests =
+    overlay.retestStates.length > 0
+      ? overlay.retestStates.map((run) => `- ${run.findingId}: ${run.result ?? 'pending'}`).join('\n')
+      : '- No retest runs.';
+  return sanitizeText(`${statuses}
+
+Retests:
+${retests}
+
+Monitor quota: ${overlay.monitor.maxMonitoredFindings} findings, ${overlay.monitor.maxRetests} retests, ${overlay.monitor.cooldownDays} cooldown days.`);
 }
 
 export async function createInitialReportDraft(prisma: ReturnType<typeof getPrisma>, scanId: string) {
@@ -161,11 +219,11 @@ export async function createInitialReportDraft(prisma: ReturnType<typeof getPris
       version: 1,
       state: 'draft',
       formatVersion: REPORT_FORMAT_VERSION,
-      content,
+      content: content as object,
       markdown,
     },
     update: {
-      content,
+      content: content as object,
       markdown,
     },
   });

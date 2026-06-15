@@ -4,6 +4,10 @@ import { ReportsService } from './reports.service.js';
 
 const service = new ReportsService();
 
+export async function listReports(req: Request, res: Response) {
+  res.json({ reports: await service.list(currentUser(req).orgId) });
+}
+
 export async function getReport(req: Request, res: Response) {
   const report = await service.get(req.params.id!, currentUser(req).orgId);
   if (!report) {

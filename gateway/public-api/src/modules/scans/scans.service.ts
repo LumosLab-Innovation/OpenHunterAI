@@ -2,10 +2,12 @@ import { publishEvent } from '@openhunter/event-core';
 import { getPrisma } from '@x-hunter/db';
 import { buildScanPlan, DEFAULT_SURFACE_FLAGS, GuardrailError, type SurfaceFlags } from '@x-hunter/shared';
 import { createInitialReportDraft } from '../reports/reports.service.js';
+import { EntitlementService } from '../billing/entitlement.service.js';
 import type { CreateScanBody } from './scans.dto.js';
 
 export class ScansService {
   private readonly prisma = getPrisma();
+  private readonly entitlements = new EntitlementService();
 
   list(orgId: string) {
     return this.prisma.scanJob.findMany({
@@ -29,11 +31,33 @@ export class ScansService {
     if (authz.expiresAt && authz.expiresAt < new Date()) {
       throw new GuardrailError('AUTHORIZATION_EXPIRED', 'Scan authorization expired');
     }
-    const domain = await this.prisma.domain.findUnique({ where: { id: authz.domainId } });
+    const allowedHosts = authz.allowedHosts as string[];
+    const domains = await this.prisma.domain.findMany({
+      where: {
+        projectId,
+        project: { organizationId: orgId },
+        hostname: { in: allowedHosts },
+        verifications: {
+          some: {
+            status: 'verified',
+            OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+          },
+        },
+      },
+      select: { id: true, hostname: true },
+    });
+    const verifiedHosts = new Set(domains.map((domain: { hostname: string }) => domain.hostname.toLowerCase()));
+    const unverifiedHosts = allowedHosts.filter((host) => !verifiedHosts.has(host.toLowerCase()));
+    if (unverifiedHosts.length > 0) {
+      throw new GuardrailError('DOMAIN_NOT_VERIFIED', 'Every allowed host must still be verified before scan creation', {
+        unverifiedHosts,
+      });
+    }
+    const domain = domains.find((d: { id: string }) => d.id === authz.domainId) ?? domains[0];
     const project = await this.prisma.project.findUnique({ where: { id: projectId } });
     const surfaceFlags = { ...DEFAULT_SURFACE_FLAGS, ...(authz.surfaceFlags as Partial<SurfaceFlags>) };
     const scope = {
-      allowedHosts: authz.allowedHosts as string[],
+      allowedHosts,
       allowedPaths: authz.allowedPaths as string[],
       excludedPaths: authz.excludedPaths as string[],
       testAccountPermission: authz.testAccountPermission,
@@ -60,6 +84,10 @@ export class ScansService {
       excludedPaths: scope.excludedPaths,
     });
 
+    // Billing entitlement gate: confirm the project may run this tier (and
+    // consume a PAYG credit) before any scan job is created.
+    await this.entitlements.assertCanScan(projectId, orgId, scope.packageTier);
+
     const scan = await this.prisma.scanJob.create({
       data: {
         projectId,
@@ -69,10 +97,10 @@ export class ScansService {
         targetType: authz.targetType,
         authScope: authz.authScope,
         testIntensityMode: authz.testIntensityMode,
-        surfaceFlags,
-        scanPlan,
+        surfaceFlags: surfaceFlags as object,
+        scanPlan: scanPlan as object,
         state: 'queued',
-        scopeSnapshot: scope,
+        scopeSnapshot: scope as object,
       },
     });
     await createInitialReportDraft(this.prisma, scan.id);

@@ -1,0 +1,93 @@
+# Standalone staging compose for image-based backend services.
+# Does NOT inherit backend.yml, so no `- ../..:/app` bind-mount overlays the
+# image (that mount was hiding the baked-in shared/db/generated/ Prisma client).
+#
+# Run alongside core.yml on the VM:
+#   docker compose -f core.yml -f backend.staging-standalone.yml up -d --build
+#
+# NATS comes from core.yml. Staging data is canonical in Cloud SQL and is
+# reached through Cloud SQL Auth Proxy using the VM service account.
+services:
+  cloud-sql-proxy:
+    image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.18.2
+    command:
+      - --address=0.0.0.0
+      - --port=5432
+      - project-a7c4b503-2c06-444f-a8a:asia-southeast1:openhunter-pg
+    restart: unless-stopped
+
+  public-api:
+    image: asia-southeast1-docker.pkg.dev/project-a7c4b503-2c06-444f-a8a/openhunter/public-api:staging
+    build:
+      context: ../..
+      dockerfile: gateway/public-api/Dockerfile
+    env_file:
+      - ../../gateway/public-api/env/public-api.env.example
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set Cloud SQL DATABASE_URL in the staging env file}
+      NATS_URL: nats://nats:4222
+      API_PORT: 4000
+      APP_JWT_SECRET: ${APP_JWT_SECRET:?Set APP_JWT_SECRET in the staging env file}
+      EVENTS_DISABLED: "false"
+      WORKER_TOKEN: ${WORKER_TOKEN:?Set WORKER_TOKEN in the staging env file}
+    ports:
+      - "4000:4000"
+    depends_on:
+      - cloud-sql-proxy
+      - nats
+    restart: unless-stopped
+
+  internal-api:
+    image: openhunter/internal-api:staging
+    build:
+      context: ../..
+      dockerfile: gateway/internal-api/Dockerfile
+    env_file:
+      - ../../gateway/internal-api/env/internal-api.env.example
+    environment:
+      INTERNAL_API_PORT: 4100
+      DATABASE_URL: ${DATABASE_URL:?Set Cloud SQL DATABASE_URL in the staging env file}
+      NATS_URL: nats://nats:4222
+      WORKER_TOKEN: ${WORKER_TOKEN:?Set WORKER_TOKEN in the staging env file}
+    ports:
+      - "4100:4100"
+    depends_on:
+      - cloud-sql-proxy
+      - nats
+    restart: unless-stopped
+
+  findings:
+    image: asia-southeast1-docker.pkg.dev/project-a7c4b503-2c06-444f-a8a/openhunter/findings:staging
+    build:
+      context: ../..
+      dockerfile: backend/findings/Dockerfile
+    env_file:
+      - ../../backend/findings/env/findings.env.example
+    environment:
+      FINDINGS_PORT: 4300
+      DATABASE_URL: ${DATABASE_URL:?Set Cloud SQL DATABASE_URL in the staging env file}
+      WORKER_TOKEN: ${WORKER_TOKEN:?Set WORKER_TOKEN in the staging env file}
+    ports:
+      - "4300:4300"
+    depends_on:
+      - cloud-sql-proxy
+    restart: unless-stopped
+
+  reporting:
+    image: asia-southeast1-docker.pkg.dev/project-a7c4b503-2c06-444f-a8a/openhunter/reporting:staging
+    build:
+      context: ../..
+      dockerfile: backend/reporting/Dockerfile
+    env_file:
+      - ../../backend/reporting/env/reporting.env.example
+    environment:
+      REPORTING_PORT: 4400
+      DATABASE_URL: ${DATABASE_URL:?Set Cloud SQL DATABASE_URL in the staging env file}
+      NATS_URL: nats://nats:4222
+      WORKER_TOKEN: ${WORKER_TOKEN:?Set WORKER_TOKEN in the staging env file}
+    ports:
+      - "4400:4400"
+    depends_on:
+      - cloud-sql-proxy
+      - nats
+    restart: unless-stopped

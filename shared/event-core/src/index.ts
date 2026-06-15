@@ -1,4 +1,4 @@
-import { connect, JSONCodec, type NatsConnection } from 'nats';
+import { connect, JSONCodec, RetentionPolicy, StorageType, type NatsConnection, type Subscription } from 'nats';
 
 export interface EventEnvelope<T = unknown> {
   id: string;
@@ -8,13 +8,18 @@ export interface EventEnvelope<T = unknown> {
 }
 
 let connection: NatsConnection | null = null;
+let streamReady = false;
 const codec = JSONCodec<EventEnvelope>();
+const STREAM_NAME = 'OPENHUNTER';
+const STREAM_SUBJECTS = ['scan.>', 'worker.>', 'retest.>', 'report.>'];
 
 export async function publishEvent<T>(subject: string, payload: T): Promise<void> {
   if (process.env.EVENTS_DISABLED === 'true') return;
   const nc = await getConnection();
   if (!nc) return;
-  nc.publish(
+  await ensureStream(nc);
+  const js = nc.jetstream();
+  await js.publish(
     subject,
     codec.encode({
       id: randomId(),
@@ -35,6 +40,48 @@ async function getConnection(): Promise<NatsConnection | null> {
     if (process.env.NODE_ENV !== 'production') return null;
     throw new Error(`Unable to connect to NATS at ${servers}`);
   }
+}
+
+async function ensureStream(nc: NatsConnection): Promise<void> {
+  if (streamReady) return;
+  const jsm = await nc.jetstreamManager();
+  try {
+    await jsm.streams.info(STREAM_NAME);
+  } catch {
+    await jsm.streams.add({
+      name: STREAM_NAME,
+      subjects: STREAM_SUBJECTS,
+      retention: RetentionPolicy.Workqueue,
+      storage: StorageType.File,
+      max_age: 24 * 60 * 60 * 1_000_000_000,
+    });
+  }
+  streamReady = true;
+}
+
+/**
+ * Subscribes to a subject (NATS wildcards allowed, e.g. `report.scan_1.>`) and
+ * invokes onEvent for each decoded envelope. Returns an unsubscribe function.
+ * Returns a no-op unsubscribe if NATS is unavailable in non-production so the
+ * caller (e.g. an SSE endpoint) degrades gracefully instead of throwing.
+ */
+export async function subscribeEvent<T = unknown>(
+  subject: string,
+  onEvent: (envelope: EventEnvelope<T>) => void,
+): Promise<() => void> {
+  const nc = await getConnection();
+  if (!nc) return () => {};
+  const sub: Subscription = nc.subscribe(subject);
+  (async () => {
+    for await (const msg of sub) {
+      try {
+        onEvent(codec.decode(msg.data) as EventEnvelope<T>);
+      } catch {
+        // Ignore undecodable messages; never crash the subscriber loop.
+      }
+    }
+  })().catch(() => {});
+  return () => sub.unsubscribe();
 }
 
 function randomId(): string {

@@ -1,4 +1,7 @@
+# Cloudflare Pages API proxy fallback. Production builds normally bake
+# VITE_PUBLIC_API_BASE_URL, but this prevents /api from falling through to the
+# SPA when the env var is missing or a local preview uses the default.
+/api/*  https://openhunter-public-api-604962785463.asia-southeast1.run.app/v1/:splat  200
+
 # Cloudflare Pages SPA fallback: serve index.html for any client-side route.
-# When public-api is deployed, add an API proxy line ABOVE this one, e.g.:
-#   /api/*  https://api.openhunterai.<your-domain>/:splat  200
 /*  /index.html  200

@@ -2,6 +2,8 @@ import express from 'express';
 import helmet from 'helmet';
 import { createRequire } from 'node:module';
 import { REPORT_FORMAT_VERSION, renderReportMarkdown, sanitizeReportContent, type ReportContentV1 } from '@x-hunter/shared';
+import { generateFixPrompt, getGateway } from './llm.js';
+import { publishEvent } from '@openhunter/event-core';
 
 const app = express();
 const port = Number(process.env.REPORTING_PORT || 4400);
@@ -12,11 +14,42 @@ const prisma = getPrisma();
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json());
 app.get('/health', (_req, res) => res.json({ ok: true, service: 'reporting' }));
-app.get('/internal/reports', async (_req, res) => {
-  res.json({ reports: await prisma.report.findMany({ orderBy: { generatedAt: 'desc' }, take: 50 }) });
+
+const asyncRoute =
+  (handler: express.RequestHandler): express.RequestHandler =>
+  (req, res, next) => {
+    Promise.resolve(handler(req, res, next)).catch(next);
+  };
+
+// Worker/orchestrator callbacks into /internal/* require the shared worker
+// token (set WORKER_TOKEN on both sides). Mirrors gateway/internal-api.
+let warnedMissingToken = false;
+app.use('/internal', (req, res, next) => {
+  const expected = process.env.WORKER_TOKEN;
+  if (!expected) {
+    if (!warnedMissingToken) {
+      console.warn('[reporting] WORKER_TOKEN is unset; /internal callbacks are UNAUTHENTICATED (dev only)');
+      warnedMissingToken = true;
+    }
+    if (process.env.NODE_ENV === 'production') {
+      res.status(503).json({ error: { code: 'WORKER_AUTH_NOT_CONFIGURED' } });
+      return;
+    }
+    next();
+    return;
+  }
+  if (req.header('x-worker-token') !== expected) {
+    res.status(401).json({ error: { code: 'WORKER_UNAUTHORIZED' } });
+    return;
+  }
+  next();
 });
 
-app.post('/internal/reports/:scanId/draft-sections/:sectionKey', async (req, res) => {
+app.get('/internal/reports', asyncRoute(async (_req, res) => {
+  res.json({ reports: await prisma.report.findMany({ orderBy: { generatedAt: 'desc' }, take: 50 }) });
+}));
+
+app.post('/internal/reports/:scanId/draft-sections/:sectionKey', asyncRoute(async (req, res) => {
   const scan = await prisma.scanJob.findUnique({ where: { id: req.params.scanId! } });
   if (!scan) {
     res.status(404).json({ error: { code: 'SCAN_NOT_FOUND' } });
@@ -44,10 +77,12 @@ app.post('/internal/reports/:scanId/draft-sections/:sectionKey', async (req, res
       errorMsg: req.body.errorMsg,
     },
   });
+  // Push an SSE-visible event so subscribed clients refresh without polling.
+  await publishEvent(`report.${scan.id}.section`, { sectionKey: req.params.sectionKey, state: section.state });
   res.json({ section });
-});
+}));
 
-app.post('/internal/reports/:scanId/finalize', async (req, res) => {
+app.post('/internal/reports/:scanId/finalize', asyncRoute(async (req, res) => {
   const scan = await prisma.scanJob.findUnique({
     where: { id: req.params.scanId! },
     include: {
@@ -61,6 +96,28 @@ app.post('/internal/reports/:scanId/finalize', async (req, res) => {
     res.status(404).json({ error: { code: 'SCAN_NOT_FOUND' } });
     return;
   }
+
+  // Enrich findings that lack a developer fix prompt via the LLM Gateway
+  // (recommendation-only; falls back deterministically and never blocks).
+  await Promise.all(
+    (scan.findings ?? [])
+      .filter((f: any) => !f.fixPrompt)
+      .map(async (f: any) => {
+        const { text } = await generateFixPrompt(getGateway(), {
+          projectId: scan.projectId,
+          scanId: scan.id,
+          findingId: f.id,
+          packageTier: scan.project.packageTier,
+          title: f.title,
+          category: f.category,
+          affectedAsset: f.affectedAsset,
+          description: f.description ?? '',
+        });
+        f.fixPrompt = text;
+        await prisma.finding.update({ where: { id: f.id }, data: { fixPrompt: text } });
+      }),
+  );
+
   const content = buildFinalContent(scan as any);
   const version = (scan.reports[0]?.version ?? 0) + 1;
   await prisma.report.updateMany({
@@ -80,7 +137,14 @@ app.post('/internal/reports/:scanId/finalize', async (req, res) => {
       finalizedAt: new Date(),
     },
   });
+  // Notify SSE subscribers that the report is finalized so they close cleanly.
+  await publishEvent(`report.${scan.id}.finalized`, { reportId: report.id, version });
   res.json({ report });
+}));
+
+app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('[reporting] request_failed', err instanceof Error ? err.message : err);
+  res.status(500).json({ error: { code: 'INTERNAL_ERROR' } });
 });
 
 app.listen(port, '0.0.0.0', () => console.log(`reporting listening on ${port}`));

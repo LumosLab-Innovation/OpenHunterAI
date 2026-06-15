@@ -7,6 +7,9 @@ services:
       - ../../workers/orchestrator/env/orchestrator.env.example
     environment:
       NATS_URL: nats://nats:4222
+      INTERNAL_API_URL: http://internal-api:4100
+      FINDINGS_URL: http://findings:4300
+      REPORTING_URL: http://reporting:4400
     ports:
       - "5100:5100"
 
