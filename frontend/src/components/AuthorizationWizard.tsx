@@ -79,15 +79,20 @@ function OptionCard({
 
 export function AuthorizationWizard({
   projectId,
+  verifiedHosts = [],
   onCreated,
   onCancel,
 }: {
   projectId: string;
+  verifiedHosts?: string[];
   onCreated: () => void;
   onCancel: () => void;
 }) {
   const [step, setStep] = useState(0);
-  const [s, setS] = useState<WizardState>(INITIAL);
+  const [s, setS] = useState<WizardState>({
+    ...INITIAL,
+    allowedHosts: verifiedHosts.join(', '),
+  });
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -95,16 +100,24 @@ export function AuthorizationWizard({
     setS((prev) => ({ ...prev, [key]: value }));
 
   const isAggressive = s.testIntensityMode === 'aggressive_staging';
-  const canSubmit =
-    s.allowedHosts.trim().length > 0 && (!isAggressive || s.riskAccepted);
+  const allowedHosts = s.allowedHosts
+    .split(',')
+    .map((v) => v.trim().toLowerCase())
+    .filter(Boolean);
+  const hasAllowedHosts = allowedHosts.length > 0;
+  const canSubmit = hasAllowedHosts && (!isAggressive || s.riskAccepted);
 
   async function submit() {
+    if (!canSubmit) {
+      setError(
+        hasAllowedHosts
+          ? 'Accept the staging risk statement before authorizing this scan.'
+          : 'Verify at least one domain before authorizing a scan.',
+      );
+      return;
+    }
     setSubmitting(true);
     setError(null);
-    const allowedHosts = s.allowedHosts
-      .split(',')
-      .map((v) => v.trim().toLowerCase())
-      .filter(Boolean);
     const payload: AuthorizationPayload = {
       scanMode: s.scanMode,
       targetType: s.targetType,
@@ -180,13 +193,27 @@ export function AuthorizationWizard({
 
         {step === 2 && (
           <div className="grid gap-5">
-            <Field label="Allowed hosts" hint="Comma-separated. Only these hosts will be in scope." required>
+            <Field
+              label="Allowed hosts"
+              hint={
+                verifiedHosts.length > 0
+                  ? 'Only verified hosts can be authorized. Add or verify more domains above to expand scope.'
+                  : 'No verified domains yet. Go back to Domains, publish the TXT record, then check DNS.'
+              }
+              required
+            >
               <Input
                 value={s.allowedHosts}
                 onChange={(e) => set('allowedHosts', e.target.value)}
-                placeholder="example.com, www.example.com"
+                placeholder={verifiedHosts.length > 0 ? verifiedHosts.join(', ') : 'Verify a domain first'}
+                disabled={verifiedHosts.length === 0}
               />
             </Field>
+            {verifiedHosts.length === 0 && (
+              <div className="rounded border border-medium/40 bg-medium/10 px-3 py-2 text-sm text-medium">
+                DNS ownership is still pending. Add the TXT record under Cloudflare DNS Records, then click Check DNS before creating authorization.
+              </div>
+            )}
             <div className="grid gap-2">
               <span className="text-xs font-medium uppercase tracking-wider text-ink-muted">
                 Surface flags
@@ -255,25 +282,32 @@ export function AuthorizationWizard({
         )}
 
         {step === 4 && (
-          <dl className="grid gap-3 rounded-lg border border-hairline bg-surface-raised p-5 text-sm">
-            <ReviewRow label="Scan mode" value={s.scanMode} />
-            <ReviewRow label="Target type" value={s.targetType} />
-            <ReviewRow label="Intensity" value={s.testIntensityMode} />
-            <ReviewRow label="Auth scope" value={s.authScope} />
-            <ReviewRow
-              label="Allowed hosts"
-              value={s.allowedHosts || '—'}
-            />
-            <ReviewRow
-              label="Surface flags"
-              value={
-                Object.entries(s.surfaceFlags)
-                  .filter(([, v]) => v)
-                  .map(([k]) => k)
-                  .join(', ') || 'none'
-              }
-            />
-          </dl>
+          <div className="grid gap-3">
+            {!hasAllowedHosts && (
+              <div className="rounded border border-medium/40 bg-medium/10 px-3 py-2 text-sm text-medium">
+                You cannot authorize a scan yet because no verified host is in scope.
+              </div>
+            )}
+            <dl className="grid gap-3 rounded-lg border border-hairline bg-surface-raised p-5 text-sm">
+              <ReviewRow label="Scan mode" value={s.scanMode} />
+              <ReviewRow label="Target type" value={s.targetType} />
+              <ReviewRow label="Intensity" value={s.testIntensityMode} />
+              <ReviewRow label="Auth scope" value={s.authScope} />
+              <ReviewRow
+                label="Allowed hosts"
+                value={s.allowedHosts || 'Verify a domain first'}
+              />
+              <ReviewRow
+                label="Surface flags"
+                value={
+                  Object.entries(s.surfaceFlags)
+                    .filter(([, v]) => v)
+                    .map(([k]) => k)
+                    .join(', ') || 'none'
+                }
+              />
+            </dl>
+          </div>
         )}
       </div>
 

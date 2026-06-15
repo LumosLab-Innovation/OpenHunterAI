@@ -245,6 +245,7 @@ export function ProjectDetailPage() {
   const hasDomain = domains.length > 0;
   const hasVerifiedDomain = domains.some((domain) => domain.verified);
   const hasAuthorization = auths.length > 0;
+  const verifiedHosts = domains.filter((domain) => domain.verified).map((domain) => domain.hostname);
 
   return (
     <div>
@@ -351,8 +352,9 @@ export function ProjectDetailPage() {
                     DNS TXT verification for {domain.hostname}
                   </p>
                   <p className="mb-4 text-sm leading-relaxed text-ink-muted">
-                    Create this TXT record in your DNS provider. DNS propagation can take a few
-                    minutes; after it appears, click Check DNS above.
+                    Create this as a DNS TXT record under the domain's DNS records. Do not add it
+                    under Cloudflare Pages Variables and secrets; that setting is only for build/runtime
+                    environment variables and DNS cannot see it.
                   </p>
                   <dl className="grid gap-3 text-sm sm:grid-cols-2">
                     <div>
@@ -380,6 +382,21 @@ export function ProjectDetailPage() {
                       </dd>
                     </div>
                   </dl>
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      disabled={busyDomainId === domain.id}
+                      onClick={() => void checkVerification(domain.id)}
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      {busyDomainId === domain.id ? 'Checking DNS...' : 'Check DNS now'}
+                    </Button>
+                    <p className="text-xs leading-relaxed text-ink-faint">
+                      In Cloudflare, use <span className="text-ink-muted">DNS → Records → Add record → TXT</span>.
+                      DNS usually updates within a few minutes.
+                    </p>
+                  </div>
                 </div>
               );
             })}
@@ -405,6 +422,7 @@ export function ProjectDetailPage() {
           {showWizard ? (
             <AuthorizationWizard
               projectId={id}
+              verifiedHosts={verifiedHosts}
               onCancel={() => setShowWizard(false)}
               onCreated={() => {
                 setShowWizard(false);
