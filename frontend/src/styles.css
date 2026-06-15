@@ -1,227 +1,127 @@
-:root {
-  color-scheme: light;
-  --bg: #f7f7f4;
-  --panel: #ffffff;
-  --ink: #171717;
-  --muted: #666b73;
-  --line: #d9ddd8;
-  --primary: #101010;
-  --danger: #b42318;
+@import url('https://fonts.googleapis.com/css2?family=Chivo:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Dark-first: the control-room default. */
+  :root {
+    --canvas: 220 18% 6%;
+    --surface: 220 16% 9%;
+    --surface-raised: 220 15% 12%;
+    --hairline: 220 12% 20%;
+    --hairline-strong: 220 12% 28%;
+
+    --ink: 150 12% 92%;
+    --ink-muted: 215 12% 62%;
+    --ink-faint: 218 10% 44%;
+
+    /* Phosphor lime — the single signal accent. Used sparingly. */
+    --signal: 84 78% 56%;
+    --signal-ink: 220 40% 8%;
+    --signal-dim: 84 30% 34%;
+
+    /* Severity scale — distinct hues, none near the lime signal. */
+    --critical: 350 80% 60%;
+    --high: 18 90% 58%;
+    --medium: 41 92% 56%;
+    --low: 199 80% 56%;
+    --info: 220 10% 56%;
+
+    color-scheme: dark;
+  }
+
+  .light {
+    --canvas: 80 18% 97%;
+    --surface: 0 0% 100%;
+    --surface-raised: 90 16% 98%;
+    --hairline: 220 14% 86%;
+    --hairline-strong: 220 14% 76%;
+
+    --ink: 220 30% 12%;
+    --ink-muted: 220 12% 36%;
+    --ink-faint: 220 10% 52%;
+
+    --signal: 84 62% 38%;
+    --signal-ink: 0 0% 100%;
+    --signal-dim: 84 40% 60%;
+
+    --critical: 350 72% 48%;
+    --high: 18 80% 46%;
+    --medium: 38 86% 42%;
+    --low: 199 78% 42%;
+    --info: 220 10% 44%;
+
+    color-scheme: light;
+  }
+
+  * {
+    border-color: hsl(var(--hairline));
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    margin: 0;
+    background-color: hsl(var(--canvas));
+    color: hsl(var(--ink));
+    font-family: '"IBM Plex Sans"', ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: 'ss01', 'cv05';
+  }
+
+  /* Focus ring — uses the signal accent everywhere for consistency. */
+  :focus-visible {
+    outline: 2px solid hsl(var(--signal));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: hsl(var(--signal) / 0.3);
+    color: hsl(var(--ink));
+  }
+
+  /* Thin tactical scrollbars. */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--hairline-strong));
+    border-radius: 999px;
+    border: 2px solid hsl(var(--canvas));
+  }
 }
 
-* {
-  box-sizing: border-box;
+@layer components {
+  /* Faint radar-grid atmosphere for hero / empty surfaces. */
+  .bg-radar {
+    background-image: var(--tw-bg-grid, theme('backgroundImage.grid'));
+    background-size: 32px 32px;
+    background-position: center;
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black, transparent 75%);
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black, transparent 75%);
+  }
+
+  .text-data {
+    font-family: '"IBM Plex Mono"', ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
 }
 
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--ink);
-  font-family:
-    ui-sans-serif,
-    "Segoe UI",
-    system-ui,
-    sans-serif;
-}
-
-a {
-  color: inherit;
-}
-
-.app {
-  min-height: 100vh;
-}
-
-.topbar {
-  align-items: center;
-  border-bottom: 1px solid var(--line);
-  display: flex;
-  gap: 24px;
-  justify-content: space-between;
-  padding: 16px 28px;
-}
-
-.brand {
-  font-weight: 800;
-  text-decoration: none;
-}
-
-nav {
-  display: flex;
-  gap: 14px;
-}
-
-nav a {
-  color: var(--muted);
-  text-decoration: none;
-}
-
-nav a.active {
-  color: var(--ink);
-}
-
-.page {
-  margin: 0 auto;
-  max-width: 1120px;
-  padding: 42px 24px;
-}
-
-.hero {
-  max-width: 720px;
-  padding: 72px 0;
-}
-
-.hero h1 {
-  font-size: clamp(48px, 8vw, 88px);
-  line-height: 0.95;
-  margin: 0 0 20px;
-}
-
-.hero p {
-  color: var(--muted);
-  font-size: 18px;
-  line-height: 1.7;
-}
-
-.eyebrow {
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.panel {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 24px;
-}
-
-.narrow {
-  max-width: 460px;
-}
-
-.stack {
-  display: grid;
-  gap: 12px;
-}
-
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin: 16px 0;
-}
-
-.checkbox-grid {
-  display: grid;
-  gap: 8px 14px;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  width: 100%;
-}
-
-.checkbox-grid label,
-.risk-copy {
-  align-items: center;
-  color: var(--muted);
-  display: flex;
-  gap: 8px;
-}
-
-.muted {
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.5;
-  width: 100%;
-}
-
-input,
-select,
-button,
-.button {
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  font: inherit;
-  padding: 10px 12px;
-}
-
-input {
-  min-width: 240px;
-}
-
-button,
-.button {
-  background: white;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.primary,
-button[type="submit"] {
-  background: var(--primary);
-  color: white;
-}
-
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 28px;
-}
-
-table {
-  border-collapse: collapse;
-  margin-top: 16px;
-  width: 100%;
-}
-
-td {
-  border-top: 1px solid var(--line);
-  padding: 12px 8px;
-}
-
-.badge {
-  background: #eef0ed;
-  border-radius: 999px;
-  display: inline-flex;
-  padding: 6px 10px;
-}
-
-.error {
-  color: var(--danger);
-}
-
-.report-header {
-  align-items: flex-start;
-  display: flex;
-  gap: 16px;
-  justify-content: space-between;
-}
-
-.report-grid {
-  display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  margin: 18px 0;
-}
-
-.report-list {
-  display: grid;
-  gap: 12px;
-  margin-top: 12px;
-}
-
-.report-item {
-  border-top: 1px solid var(--line);
-  padding: 14px 0;
-}
-
-pre {
-  background: #f4f5f2;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  max-width: 100%;
-  overflow: auto;
-  padding: 12px;
-  white-space: pre-wrap;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

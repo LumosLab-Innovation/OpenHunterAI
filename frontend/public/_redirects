@@ -1,0 +1,4 @@
+# Cloudflare Pages SPA fallback: serve index.html for any client-side route.
+# When public-api is deployed, add an API proxy line ABOVE this one, e.g.:
+#   /api/*  https://api.openhunterai.<your-domain>/:splat  200
+/*  /index.html  200
