@@ -1,10 +1,10 @@
-go 1.22
+go 1.26
 
 use (
-  ./workers
-  ./integrations/zaproxy
-  ./integrations/nuclei
-  ./integrations/openhack
-  ./integrations/strix
-  ./contracts/generated/go
+	./contracts/generated/go
+	./integrations/nuclei
+	./integrations/openhack
+	./integrations/strix
+	./integrations/zaproxy
+	./workers
 )

@@ -15,13 +15,14 @@ import (
 // reasonRequest is the payload worker S sends (a subset of WorkerRunPayload plus
 // the resolved target). Raw evidence/credentials must never be included.
 type reasonRequest struct {
-	Target            string   `json:"target"`
-	AllowedHosts      []string `json:"allowedHosts"`
-	AllowedPaths      []string `json:"allowedPaths"`
-	ExcludedPaths     []string `json:"excludedPaths"`
-	TargetType        string   `json:"targetType"`
-	TestIntensityMode string   `json:"testIntensityMode"`
-	Mode              string   `json:"mode"`
+	Target            string          `json:"target"`
+	AllowedHosts      []string        `json:"allowedHosts"`
+	AllowedPaths      []string        `json:"allowedPaths"`
+	ExcludedPaths     []string        `json:"excludedPaths"`
+	TargetType        string          `json:"targetType"`
+	TestIntensityMode string          `json:"testIntensityMode"`
+	Mode              string          `json:"mode"`
+	SurfaceFlags      map[string]bool `json:"surfaceFlags"`
 }
 
 // reasonResponse is the sanitized adapter output consumed by the worker.
@@ -59,6 +60,10 @@ func reasonHandler(w http.ResponseWriter, r *http.Request) {
 
 	bin := env("STRIX_BIN", "strix")
 	if !runtimeAvailable(bin) {
+		if boolEnv("STRIX_BUILTIN_PLANNER") {
+			writeJSON(w, builtInPlan(req))
+			return
+		}
 		// Honest coverage gap — never fake success (INTEGRATIONS.md).
 		w.WriteHeader(http.StatusServiceUnavailable)
 		writeJSON(w, map[string]any{
@@ -179,6 +184,70 @@ func strixScanMode(intensity string) string {
 		return "standard"
 	default:
 		return "lightweight"
+	}
+}
+
+// builtInPlan is a safe deterministic Strix-compatible reasoning fallback for
+// environments where the third-party Strix CLI is intentionally not packaged.
+// It does not validate or claim vulnerabilities. It only emits sanitized
+// attacker-mindset hypotheses and controlled validation planning signals from
+// the deterministic Scan Plan inputs.
+func builtInPlan(req reasonRequest) reasonResponse {
+	signals := []signal{{
+		Kind:       "strix_validation_plan",
+		Title:      "Controlled validation plan generated",
+		Severity:   "info",
+		Confidence: "high",
+		Asset:      sanitize(req.Target),
+		Description: sanitize("Generated a safe validation plan from target type " + req.TargetType +
+			" and intensity " + req.TestIntensityMode + ". No vulnerability was confirmed by this reasoning step."),
+	}}
+
+	switch req.TargetType {
+	case "interactive_web_app":
+		signals = append(signals, signal{
+			Kind: "strix_hypothesis", Title: "Session and access-control abuse paths queued for review",
+			Severity: "info", Confidence: "medium", Asset: sanitize(req.Target),
+			Description: "Prioritize benign review of session boundaries, role separation, dashboard surfaces, and state-changing forms inside the authorized scope.",
+		})
+	case "api_service":
+		signals = append(signals, signal{
+			Kind: "strix_hypothesis", Title: "API authorization and data-exposure paths queued for review",
+			Severity: "info", Confidence: "medium", Asset: sanitize(req.Target),
+			Description: "Prioritize BOLA-style object access review, function-level authorization, excessive data exposure, and webhook/API documentation surfaces inside scope.",
+		})
+	case "ai_llm_application":
+		signals = append(signals, signal{
+			Kind: "strix_hypothesis", Title: "AI prompt/RAG/tool-call abuse paths queued for review",
+			Severity: "info", Confidence: "medium", Asset: sanitize(req.Target),
+			Description: "Prioritize prompt injection, sensitive disclosure, excessive agency, tool-call boundary, and RAG data-separation review inside scope.",
+		})
+	default:
+		signals = append(signals, signal{
+			Kind: "strix_hypothesis", Title: "Content exposure and hardening abuse paths queued for review",
+			Severity: "info", Confidence: "medium", Asset: sanitize(req.Target),
+			Description: "Prioritize public content exposure, security-header gaps, metadata leakage, and static asset hardening inside the authorized scope.",
+		})
+	}
+
+	if req.SurfaceFlags["has_login"] || req.SurfaceFlags["has_test_account"] {
+		signals = append(signals, signal{
+			Kind: "strix_scope_note", Title: "Authenticated surface noted",
+			Severity: "info", Confidence: "high", Asset: sanitize(req.Target),
+			Description: "Authorization indicates login or test-account surface. Sensitive authenticated validation still requires the configured auth scope and approval gates.",
+		})
+	}
+	if req.SurfaceFlags["has_file_upload"] || req.SurfaceFlags["has_payment"] || req.SurfaceFlags["has_webhook"] {
+		signals = append(signals, signal{
+			Kind: "strix_approval_gate_note", Title: "Sensitive-action gate required for deeper validation",
+			Severity: "info", Confidence: "high", Asset: sanitize(req.Target),
+			Description: "Upload, payment, webhook, or similarly sensitive surfaces must stay behind explicit approval gates before active validation.",
+		})
+	}
+
+	return reasonResponse{
+		Signals: signals,
+		Summary: "Strix built-in safe planner generated attacker-mindset hypotheses only; no vulnerability was confirmed or fabricated.",
 	}
 }
 

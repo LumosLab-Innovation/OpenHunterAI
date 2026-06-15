@@ -17,3 +17,5 @@ services:
     image: openhunter/openhack-adapter:staging
   strix-adapter:
     image: openhunter/strix-adapter:staging
+    environment:
+      STRIX_BUILTIN_PLANNER: "true"

@@ -37,7 +37,7 @@ services:
   browser-inspector:
     image: openhunter/worker-browser:staging
     restart: unless-stopped
-    environment: { <<: *worker-env }
+    environment: { BROWSER_EXECUTABLE: /usr/bin/chromium-browser, <<: *worker-env }
   retest:
     image: openhunter/worker-retest:staging
     restart: unless-stopped

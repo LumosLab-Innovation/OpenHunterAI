@@ -106,3 +106,32 @@ func TestParseResultsJSONRedactsDescription(t *testing.T) {
 		t.Errorf("description not sanitized: %q", resp.Signals[0].Description)
 	}
 }
+
+func TestBuiltInPlanOnlyProducesInformationalSignals(t *testing.T) {
+	resp := builtInPlan(reasonRequest{
+		Target:            "https://example.com",
+		TargetType:        "ai_llm_application",
+		TestIntensityMode: "safe_discovery",
+		SurfaceFlags: map[string]bool{
+			"has_login":       true,
+			"has_file_upload": true,
+		},
+	})
+	if len(resp.Signals) < 3 {
+		t.Fatalf("signals = %d, want at least 3", len(resp.Signals))
+	}
+	for _, signal := range resp.Signals {
+		if signal.Severity != "info" {
+			t.Fatalf("built-in planner severity = %q, want info for %#v", signal.Severity, signal)
+		}
+	}
+	kinds := map[string]bool{}
+	for _, signal := range resp.Signals {
+		kinds[signal.Kind] = true
+	}
+	for _, want := range []string{"strix_validation_plan", "strix_hypothesis", "strix_scope_note", "strix_approval_gate_note"} {
+		if !kinds[want] {
+			t.Fatalf("missing signal kind %q in %#v", want, resp.Signals)
+		}
+	}
+}

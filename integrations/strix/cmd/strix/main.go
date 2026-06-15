@@ -36,7 +36,7 @@ func main() {
 
 func healthHandler(w http.ResponseWriter, _ *http.Request) {
 	bin := env("STRIX_BIN", "strix")
-	available := runtimeAvailable(bin)
+	available := runtimeAvailable(bin) || boolEnv("STRIX_BUILTIN_PLANNER")
 	if !available {
 		w.WriteHeader(http.StatusServiceUnavailable)
 	}
@@ -45,6 +45,7 @@ func healthHandler(w http.ResponseWriter, _ *http.Request) {
 		"service":           "strix-adapter",
 		"runtime_available": available,
 		"runtime_bin":       bin,
+		"builtin_planner":   boolEnv("STRIX_BUILTIN_PLANNER"),
 	})
 }
 
@@ -53,6 +54,15 @@ func env(key, fallback string) string {
 		return v
 	}
 	return fallback
+}
+
+func boolEnv(key string) bool {
+	switch os.Getenv(key) {
+	case "1", "true", "TRUE", "yes", "YES":
+		return true
+	default:
+		return false
+	}
 }
 
 func writeJSON(w http.ResponseWriter, body any) {

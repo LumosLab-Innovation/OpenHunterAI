@@ -6,6 +6,7 @@ COPY workers ./
 RUN go build -o /out/browser-inspector ./browser-inspector/cmd/browser-inspector
 
 FROM alpine:3.20
+RUN apk add --no-cache ca-certificates chromium nss freetype harfbuzz ttf-freefont
 RUN adduser -D -u 10001 worker
 USER worker
 COPY --from=build /out/browser-inspector /usr/local/bin/browser-inspector
