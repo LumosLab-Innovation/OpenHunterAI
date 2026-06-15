@@ -68,8 +68,8 @@ func main() {
 	err = b.Consume(ctx, bus.ConsumeOptions{
 		Durable:    "orchestrator-scan-created",
 		Subject:    events.SubjectScanCreated,
-		MaxDeliver: 5,
-		AckWait:    30 * time.Second,
+		MaxDeliver: 10,
+		AckWait:    2 * time.Minute,
 		Logger:     log,
 	}, func(ctx context.Context, e *events.Envelope) error {
 		return onScanCreated(ctx, b, kv, state, e, log)
@@ -101,7 +101,8 @@ func onScanCreated(ctx context.Context, b *bus.Bus, kv *bus.KV, state *callback.
 		return err
 	}
 	if err := state.SetState(ctx, sc.ScanID, "running", ""); err != nil {
-		log.Warn("set_state_running_failed", "scan_id", sc.ScanID, "err", err.Error())
+		log.Error("set_state_running_failed", "scan_id", sc.ScanID, "err", err.Error())
+		return err
 	}
 	_, err = fanOut(ctx, b, env, log)
 	return err

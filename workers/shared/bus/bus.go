@@ -182,8 +182,9 @@ func (b *Bus) handleOne(ctx context.Context, msg jetstream.Msg, opts ConsumeOpti
 			_ = msg.Term()
 			return
 		}
-		log.Warn("handler_nak", "subject", opts.Subject, "attempt", attempt, "err", err.Error())
-		_ = msg.Nak()
+		delay := retryDelay(attempt)
+		log.Warn("handler_nak", "subject", opts.Subject, "attempt", attempt, "retry_after", delay.String(), "err", err.Error())
+		_ = msg.NakWithDelay(delay)
 		return
 	}
 	_ = msg.Ack()
@@ -217,6 +218,17 @@ func backoff(n int) []time.Duration {
 		}
 	}
 	return out
+}
+
+func retryDelay(attempt uint64) time.Duration {
+	if attempt == 0 {
+		return time.Second
+	}
+	schedule := backoff(int(attempt))
+	if len(schedule) == 0 {
+		return time.Second
+	}
+	return schedule[len(schedule)-1]
 }
 
 func newID() string {
