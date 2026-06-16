@@ -37,4 +37,6 @@ services:
     build:
       context: ../..
       dockerfile: backend/browser-session/Dockerfile
+    ports:
+      - "10.148.0.3:4700:4700"
     volumes: []

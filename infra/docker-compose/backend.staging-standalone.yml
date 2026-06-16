@@ -46,6 +46,8 @@ services:
       dockerfile: backend/browser-session/Dockerfile
     environment:
       BROWSER_SESSION_PORT: 4700
+    ports:
+      - "10.148.0.3:4700:4700"
     shm_size: "1gb"
     restart: unless-stopped
 
