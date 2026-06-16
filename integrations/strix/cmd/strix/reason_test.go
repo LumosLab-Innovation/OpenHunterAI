@@ -81,6 +81,9 @@ func TestParseResultsJSON(t *testing.T) {
 	if resp.Signals[0].Kind != "access_control" {
 		t.Errorf("kind = %q, want access_control", resp.Signals[0].Kind)
 	}
+	if resp.Signals[0].ValidationState != "validated_finding" || resp.Signals[0].EvidenceClass != "validated_finding" {
+		t.Errorf("validation gate = %q/%q, want validated_finding", resp.Signals[0].ValidationState, resp.Signals[0].EvidenceClass)
+	}
 	// Second finding falls back to type for kind, url for asset.
 	if resp.Signals[1].Kind != "xss" || resp.Signals[1].Asset != "/search" {
 		t.Errorf("fallback mapping = %q/%q", resp.Signals[1].Kind, resp.Signals[1].Asset)

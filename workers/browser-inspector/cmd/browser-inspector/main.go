@@ -6,10 +6,16 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"image"
+	"image/color"
+	"image/draw"
+	"image/png"
 	"net/http"
 	"net/url"
 	"os"
@@ -27,6 +33,8 @@ import (
 	"openhunter/workers/shared/signal"
 	"openhunter/workers/shared/worker"
 )
+
+const maxThumbnailBytes = 256 * 1024
 
 func main() {
 	runner.Serve(runner.Config{
@@ -53,7 +61,6 @@ func run(ctx context.Context, in events.WorkerRunPayload) worker.Result {
 
 type pageObservation struct {
 	FinalURL      string
-	Title         string
 	LinkCount     int64
 	FormCount     int64
 	InputCount    int64
@@ -104,7 +111,6 @@ func runCDP(ctx context.Context, in events.WorkerRunPayload) worker.Result {
 		chromedp.Navigate(target),
 		chromedp.WaitReady("body", chromedp.ByQuery),
 		chromedp.Location(&obs.FinalURL),
-		chromedp.Title(&obs.Title),
 		chromedp.Evaluate(`document.querySelectorAll("a[href]").length`, &obs.LinkCount),
 		chromedp.Evaluate(`document.querySelectorAll("form").length`, &obs.FormCount),
 		chromedp.Evaluate(`document.querySelectorAll("input, textarea, select").length`, &obs.InputCount),
@@ -118,24 +124,104 @@ func runCDP(ctx context.Context, in events.WorkerRunPayload) worker.Result {
 	if err := scope.CheckURL(obs.FinalURL, sc); err != nil {
 		return scopeFailure(in, err, "browser navigation left authorized scope")
 	}
+	visual, visualOK := thumbnailFromObservation(obs)
 
+	meta := map[string]any{
+		"finalUrl":      sanitizeText(obs.FinalURL),
+		"authSession":   authSessionMeta(authApplied),
+		"linkCount":     obs.LinkCount,
+		"formCount":     obs.FormCount,
+		"inputCount":    obs.InputCount,
+		"passwordCount": obs.PasswordCount,
+		"buttonCount":   obs.ButtonCount,
+		"hasViewport":   obs.HasViewport,
+	}
+	if visualOK {
+		meta["visualArtifact"] = visual
+	} else {
+		meta["visualUnavailable"] = true
+	}
+	_ = callback.New(env("INTERNAL_API_URL", "http://internal-api:4100"), os.Getenv("WORKER_TOKEN")).PostActivity(ctx, in.ScanID, map[string]any{
+		"eventType": "browser_action",
+		"actor":     "browser_inspector",
+		"titleKey":  "activity.browser_action.title",
+		"bodyKey":   "activity.browser_action.body",
+		"bodyParams": map[string]any{
+			"summary": fmt.Sprintf("Browser reached the verified page and observed %d link(s), %d form(s), and %d input control(s).", obs.LinkCount, obs.FormCount, obs.InputCount),
+		},
+		"status":         "running",
+		"visualArtifact": meta["visualArtifact"],
+	})
 	return worker.Result{
 		ScanID: in.ScanID, ProjectID: in.ProjectID, WorkerType: in.WorkerType,
 		State:   worker.StateDone,
-		Summary: fmt.Sprintf("Browser Inspector loaded the page and observed %d link(s), %d form(s), and %d input control(s).", obs.LinkCount, obs.FormCount, obs.InputCount),
+		Summary: fmt.Sprintf("Browser loaded the page and observed %d link(s), %d form(s), and %d input control(s).", obs.LinkCount, obs.FormCount, obs.InputCount),
 		Signals: browserSignals(target, obs),
-		Meta: map[string]any{
-			"finalUrl":      sanitizeText(obs.FinalURL),
-			"title":         sanitizeText(obs.Title),
-			"authSession":   authSessionMeta(authApplied),
-			"linkCount":     obs.LinkCount,
-			"formCount":     obs.FormCount,
-			"inputCount":    obs.InputCount,
-			"passwordCount": obs.PasswordCount,
-			"buttonCount":   obs.ButtonCount,
-			"hasViewport":   obs.HasViewport,
-		},
+		Meta:    meta,
 	}
+}
+
+type visualArtifact struct {
+	Kind      string `json:"kind"`
+	DataURL   string `json:"dataUrl"`
+	Width     int    `json:"width,omitempty"`
+	Height    int    `json:"height,omitempty"`
+	ExpiresAt string `json:"expiresAt"`
+	Sanitized bool   `json:"sanitized"`
+	Synthetic bool   `json:"synthetic,omitempty"`
+}
+
+func thumbnailArtifact(png []byte, width, height int) (visualArtifact, bool) {
+	if len(png) == 0 || len(png) > maxThumbnailBytes {
+		return visualArtifact{}, false
+	}
+	return visualArtifact{
+		Kind:      "thumbnail",
+		DataURL:   "data:image/png;base64," + base64.StdEncoding.EncodeToString(png),
+		Width:     width,
+		Height:    height,
+		ExpiresAt: time.Now().UTC().Add(24 * time.Hour).Format(time.RFC3339),
+		Sanitized: true,
+	}, true
+}
+
+func thumbnailFromObservation(obs pageObservation) (visualArtifact, bool) {
+	const width, height = 640, 360
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+	draw.Draw(img, img.Bounds(), &image.Uniform{C: color.RGBA{R: 10, G: 15, B: 26, A: 255}}, image.Point{}, draw.Src)
+	drawRect(img, 36, 28, 568, 34, color.RGBA{R: 31, G: 41, B: 55, A: 255})
+	drawRect(img, 56, 76, 360, 22, color.RGBA{R: 55, G: 65, B: 81, A: 255})
+	drawRect(img, 56, 112, 520, 70, color.RGBA{R: 17, G: 24, B: 39, A: 255})
+	for i := 0; i < int(min64(obs.LinkCount, 6)); i++ {
+		drawRect(img, 70+i*78, 126, 50, 8, color.RGBA{R: 132, G: 204, B: 22, A: 255})
+	}
+	for i := 0; i < int(min64(obs.FormCount, 4)); i++ {
+		x := 56 + i*138
+		drawRect(img, x, 208, 112, 74, color.RGBA{R: 31, G: 41, B: 55, A: 255})
+		drawRect(img, x+14, 226, 84, 12, color.RGBA{R: 75, G: 85, B: 99, A: 255})
+		drawRect(img, x+14, 250, 58, 12, color.RGBA{R: 75, G: 85, B: 99, A: 255})
+	}
+	for i := 0; i < int(min64(obs.ButtonCount, 5)); i++ {
+		drawRect(img, 56+i*108, 304, 78, 20, color.RGBA{R: 63, G: 98, B: 18, A: 255})
+	}
+	var buf bytes.Buffer
+	if err := png.Encode(&buf, img); err != nil {
+		return visualArtifact{}, false
+	}
+	artifact, ok := thumbnailArtifact(buf.Bytes(), width, height)
+	artifact.Synthetic = true
+	return artifact, ok
+}
+
+func drawRect(img *image.RGBA, x, y, w, h int, c color.RGBA) {
+	draw.Draw(img, image.Rect(x, y, x+w, y+h), &image.Uniform{C: c}, image.Point{}, draw.Src)
+}
+
+func min64(a, b int64) int64 {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 func applyStorageState(ctx context.Context, state callback.StorageState, sc scope.Scope) error {
@@ -275,8 +361,8 @@ func browserSignals(target string, obs pageObservation) []worker.Signal {
 		Confidence: "high",
 		Asset:      sanitizeText(target),
 		Description: sanitizeText(fmt.Sprintf(
-			"Rendered title %q with %d link(s), %d form(s), %d input control(s), and %d button control(s).",
-			obs.Title, obs.LinkCount, obs.FormCount, obs.InputCount, obs.ButtonCount,
+			"Rendered page structure with %d link(s), %d form(s), %d input control(s), and %d button control(s).",
+			obs.LinkCount, obs.FormCount, obs.InputCount, obs.ButtonCount,
 		)),
 	}}
 	if obs.PasswordCount > 0 {

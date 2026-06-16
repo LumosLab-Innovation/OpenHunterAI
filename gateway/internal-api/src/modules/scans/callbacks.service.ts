@@ -53,10 +53,24 @@ export interface WorkerSignal {
   asset?: string;
   description?: string;
   evidenceRefs?: string[];
+  evidenceClass?: string;
+  validationState?: string;
+}
+
+export interface WorkerActivityInput {
+  eventType: string;
+  actor: string;
+  titleKey: string;
+  bodyKey: string;
+  bodyParams?: Record<string, unknown>;
+  status: string;
+  severity?: string | null;
+  visualArtifact?: unknown;
 }
 
 const SEVERITIES = new Set(['info', 'low', 'medium', 'high', 'critical']);
 const CONFIDENCES = new Set(['low', 'medium', 'high']);
+const MAX_VISUAL_DATA_URL_LENGTH = 350_000;
 
 export class CallbacksService {
   private readonly prisma = getPrisma();
@@ -128,6 +142,8 @@ export class CallbacksService {
       evidence: sanitize({
         description: signal.description ? sanitizeText(signal.description) : '',
         evidenceRefs: Array.isArray(signal.evidenceRefs) ? signal.evidenceRefs.map(String) : [],
+        evidenceClass: signal.evidenceClass ? sanitizeText(signal.evidenceClass).slice(0, 80) : 'signal',
+        validationState: signal.validationState ? sanitizeText(signal.validationState).slice(0, 80) : 'unvalidated',
         sanitized: true,
       }) as object,
     }));
@@ -143,6 +159,21 @@ export class CallbacksService {
       severity: signals.some((signal) => signal.severity === 'critical' || signal.severity === 'high') ? 'high' : 'info',
     });
     return result;
+  }
+
+  async recordActivityEvent(scanId: string, activity: WorkerActivityInput) {
+    await recordActivity(this.prisma, {
+      scanJobId: scanId,
+      eventType: activity.eventType,
+      actor: activity.actor,
+      titleKey: activity.titleKey,
+      bodyKey: activity.bodyKey,
+      bodyParams: activity.bodyParams,
+      status: activity.status,
+      severity: activity.severity,
+      visualArtifact: activity.visualArtifact,
+    });
+    return { accepted: true };
   }
 }
 
@@ -277,6 +308,8 @@ function compactActor(actor: string): string {
 function sanitizeVisualArtifact(value: unknown): Record<string, unknown> | undefined {
   const artifact = unwrapObject(sanitizeReportContent(value ?? {}));
   if (artifact.kind !== 'thumbnail' || typeof artifact.dataUrl !== 'string') return undefined;
+  if (artifact.sanitized !== true || artifact.synthetic !== true) return undefined;
+  if (artifact.dataUrl.length > MAX_VISUAL_DATA_URL_LENGTH) return undefined;
   if (!/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/i.test(artifact.dataUrl)) return undefined;
   return {
     kind: 'thumbnail',
@@ -286,6 +319,7 @@ function sanitizeVisualArtifact(value: unknown): Record<string, unknown> | undef
         ? artifact.expiresAt
         : new Date(Date.now() + 24 * 60 * 60_000).toISOString(),
     sanitized: true,
+    synthetic: true,
     ...(typeof artifact.width === 'number' ? { width: artifact.width } : {}),
     ...(typeof artifact.height === 'number' ? { height: artifact.height } : {}),
   };

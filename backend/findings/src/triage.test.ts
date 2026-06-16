@@ -108,7 +108,15 @@ describe('selectPromotionCandidates', () => {
       [
         { id: 'info', title: 'Info', severity: 'info', confidence: 'high', category: 'headers', affectedAsset: '/', evidence: { description: 'ok', sanitized: true } },
         { id: 'weak', title: 'Weak', severity: 'medium', confidence: 'low', category: 'auth', affectedAsset: '/a', evidence: { description: 'ok', sanitized: true } },
-        { id: 'good', title: 'Good', severity: 'high', confidence: 'medium', category: 'auth', affectedAsset: '/b', evidence: { description: 'ok', sanitized: true } },
+        {
+          id: 'good',
+          title: 'Good',
+          severity: 'high',
+          confidence: 'medium',
+          category: 'auth',
+          affectedAsset: '/b',
+          evidence: { description: 'ok', sanitized: true, validationState: 'validated_finding' },
+        },
         { id: 'raw', title: 'Raw', severity: 'critical', confidence: 'high', category: 'secret', affectedAsset: '/c', evidence: { rawRequest: 'GET /token=secret' } },
       ],
       { rankedIds: ['raw', 'good', 'weak', 'info', 'invented'], duplicateClusters: [], fallback: false },
@@ -121,13 +129,77 @@ describe('selectPromotionCandidates', () => {
   it('does not let model-ranked unknown ids or duplicate cluster members create extra findings', () => {
     const selected = selectPromotionCandidates(
       [
-        { id: 'a', title: 'A', severity: 'critical', confidence: 'high', category: 'api', affectedAsset: '/a', evidence: { description: 'sanitized', sanitized: true } },
-        { id: 'b', title: 'B', severity: 'high', confidence: 'high', category: 'api', affectedAsset: '/b', evidence: { description: 'sanitized', sanitized: true } },
+        {
+          id: 'a',
+          title: 'A',
+          severity: 'critical',
+          confidence: 'high',
+          category: 'api',
+          affectedAsset: '/a',
+          evidence: { description: 'sanitized', sanitized: true, validationState: 'validated_finding' },
+        },
+        {
+          id: 'b',
+          title: 'B',
+          severity: 'high',
+          confidence: 'high',
+          category: 'api',
+          affectedAsset: '/b',
+          evidence: { description: 'sanitized', sanitized: true, validationState: 'validated_finding' },
+        },
       ],
       { rankedIds: ['unknown', 'b', 'a'], duplicateClusters: [['b', 'a'], ['unknown', 'a']], fallback: false },
       { scanMode: 'ai_blackhat_mindset_check', maxFindings: 10 },
     );
 
     expect(selected.map((candidate) => candidate.id)).toEqual(['b']);
+  });
+
+  it('does not promote passive missing CSP header evidence as a finding', () => {
+    const selected = selectPromotionCandidates(
+      [
+        {
+          id: 'csp',
+          title: 'Content Security Policy (CSP) Header Not Set',
+          severity: 'medium',
+          confidence: 'high',
+          category: 'missing_security_header',
+          affectedAsset: 'https://kopymatch.com',
+          evidence: {
+            description: 'No CSP header observed during passive response inspection.',
+            sanitized: true,
+            evidenceClass: 'hardening_warning',
+          },
+        },
+      ],
+      { rankedIds: ['csp'], duplicateClusters: [], fallback: true },
+      { scanMode: 'free_hunter' },
+    );
+
+    expect(selected).toEqual([]);
+  });
+
+  it('promotes only candidates with a validated finding evidence gate', () => {
+    const selected = selectPromotionCandidates(
+      [
+        {
+          id: 'validated',
+          title: 'Validated reflected XSS',
+          severity: 'high',
+          confidence: 'high',
+          category: 'xss',
+          affectedAsset: 'https://example.com/search',
+          evidence: {
+            description: 'Benign in-scope payload was reflected and executed in a controlled browser context.',
+            sanitized: true,
+            validationState: 'validated_finding',
+          },
+        },
+      ],
+      { rankedIds: ['validated'], duplicateClusters: [], fallback: true },
+      { scanMode: 'free_hunter' },
+    );
+
+    expect(selected.map((candidate) => candidate.id)).toEqual(['validated']);
   });
 });

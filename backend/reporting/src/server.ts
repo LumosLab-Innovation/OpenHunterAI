@@ -108,6 +108,10 @@ app.post('/internal/reports/:scanId/finalize', asyncRoute(async (req, res) => {
     res.status(404).json({ error: { code: 'SCAN_NOT_FOUND' } });
     return;
   }
+  if (scan.state === 'cancelled') {
+    res.json({ skipped: true, reason: 'SCAN_CANCELLED' });
+    return;
+  }
 
   // Enrich findings that lack a developer fix prompt via the LLM Gateway
   // (recommendation-only; falls back deterministically and never blocks).
@@ -129,36 +133,60 @@ app.post('/internal/reports/:scanId/finalize', asyncRoute(async (req, res) => {
         await prisma.finding.update({ where: { id: f.id }, data: { fixPrompt: text } });
       }),
   );
+  const guard = await prisma.scanJob.updateMany({
+    where: { id: scan.id, state: { notIn: ['cancelled', 'failed', 'timeout'] } },
+    data: { updatedAt: new Date() },
+  });
+  if (guard.count !== 1) {
+    res.json({ skipped: true, reason: 'SCAN_TERMINAL' });
+    return;
+  }
 
   const content = buildFinalContent(scan as any);
-  const version = (scan.reports[0]?.version ?? 0) + 1;
-  await prisma.report.updateMany({
-    where: { scanJobId: scan.id, state: 'final' },
-    data: { state: 'superseded' },
+  const report = await prisma.$transaction(async (tx: any) => {
+    const locked = await tx.scanJob.findFirst({
+      where: { id: scan.id, state: { notIn: ['cancelled', 'failed', 'timeout'] } },
+      select: { id: true },
+    });
+    if (!locked) return null;
+    const current = await tx.report.findFirst({
+      where: { scanJobId: scan.id },
+      orderBy: { version: 'desc' },
+      select: { version: true },
+    });
+    const version = (current?.version ?? 0) + 1;
+    await tx.report.updateMany({
+      where: { scanJobId: scan.id, state: 'final' },
+      data: { state: 'superseded' },
+    });
+    return tx.report.create({
+      data: {
+        projectId: scan.projectId,
+        scanJobId: scan.id,
+        kind: scan.mode === 'free_hunter' ? 'free_hunter' : 'human',
+        version,
+        state: 'final',
+        formatVersion: REPORT_FORMAT_VERSION,
+        content,
+        markdown: renderReportMarkdown(content),
+        finalizedAt: new Date(),
+      },
+    });
   });
-  const report = await prisma.report.create({
-    data: {
-      projectId: scan.projectId,
-      scanJobId: scan.id,
-      kind: scan.mode === 'free_hunter' ? 'free_hunter' : 'human',
-      version,
-      state: 'final',
-      formatVersion: REPORT_FORMAT_VERSION,
-      content,
-      markdown: renderReportMarkdown(content),
-      finalizedAt: new Date(),
-    },
-  });
+  if (!report) {
+    res.json({ skipped: true, reason: 'SCAN_TERMINAL' });
+    return;
+  }
   await recordActivity(scan.id, {
     eventType: 'report_finalized',
     actor: 'report',
     titleKey: 'activity.report_finalized.title',
     bodyKey: 'activity.report_finalized.body',
-    bodyParams: { reportId: report.id, version },
+    bodyParams: { reportId: report.id, version: report.version },
     status: 'final',
   });
   // Notify SSE subscribers that the report is finalized so they close cleanly.
-  await publishEvent(`report.${scan.id}.finalized`, { reportId: report.id, version });
+  await publishEvent(`report.${scan.id}.finalized`, { reportId: report.id, version: report.version });
   res.json({ report });
 }));
 
@@ -258,8 +286,11 @@ function buildFinalContent(scan: any): ReportContentV1 {
     coverage: {
       targetType: scan.targetType,
       workersRun: Object.keys(scanPlan.enabledWorkers ?? {}).map(displayUnitCode),
-      huntersRun: scanPlan.enabledHunters ?? [],
-      skippedHunters: scanPlan.skippedHunters ?? [],
+      huntersRun: (scanPlan.enabledHunters ?? []).map(displayUnitCode),
+      skippedHunters: (scanPlan.skippedHunters ?? []).map((item: any) => ({
+        ...item,
+        hunter: displayUnitCode(String(item?.hunter ?? '')),
+      })),
       coverageGaps: coverageOnly ? ['No valuable finding was confirmed within this scan budget.'] : [],
       limitations: coverageOnly ? ['Coverage-only report; no finding was created.'] : ['Report uses sanitized evidence only.'],
     },
@@ -277,23 +308,31 @@ function buildFinalContent(scan: any): ReportContentV1 {
 }
 
 function displayUnitCode(key: string): string {
-  switch (key) {
+  switch (key.toLowerCase().replace(/[-\s]/g, '_')) {
     case 'browser':
-    case 'browser-inspector':
-      return 'browser_inspector';
+    case 'browser_inspector':
+      return 'Browser';
     case 'zap':
+    case 'zap_signal':
     case 'Z':
-      return 'Z_signal';
+      return 'Z';
     case 'nuclei':
+    case 'nuclei_signal':
     case 'N':
-      return 'N_signal';
+      return 'N';
     case 'openhack':
+    case 'openhack_hunter':
     case 'O':
-      return 'O_hunter';
+      return 'O';
     case 'strix':
+    case 'strix_core':
     case 'S':
-      return 'S_core';
+      return 'S';
+    case 'report':
+      return 'RPT';
+    case 'retest':
+      return 'RT';
     default:
-      return key;
+      return sanitizeText(key);
   }
 }

@@ -10,7 +10,8 @@ const reports = new ReportsService();
 const liveScans = new LiveScanService();
 
 export async function listScans(req: Request, res: Response) {
-  res.json({ scans: await service.list(currentUser(req).orgId) });
+  const result = await service.list(currentUser(req).orgId, req.query);
+  res.json({ scans: result.items.map(service.toPublicScan), nextPageToken: result.nextPageToken });
 }
 
 export async function getScan(req: Request, res: Response) {
@@ -19,12 +20,22 @@ export async function getScan(req: Request, res: Response) {
     res.status(404).json({ error: { code: 'NOT_FOUND' } });
     return;
   }
-  res.json({ scan });
+  res.json({ scan: service.toPublicScan(scan) });
 }
 
 export async function createScan(req: Request, res: Response) {
   const user = currentUser(req);
-  res.json({ scan: await service.create(req.params.id!, user.orgId, user.userId, req.body) });
+  res.json({ scan: service.toPublicScan(await service.create(req.params.id!, user.orgId, user.userId, req.body)) });
+}
+
+export async function cancelScan(req: Request, res: Response) {
+  const user = currentUser(req);
+  res.json({ scan: service.toPublicScan(await service.cancel(req.params.id!, user.orgId, user.userId)) });
+}
+
+export async function hideScan(req: Request, res: Response) {
+  const user = currentUser(req);
+  res.json({ scan: service.toPublicScan(await service.hide(req.params.id!, user.orgId, user.userId)) });
 }
 
 export async function getReportDraft(req: Request, res: Response) {
@@ -159,7 +170,14 @@ export async function streamLiveEvents(req: Request, res: Response) {
   req.on('close', shutdown);
 
   async function sendSnapshot(eventName = 'scan_snapshot', force = false) {
-    const snapshot = await liveScans.getSnapshot(scanId, user.orgId, degraded);
+    const snapshot = await liveScans.getSnapshot(scanId, user.orgId, degraded, {
+      cursor: typeof req.query.cursor === 'string' ? req.query.cursor : undefined,
+      actor: typeof req.query.actor === 'string' ? req.query.actor : undefined,
+      type: typeof req.query.type === 'string' ? req.query.type : undefined,
+      severity: typeof req.query.severity === 'string' ? req.query.severity : undefined,
+      view: req.query.view === 'raw' ? 'raw' : 'curated',
+      limit: typeof req.query.limit === 'string' ? Number(req.query.limit) : undefined,
+    });
     if (!snapshot) {
       res.write(`event: stream_degraded\ndata: ${JSON.stringify({ code: 'NOT_FOUND' })}\n\n`);
       return;

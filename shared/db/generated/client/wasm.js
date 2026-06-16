@@ -249,6 +249,8 @@ exports.Prisma.ScanJobScalarFieldEnum = {
   finishedAt: 'finishedAt',
   errorMessage: 'errorMessage',
   budgetUsed: 'budgetUsed',
+  hiddenAt: 'hiddenAt',
+  hiddenByUserId: 'hiddenByUserId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

@@ -106,6 +106,14 @@ async function promoteScanCandidates(scanId: string) {
     include: { project: true, findings: true },
   });
   if (!scan) return null;
+  if (scan.state === 'cancelled') {
+    return {
+      recommendation: { rankedIds: [], duplicateClusters: [], fallback: true },
+      promoted: [],
+      skipped: true,
+      reason: 'SCAN_CANCELLED',
+    };
+  }
 
   const rows = await prisma.findingCandidate.findMany({
     where: { scanJobId: scanId, promotedToId: null },
@@ -138,6 +146,11 @@ async function promoteScanCandidates(scanId: string) {
   }).slice(0, remainingQuota);
 
   const promoted = await prisma.$transaction(async (tx: any) => {
+    const guard = await tx.scanJob.updateMany({
+      where: { id: scan.id, state: { notIn: ['cancelled', 'failed', 'timeout'] } },
+      data: { updatedAt: new Date() },
+    });
+    if (guard.count !== 1) return [];
     const created: any[] = [];
     for (const candidate of selected) {
       const current = await tx.findingCandidate.findUnique({ where: { id: candidate.id } });

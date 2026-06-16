@@ -48,13 +48,15 @@ type runRequest struct {
 }
 
 type signal struct {
-	Kind         string   `json:"kind"`
-	Title        string   `json:"title"`
-	Severity     string   `json:"severity,omitempty"`
-	Confidence   string   `json:"confidence,omitempty"`
-	Asset        string   `json:"asset,omitempty"`
-	Description  string   `json:"description,omitempty"`
-	EvidenceRefs []string `json:"evidenceRefs,omitempty"`
+	Kind            string   `json:"kind"`
+	Title           string   `json:"title"`
+	Severity        string   `json:"severity,omitempty"`
+	Confidence      string   `json:"confidence,omitempty"`
+	Asset           string   `json:"asset,omitempty"`
+	Description     string   `json:"description,omitempty"`
+	EvidenceRefs    []string `json:"evidenceRefs,omitempty"`
+	EvidenceClass   string   `json:"evidenceClass,omitempty"`
+	ValidationState string   `json:"validationState,omitempty"`
 }
 
 type runResponse struct {
@@ -99,12 +101,14 @@ func runHandler(w http.ResponseWriter, r *http.Request) {
 	signals := make([]signal, 0, len(alerts))
 	for _, a := range alerts {
 		signals = append(signals, signal{
-			Kind:        "zap_" + sanitizeText(strings.ToLower(strings.ReplaceAll(a.Name, " ", "_"))),
-			Title:       sanitizeText(a.Name),
-			Severity:    mapRisk(a.Risk),
-			Confidence:  mapConfidence(a.Confidence),
-			Asset:       sanitizeText(a.URL),
-			Description: sanitizeText(a.Description),
+			Kind:            "zap_" + sanitizeText(strings.ToLower(strings.ReplaceAll(a.Name, " ", "_"))),
+			Title:           sanitizeText(a.Name),
+			Severity:        mapRisk(a.Risk),
+			Confidence:      mapConfidence(a.Confidence),
+			Asset:           sanitizeText(a.URL),
+			Description:     sanitizeText(a.Description),
+			EvidenceClass:   "signal",
+			ValidationState: "unvalidated",
 		})
 	}
 	writeJSON(w, runResponse{

@@ -52,9 +52,13 @@ export class ScanStateService {
     if (TERMINAL.has(to)) data.finishedAt = new Date();
     if (errorMessage) data.errorMessage = errorMessage.slice(0, 2000);
 
-    const updated = await this.prisma.scanJob.update({ where: { id: scanId }, data, select: { state: true } });
+    const result = await this.prisma.scanJob.updateMany({ where: { id: scanId, state: from }, data });
+    if (result.count === 0) {
+      const current = await this.prisma.scanJob.findUnique({ where: { id: scanId }, select: { state: true } });
+      return { ok: false, state: (current?.state as ScanState | undefined) ?? null, reason: 'SCAN_STATE_CHANGED' };
+    }
     await recordStateActivity(this.prisma, scanId, to, errorMessage);
-    return { ok: true, state: updated.state as ScanState };
+    return { ok: true, state: to };
   }
 }
 

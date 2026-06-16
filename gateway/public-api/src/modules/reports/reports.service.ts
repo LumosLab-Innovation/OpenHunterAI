@@ -27,10 +27,14 @@ export class ReportsService {
       },
       orderBy: { generatedAt: 'desc' },
     }).then((reports: any[]) =>
-      reports.map((report) => ({
-        ...report,
-        headline: sanitizeText(report.content?.ownerSummary?.headline ?? 'OpenHunterAI report'),
-      })),
+      reports.map((report) => {
+        const content = publicReportContent(report.content);
+        return {
+          ...report,
+          content,
+          headline: sanitizeText((content as any)?.ownerSummary?.headline ?? 'OpenHunterAI report'),
+        };
+      }),
     );
   }
 
@@ -85,7 +89,15 @@ ${renderOverlayMarkdown(envelope.latestOverlay)}`
     if (!scan) return null;
     return {
       scanId,
-      sections: scan.reportDraftSections,
+      sections: scan.reportDraftSections.map((section: any) => ({
+        id: section.id,
+        sectionKey: section.sectionKey,
+        state: section.state,
+        content: publicReportContent(section.content),
+        updatedAt: section.updatedAt,
+        errorCode: section.errorCode ?? null,
+        errorMsg: section.errorMsg ? sanitizeText(section.errorMsg) : null,
+      })),
       latestReportId: scan.reports[0]?.id ?? null,
       latestReportState: scan.reports[0]?.state ?? null,
       updatedAt: scan.reportDraftSections.reduce(
@@ -97,8 +109,9 @@ ${renderOverlayMarkdown(envelope.latestOverlay)}`
   }
 
   private toEnvelope(report: any) {
+    const publicContent = publicReportContent(report.content) as ReportContentV1;
     const snapshotFindingIds = new Set(
-      ((report.content as ReportContentV1)?.findings ?? []).map((finding: { id: string }) => finding.id),
+      (publicContent.findings ?? []).map((finding: { id: string }) => finding.id),
     );
     const findings =
       report.scanJob.mode === 'free_hunter'
@@ -136,8 +149,8 @@ ${renderOverlayMarkdown(envelope.latestOverlay)}`
         state: report.state,
         kind: report.kind,
         formatVersion: report.formatVersion,
-        content: report.content,
-        markdown: report.markdown,
+        content: publicContent,
+        markdown: renderReportMarkdown(publicContent),
         generatedAt: report.generatedAt,
         finalizedAt: report.finalizedAt,
       },
@@ -193,7 +206,7 @@ export async function createInitialReportDraft(prisma: ReturnType<typeof getPris
         authScope: scan.authScope,
         testIntensityMode: scan.testIntensityMode,
         surfaceFlags: scan.surfaceFlags,
-        scanPlan: scan.scanPlan,
+        scanPlan: publicScanPlanSummary(scan.scanPlan),
       }),
     },
     update: {
@@ -205,7 +218,7 @@ export async function createInitialReportDraft(prisma: ReturnType<typeof getPris
         authScope: scan.authScope,
         testIntensityMode: scan.testIntensityMode,
         surfaceFlags: scan.surfaceFlags,
-        scanPlan: scan.scanPlan,
+        scanPlan: publicScanPlanSummary(scan.scanPlan),
       }),
     },
   });
@@ -293,8 +306,11 @@ function buildReportContent(scan: any): ReportContentV1 {
     coverage: {
       targetType: scan.targetType,
       workersRun: Object.keys(scanPlan.enabledWorkers ?? {}).map(displayUnitCode),
-      huntersRun: scanPlan.enabledHunters ?? [],
-      skippedHunters: scanPlan.skippedHunters ?? [],
+      huntersRun: (scanPlan.enabledHunters ?? []).map(displayUnitCode),
+      skippedHunters: (scanPlan.skippedHunters ?? []).map((item) => ({
+        ...item,
+        hunter: displayUnitCode(item.hunter),
+      })),
       coverageGaps: coverageOnly ? ['No valuable finding was confirmed within this scan budget.'] : [],
       limitations: coverageOnly
         ? ['Free Hunter may stop early based on budget and first valuable finding policy.']
@@ -314,25 +330,89 @@ function buildReportContent(scan: any): ReportContentV1 {
 }
 
 function displayUnitCode(key: string): string {
-  switch (key) {
+  switch (key.toLowerCase().replace(/[-\s]/g, '_')) {
     case 'browser':
-    case 'browser-inspector':
-      return 'browser_inspector';
+    case 'browser_inspector':
+      return 'Browser';
     case 'zap':
+    case 'zap_signal':
     case 'Z':
-      return 'Z_signal';
+      return 'Z';
     case 'nuclei':
+    case 'nuclei_signal':
     case 'N':
-      return 'N_signal';
+      return 'N';
     case 'openhack':
+    case 'openhack_hunter':
     case 'O':
-      return 'O_hunter';
+      return 'O';
     case 'strix':
+    case 'strix_core':
     case 'S':
-      return 'S_core';
+      return 'S';
+    case 'report':
+      return 'RPT';
+    case 'retest':
+      return 'RT';
     default:
-      return key;
+      return sanitizeText(key);
   }
+}
+
+function publicScanPlanSummary(scanPlan: unknown) {
+  const obj = scanPlan && typeof scanPlan === 'object' ? (scanPlan as Record<string, any>) : {};
+  return {
+    workersRun: Object.keys(obj.enabledWorkers ?? {}).map(displayUnitCode),
+    huntersRun: Array.isArray(obj.enabledHunters) ? obj.enabledHunters.map(displayUnitCode) : [],
+    skippedHunters: Array.isArray(obj.skippedHunters)
+      ? obj.skippedHunters.map((item: any) => ({
+          hunter: displayUnitCode(String(item?.hunter ?? '')),
+          reason: sanitizeText(String(item?.reason ?? 'skipped')),
+        }))
+      : [],
+  };
+}
+
+function publicReportContent(content: unknown): unknown {
+  return rewritePublicWorkerLabels(sanitizeReportContent(content ?? {}));
+}
+
+function rewritePublicWorkerLabels(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(rewritePublicWorkerLabels);
+  if (!value || typeof value !== 'object') {
+    if (typeof value === 'string') return publicWorkerText(value);
+    return value;
+  }
+  const out: Record<string, unknown> = {};
+  for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+    if (key === 'scanPlan' || key === 'enabledWorkers') {
+      out[key] = publicScanPlanSummary(child);
+    } else if (key === 'workersRun' || key === 'huntersRun') {
+      out[key] = Array.isArray(child) ? child.map((item) => displayUnitCode(String(item))) : [];
+    } else if (key === 'skippedHunters') {
+      out[key] = Array.isArray(child)
+        ? child.map((item: any) => ({ ...item, hunter: displayUnitCode(String(item?.hunter ?? '')) }))
+        : [];
+    } else {
+      out[key] = rewritePublicWorkerLabels(child);
+    }
+  }
+  return out;
+}
+
+function publicWorkerText(value: string): string {
+  const exact = displayUnitCode(value);
+  if (exact !== sanitizeText(value)) return exact;
+  return sanitizeText(value)
+    .replace(/\bbrowser[_-]inspector\b/gi, 'Browser')
+    .replace(/\bzap[_-]signal\b/gi, 'Z')
+    .replace(/\bzap\b/gi, 'Z')
+    .replace(/\bnuclei[_-]signal\b/gi, 'N')
+    .replace(/\bnuclei\b/gi, 'N')
+    .replace(/\bopenhack[_-]hunter\b/gi, 'O')
+    .replace(/\bopenhack\b/gi, 'O')
+    .replace(/\bstrix[_-]core\b/gi, 'S')
+    .replace(/\bstrix\b/gi, 'S');
 }
 
 function renderSimplePdf(markdown: string): Buffer {

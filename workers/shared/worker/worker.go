@@ -49,13 +49,15 @@ type Result struct {
 
 // Signal is a single sanitized observation produced by a worker/adapter.
 type Signal struct {
-	Kind        string   `json:"kind"`
-	Title       string   `json:"title"`
-	Severity    string   `json:"severity,omitempty"`
-	Confidence  string   `json:"confidence,omitempty"`
-	Asset       string   `json:"asset,omitempty"`
-	Description string   `json:"description,omitempty"`
-	EvidenceRefs []string `json:"evidenceRefs,omitempty"`
+	Kind            string   `json:"kind"`
+	Title           string   `json:"title"`
+	Severity        string   `json:"severity,omitempty"`
+	Confidence      string   `json:"confidence,omitempty"`
+	Asset           string   `json:"asset,omitempty"`
+	Description     string   `json:"description,omitempty"`
+	EvidenceRefs    []string `json:"evidenceRefs,omitempty"`
+	EvidenceClass   string   `json:"evidenceClass,omitempty"`
+	ValidationState string   `json:"validationState,omitempty"`
 }
 
 // Skipped builds a skipped result (tool unavailable etc.) with a coverage gap.

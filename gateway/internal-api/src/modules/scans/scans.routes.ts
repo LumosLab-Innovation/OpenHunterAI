@@ -46,6 +46,21 @@ scanRoutes.post('/:id/findings', async (req, res) => {
   }
 });
 
+scanRoutes.post('/:id/activity', async (req, res) => {
+  const scanId = req.params.id!;
+  const scan = await service.findScan(scanId);
+  if (!scan) {
+    res.status(404).json({ error: { code: 'SCAN_NOT_FOUND' } });
+    return;
+  }
+  try {
+    const result = await service.recordActivityEvent(scanId, req.body);
+    res.status(202).json(result);
+  } catch (err) {
+    res.status(400).json({ error: { code: 'ACTIVITY_PERSIST_FAILED', message: (err as Error).message } });
+  }
+});
+
 // Orchestrator-driven scan state transitions (queued -> running -> completed,
 // etc). Validated so a late/duplicate callback cannot revive a terminal scan.
 scanRoutes.post('/:id/state', async (req, res) => {

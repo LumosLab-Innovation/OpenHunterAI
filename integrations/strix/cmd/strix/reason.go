@@ -32,13 +32,15 @@ type reasonResponse struct {
 }
 
 type signal struct {
-	Kind         string   `json:"kind"`
-	Title        string   `json:"title"`
-	Severity     string   `json:"severity,omitempty"`
-	Confidence   string   `json:"confidence,omitempty"`
-	Asset        string   `json:"asset,omitempty"`
-	Description  string   `json:"description,omitempty"`
-	EvidenceRefs []string `json:"evidenceRefs,omitempty"`
+	Kind            string   `json:"kind"`
+	Title           string   `json:"title"`
+	Severity        string   `json:"severity,omitempty"`
+	Confidence      string   `json:"confidence,omitempty"`
+	Asset           string   `json:"asset,omitempty"`
+	Description     string   `json:"description,omitempty"`
+	EvidenceRefs    []string `json:"evidenceRefs,omitempty"`
+	EvidenceClass   string   `json:"evidenceClass,omitempty"`
+	ValidationState string   `json:"validationState,omitempty"`
 }
 
 func reasonHandler(w http.ResponseWriter, r *http.Request) {

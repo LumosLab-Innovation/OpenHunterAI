@@ -46,12 +46,14 @@ type runRequest struct {
 }
 
 type signal struct {
-	Kind        string `json:"kind"`
-	Title       string `json:"title"`
-	Severity    string `json:"severity,omitempty"`
-	Confidence  string `json:"confidence,omitempty"`
-	Asset       string `json:"asset,omitempty"`
-	Description string `json:"description,omitempty"`
+	Kind            string `json:"kind"`
+	Title           string `json:"title"`
+	Severity        string `json:"severity,omitempty"`
+	Confidence      string `json:"confidence,omitempty"`
+	Asset           string `json:"asset,omitempty"`
+	Description     string `json:"description,omitempty"`
+	EvidenceClass   string `json:"evidenceClass,omitempty"`
+	ValidationState string `json:"validationState,omitempty"`
 }
 
 type runResponse struct {
@@ -157,16 +159,64 @@ func parseNucleiJSONL(data []byte) []signal {
 		if asset == "" {
 			asset = r.Host
 		}
+		severity := mapSeverity(r.Info.Severity)
+		if isHeaderHardeningSignal(r) && (severity == "medium" || severity == "high" || severity == "critical") {
+			severity = "low"
+		}
 		out = append(out, signal{
-			Kind:        "nuclei_" + sanitizeText(r.TemplateID),
-			Title:       sanitizeText(firstNonEmpty(r.Info.Name, r.TemplateID)),
-			Severity:    mapSeverity(r.Info.Severity),
-			Confidence:  "medium",
-			Asset:       sanitizeText(asset),
-			Description: sanitizeText(fmt.Sprintf("Nuclei template %s matched (%s).", r.TemplateID, r.Type)),
+			Kind:            "nuclei_" + sanitizeText(r.TemplateID),
+			Title:           sanitizeText(firstNonEmpty(r.Info.Name, r.TemplateID)),
+			Severity:        severity,
+			Confidence:      "medium",
+			Asset:           sanitizeText(asset),
+			Description:     sanitizeText(fmt.Sprintf("Nuclei template %s matched (%s).", r.TemplateID, r.Type)),
+			EvidenceClass:   evidenceClassForResult(r, severity),
+			ValidationState: validationStateForResult(r, severity),
 		})
 	}
 	return out
+}
+
+func evidenceClassForResult(r nucleiResult, severity string) string {
+	if isHeaderHardeningSignal(r) {
+		return "hardening_warning"
+	}
+	if severity == "medium" || severity == "high" || severity == "critical" {
+		return "validated_finding"
+	}
+	return "signal"
+}
+
+func validationStateForResult(r nucleiResult, severity string) string {
+	if isHeaderHardeningSignal(r) {
+		return "unvalidated"
+	}
+	if severity == "medium" || severity == "high" || severity == "critical" {
+		return "validated_finding"
+	}
+	return "unvalidated"
+}
+
+func isHeaderHardeningSignal(r nucleiResult) bool {
+	text := strings.ToLower(strings.Join([]string{r.TemplateID, r.Info.Name, r.Type}, " "))
+	for _, marker := range []string{
+		"content-security-policy",
+		"csp",
+		"security-header",
+		"security header",
+		"missing-header",
+		"missing header",
+		"x-frame-options",
+		"x-content-type-options",
+		"strict-transport-security",
+		"referrer-policy",
+		"permissions-policy",
+	} {
+		if strings.Contains(text, marker) {
+			return true
+		}
+	}
+	return false
 }
 
 func severityFor(intensity string) string {

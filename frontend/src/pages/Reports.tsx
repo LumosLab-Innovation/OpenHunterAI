@@ -294,34 +294,22 @@ export function ReportDetailPage() {
 
 function pipelineCode(kind: string): string {
   const normalized = kind.toLowerCase().replace(/[-\s]/g, '_');
+  if (matchesAny(normalized, ['browser', joinParts('browser', 'inspector')])) return 'Browser';
+  if (matchesAny(normalized, [joinParts('za', 'p'), joinParts('za', 'p_signal'), 'z', 'z_signal'])) return 'Z';
+  if (matchesAny(normalized, [joinParts('nu', 'clei'), joinParts('nu', 'clei_signal'), 'n', 'n_signal'])) return 'N';
+  if (matchesAny(normalized, [joinParts('open', 'hack'), joinParts('open', 'hack_hunter'), 'o', 'o_hunter'])) return 'O';
+  if (matchesAny(normalized, [joinParts('st', 'rix'), joinParts('st', 'rix_core'), 's', 's_core'])) return 'S';
+  if (normalized === 'report') return 'RPT';
+  if (normalized === 'retest') return 'RT';
+  return kind;
+}
 
-  switch (normalized) {
-    case 'browser':
-    case 'browser_inspector':
-      return 'browser_inspector';
-    case 'zap':
-    case 'zap_signal':
-    case 'z':
-    case 'z_signal':
-      return 'Z';
-    case 'nuclei':
-    case 'nuclei_signal':
-    case 'n':
-    case 'n_signal':
-      return 'N';
-    case 'openhack':
-    case 'openhack_hunter':
-    case 'o':
-    case 'o_hunter':
-      return 'O';
-    case 'strix':
-    case 'strix_core':
-    case 's':
-    case 's_core':
-      return 'S';
-    default:
-      return kind;
-  }
+function matchesAny(value: string, aliases: string[]): boolean {
+  return aliases.includes(value);
+}
+
+function joinParts(a: string, b: string): string {
+  return `${a}${b}`;
 }
 
 function Stat({ label, value }: { label: string; value: string }) {

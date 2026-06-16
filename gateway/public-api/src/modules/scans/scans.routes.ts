@@ -4,8 +4,10 @@ import { asyncRoute } from '../../middlewares/async-route.middleware.js';
 import { validateBody } from '../../middlewares/validate.middleware.js';
 import {
   createScan,
+  cancelScan,
   getReportDraft,
   getScan,
+  hideScan,
   listScans,
   streamLiveEvents,
   streamReportEvents,
@@ -20,4 +22,6 @@ scanRoutes.get('/scans/:id/report-events', requireUser, asyncRoute(streamReportE
 scanRoutes.get('/scans/:id/live-events', requireUser, asyncRoute(streamLiveEvents));
 scanRoutes.get('/scans/:id', requireUser, asyncRoute(getScan));
 scanRoutes.get('/scans/:id/progress', requireUser, asyncRoute(getScan));
+scanRoutes.post('/scans/:id/cancel', requireUser, asyncRoute(cancelScan));
+scanRoutes.delete('/scans/:id', requireUser, asyncRoute(hideScan));
 scanRoutes.post('/projects/:id/scans', requireUser, validateBody(CreateScanBody), asyncRoute(createScan));

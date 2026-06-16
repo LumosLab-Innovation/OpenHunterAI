@@ -290,6 +290,8 @@ model ScanJob {
   finishedAt          DateTime?          @map("finished_at")
   errorMessage        String?            @map("error_message")
   budgetUsed          Json?              @map("budget_used")
+  hiddenAt            DateTime?          @map("hidden_at")
+  hiddenByUserId      String?            @map("hidden_by_user_id")
   createdAt           DateTime           @default(now()) @map("created_at")
   updatedAt           DateTime           @updatedAt @map("updated_at")
   project             Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -305,6 +307,7 @@ model ScanJob {
   retestRuns        RetestRun[]
 
   @@index([projectId])
+  @@index([projectId, hiddenAt, createdAt])
   @@map("scan_jobs")
 }
 

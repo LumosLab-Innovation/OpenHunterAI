@@ -92,6 +92,12 @@ func (c *Client) PostFindings(ctx context.Context, scanID, workerType string, si
 	})
 }
 
+// PostActivity records a sanitized live activity event for a running scan.
+// Callers must not include raw requests, responses, cookies, tokens, or storage.
+func (c *Client) PostActivity(ctx context.Context, scanID string, activity map[string]any) error {
+	return c.post(ctx, fmt.Sprintf("/internal/scans/%s/activity", scanID), activity)
+}
+
 // SetState drives a scan state transition (queued -> running -> completed etc).
 // A 409 (transition not allowed / already terminal) is treated as a benign
 // no-op so a late or duplicate transition does not fail the caller.

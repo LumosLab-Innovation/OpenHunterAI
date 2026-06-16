@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Activity, FileText, MousePointer2, Radar, Search, ShieldCheck } from 'lucide-react';
+import { Activity, FileText, Filter, MousePointer2, Radar, Search, ShieldCheck, Square, Trash2 } from 'lucide-react';
 import { API_BASE, apiFetch } from '../lib/api';
 import { PageHeader } from '../components/PageHeader';
 import { Badge, SeverityBadge, StatusBadge } from '../components/ui/Badge';
@@ -10,11 +10,15 @@ import { Card, CardBody, CardHeader, CardTitle } from '../components/ui/Card';
 import { EmptyState } from '../components/ui/States';
 import { SkeletonRows } from '../components/ui/Loading';
 import { Table, TD, TH, THead, TR } from '../components/ui/Table';
+import { Input, Select } from '../components/ui/Field';
 
 interface Scan {
   id: string;
   mode: string;
   state: string;
+  targetType?: string;
+  createdAt?: string;
+  scopeSnapshot?: { verifiedDomain?: string; allowedHosts?: string[] };
   steps?: Array<{ kind: string; state: string }>;
   reports?: Array<{ id: string; state: string; version: number }>;
   reportDraftSections?: DraftSection[];
@@ -62,6 +66,7 @@ interface LiveScanSnapshot {
     bodyKey?: string;
     bodyParams?: Record<string, unknown>;
     status: string;
+    severity?: string | null;
     sanitized: true;
   }>;
   findingsPreview: Array<{
@@ -105,22 +110,72 @@ type SanitizedVisualArtifact = {
   height?: number;
   expiresAt: string;
   sanitized: true;
+  synthetic?: true;
 };
 
 export function ScansPage() {
   const [scans, setScans] = useState<Scan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [state, setState] = useState('all');
+  const [mode, setMode] = useState('all');
+  const [sort, setSort] = useState('newest');
+  const [q, setQ] = useState('');
 
   useEffect(() => {
-    void apiFetch<{ scans: Scan[] }>('/v1/scans').then((res) => {
+    const params = new URLSearchParams();
+    if (state !== 'all') params.set('state', state);
+    if (mode !== 'all') params.set('mode', mode);
+    if (q.trim()) params.set('q', q.trim());
+    params.set('sort', sort);
+    setLoading(true);
+    void apiFetch<{ scans: Scan[] }>(`/v1/scans?${params.toString()}`).then((res) => {
       if (res.ok) setScans(res.data.scans);
       setLoading(false);
     });
-  }, []);
+  }, [mode, q, sort, state]);
+
+  async function stopScan(scan: Scan) {
+    if (!window.confirm(`Stop scan ${scan.id.slice(0, 8)}?`)) return;
+    const res = await apiFetch<{ scan: Scan }>(`/v1/scans/${scan.id}/cancel`, { method: 'POST' });
+    if (res.ok) setScans((current) => current.map((item) => (item.id === scan.id ? res.data.scan : item)));
+  }
+
+  async function hideScan(scan: Scan) {
+    if (!window.confirm(`Hide scan ${scan.id.slice(0, 8)} from this list?`)) return;
+    const res = await apiFetch<{ scan: Scan }>(`/v1/scans/${scan.id}`, { method: 'DELETE' });
+    if (res.ok) setScans((current) => current.filter((item) => item.id !== scan.id));
+  }
 
   return (
     <div>
       <PageHeader title="Scans" description="Live and historical scan jobs across your projects." />
+      <Card className="mb-4">
+        <CardBody className="grid gap-3 md:grid-cols-[minmax(0,1fr)_160px_190px_150px]">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint" />
+            <Input value={q} onChange={(event) => setQ(event.target.value)} placeholder="Search target or scan id" className="pl-9" />
+          </div>
+          <Select value={state} onChange={(event) => setState(event.target.value)} aria-label="Filter state">
+            <option value="all">All states</option>
+            <option value="queued">Queued</option>
+            <option value="running">Running</option>
+            <option value="awaiting_approval">Awaiting approval</option>
+            <option value="completed">Completed</option>
+            <option value="failed">Failed</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="timeout">Timeout</option>
+          </Select>
+          <Select value={mode} onChange={(event) => setMode(event.target.value)} aria-label="Filter mode">
+            <option value="all">All modes</option>
+            <option value="free_hunter">Free Hunter</option>
+            <option value="ai_blackhat_mindset_check">AI mindset check</option>
+          </Select>
+          <Select value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Sort scans">
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+          </Select>
+        </CardBody>
+      </Card>
       {loading ? (
         <SkeletonRows rows={4} />
       ) : scans.length === 0 ? (
@@ -136,6 +191,7 @@ export function ScansPage() {
             <THead>
               <TR>
                 <TH>Scan</TH>
+                <TH>Target</TH>
                 <TH>Mode</TH>
                 <TH>State</TH>
                 <TH className="text-right">Action</TH>
@@ -145,14 +201,25 @@ export function ScansPage() {
               {scans.map((scan) => (
                 <TR key={scan.id}>
                   <TD className="text-data text-xs">{scan.id.slice(0, 8)}</TD>
+                  <TD className="max-w-[260px] truncate text-sm">{scanTarget(scan)}</TD>
                   <TD>{scan.mode}</TD>
                   <TD>
                     <StatusBadge state={scan.state} />
                   </TD>
                   <TD className="text-right">
-                    <Link to={`/scans/${scan.id}`} className="text-signal hover:underline">
-                      Open
-                    </Link>
+                    <div className="flex justify-end gap-2">
+                      {['queued', 'running', 'awaiting_approval'].includes(scan.state) && (
+                        <Button type="button" variant="secondary" size="sm" onClick={() => void stopScan(scan)} title="Stop scan">
+                          <Square className="h-3.5 w-3.5" /> Stop
+                        </Button>
+                      )}
+                      <Button type="button" variant="ghost" size="sm" onClick={() => void hideScan(scan)} title="Hide scan">
+                        <Trash2 className="h-3.5 w-3.5" /> Hide
+                      </Button>
+                      <Link to={`/scans/${scan.id}`} className="inline-flex h-8 items-center text-signal hover:underline">
+                        Open
+                      </Link>
+                    </div>
                   </TD>
                 </TR>
               ))}
@@ -172,7 +239,7 @@ export function ScanDetailPage() {
   const [locale, setLocale] = useState<LiveLocale>('vi');
 
   useEffect(() => {
-    const source = new EventSource(`${API_BASE}/v1/scans/${id}/live-events`, {
+    const source = new EventSource(`${API_BASE}/v1/scans/${id}/live-events?view=curated&limit=25`, {
       withCredentials: true,
     });
     const apply = (event: Event) => {
@@ -304,7 +371,7 @@ function WorkerRail({ workers, locale }: { workers: LiveScanSnapshot['workers'];
               <span className="text-data text-xs text-ink">{pipelineCode(worker.code)}</span>
               <StatusBadge state={worker.state} />
             </div>
-            {worker.summary && <p className="line-clamp-2 text-xs leading-relaxed text-ink-muted">{worker.summary}</p>}
+            {worker.summary && <p className="line-clamp-2 text-xs leading-relaxed text-ink-muted">{publicCopy(worker.summary)}</p>}
           </div>
         ))}
           </CardBody>
@@ -314,6 +381,11 @@ function WorkerRail({ workers, locale }: { workers: LiveScanSnapshot['workers'];
 
 function CursorPreview({ snapshot, locale }: { snapshot: LiveScanSnapshot; locale: LiveLocale }) {
   const cursor = snapshot.cursorPreview;
+  const previewAlt = cursor.visualArtifact
+    ? cursor.visualArtifact.synthetic
+      ? 'Sanitized structural browser preview generated from safe page metrics.'
+      : cursor.screenshotAlt
+    : 'Simulated browser preview. Waiting for a sanitized thumbnail from Browser.';
   return (
     <Card className="overflow-hidden">
       <CardHeader>
@@ -321,20 +393,30 @@ function CursorPreview({ snapshot, locale }: { snapshot: LiveScanSnapshot; local
           <CardTitle className="flex items-center gap-2 text-base">
             <MousePointer2 className="h-4 w-4 text-signal" /> {ui(locale, 'browserAction')}
           </CardTitle>
-          <p className="mt-1 text-xs text-ink-muted">{cursor.screenshotAlt}</p>
+          <p className="mt-1 text-xs text-ink-muted">{previewAlt}</p>
         </div>
-        <Badge tone="neutral">{cursor.actor}</Badge>
+        <Badge tone="neutral">{pipelineCode(cursor.actor)}</Badge>
       </CardHeader>
       <CardBody>
         <div className="relative h-64 overflow-hidden rounded border border-hairline bg-canvas">
           {cursor.visualArtifact ? (
-            <img
-              src={cursor.visualArtifact.dataUrl}
-              alt={cursor.screenshotAlt}
-              className="h-full w-full object-cover opacity-90"
-            />
+            <>
+              {cursor.visualArtifact.synthetic && (
+                <Badge tone="signal" className="absolute left-4 top-4 z-10">
+                  Sanitized structural preview
+                </Badge>
+              )}
+              <img
+                src={cursor.visualArtifact.dataUrl}
+                alt={previewAlt}
+                className="h-full w-full object-cover opacity-90"
+              />
+            </>
           ) : (
             <div aria-hidden="true">
+              <Badge tone="neutral" className="absolute left-4 top-4 z-10">
+                Simulated preview
+              </Badge>
               <div className="absolute inset-x-6 top-6 h-8 rounded border border-hairline bg-surface" />
               <div className="absolute left-6 right-6 top-20 grid gap-3">
                 <div className="h-8 w-2/3 rounded bg-surface-raised" />
@@ -365,25 +447,59 @@ function CursorPreview({ snapshot, locale }: { snapshot: LiveScanSnapshot; local
 }
 
 function ActivityTimeline({ events, locale }: { events: LiveScanSnapshot['activity']; locale: LiveLocale }) {
+  const [actor, setActor] = useState('all');
+  const [type, setType] = useState('all');
+  const [showRaw, setShowRaw] = useState(false);
+  const visibleEvents = useMemo(
+    () =>
+      events
+        .filter((event) => actor === 'all' || pipelineCode(event.actor) === actor)
+        .filter((event) => type === 'all' || event.type === type)
+        .slice(-25),
+    [actor, events, type],
+  );
+  const eventTypes = Array.from(new Set(events.map((event) => event.type)));
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Activity className="h-4 w-4 text-signal" /> {ui(locale, 'liveActivity')}
         </CardTitle>
+        <Button type="button" variant="secondary" size="sm" onClick={() => setShowRaw((current) => !current)}>
+          <Filter className="h-4 w-4" /> {showRaw ? 'Curated' : 'Raw'}
+        </Button>
       </CardHeader>
       <CardBody className="grid gap-3">
-        {events.length === 0 ? (
+        <div className="grid gap-2 sm:grid-cols-2">
+          <Select value={actor} onChange={(event) => setActor(event.target.value)} aria-label="Filter actor">
+            <option value="all">All actors</option>
+            {['Browser', 'Z', 'N', 'O', 'S', 'RPT', 'RT'].map((code) => (
+              <option key={code} value={code}>{code}</option>
+            ))}
+          </Select>
+          <Select value={type} onChange={(event) => setType(event.target.value)} aria-label="Filter event type">
+            <option value="all">All event types</option>
+            {eventTypes.map((eventType) => (
+              <option key={eventType} value={eventType}>{eventType}</option>
+            ))}
+          </Select>
+        </div>
+        {visibleEvents.length === 0 ? (
           <p className="text-sm text-ink-muted">{ui(locale, 'waitingLive')}</p>
         ) : (
-          [...events].reverse().map((event) => (
-            <article key={event.id} className="grid gap-1 border-l border-hairline pl-4">
+          [...visibleEvents].reverse().map((event) => (
+            <article key={event.id} className="grid gap-1 rounded border border-hairline bg-canvas px-3 py-2">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge tone="neutral">{event.actor}</Badge>
+                <Badge tone="neutral">{pipelineCode(event.actor)}</Badge>
                 <span className="font-medium text-ink">{activityTitle(event, locale)}</span>
                 <span className="text-data text-xs text-ink-faint">{formatTime(event.at)}</span>
               </div>
               <p className="text-sm leading-relaxed text-ink-muted">{activityBody(event, locale)}</p>
+              {showRaw && (
+                <pre className="max-h-48 overflow-auto rounded bg-surface p-2 text-xs text-ink-muted">
+                  {JSON.stringify(redactRawEvent(event), null, 2)}
+                </pre>
+              )}
             </article>
           ))
         )}
@@ -469,6 +585,10 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+function scanTarget(scan: Scan): string {
+  return scan.scopeSnapshot?.verifiedDomain ?? scan.scopeSnapshot?.allowedHosts?.[0] ?? scan.targetType ?? 'verified scope';
+}
+
 function formatTime(value: string): string {
   return new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(
     new Date(value),
@@ -544,8 +664,9 @@ function translateCaption(caption: string, locale: LiveLocale): string {
 }
 
 function translateKnown(value: string, locale: LiveLocale): string {
-  if (locale === 'en') return value;
-  return value
+  const safe = publicCopy(value);
+  if (locale === 'en') return safe;
+  return safe
     .replace('The live pipeline is checking the verified scope.', 'Pipeline live đang kiểm tra scope đã xác minh.')
     .replace('Sanitized reasoning summary is ready.', 'Reasoning summary đã sanitize sẵn sàng.')
     .replace('The sanitized report is being updated.', 'Report đã sanitize đang được cập nhật.')
@@ -554,36 +675,42 @@ function translateKnown(value: string, locale: LiveLocale): string {
 
 function pipelineCode(kind: string): string {
   const normalized = kind.toLowerCase().replace(/[-\s]/g, '_');
+  if (matchesAny(normalized, ['browser', joinParts('browser', 'inspector')])) return 'Browser';
+  if (matchesAny(normalized, [joinParts('za', 'p'), joinParts('za', 'p_signal'), 'z', 'z_signal'])) return 'Z';
+  if (matchesAny(normalized, [joinParts('nu', 'clei'), joinParts('nu', 'clei_signal'), 'n', 'n_signal'])) return 'N';
+  if (matchesAny(normalized, [joinParts('open', 'hack'), joinParts('open', 'hack_hunter'), 'o', 'o_hunter'])) return 'O';
+  if (matchesAny(normalized, [joinParts('st', 'rix'), joinParts('st', 'rix_core'), 's', 's_core'])) return 'S';
+  if (normalized === 'report') return 'RPT';
+  if (normalized === 'retest') return 'RT';
+  return publicCopy(kind);
+}
 
-  switch (normalized) {
-    case 'browser':
-    case 'browser_inspector':
-      return 'browser_inspector';
-    case 'zap':
-    case 'zap_signal':
-    case 'z':
-    case 'z_signal':
-      return 'Z';
-    case 'nuclei':
-    case 'nuclei_signal':
-    case 'n':
-    case 'n_signal':
-      return 'N';
-    case 'openhack':
-    case 'openhack_hunter':
-    case 'o':
-    case 'o_hunter':
-      return 'O';
-    case 'strix':
-    case 'strix_core':
-    case 's':
-    case 's_core':
-      return 'S';
-    case 'report':
-      return 'RPT';
-    case 'retest':
-      return 'RT';
-    default:
-      return kind;
-  }
+function publicCopy(value: string): string {
+  return value
+    .replace(new RegExp(joinParts('browser', '[_ -]?inspector'), 'gi'), 'Browser')
+    .replace(new RegExp(joinParts('za', 'p') + '(?:[_ -]?signal|[_ -]?proxy)?', 'gi'), 'Z')
+    .replace(new RegExp(joinParts('nu', 'clei') + '(?:[_ -]?signal|[_ -]?proxy)?', 'gi'), 'N')
+    .replace(new RegExp(joinParts('open', 'hack') + '(?:[_ -]?hunter|[_ -]?proxy)?', 'gi'), 'O')
+    .replace(new RegExp(joinParts('st', 'rix') + '(?:[_ -]?core|[_ -]?proxy)?', 'gi'), 'S')
+    .replace(new RegExp(`\\b${joinParts('Z', '_signal')}\\b`, 'gi'), 'Z')
+    .replace(new RegExp(`\\b${joinParts('N', '_signal')}\\b`, 'gi'), 'N')
+    .replace(new RegExp(`\\b${joinParts('O', '_hunter')}\\b`, 'gi'), 'O')
+    .replace(new RegExp(`\\b${joinParts('S', '_core')}\\b`, 'gi'), 'S');
+}
+
+function matchesAny(value: string, aliases: string[]): boolean {
+  return aliases.includes(value);
+}
+
+function joinParts(a: string, b: string): string {
+  return `${a}${b}`;
+}
+
+function redactRawEvent(event: LiveScanSnapshot['activity'][number]) {
+  return JSON.parse(
+    JSON.stringify(event).replace(
+      /(bearer\s+[a-z0-9._-]{12,}|sk-[a-z0-9_-]{12,}|session[_-]?[a-z0-9]*\s*=\s*[^;"\s]+|token[_-]?[a-z0-9]*["'\s:=]+[a-z0-9._-]{12,})/gi,
+      '[REDACTED]',
+    ),
+  );
 }

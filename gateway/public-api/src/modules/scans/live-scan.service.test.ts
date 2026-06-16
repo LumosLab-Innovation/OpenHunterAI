@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildLiveScanSnapshot, normalizeActivityEvent } from './live-scan.service.js';
+import { buildLiveScanSnapshot, filterLiveActivity, normalizeActivityEvent } from './live-scan.service.js';
 
 describe('buildLiveScanSnapshot', () => {
   it('builds a sanitized live snapshot with compact worker labels', () => {
@@ -75,7 +75,7 @@ describe('buildLiveScanSnapshot', () => {
       ],
     });
 
-    expect(snapshot.workers.map((worker) => worker.code)).toEqual(['browser_inspector', 'Z', 'N', 'O', 'S', 'RPT']);
+    expect(snapshot.workers.map((worker) => worker.code)).toEqual(['Browser', 'Z', 'N', 'O', 'S', 'RPT']);
     expect(snapshot.workers.find((worker) => worker.code === 'Z')?.state).toBe('succeeded');
     expect(snapshot.activity.some((event) => event.type === 'step_completed' && event.actor === 'Z')).toBe(true);
     expect(JSON.stringify(snapshot)).not.toContain('sk-1234567890abcdef1234567890abcdef');
@@ -111,6 +111,8 @@ describe('buildLiveScanSnapshot', () => {
             kind: 'thumbnail',
             dataUrl: 'data:image/png;base64,abc',
             expiresAt: '2026-06-17T10:00:00.000Z',
+            sanitized: true,
+            synthetic: true,
             width: 320,
             height: 180,
           },
@@ -130,6 +132,8 @@ describe('buildLiveScanSnapshot', () => {
             kind: 'thumbnail',
             dataUrl: 'data:image/png;base64,expired',
             expiresAt: '2026-06-15T10:00:00.000Z',
+            sanitized: true,
+            synthetic: true,
           },
           createdAt: new Date('2026-06-16T10:00:10.000Z'),
         },
@@ -161,6 +165,8 @@ describe('buildLiveScanSnapshot', () => {
       visualArtifact: {
         kind: 'thumbnail',
         dataUrl: 'data:image/png;base64,abc',
+        sanitized: true,
+        synthetic: true,
         rawRequest: 'GET /secret',
       },
     });
@@ -169,5 +175,81 @@ describe('buildLiveScanSnapshot', () => {
     expect(JSON.stringify(event)).not.toContain('abcdefghijklmnopqrstuvwxyz1234567890');
     expect(JSON.stringify(event)).not.toContain('rawRequest');
     expect(event.visualArtifact?.expiresAt).toBeTruthy();
+    expect(event.visualArtifact?.synthetic).toBe(true);
+  });
+
+  it('rejects non-synthetic visual artifacts before persistence', () => {
+    const event = normalizeActivityEvent({
+      scanJobId: 'scan_1',
+      eventType: 'browser_action',
+      actor: 'browser_inspector',
+      titleKey: 'activity.browser_action.title',
+      bodyKey: 'activity.browser_action.body',
+      bodyParams: { summary: 'raw screenshot attempt' },
+      status: 'running',
+      visualArtifact: {
+        kind: 'thumbnail',
+        dataUrl: 'data:image/png;base64,abc',
+        sanitized: true,
+      },
+    });
+
+    expect(event.visualArtifact).toBeUndefined();
+  });
+
+  it('curates live activity by cursor, actor, type, and limit', () => {
+    const activity = Array.from({ length: 6 }, (_, index) => ({
+      id: `activity_${index + 1}`,
+      at: `2026-06-16T10:00:0${index}.000Z`,
+      type: index % 2 === 0 ? 'step_completed' : 'browser_action',
+      actor: index % 2 === 0 ? 'Z' as const : 'Browser' as const,
+      title: 'update',
+      body: 'body',
+      status: 'running',
+      sanitized: true as const,
+    }));
+
+    const filtered = filterLiveActivity(activity, {
+      cursor: '2026-06-16T10:00:01.000Z|activity_2',
+      actor: 'Browser',
+      type: 'browser_action',
+      limit: 2,
+    });
+
+    expect(filtered.items.map((item) => item.id)).toEqual(['activity_4', 'activity_6']);
+    expect(filtered.nextCursor).toBe('2026-06-16T10:00:05.000Z|activity_6');
+  });
+
+  it('uses compact public summaries for derived worker activity', () => {
+    const snapshot = buildLiveScanSnapshot({
+      id: 'scan_1',
+      projectId: 'proj_1',
+      mode: 'ai_blackhat_mindset_check',
+      targetType: 'interactive_web_app',
+      authScope: 'none',
+      testIntensityMode: 'controlled_attack_simulation',
+      state: 'running',
+      scanPlan: { enabledWorkers: { zap: 'standard_safe', nuclei: 'standard_safe', openhack: 'medium', strix: 'deep' } },
+      scopeSnapshot: { verifiedDomain: 'example.com' },
+      createdAt: new Date('2026-06-16T10:00:00.000Z'),
+      updatedAt: new Date('2026-06-16T10:01:00.000Z'),
+      steps: [
+        {
+          id: 'step_z',
+          kind: 'zap_signal',
+          state: 'succeeded',
+          startedAt: new Date('2026-06-16T10:00:20.000Z'),
+          finishedAt: new Date('2026-06-16T10:00:30.000Z'),
+          outputRef: {},
+          errorCode: null,
+          errorMsg: null,
+        },
+      ],
+      findings: [],
+      reports: [],
+      reportDraftSections: [],
+    });
+
+    expect(JSON.stringify(snapshot)).not.toMatch(/zap|nuclei|openhack|strix|Z_signal|N_signal|O_hunter|S_core|browser_inspector/i);
   });
 });

@@ -156,7 +156,7 @@ export function selectPromotionCandidates(
     if (seen.has(id) || duplicateIds.has(id)) continue;
     seen.add(id);
     const candidate = byId.get(id);
-    if (!candidate || !isValuableCandidate(candidate) || !hasSanitizedEvidence(candidate.evidence)) continue;
+    if (!candidate || !isValuableCandidate(candidate) || !hasPromotableEvidence(candidate.evidence)) continue;
     selected.push(candidate);
     if (selected.length >= maxFindings) break;
   }
@@ -169,11 +169,16 @@ function isValuableCandidate(candidate: CandidateSummary): boolean {
     (CONFIDENCE_ORDER[candidate.confidence] ?? 0) >= CONFIDENCE_ORDER.medium;
 }
 
-function hasSanitizedEvidence(evidence: unknown): boolean {
+function hasPromotableEvidence(evidence: unknown): boolean {
   if (!evidence || typeof evidence !== 'object') return false;
   const value = evidence as Record<string, unknown>;
   if (value.rawRequest || value.rawResponse || value.rawHar || value.rawCookie || value.rawToken || value.rawSecret) {
     return false;
   }
-  return typeof value.description === 'string' || value.sanitized === true || Array.isArray(value.evidenceRefs);
+  if (value.evidenceClass === 'hardening_warning' || value.evidenceClass === 'signal') {
+    return false;
+  }
+  const hasSanitizedBody =
+    typeof value.description === 'string' || value.sanitized === true || Array.isArray(value.evidenceRefs);
+  return hasSanitizedBody && (value.validationState === 'validated_finding' || value.evidenceClass === 'validated_finding');
 }

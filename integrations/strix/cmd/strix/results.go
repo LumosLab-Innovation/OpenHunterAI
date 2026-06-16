@@ -81,15 +81,34 @@ func parseResultsJSON(data []byte) (reasonResponse, bool) {
 		kind := firstNonEmpty(f.Category, f.Type, "reasoning")
 		asset := firstNonEmpty(f.Asset, f.URL)
 		out.Signals = append(out.Signals, signal{
-			Kind:        sanitize(kind),
-			Title:       sanitize(firstNonEmpty(f.Title, "Strix observation")),
-			Severity:    normalizeSeverity(f.Severity),
-			Confidence:  normalizeConfidence(f.Confidence),
-			Asset:       sanitize(asset),
-			Description: sanitize(firstNonEmpty(f.Description, f.Summary)),
+			Kind:            sanitize(kind),
+			Title:           sanitize(firstNonEmpty(f.Title, "Strix observation")),
+			Severity:        normalizeSeverity(f.Severity),
+			Confidence:      normalizeConfidence(f.Confidence),
+			Asset:           sanitize(asset),
+			Description:     sanitize(firstNonEmpty(f.Description, f.Summary)),
+			EvidenceClass:   evidenceClassForFinding(f),
+			ValidationState: validationStateForFinding(f),
 		})
 	}
 	return out, true
+}
+
+func evidenceClassForFinding(f strixFinding) string {
+	if validationStateForFinding(f) == "validated_finding" {
+		return "validated_finding"
+	}
+	return "candidate"
+}
+
+func validationStateForFinding(f strixFinding) string {
+	if normalizeSeverity(f.Severity) == "info" {
+		return "unvalidated"
+	}
+	if normalizeConfidence(f.Confidence) == "high" {
+		return "validated_finding"
+	}
+	return "candidate"
 }
 
 func firstNonEmpty(vals ...string) string {

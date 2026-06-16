@@ -36,12 +36,14 @@ type runRequest struct {
 }
 
 type signal struct {
-	Kind        string `json:"kind"`
-	Title       string `json:"title"`
-	Severity    string `json:"severity,omitempty"`
-	Confidence  string `json:"confidence,omitempty"`
-	Asset       string `json:"asset,omitempty"`
-	Description string `json:"description,omitempty"`
+	Kind            string `json:"kind"`
+	Title           string `json:"title"`
+	Severity        string `json:"severity,omitempty"`
+	Confidence      string `json:"confidence,omitempty"`
+	Asset           string `json:"asset,omitempty"`
+	Description     string `json:"description,omitempty"`
+	EvidenceClass   string `json:"evidenceClass,omitempty"`
+	ValidationState string `json:"validationState,omitempty"`
 }
 
 type runResponse struct {
@@ -99,9 +101,14 @@ func huntSurface(ctx context.Context, target string) []signal {
 
 	var signals []signal
 	add := func(kind, title, sev, desc string) {
+		evidenceClass := "signal"
+		if strings.Contains(kind, "header") || strings.Contains(kind, "hardening") {
+			evidenceClass = "hardening_warning"
+		}
 		signals = append(signals, signal{
 			Kind: kind, Title: title, Severity: sev, Confidence: "high",
 			Asset: sanitizeText(target), Description: desc,
+			EvidenceClass: evidenceClass, ValidationState: "unvalidated",
 		})
 	}
 
