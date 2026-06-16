@@ -1,4 +1,5 @@
 import { getPrisma } from '@x-hunter/db';
+import { sanitizeReportContent, sanitizeText } from '@x-hunter/shared';
 
 /**
  * Drives ScanJob.state transitions in Postgres. The orchestrator owns the scan
@@ -52,6 +53,46 @@ export class ScanStateService {
     if (errorMessage) data.errorMessage = errorMessage.slice(0, 2000);
 
     const updated = await this.prisma.scanJob.update({ where: { id: scanId }, data, select: { state: true } });
+    await recordStateActivity(this.prisma, scanId, to, errorMessage);
     return { ok: true, state: updated.state as ScanState };
   }
+}
+
+async function recordStateActivity(
+  prisma: ReturnType<typeof getPrisma>,
+  scanId: string,
+  state: ScanState,
+  errorMessage?: string,
+) {
+  const eventType =
+    state === 'running'
+      ? 'scan_started'
+      : state === 'completed'
+        ? 'scan_completed'
+        : state === 'failed'
+          ? 'scan_failed'
+          : `scan_${state}`;
+  await (prisma as any).scanActivityEvent
+    .create({
+      data: {
+        scanJobId: scanId,
+        eventType,
+        actor: 'scan',
+        titleKey: `activity.${eventType}.title`,
+        bodyKey: `activity.${eventType}.body`,
+        bodyParams: unwrapObject(sanitizeReportContent({ summary: errorMessage ?? `Scan state changed to ${state}` })),
+        status: state,
+        severity: state === 'failed' || state === 'timeout' ? 'high' : null,
+        sanitized: true,
+      },
+    })
+    .catch(() => {});
+}
+
+function unwrapObject(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== 'object') return {};
+  if ('value' in value && value.value && typeof value.value === 'object') {
+    return value.value as Record<string, unknown>;
+  }
+  return sanitizeText(String(value)) ? { summary: sanitizeText(String(value)) } : {};
 }

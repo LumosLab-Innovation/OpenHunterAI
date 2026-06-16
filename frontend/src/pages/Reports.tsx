@@ -293,27 +293,32 @@ export function ReportDetailPage() {
 }
 
 function pipelineCode(kind: string): string {
-  switch (kind) {
+  const normalized = kind.toLowerCase().replace(/[-\s]/g, '_');
+
+  switch (normalized) {
     case 'browser':
     case 'browser_inspector':
-    case 'browser-inspector':
       return 'browser_inspector';
     case 'zap':
     case 'zap_signal':
-    case 'Z':
-      return 'Z_signal';
+    case 'z':
+    case 'z_signal':
+      return 'Z';
     case 'nuclei':
     case 'nuclei_signal':
-    case 'N':
-      return 'N_signal';
+    case 'n':
+    case 'n_signal':
+      return 'N';
     case 'openhack':
     case 'openhack_hunter':
-    case 'O':
-      return 'O_hunter';
+    case 'o':
+    case 'o_hunter':
+      return 'O';
     case 'strix':
     case 'strix_core':
-    case 'S':
-      return 'S_core';
+    case 's':
+    case 's_core':
+      return 'S';
     default:
       return kind;
   }

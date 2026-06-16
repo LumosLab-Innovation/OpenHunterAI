@@ -2,10 +2,12 @@ import type { Request, Response } from 'express';
 import { subscribeEvent } from '@openhunter/event-core';
 import { currentUser } from '../../middlewares/auth.middleware.js';
 import { ReportsService } from '../reports/reports.service.js';
+import { LiveScanService } from './live-scan.service.js';
 import { ScansService } from './scans.service.js';
 
 const service = new ScansService();
 const reports = new ReportsService();
+const liveScans = new LiveScanService();
 
 export async function listScans(req: Request, res: Response) {
   res.json({ scans: await service.list(currentUser(req).orgId) });
@@ -116,6 +118,100 @@ export async function streamReportEvents(req: Request, res: Response) {
       if (r.final) shutdown();
     });
   }, 10_000);
+  cleanups.push(() => clearInterval(poll));
+
+  const maxDuration = setTimeout(shutdown, 30 * 60_000);
+  cleanups.push(() => clearTimeout(maxDuration));
+}
+
+export async function streamLiveEvents(req: Request, res: Response) {
+  const user = currentUser(req);
+  const scanId = req.params.id!;
+  const initialSnapshot = await liveScans.getSnapshot(scanId, user.orgId);
+  if (!initialSnapshot) {
+    res.status(404).json({ error: { code: 'NOT_FOUND' } });
+    return;
+  }
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders?.();
+
+  let eventId = 0;
+  let closed = false;
+  let lastSignature = '';
+  let degraded: { events: boolean; reason: string } | undefined;
+  const cleanups: Array<() => void> = [];
+
+  function shutdown() {
+    if (closed) return;
+    closed = true;
+    for (const fn of cleanups) {
+      try {
+        fn();
+      } catch {
+        /* ignore */
+      }
+    }
+    res.end();
+  }
+  req.on('close', shutdown);
+
+  async function sendSnapshot(eventName = 'scan_snapshot', force = false) {
+    const snapshot = await liveScans.getSnapshot(scanId, user.orgId, degraded);
+    if (!snapshot) {
+      res.write(`event: stream_degraded\ndata: ${JSON.stringify({ code: 'NOT_FOUND' })}\n\n`);
+      return;
+    }
+    const signature = JSON.stringify({
+      updatedAt: snapshot.scan.updatedAt,
+      scanState: snapshot.scan.state,
+      workers: snapshot.workers.map((worker) => `${worker.code}:${worker.state}:${worker.updatedAt ?? ''}`),
+      activity: snapshot.activity.map((activity) => `${activity.id}:${activity.status}`),
+      reports: `${snapshot.reportPreview.latestReportId ?? ''}:${snapshot.reportPreview.latestReportState ?? ''}`,
+    });
+    if (!force && signature === lastSignature) return;
+    lastSignature = signature;
+    eventId += 1;
+    res.write(`id: ${eventId}\nevent: ${eventName}\ndata: ${JSON.stringify(snapshot)}\n\n`);
+  }
+
+  await sendSnapshot('scan_snapshot', true);
+
+  async function subscribe(subject: string) {
+    try {
+      const unsubscribe = await subscribeEvent(subject, (envelope) => {
+        const payload = envelope.payload as { scanId?: string } | undefined;
+        if (payload?.scanId && payload.scanId !== scanId) return;
+        if (closed) return;
+        void sendSnapshot('scan_activity', true);
+      });
+      cleanups.push(unsubscribe);
+    } catch (error) {
+      degraded = {
+        events: true,
+        reason: error instanceof Error ? error.message : 'Live event bus unavailable; using polling fallback.',
+      };
+      eventId += 1;
+      res.write(`id: ${eventId}\nevent: stream_degraded\ndata: ${JSON.stringify(degraded)}\n\n`);
+    }
+  }
+
+  await subscribe(`report.${scanId}.>`);
+  await subscribe('worker.>');
+  await subscribe('scan.>');
+
+  const heartbeat = setInterval(() => {
+    if (closed) return;
+    res.write(`: ping\n\n`);
+  }, 15_000);
+  cleanups.push(() => clearInterval(heartbeat));
+
+  const poll = setInterval(() => {
+    if (closed) return;
+    void sendSnapshot('scan_snapshot');
+  }, 5_000);
   cleanups.push(() => clearInterval(poll));
 
   const maxDuration = setTimeout(shutdown, 30 * 60_000);

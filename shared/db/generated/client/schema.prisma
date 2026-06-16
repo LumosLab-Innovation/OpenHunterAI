@@ -249,6 +249,7 @@ model ScanJob {
   findings            Finding[]
   reports             Report[]
   reportDraftSections ReportDraftSection[]
+  activityEvents      ScanActivityEvent[]
   approvalRequests    ApprovalRequest[]
   retestRuns          RetestRun[]
 
@@ -289,6 +290,25 @@ model ScanStep {
 
   @@index([scanJobId])
   @@map("scan_steps")
+}
+
+model ScanActivityEvent {
+  id             String   @id @default(cuid())
+  scanJobId      String   @map("scan_job_id")
+  eventType      String   @map("event_type")
+  actor          String
+  titleKey       String   @map("title_key")
+  bodyKey        String   @map("body_key")
+  bodyParams     Json     @default("{}") @map("body_params")
+  status         String
+  severity       String?
+  sanitized      Boolean  @default(true)
+  visualArtifact Json?    @map("visual_artifact")
+  createdAt      DateTime @default(now()) @map("created_at")
+  scanJob        ScanJob  @relation(fields: [scanJobId], references: [id], onDelete: Cascade)
+
+  @@index([scanJobId, createdAt])
+  @@map("scan_activity_events")
 }
 
 // =============================================================================

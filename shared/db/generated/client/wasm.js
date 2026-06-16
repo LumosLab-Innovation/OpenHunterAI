@@ -238,6 +238,21 @@ exports.Prisma.ScanStepScalarFieldEnum = {
   errorMsg: 'errorMsg'
 };
 
+exports.Prisma.ScanActivityEventScalarFieldEnum = {
+  id: 'id',
+  scanJobId: 'scanJobId',
+  eventType: 'eventType',
+  actor: 'actor',
+  titleKey: 'titleKey',
+  bodyKey: 'bodyKey',
+  bodyParams: 'bodyParams',
+  status: 'status',
+  severity: 'severity',
+  sanitized: 'sanitized',
+  visualArtifact: 'visualArtifact',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.FindingCandidateScalarFieldEnum = {
   id: 'id',
   scanJobId: 'scanJobId',
@@ -603,6 +618,7 @@ exports.Prisma.ModelName = {
   TestAccount: 'TestAccount',
   ScanJob: 'ScanJob',
   ScanStep: 'ScanStep',
+  ScanActivityEvent: 'ScanActivityEvent',
   FindingCandidate: 'FindingCandidate',
   Finding: 'Finding',
   Report: 'Report',

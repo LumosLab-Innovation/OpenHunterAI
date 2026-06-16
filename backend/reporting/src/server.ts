@@ -1,7 +1,7 @@
 import express from 'express';
 import helmet from 'helmet';
 import { createRequire } from 'node:module';
-import { REPORT_FORMAT_VERSION, renderReportMarkdown, sanitizeReportContent, type ReportContentV1 } from '@x-hunter/shared';
+import { REPORT_FORMAT_VERSION, renderReportMarkdown, sanitizeReportContent, sanitizeText, type ReportContentV1 } from '@x-hunter/shared';
 import { generateFixPrompt, getGateway } from './llm.js';
 import { publishEvent } from '@openhunter/event-core';
 
@@ -77,6 +77,18 @@ app.post('/internal/reports/:scanId/draft-sections/:sectionKey', asyncRoute(asyn
       errorMsg: req.body.errorMsg,
     },
   });
+  await recordActivity(scan.id, {
+    eventType: section.state === 'failed' ? 'report_section_failed' : 'report_section_ready',
+    actor: 'report',
+    titleKey: section.state === 'failed' ? 'activity.report_section_failed.title' : 'activity.report_section_ready.title',
+    bodyKey: section.state === 'failed' ? 'activity.report_section_failed.body' : 'activity.report_section_ready.body',
+    bodyParams: {
+      sectionKey: req.params.sectionKey,
+      summary: req.body.errorMsg ?? `${req.params.sectionKey} section is ${section.state}`,
+    },
+    status: section.state,
+    severity: section.state === 'failed' ? 'medium' : null,
+  });
   // Push an SSE-visible event so subscribed clients refresh without polling.
   await publishEvent(`report.${scan.id}.section`, { sectionKey: req.params.sectionKey, state: section.state });
   res.json({ section });
@@ -137,6 +149,14 @@ app.post('/internal/reports/:scanId/finalize', asyncRoute(async (req, res) => {
       finalizedAt: new Date(),
     },
   });
+  await recordActivity(scan.id, {
+    eventType: 'report_finalized',
+    actor: 'report',
+    titleKey: 'activity.report_finalized.title',
+    bodyKey: 'activity.report_finalized.body',
+    bodyParams: { reportId: report.id, version },
+    status: 'final',
+  });
   // Notify SSE subscribers that the report is finalized so they close cleanly.
   await publishEvent(`report.${scan.id}.finalized`, { reportId: report.id, version });
   res.json({ report });
@@ -148,6 +168,43 @@ app.use((err: unknown, _req: express.Request, res: express.Response, _next: expr
 });
 
 app.listen(port, '0.0.0.0', () => console.log(`reporting listening on ${port}`));
+
+async function recordActivity(
+  scanJobId: string,
+  input: {
+    eventType: string;
+    actor: string;
+    titleKey: string;
+    bodyKey: string;
+    bodyParams?: Record<string, unknown>;
+    status: string;
+    severity?: string | null;
+  },
+) {
+  await prisma.scanActivityEvent
+    .create({
+      data: {
+        scanJobId,
+        eventType: sanitizeText(input.eventType).slice(0, 100),
+        actor: input.actor === 'report' ? 'RPT' : sanitizeText(input.actor).slice(0, 80),
+        titleKey: sanitizeText(input.titleKey).slice(0, 160),
+        bodyKey: sanitizeText(input.bodyKey).slice(0, 160),
+        bodyParams: unwrapObject(sanitizeReportContent(input.bodyParams ?? {})),
+        status: sanitizeText(input.status).slice(0, 80),
+        severity: input.severity ? sanitizeText(input.severity).slice(0, 40) : null,
+        sanitized: true,
+      },
+    })
+    .catch(() => {});
+}
+
+function unwrapObject(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== 'object') return {};
+  if ('value' in value && value.value && typeof value.value === 'object') {
+    return value.value as Record<string, unknown>;
+  }
+  return value as Record<string, unknown>;
+}
 
 function buildFinalContent(scan: any): ReportContentV1 {
   const findings = (scan.findings ?? []).slice(0, scan.mode === 'free_hunter' ? 1 : 50);

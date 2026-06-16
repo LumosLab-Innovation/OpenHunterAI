@@ -1,5 +1,5 @@
 import { getPrisma } from '@x-hunter/db';
-import { sanitize, sanitizeText } from '@x-hunter/shared';
+import { sanitize, sanitizeReportContent, sanitizeText } from '@x-hunter/shared';
 
 /**
  * Persists sanitized worker callbacks (scan steps and finding candidates) to the
@@ -88,6 +88,20 @@ export class CallbacksService {
         errorMsg: result.errorMsg ? sanitizeText(result.errorMsg) : null,
       },
     });
+    await recordActivity(this.prisma, {
+      scanJobId: scanId,
+      eventType: state === 'failed' ? 'step_failed' : 'step_completed',
+      actor: kind,
+      titleKey: state === 'failed' ? 'activity.step_failed.title' : 'activity.step_completed.title',
+      bodyKey: state === 'failed' ? 'activity.step_failed.body' : 'activity.step_completed.body',
+      bodyParams: {
+        summary: result.summary ?? result.errorMsg ?? `${kind} ${state}`,
+        errorCode: result.errorCode,
+      },
+      status: state,
+      severity: state === 'failed' ? 'high' : null,
+      visualArtifact: result.meta?.visualArtifact,
+    });
     const retestUpdate = retestUpdateFromWorkerResult(result);
     if (retestUpdate) {
       await this.prisma.retestRun.update({
@@ -116,7 +130,18 @@ export class CallbacksService {
         sanitized: true,
       }) as object,
     }));
-    return this.prisma.findingCandidate.createMany({ data: rows });
+    const result = await this.prisma.findingCandidate.createMany({ data: rows });
+    await recordActivity(this.prisma, {
+      scanJobId: scanId,
+      eventType: 'finding_candidate',
+      actor: workerType,
+      titleKey: 'activity.finding_candidate.title',
+      bodyKey: 'activity.finding_candidate.body',
+      bodyParams: { summary: `${result.count} candidate signal(s) recorded`, count: result.count },
+      status: 'ready',
+      severity: signals.some((signal) => signal.severity === 'critical' || signal.severity === 'high') ? 'high' : 'info',
+    });
+    return result;
   }
 }
 
@@ -154,4 +179,91 @@ export function retestUpdateFromWorkerResult(result: WorkerStepResult): null | {
 
 function isRetestResult(value: string): value is RetestResultValue {
   return RETEST_RESULTS.has(value as RetestResultValue);
+}
+
+async function recordActivity(
+  prisma: ReturnType<typeof getPrisma>,
+  input: {
+    scanJobId: string;
+    eventType: string;
+    actor: string;
+    titleKey: string;
+    bodyKey: string;
+    bodyParams?: Record<string, unknown>;
+    status: string;
+    severity?: string | null;
+    visualArtifact?: unknown;
+  },
+) {
+  const bodyParams = sanitizeReportContent(input.bodyParams ?? {});
+  const visualArtifact = sanitizeVisualArtifact(input.visualArtifact);
+  await (prisma as any).scanActivityEvent
+    .create({
+      data: {
+        scanJobId: input.scanJobId,
+        eventType: sanitizeText(input.eventType).slice(0, 100),
+        actor: compactActor(input.actor),
+        titleKey: sanitizeText(input.titleKey).slice(0, 160),
+        bodyKey: sanitizeText(input.bodyKey).slice(0, 160),
+        bodyParams: unwrapObject(bodyParams),
+        status: sanitizeText(input.status).slice(0, 80),
+        severity: input.severity ? sanitizeText(input.severity).slice(0, 40) : null,
+        sanitized: true,
+        visualArtifact: visualArtifact ?? undefined,
+      },
+    })
+    .catch(() => {});
+}
+
+function compactActor(actor: string): string {
+  switch (actor.toLowerCase().replace(/[-\s]/g, '_')) {
+    case 'browser':
+    case 'browser_inspector':
+      return 'browser_inspector';
+    case 'zap':
+    case 'zap_signal':
+    case 'z':
+      return 'Z';
+    case 'nuclei':
+    case 'nuclei_signal':
+    case 'n':
+      return 'N';
+    case 'openhack':
+    case 'openhack_hunter':
+    case 'o':
+      return 'O';
+    case 'strix':
+    case 'strix_core':
+    case 's':
+      return 'S';
+    case 'report':
+      return 'RPT';
+    default:
+      return sanitizeText(actor).slice(0, 80);
+  }
+}
+
+function sanitizeVisualArtifact(value: unknown): Record<string, unknown> | undefined {
+  const artifact = unwrapObject(sanitizeReportContent(value ?? {}));
+  if (artifact.kind !== 'thumbnail' || typeof artifact.dataUrl !== 'string') return undefined;
+  if (!/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/i.test(artifact.dataUrl)) return undefined;
+  return {
+    kind: 'thumbnail',
+    dataUrl: artifact.dataUrl,
+    expiresAt:
+      typeof artifact.expiresAt === 'string' && !Number.isNaN(Date.parse(artifact.expiresAt))
+        ? artifact.expiresAt
+        : new Date(Date.now() + 24 * 60 * 60_000).toISOString(),
+    sanitized: true,
+    ...(typeof artifact.width === 'number' ? { width: artifact.width } : {}),
+    ...(typeof artifact.height === 'number' ? { height: artifact.height } : {}),
+  };
+}
+
+function unwrapObject(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== 'object') return {};
+  if ('value' in value && value.value && typeof value.value === 'object') {
+    return value.value as Record<string, unknown>;
+  }
+  return value as Record<string, unknown>;
 }

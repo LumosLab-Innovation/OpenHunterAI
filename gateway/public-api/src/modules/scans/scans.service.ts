@@ -3,6 +3,7 @@ import { getPrisma } from '@x-hunter/db';
 import { buildScanPlan, DEFAULT_SURFACE_FLAGS, GuardrailError, type SurfaceFlags } from '@x-hunter/shared';
 import { createInitialReportDraft } from '../reports/reports.service.js';
 import { EntitlementService } from '../billing/entitlement.service.js';
+import { recordScanActivity } from './live-scan.service.js';
 import type { CreateScanBody } from './scans.dto.js';
 
 export class ScansService {
@@ -104,14 +105,48 @@ export class ScansService {
       },
     });
     await createInitialReportDraft(this.prisma, scan.id);
-    await publishEvent('scan.created', {
-      scanId: scan.id,
-      projectId,
-      authorizationId: authz.id,
-      mode: authz.scanMode,
-      scope,
-      scanPlan,
-    });
+    await recordScanActivity(this.prisma, {
+      scanJobId: scan.id,
+      eventType: 'scan_queued',
+      actor: 'scan',
+      titleKey: 'activity.scan_queued.title',
+      bodyKey: 'activity.scan_queued.body',
+      bodyParams: { target: scope.verifiedDomain, mode: authz.scanMode },
+      status: 'queued',
+    }).catch(() => {});
+    try {
+      await publishEvent('scan.created', {
+        scanId: scan.id,
+        projectId,
+        authorizationId: authz.id,
+        mode: authz.scanMode,
+        scope,
+        scanPlan,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Scan event queue unavailable';
+      await this.prisma.scanJob.update({
+        where: { id: scan.id },
+        data: {
+          state: 'failed',
+          finishedAt: new Date(),
+          errorMessage: `Scan queue unavailable: ${message}`.slice(0, 2000),
+        },
+      });
+      await recordScanActivity(this.prisma, {
+        scanJobId: scan.id,
+        eventType: 'queue_failed',
+        actor: 'scan',
+        titleKey: 'activity.queue_failed.title',
+        bodyKey: 'activity.queue_failed.body',
+        bodyParams: { message },
+        status: 'failed',
+        severity: 'high',
+      }).catch(() => {});
+      throw new GuardrailError('TOOL_UNAVAILABLE', 'Scan queue is unavailable; scan was not started', {
+        scanId: scan.id,
+      });
+    }
     return scan;
   }
 }

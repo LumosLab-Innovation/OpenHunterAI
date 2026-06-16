@@ -19,14 +19,18 @@ export async function publishEvent<T>(subject: string, payload: T): Promise<void
   if (!nc) return;
   await ensureStream(nc);
   const js = nc.jetstream();
-  await js.publish(
-    subject,
-    codec.encode({
-      id: randomId(),
+  await withTimeout(
+    js.publish(
       subject,
-      occurredAt: new Date().toISOString(),
-      payload,
-    }),
+      codec.encode({
+        id: randomId(),
+        subject,
+        occurredAt: new Date().toISOString(),
+        payload,
+      }),
+    ),
+    timeoutMs('NATS_PUBLISH_TIMEOUT_MS', 3_000),
+    `Timed out publishing ${subject}`,
   );
 }
 
@@ -34,11 +38,17 @@ async function getConnection(): Promise<NatsConnection | null> {
   if (connection) return connection;
   const servers = process.env.NATS_URL || 'nats://localhost:4222';
   try {
-    connection = await connect({ servers, name: process.env.SERVICE_NAME || 'openhunter-ts' });
+    connection = await connect({
+      servers,
+      name: process.env.SERVICE_NAME || 'openhunter-ts',
+      timeout: timeoutMs('NATS_CONNECT_TIMEOUT_MS', 3_000),
+    });
     return connection;
-  } catch {
+  } catch (error) {
+    connection = null;
     if (process.env.NODE_ENV !== 'production') return null;
-    throw new Error(`Unable to connect to NATS at ${servers}`);
+    const detail = error instanceof Error ? error.message : 'unknown error';
+    throw new Error(`Unable to connect to NATS at ${servers}: ${detail}`);
   }
 }
 
@@ -69,7 +79,12 @@ export async function subscribeEvent<T = unknown>(
   subject: string,
   onEvent: (envelope: EventEnvelope<T>) => void,
 ): Promise<() => void> {
-  const nc = await getConnection();
+  let nc: NatsConnection | null = null;
+  try {
+    nc = await getConnection();
+  } catch {
+    return () => {};
+  }
   if (!nc) return () => {};
   const sub: Subscription = nc.subscribe(subject);
   (async () => {
@@ -86,4 +101,21 @@ export async function subscribeEvent<T = unknown>(
 
 function randomId(): string {
   return Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+}
+
+function timeoutMs(name: string, fallback: number): number {
+  const value = Number(process.env[name] ?? '');
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => {
+      timer = setTimeout(() => reject(new Error(message)), ms);
+    }),
+  ]).finally(() => {
+    if (timer) clearTimeout(timer);
+  });
 }
