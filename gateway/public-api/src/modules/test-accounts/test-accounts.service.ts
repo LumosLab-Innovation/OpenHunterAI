@@ -48,8 +48,8 @@ export class TestAccountsService {
     await this.assertProject(projectId, orgId);
     const credentialCipher = encryptString(
       JSON.stringify({
-        username: body.username,
-        password: body.password,
+        username: body.username?.trim() || null,
+        ...(body.password ? { password: body.password } : {}),
       }),
     ).ciphertext;
 
@@ -59,7 +59,7 @@ export class TestAccountsService {
         label: sanitizeText(body.label).slice(0, 80),
         loginUrl: body.loginUrl,
         credentialCipher,
-        identityEmail: body.username.trim().slice(0, 256),
+        identityEmail: body.username?.trim() ? body.username.trim().slice(0, 256) : null,
         notes: body.notes ? sanitizeText(body.notes).slice(0, 1024) : null,
       },
       select: {

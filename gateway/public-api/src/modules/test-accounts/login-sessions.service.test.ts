@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   isBrowserSessionFresh,
+  publicLoginSessionStreamUrl,
   sanitizeBrowserStorageState,
   validateLoginUrlInVerifiedScope,
 } from './login-sessions.service.js';
@@ -60,5 +61,11 @@ describe('login session helpers', () => {
     expect(isBrowserSessionFresh({ status: 'active', expiresAt: new Date('2026-06-17T00:00:00.000Z') }, new Date('2026-06-16T00:00:00.000Z'))).toBe(true);
     expect(isBrowserSessionFresh({ status: 'active', expiresAt: new Date('2026-06-15T00:00:00.000Z') }, new Date('2026-06-16T00:00:00.000Z'))).toBe(false);
     expect(isBrowserSessionFresh({ status: 'pending', expiresAt: new Date('2026-06-17T00:00:00.000Z') }, new Date('2026-06-16T00:00:00.000Z'))).toBe(false);
+  });
+
+  it('builds public proxied noVNC URLs instead of runtime URLs', () => {
+    expect(publicLoginSessionStreamUrl('sess_1')).toBe(
+      '/v1/login-sessions/sess_1/stream/vnc.html?autoconnect=1&resize=scale&path=v1%2Flogin-sessions%2Fsess_1%2Fstream%2Fwebsockify',
+    );
   });
 });

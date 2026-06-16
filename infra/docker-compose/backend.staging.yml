@@ -31,3 +31,10 @@ services:
       dockerfile: backend/reporting/Dockerfile
     command: ["tsx", "src/server.ts"]
     volumes: []
+
+  browser-session:
+    image: openhunter/browser-session:staging
+    build:
+      context: ../..
+      dockerfile: backend/browser-session/Dockerfile
+    volumes: []

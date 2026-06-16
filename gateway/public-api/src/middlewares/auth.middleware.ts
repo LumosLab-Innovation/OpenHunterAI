@@ -12,6 +12,10 @@ export interface SessionUser {
 
 const cookieName = process.env.APP_SESSION_COOKIE || 'xhunter_session';
 
+export function sessionCookieName(): string {
+  return cookieName;
+}
+
 export function hashPassword(password: string): string {
   const salt = randomBytes(16);
   const derived = scryptSync(password, salt, 32);
@@ -44,6 +48,11 @@ export function readSession(token?: string): SessionUser | null {
   };
   if (parsed.exp && parsed.exp < Math.floor(Date.now() / 1000)) return null;
   return { userId: parsed.userId, orgId: parsed.orgId, email: parsed.email, role: parsed.role };
+}
+
+export function readSessionFromCookieHeader(cookieHeader?: string): SessionUser | null {
+  const cookies = parseCookieHeader(cookieHeader);
+  return readSession(cookies[cookieName]);
 }
 
 export function setSessionCookie(res: Response, token: string) {
@@ -90,6 +99,18 @@ function timingSafeEqualString(a: string, b: string): boolean {
   const ab = Buffer.from(a);
   const bb = Buffer.from(b);
   return ab.length === bb.length && timingSafeEqual(ab, bb);
+}
+
+function parseCookieHeader(cookieHeader?: string): Record<string, string> {
+  if (!cookieHeader) return {};
+  return cookieHeader.split(';').reduce<Record<string, string>>((acc, part) => {
+    const index = part.indexOf('=');
+    if (index === -1) return acc;
+    const key = part.slice(0, index).trim();
+    const value = part.slice(index + 1).trim();
+    if (key) acc[key] = decodeURIComponent(value);
+    return acc;
+  }, {});
 }
 
 declare global {

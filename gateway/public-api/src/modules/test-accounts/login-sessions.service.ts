@@ -9,7 +9,9 @@ import {
   sanitizeText,
 } from '@x-hunter/shared';
 
-const SESSION_TTL_MS = 24 * 60 * 60_000;
+const INTERACTIVE_SESSION_TTL_MS = 15 * 60_000;
+const SAVED_SESSION_TTL_MS = 24 * 60 * 60_000;
+const STREAM_PREFIX = '/v1/login-sessions';
 
 type BrowserSessionStatus = 'pending' | 'active' | 'cancelled' | 'expired';
 
@@ -38,7 +40,8 @@ export class LoginSessionsService {
     if (!account) throw new GuardrailError('INVALID_INPUT', 'Test account not found');
     const verifiedHosts = await this.verifiedHosts(projectId, orgId);
     const loginUrl = validateLoginUrlInVerifiedScope(account.loginUrl, verifiedHosts);
-    const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
+    await this.cancelPendingInteractiveSessions(account.id, orgId);
+    const expiresAt = new Date(Date.now() + INTERACTIVE_SESSION_TTL_MS);
 
     const session = await (this.prisma as any).browserSessionState.create({
       data: {
@@ -52,16 +55,15 @@ export class LoginSessionsService {
       select: publicSessionSelect,
     });
 
-    const runtime = await createRuntimeSession(session.id, loginUrl.href);
-    if (runtime.streamUrl) {
-      await (this.prisma as any).browserSessionState.update({
-        where: { id: session.id },
-        data: { streamUrl: runtime.streamUrl },
-      });
-      session.streamUrl = runtime.streamUrl;
-    }
+    await createRuntimeSession(session.id, loginUrl.href, verifiedHosts);
+    const streamUrl = publicLoginSessionStreamUrl(session.id);
+    await (this.prisma as any).browserSessionState.update({
+      where: { id: session.id },
+      data: { streamUrl },
+    });
+    session.streamUrl = streamUrl;
 
-    return toPublicLoginSession(session, runtime.streamUrl ? 'ready' : 'unavailable');
+    return toPublicLoginSession(session, 'ready');
   }
 
   async get(sessionId: string, orgId: string) {
@@ -79,7 +81,7 @@ export class LoginSessionsService {
     const finalUrl = validateLoginUrlInVerifiedScope(runtimeState.finalUrl ?? body.finalUrl ?? session.loginUrl, verifiedHosts);
     const storageState = sanitizeBrowserStorageState(runtimeState.storageState);
     const storageStateCipher = encryptString(JSON.stringify(storageState)).ciphertext;
-    const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
+    const expiresAt = new Date(Date.now() + SAVED_SESSION_TTL_MS);
 
     const updated = await (this.prisma as any).browserSessionState.update({
       where: { id: session.id },
@@ -113,6 +115,29 @@ export class LoginSessionsService {
     });
     if (!session) throw new GuardrailError('INVALID_INPUT', 'Login session not found');
     return session;
+  }
+
+  async assertSessionAccess(sessionId: string, orgId: string) {
+    return this.findSession(sessionId, orgId);
+  }
+
+  private async cancelPendingInteractiveSessions(testAccountId: string, orgId: string) {
+    const pending = await (this.prisma as any).browserSessionState.findMany({
+      where: {
+        testAccountId,
+        organizationId: orgId,
+        status: 'pending',
+        expiresAt: { gt: new Date() },
+      },
+      select: { id: true },
+    });
+    for (const session of pending) {
+      await cancelRuntimeSession(session.id).catch(() => {});
+      await (this.prisma as any).browserSessionState.update({
+        where: { id: session.id },
+        data: { status: 'cancelled', cancelledAt: new Date(), storageStateCipher: null },
+      });
+    }
   }
 
   private async verifiedHosts(projectId: string, orgId: string): Promise<string[]> {
@@ -279,7 +304,7 @@ function toPublicLoginSession(session: any, sessionRuntimeStatus: 'ready' | 'una
 }
 
 function freshPublicStatus(status: BrowserSessionStatus, expiresAt: Date): BrowserSessionStatus {
-  if (status === 'active' && expiresAt.getTime() <= Date.now()) return 'expired';
+  if ((status === 'active' || status === 'pending') && expiresAt.getTime() <= Date.now()) return 'expired';
   return status;
 }
 
@@ -287,13 +312,28 @@ function runtimeStatus(streamUrl?: string | null): 'ready' | 'unavailable' {
   return streamUrl ? 'ready' : 'unavailable';
 }
 
-async function createRuntimeSession(sessionId: string, loginUrl: string): Promise<RuntimeSessionResponse> {
+export function publicLoginSessionStreamUrl(sessionId: string): string {
+  const safeId = encodeURIComponent(sessionId);
+  const wsPath = encodeURIComponent(`${STREAM_PREFIX.replace(/^\/+/, '')}/${sessionId}/stream/websockify`);
+  return `${STREAM_PREFIX}/${safeId}/stream/vnc.html?autoconnect=1&resize=scale&path=${wsPath}`;
+}
+
+export function browserSessionRuntimeBaseUrl(): string | null {
+  return process.env.BROWSER_SESSION_BASE_URL?.replace(/\/+$/, '') || null;
+}
+
+async function createRuntimeSession(sessionId: string, loginUrl: string, allowedHosts: string[]): Promise<RuntimeSessionResponse> {
   const baseUrl = process.env.BROWSER_SESSION_BASE_URL?.replace(/\/+$/, '');
-  if (!baseUrl) return {};
+  if (!baseUrl) throw new GuardrailError('TOOL_UNAVAILABLE', 'Browser session runtime is unavailable');
   const res = await fetch(`${baseUrl}/sessions`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ sessionId, loginUrl, ttlSeconds: SESSION_TTL_MS / 1000 }),
+    body: JSON.stringify({
+      sessionId,
+      loginUrl,
+      allowedHosts,
+      ttlSeconds: INTERACTIVE_SESSION_TTL_MS / 1000,
+    }),
   });
   if (!res.ok) throw new GuardrailError('TOOL_UNAVAILABLE', 'Browser session runtime is unavailable');
   return (await res.json()) as RuntimeSessionResponse;
@@ -303,7 +343,7 @@ async function readRuntimeStorageState(sessionId: string, body: { finalUrl?: str
   if (process.env.ALLOW_BROWSER_SESSION_BODY_CAPTURE === 'true' && body.storageState) {
     return { finalUrl: body.finalUrl, storageState: body.storageState };
   }
-  const baseUrl = process.env.BROWSER_SESSION_BASE_URL?.replace(/\/+$/, '');
+  const baseUrl = browserSessionRuntimeBaseUrl();
   if (!baseUrl) throw new GuardrailError('TOOL_UNAVAILABLE', 'Browser session runtime is unavailable');
   const res = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/storage-state`, { method: 'POST' });
   if (!res.ok) throw new GuardrailError('TOOL_UNAVAILABLE', 'Unable to capture browser session state');
@@ -311,7 +351,7 @@ async function readRuntimeStorageState(sessionId: string, body: { finalUrl?: str
 }
 
 async function cancelRuntimeSession(sessionId: string): Promise<void> {
-  const baseUrl = process.env.BROWSER_SESSION_BASE_URL?.replace(/\/+$/, '');
+  const baseUrl = browserSessionRuntimeBaseUrl();
   if (!baseUrl) return;
   await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}`, { method: 'DELETE' });
 }

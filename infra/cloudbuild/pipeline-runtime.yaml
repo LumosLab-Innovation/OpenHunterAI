@@ -31,8 +31,17 @@ steps:
       - -t
       - asia-southeast1-docker.pkg.dev/project-a7c4b503-2c06-444f-a8a/openhunter/worker-orchestrator:staging
       - .
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - backend/browser-session/Dockerfile
+      - -t
+      - asia-southeast1-docker.pkg.dev/project-a7c4b503-2c06-444f-a8a/openhunter/browser-session:staging
+      - .
 images:
   - asia-southeast1-docker.pkg.dev/project-a7c4b503-2c06-444f-a8a/openhunter/public-api:staging
   - asia-southeast1-docker.pkg.dev/project-a7c4b503-2c06-444f-a8a/openhunter/findings:staging
   - asia-southeast1-docker.pkg.dev/project-a7c4b503-2c06-444f-a8a/openhunter/reporting:staging
   - asia-southeast1-docker.pkg.dev/project-a7c4b503-2c06-444f-a8a/openhunter/worker-orchestrator:staging
+  - asia-southeast1-docker.pkg.dev/project-a7c4b503-2c06-444f-a8a/openhunter/browser-session:staging

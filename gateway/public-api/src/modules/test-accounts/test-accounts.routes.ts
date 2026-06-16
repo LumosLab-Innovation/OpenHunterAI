@@ -12,6 +12,7 @@ import {
   listTestAccounts,
 } from './test-accounts.controller.js';
 import { CreateTestAccountBody } from './test-accounts.dto.js';
+import { proxyLoginSessionStream } from './login-session-stream.proxy.js';
 
 export const testAccountRoutes = Router();
 
@@ -27,6 +28,7 @@ testAccountRoutes.post(
   requireUser,
   asyncRoute(createLoginSession),
 );
+testAccountRoutes.use('/login-sessions/:sessionId/stream', requireUser, proxyLoginSessionStream);
 testAccountRoutes.get('/login-sessions/:sessionId', requireUser, asyncRoute(getLoginSession));
 testAccountRoutes.post('/login-sessions/:sessionId/complete', requireUser, asyncRoute(completeLoginSession));
 testAccountRoutes.post('/login-sessions/:sessionId/cancel', requireUser, asyncRoute(cancelLoginSession));

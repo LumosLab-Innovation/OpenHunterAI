@@ -15,7 +15,7 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
-import { apiFetch } from '../lib/api';
+import { API_BASE, apiFetch } from '../lib/api';
 import { PACKAGE_OPTIONS, labelFor, TARGET_TYPE_OPTIONS, SCAN_MODE_OPTIONS } from '../lib/product';
 import { PageHeader } from '../components/PageHeader';
 import { AuthorizationWizard } from '../components/AuthorizationWizard';
@@ -265,9 +265,9 @@ export function ProjectDetailPage() {
       body: JSON.stringify({
         label: form.get('label'),
         loginUrl: form.get('loginUrl'),
-        username: form.get('username'),
-        password: form.get('password'),
-        notes: form.get('notes') || undefined,
+        username: optionalFormValue(form.get('username')),
+        password: optionalFormValue(form.get('password')),
+        notes: optionalFormValue(form.get('notes')),
       }),
     });
     if (!res.ok) setError(res.error.message ?? `HTTP ${res.status}`);
@@ -544,11 +544,11 @@ export function ProjectDetailPage() {
             <Field label="Login URL" htmlFor="test-login-url" required>
               <Input id="test-login-url" name="loginUrl" placeholder="https://kopymatch.com/login" required />
             </Field>
-            <Field label="Username / email" htmlFor="test-username" required>
-              <Input id="test-username" name="username" placeholder="test@example.com" required />
+            <Field label="Username / email" htmlFor="test-username">
+              <Input id="test-username" name="username" placeholder="optional display hint" />
             </Field>
-            <Field label="Password" htmlFor="test-password" required>
-              <Input id="test-password" name="password" type="password" placeholder="Stored encrypted" required />
+            <Field label="Password" htmlFor="test-password">
+              <Input id="test-password" name="password" type="password" placeholder="optional; manual login preferred" />
             </Field>
             <Field label="Notes" htmlFor="test-notes" className="lg:col-span-3">
               <Input id="test-notes" name="notes" placeholder="Role, permissions, or reset instructions" />
@@ -902,15 +902,14 @@ function LoginSessionRoom({
         {error && <ErrorState message={error} className="m-4" />}
         <div className="min-h-0 flex-1 bg-canvas">
           {session.runtimeStatus === 'ready' && session.streamUrl ? (
-            <iframe title="Login browser session" src={session.streamUrl} className="h-full w-full border-0" />
+            <iframe title="Login browser session" src={loginSessionStreamSrc(session.streamUrl)} className="h-full w-full border-0" />
           ) : (
             <div className="flex h-full items-center justify-center px-6 text-center">
               <div className="max-w-xl">
                 <LogIn className="mx-auto h-10 w-10 text-signal" />
                 <h3 className="mt-4 font-display text-xl font-700 text-ink">Browser runtime unavailable</h3>
                 <p className="mt-2 text-sm leading-relaxed text-ink-muted">
-                  The login-session API is ready, but `BROWSER_SESSION_BASE_URL` is not configured on the API runtime.
-                  Configure a compatible browser-session runtime, then start this login room again.
+                  The hosted browser could not be started right now. Cancel this room, wait a moment, then start a new login session.
                 </p>
               </div>
             </div>
@@ -922,4 +921,16 @@ function LoginSessionRoom({
       </div>
     </div>
   );
+}
+
+function optionalFormValue(value: FormDataEntryValue | null): string | undefined {
+  const text = typeof value === 'string' ? value.trim() : '';
+  return text || undefined;
+}
+
+function loginSessionStreamSrc(streamUrl: string): string {
+  if (/^https?:\/\//i.test(streamUrl)) return streamUrl;
+  const base = API_BASE.replace(/\/+$/, '');
+  const path = streamUrl.startsWith('/') ? streamUrl : `/${streamUrl}`;
+  return `${base}${path}`;
 }

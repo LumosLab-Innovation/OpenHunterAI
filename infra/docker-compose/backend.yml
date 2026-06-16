@@ -10,12 +10,21 @@ services:
       NATS_URL: nats://nats:4222
       API_PORT: 4000
       APP_JWT_SECRET: dev-only-rotate-me
-      BROWSER_SESSION_BASE_URL: ${BROWSER_SESSION_BASE_URL:-}
+      BROWSER_SESSION_BASE_URL: http://browser-session:4700
     ports:
       - "4000:4000"
     depends_on:
       - postgres
       - nats
+      - browser-session
+
+  browser-session:
+    build:
+      context: ../..
+      dockerfile: backend/browser-session/Dockerfile
+    environment:
+      BROWSER_SESSION_PORT: 4700
+    shm_size: "1gb"
 
   internal-api:
     image: node:22-slim
