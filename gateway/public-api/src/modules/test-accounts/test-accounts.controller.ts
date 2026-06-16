@@ -25,25 +25,29 @@ export async function deleteTestAccount(req: Request, res: Response) {
 }
 
 export async function createLoginSession(req: Request, res: Response) {
+  const user = currentUser(req);
   res.status(201).json({
-    loginSession: await loginSessions.create(req.params.id!, req.params.accountId!, currentUser(req).orgId),
+    loginSession: await loginSessions.create(req.params.id!, req.params.accountId!, user.orgId, user.userId),
   });
 }
 
 export async function getLoginSession(req: Request, res: Response) {
+  const user = currentUser(req);
   res.json({
-    loginSession: await loginSessions.get(req.params.sessionId!, currentUser(req).orgId),
+    loginSession: await loginSessions.get(req.params.sessionId!, user.orgId, user.userId),
   });
 }
 
 export async function completeLoginSession(req: Request, res: Response) {
+  const user = currentUser(req);
   res.json({
-    loginSession: await loginSessions.complete(req.params.sessionId!, currentUser(req).orgId, req.body),
+    loginSession: await loginSessions.complete(req.params.sessionId!, user.orgId, user.userId, req.body),
   });
 }
 
 export async function cancelLoginSession(req: Request, res: Response) {
+  const user = currentUser(req);
   res.json({
-    loginSession: await loginSessions.cancel(req.params.sessionId!, currentUser(req).orgId),
+    loginSession: await loginSessions.cancel(req.params.sessionId!, user.orgId, user.userId),
   });
 }

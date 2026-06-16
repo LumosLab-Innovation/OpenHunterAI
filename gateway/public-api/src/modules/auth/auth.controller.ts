@@ -13,10 +13,11 @@ export async function signIn(req: Request, res: Response) {
   res.status(result.status).json(result.body);
 }
 
-export function signOut(_req: Request, res: Response) {
-  res.json(service.signOut(res));
+export async function signOut(req: Request, res: Response) {
+  res.json(await service.signOut(req, res));
 }
 
 export function me(req: Request, res: Response) {
-  res.json({ user: req.user });
+  const user = req.user!;
+  res.json({ user: { ...user, id: user.userId } });
 }

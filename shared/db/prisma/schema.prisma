@@ -60,8 +60,24 @@ model User {
   scanJobs          ScanJob[]
   approvalDecisions ApprovalDecision[]
   auditLogs         AuditLog[]
+  sessions          UserSession[]
+  browserSessionStates BrowserSessionState[]
 
   @@map("users")
+}
+
+model UserSession {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  lastSeenAt DateTime @default(now()) @map("last_seen_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt, expiresAt])
+  @@map("user_sessions")
 }
 
 // =============================================================================
@@ -198,6 +214,7 @@ model BrowserSessionState {
   organizationId     String                    @map("organization_id")
   projectId          String                    @map("project_id")
   testAccountId      String                    @map("test_account_id")
+  createdByUserId    String?                   @map("created_by_user_id")
   status             BrowserSessionStateStatus @default(pending)
   loginUrl           String                    @map("login_url")
   finalUrl           String?                   @map("final_url")
@@ -210,8 +227,10 @@ model BrowserSessionState {
   cancelledAt        DateTime?                 @map("cancelled_at")
   project            Project                   @relation(fields: [projectId], references: [id], onDelete: Cascade)
   testAccount        TestAccount               @relation(fields: [testAccountId], references: [id], onDelete: Cascade)
+  createdBy          User?                     @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
 
   @@index([organizationId, projectId])
+  @@index([organizationId, createdByUserId, status, expiresAt])
   @@index([testAccountId, status, expiresAt])
   @@map("browser_session_states")
 }

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireUser } from '../../middlewares/auth.middleware.js';
+import { requireAllowedOrigin, requireUser } from '../../middlewares/auth.middleware.js';
 import { asyncRoute } from '../../middlewares/async-route.middleware.js';
 import { validateBody } from '../../middlewares/validate.middleware.js';
 import { SignInBody, SignUpBody } from './auth.dto.js';
@@ -9,5 +9,5 @@ export const authRoutes = Router();
 
 authRoutes.post('/signup', validateBody(SignUpBody), asyncRoute(signUp));
 authRoutes.post('/signin', validateBody(SignInBody), asyncRoute(signIn));
-authRoutes.post('/signout', signOut);
+authRoutes.post('/signout', requireAllowedOrigin, asyncRoute(signOut));
 authRoutes.get('/me', requireUser, me);

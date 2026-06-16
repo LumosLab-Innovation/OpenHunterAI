@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import {
   Crosshair,
   FileText,
@@ -47,6 +47,7 @@ function ThemeToggle() {
 
 function UserMenu() {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   if (!user) return null;
   const initial = (user.displayName ?? user.email ?? '?').charAt(0).toUpperCase();
   return (
@@ -66,7 +67,14 @@ function UserMenu() {
           )}
         </div>
       </div>
-      <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => void signOut()}>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="w-full justify-start"
+        onClick={() => {
+          void signOut().then(() => navigate('/login', { replace: true }));
+        }}
+      >
         Sign out
       </Button>
     </div>

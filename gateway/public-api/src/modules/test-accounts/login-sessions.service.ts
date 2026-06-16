@@ -32,7 +32,7 @@ interface RuntimeStorageResponse {
 export class LoginSessionsService {
   private readonly prisma = getPrisma();
 
-  async create(projectId: string, accountId: string, orgId: string) {
+  async create(projectId: string, accountId: string, orgId: string, userId: string) {
     const account = await this.prisma.testAccount.findFirst({
       where: { id: accountId, projectId, project: { organizationId: orgId } },
       select: { id: true, projectId: true, loginUrl: true },
@@ -48,6 +48,7 @@ export class LoginSessionsService {
         organizationId: orgId,
         projectId,
         testAccountId: account.id,
+        createdByUserId: userId,
         status: 'pending',
         loginUrl: loginUrl.href,
         expiresAt,
@@ -66,13 +67,13 @@ export class LoginSessionsService {
     return toPublicLoginSession(session, 'ready');
   }
 
-  async get(sessionId: string, orgId: string) {
-    const session = await this.findSession(sessionId, orgId);
+  async get(sessionId: string, orgId: string, userId: string) {
+    const session = await this.findSession(sessionId, orgId, userId);
     return toPublicLoginSession(session, runtimeStatus(session.streamUrl));
   }
 
-  async complete(sessionId: string, orgId: string, body: { finalUrl?: string; storageState?: unknown } = {}) {
-    const session = await this.findSession(sessionId, orgId);
+  async complete(sessionId: string, orgId: string, userId: string, body: { finalUrl?: string; storageState?: unknown } = {}) {
+    const session = await this.findSession(sessionId, orgId, userId);
     if (session.status === 'cancelled') throw new GuardrailError('INVALID_INPUT', 'Login session was cancelled');
     if (session.expiresAt.getTime() <= Date.now()) throw new GuardrailError('INVALID_INPUT', 'Login session expired');
 
@@ -94,11 +95,12 @@ export class LoginSessionsService {
       },
       select: publicSessionSelect,
     });
+    await cancelRuntimeSession(sessionId).catch(() => {});
     return toPublicLoginSession(updated, runtimeStatus(updated.streamUrl));
   }
 
-  async cancel(sessionId: string, orgId: string) {
-    const session = await this.findSession(sessionId, orgId);
+  async cancel(sessionId: string, orgId: string, userId: string) {
+    const session = await this.findSession(sessionId, orgId, userId);
     await cancelRuntimeSession(sessionId).catch(() => {});
     const updated = await (this.prisma as any).browserSessionState.update({
       where: { id: session.id },
@@ -108,17 +110,48 @@ export class LoginSessionsService {
     return toPublicLoginSession(updated, runtimeStatus(updated.streamUrl));
   }
 
-  private async findSession(sessionId: string, orgId: string) {
+  private async findSession(sessionId: string, orgId: string, userId?: string) {
     const session = await (this.prisma as any).browserSessionState.findFirst({
-      where: { id: sessionId, organizationId: orgId },
+      where: { id: sessionId, organizationId: orgId, ...(userId ? { createdByUserId: userId } : {}) },
       select: publicSessionSelect,
     });
     if (!session) throw new GuardrailError('INVALID_INPUT', 'Login session not found');
     return session;
   }
 
-  async assertSessionAccess(sessionId: string, orgId: string) {
-    return this.findSession(sessionId, orgId);
+  async assertSessionAccess(sessionId: string, orgId: string, userId: string) {
+    return this.findSession(sessionId, orgId, userId);
+  }
+
+  async assertInteractiveSessionAccess(sessionId: string, orgId: string, userId: string) {
+    const session = await this.findSession(sessionId, orgId, userId);
+    if (session.status !== 'pending' || session.expiresAt.getTime() <= Date.now()) {
+      await cancelRuntimeSession(sessionId).catch(() => {});
+      throw new GuardrailError('INVALID_INPUT', 'Login session is not interactive');
+    }
+    return session;
+  }
+
+  async cancelInteractiveSessionsForUser(orgId: string, userId: string) {
+    const sessions = await (this.prisma as any).browserSessionState.findMany({
+      where: {
+        organizationId: orgId,
+        status: { in: ['pending', 'active'] },
+        expiresAt: { gt: new Date() },
+        OR: [{ createdByUserId: userId }, { createdByUserId: null }],
+      },
+      select: { id: true, status: true },
+    });
+
+    for (const session of sessions) {
+      await cancelRuntimeSession(session.id).catch(() => {});
+      if (session.status === 'pending') {
+        await (this.prisma as any).browserSessionState.update({
+          where: { id: session.id },
+          data: { status: 'cancelled', cancelledAt: new Date(), storageStateCipher: null },
+        });
+      }
+    }
   }
 
   private async cancelPendingInteractiveSessions(testAccountId: string, orgId: string) {
@@ -275,6 +308,7 @@ const publicSessionSelect = {
   id: true,
   projectId: true,
   testAccountId: true,
+  createdByUserId: true,
   status: true,
   loginUrl: true,
   finalUrl: true,

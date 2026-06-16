@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import type { Server } from 'node:http';
 import httpProxy from 'http-proxy';
 import { GuardrailError } from '@x-hunter/shared';
-import { readSessionFromCookieHeader } from '../../middlewares/auth.middleware.js';
+import { readSessionFromCookieHeaderAsync } from '../../middlewares/auth.middleware.js';
 import { browserSessionRuntimeBaseUrl, LoginSessionsService } from './login-sessions.service.js';
 
 const proxy = httpProxy.createProxyServer({ changeOrigin: true, ws: true });
@@ -15,7 +15,7 @@ export async function proxyLoginSessionStream(req: Request, res: Response, next:
     const baseUrl = browserSessionRuntimeBaseUrl();
     if (!baseUrl) throw new GuardrailError('TOOL_UNAVAILABLE', 'Browser session runtime is unavailable');
     const sessionId = req.params.sessionId!;
-    await service.assertSessionAccess(sessionId, user.orgId);
+    await service.assertInteractiveSessionAccess(sessionId, user.orgId, user.userId);
     req.url = `/sessions/${encodeURIComponent(sessionId)}/stream${req.url === '/' ? '/vnc.html' : req.url}`;
     proxy.web(req, res, { target: baseUrl }, (error) => next(error));
   } catch (error) {
@@ -31,14 +31,14 @@ export function attachLoginSessionStreamProxy(server: Server) {
 
     void (async () => {
       try {
-        const user = readSessionFromCookieHeader(req.headers.cookie);
+        const user = await readSessionFromCookieHeaderAsync(req.headers.cookie);
         const baseUrl = browserSessionRuntimeBaseUrl();
         if (!user || !baseUrl) {
           socket.destroy();
           return;
         }
         const sessionId = decodeURIComponent(match[1]!);
-        await service.assertSessionAccess(sessionId, user.orgId);
+        await service.assertInteractiveSessionAccess(sessionId, user.orgId, user.userId);
         req.url = `/sessions/${encodeURIComponent(sessionId)}/stream/websockify`;
         proxy.ws(req, socket, head, { target: baseUrl });
       } catch {

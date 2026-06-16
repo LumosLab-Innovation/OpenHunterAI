@@ -1,13 +1,18 @@
 import { getPrisma } from '@x-hunter/db';
 import {
+  authenticateSessionToken,
+  createSessionForUser,
   clearSessionCookie,
   hashPassword,
-  setSessionCookie,
-  signSession,
+  revokeSessionToken,
+  sessionCookieName,
   verifyPassword,
 } from '../../middlewares/auth.middleware.js';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import type { SignInBody, SignUpBody } from './auth.dto.js';
+import { LoginSessionsService } from '../test-accounts/login-sessions.service.js';
+
+const loginSessions = new LoginSessionsService();
 
 export class AuthService {
   async signUp(body: SignUpBody, res: Response) {
@@ -27,14 +32,8 @@ export class AuthService {
         role: 'owner',
       },
     });
-    const token = signSession({
-      userId: user.id,
-      orgId: user.organizationId,
-      email: user.email,
-      role: user.role,
-    });
-    setSessionCookie(res, token);
-    return { status: 200, body: { userId: user.id, orgId: user.organizationId, token } };
+    await createSessionForUser(user, res);
+    return { status: 200, body: { userId: user.id, orgId: user.organizationId } };
   }
 
   async signIn(body: SignInBody, res: Response) {
@@ -46,17 +45,17 @@ export class AuthService {
         body: { error: { code: 'INVALID_CREDENTIALS', message: 'Invalid credentials' } },
       };
     }
-    const token = signSession({
-      userId: user.id,
-      orgId: user.organizationId,
-      email: user.email,
-      role: user.role,
-    });
-    setSessionCookie(res, token);
-    return { status: 200, body: { userId: user.id, orgId: user.organizationId, token } };
+    await createSessionForUser(user, res);
+    return { status: 200, body: { userId: user.id, orgId: user.organizationId } };
   }
 
-  signOut(res: Response) {
+  async signOut(req: Request, res: Response) {
+    const token = req.cookies?.[sessionCookieName()];
+    const user = await authenticateSessionToken(token);
+    if (user) {
+      await loginSessions.cancelInteractiveSessionsForUser(user.orgId, user.userId);
+    }
+    await revokeSessionToken(token);
     clearSessionCookie(res);
     return { ok: true };
   }

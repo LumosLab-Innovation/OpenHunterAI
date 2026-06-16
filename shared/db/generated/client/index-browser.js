@@ -141,6 +141,16 @@ exports.Prisma.UserScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.UserSessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  revokedAt: 'revokedAt',
+  lastSeenAt: 'lastSeenAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.ProjectScalarFieldEnum = {
   id: 'id',
   organizationId: 'organizationId',
@@ -209,6 +219,7 @@ exports.Prisma.BrowserSessionStateScalarFieldEnum = {
   organizationId: 'organizationId',
   projectId: 'projectId',
   testAccountId: 'testAccountId',
+  createdByUserId: 'createdByUserId',
   status: 'status',
   loginUrl: 'loginUrl',
   finalUrl: 'finalUrl',
@@ -635,6 +646,7 @@ exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
 exports.Prisma.ModelName = {
   Organization: 'Organization',
   User: 'User',
+  UserSession: 'UserSession',
   Project: 'Project',
   Domain: 'Domain',
   DomainVerification: 'DomainVerification',
