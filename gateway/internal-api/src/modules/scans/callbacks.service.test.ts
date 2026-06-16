@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { retestUpdateFromWorkerResult } from './callbacks.service.js';
+import { activityForWorkerResult, retestUpdateFromWorkerResult } from './callbacks.service.js';
 
 describe('retestUpdateFromWorkerResult', () => {
   it('maps sanitized retest worker metadata into a RetestRun update', () => {
@@ -39,6 +39,17 @@ describe('retestUpdateFromWorkerResult', () => {
       result: 'cannot_verify',
       notes: 'blocked',
       errorCode: 'SCOPE_REJECTED',
+    });
+  });
+});
+
+describe('activityForWorkerResult', () => {
+  it('emits a dedicated auth-session-required activity', () => {
+    expect(activityForWorkerResult('browser_inspector', 'skipped', { errorCode: 'AUTH_SESSION_REQUIRED' })).toEqual({
+      eventType: 'auth_session_required',
+      titleKey: 'activity.auth_session_required.title',
+      bodyKey: 'activity.auth_session_required.body',
+      severity: 'medium',
     });
   });
 });

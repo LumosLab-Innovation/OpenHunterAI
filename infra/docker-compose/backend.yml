@@ -10,6 +10,7 @@ services:
       NATS_URL: nats://nats:4222
       API_PORT: 4000
       APP_JWT_SECRET: dev-only-rotate-me
+      BROWSER_SESSION_BASE_URL: ${BROWSER_SESSION_BASE_URL:-}
     ports:
       - "4000:4000"
     depends_on:

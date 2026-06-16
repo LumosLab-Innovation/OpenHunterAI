@@ -4,13 +4,16 @@ import {
   Check,
   CheckCircle2,
   Clipboard,
+  Clock,
   FolderKanban,
   Globe,
   KeyRound,
+  LogIn,
   Plus,
   RefreshCw,
   ShieldCheck,
   Trash2,
+  X,
 } from 'lucide-react';
 import { apiFetch } from '../lib/api';
 import { PACKAGE_OPTIONS, labelFor, TARGET_TYPE_OPTIONS, SCAN_MODE_OPTIONS } from '../lib/product';
@@ -165,6 +168,9 @@ export function ProjectDetailPage() {
   const [deleteProjectOpen, setDeleteProjectOpen] = useState(false);
   const [deleteConfirmName, setDeleteConfirmName] = useState('');
   const [deletingProject, setDeletingProject] = useState(false);
+  const [loginSession, setLoginSession] = useState<LoginSession | null>(null);
+  const [loginSessionError, setLoginSessionError] = useState<string | null>(null);
+  const [loginSessionBusy, setLoginSessionBusy] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -277,6 +283,44 @@ export function ProjectDetailPage() {
     });
     if (!res.ok) setError(res.error.message ?? `HTTP ${res.status}`);
     else await load();
+  }
+
+  async function startLoginSession(accountId: string) {
+    setLoginSessionBusy(true);
+    setLoginSessionError(null);
+    const res = await apiFetch<{ loginSession: LoginSession }>(
+      `/v1/projects/${id}/test-accounts/${accountId}/login-sessions`,
+      { method: 'POST' },
+    );
+    setLoginSessionBusy(false);
+    if (!res.ok) setLoginSessionError(res.error.message ?? `HTTP ${res.status}`);
+    else setLoginSession(res.data.loginSession);
+  }
+
+  async function completeLoginSession() {
+    if (!loginSession) return;
+    setLoginSessionBusy(true);
+    setLoginSessionError(null);
+    const res = await apiFetch<{ loginSession: LoginSession }>(
+      `/v1/login-sessions/${loginSession.id}/complete`,
+      { method: 'POST' },
+    );
+    setLoginSessionBusy(false);
+    if (!res.ok) setLoginSessionError(res.error.message ?? `HTTP ${res.status}`);
+    else {
+      setLoginSession(res.data.loginSession);
+      await load();
+    }
+  }
+
+  async function cancelLoginSession() {
+    if (!loginSession) return;
+    setLoginSessionBusy(true);
+    await apiFetch(`/v1/login-sessions/${loginSession.id}/cancel`, { method: 'POST' });
+    setLoginSessionBusy(false);
+    setLoginSession(null);
+    setLoginSessionError(null);
+    await load();
   }
 
   async function deleteProject() {
@@ -532,16 +576,35 @@ export function ProjectDetailPage() {
                   <TR key={account.id}>
                     <TD>{account.label}</TD>
                     <TD className="text-data text-xs">{account.loginUrl}</TD>
-                    <TD className="text-data text-xs">{account.identityEmail ?? '—'}</TD>
+                    <TD className="text-data text-xs">
+                      <div>{account.identityEmail ?? '—'}</div>
+                      {account.loginSession && (
+                        <div className="mt-1 inline-flex items-center gap-1 text-[11px] text-ink-faint">
+                          <Clock className="h-3 w-3" />
+                          {account.loginSession.status === 'active' ? 'session valid' : 'session expired'}
+                        </div>
+                      )}
+                    </TD>
                     <TD className="text-right">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="danger"
-                        onClick={() => void deleteTestAccount(account.id)}
-                      >
-                        Delete
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          disabled={loginSessionBusy}
+                          onClick={() => void startLoginSession(account.id)}
+                        >
+                          <LogIn className="h-4 w-4" /> Login in browser
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="danger"
+                          onClick={() => void deleteTestAccount(account.id)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
                     </TD>
                   </TR>
                 ))}
@@ -620,6 +683,16 @@ export function ProjectDetailPage() {
           )}
         </CardBody>
       </Card>
+      {loginSession && (
+        <LoginSessionRoom
+          session={loginSession}
+          error={loginSessionError}
+          busy={loginSessionBusy}
+          onComplete={() => void completeLoginSession()}
+          onCancel={() => void cancelLoginSession()}
+          onClose={() => setLoginSession(null)}
+        />
+      )}
     </div>
   );
 }
@@ -631,6 +704,27 @@ interface TestAccount {
   identityEmail?: string | null;
   notes?: string | null;
   createdAt?: string;
+  loginSession?: {
+    id: string;
+    status: string;
+    expiresAt: string;
+    completedAt?: string | null;
+  } | null;
+}
+
+interface LoginSession {
+  id: string;
+  projectId: string;
+  testAccountId: string;
+  status: string;
+  loginUrl: string;
+  finalUrl?: string | null;
+  streamUrl?: string | null;
+  runtimeStatus: 'ready' | 'unavailable';
+  expiresAt: string;
+  createdAt: string;
+  completedAt?: string | null;
+  cancelledAt?: string | null;
 }
 
 function ProjectGuide({
@@ -761,5 +855,71 @@ function DeleteProjectPanel({
         </Button>
       </div>
     </section>
+  );
+}
+
+function LoginSessionRoom({
+  session,
+  error,
+  busy,
+  onComplete,
+  onCancel,
+  onClose,
+}: {
+  session: LoginSession;
+  error: string | null;
+  busy: boolean;
+  onComplete: () => void;
+  onCancel: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 bg-canvas/95 p-4 backdrop-blur">
+      <div className="mx-auto flex h-full max-w-6xl flex-col overflow-hidden rounded-lg border border-hairline bg-surface shadow-2xl">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-hairline px-4 py-3">
+          <div className="min-w-0">
+            <h2 className="font-display text-lg font-700 text-ink">Login session</h2>
+            <p className="truncate text-xs text-ink-faint">{session.loginUrl}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              disabled={busy || session.runtimeStatus !== 'ready'}
+              onClick={onComplete}
+            >
+              I'm logged in
+            </Button>
+            <Button type="button" size="sm" variant="ghost" disabled={busy} onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button type="button" size="icon" variant="ghost" onClick={onClose} aria-label="Close login room">
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+        {error && <ErrorState message={error} className="m-4" />}
+        <div className="min-h-0 flex-1 bg-canvas">
+          {session.runtimeStatus === 'ready' && session.streamUrl ? (
+            <iframe title="Login browser session" src={session.streamUrl} className="h-full w-full border-0" />
+          ) : (
+            <div className="flex h-full items-center justify-center px-6 text-center">
+              <div className="max-w-xl">
+                <LogIn className="mx-auto h-10 w-10 text-signal" />
+                <h3 className="mt-4 font-display text-xl font-700 text-ink">Browser runtime unavailable</h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-muted">
+                  The login-session API is ready, but `BROWSER_SESSION_BASE_URL` is not configured on the API runtime.
+                  Configure a compatible browser-session runtime, then start this login room again.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="border-t border-hairline px-4 py-3 text-xs text-ink-faint">
+          Session TTL: {new Date(session.expiresAt).toLocaleString()}. OpenHunter stores only encrypted browser storage state after confirmation.
+        </div>
+      </div>
+    </div>
   );
 }

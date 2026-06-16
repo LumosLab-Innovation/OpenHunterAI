@@ -80,6 +80,7 @@ model Project {
   domains            Domain[]
   scanAuthorizations ScanAuthorization[]
   testAccounts       TestAccount[]
+  browserSessionStates BrowserSessionState[]
   scanJobs           ScanJob[]
   findings           Finding[]
   reports            Report[]
@@ -180,8 +181,39 @@ model TestAccount {
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @updatedAt @map("updated_at")
   project            Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  browserSessionStates BrowserSessionState[]
 
   @@map("test_accounts")
+}
+
+enum BrowserSessionStateStatus {
+  pending
+  active
+  cancelled
+  expired
+}
+
+model BrowserSessionState {
+  id                 String                    @id @default(cuid())
+  organizationId     String                    @map("organization_id")
+  projectId          String                    @map("project_id")
+  testAccountId      String                    @map("test_account_id")
+  status             BrowserSessionStateStatus @default(pending)
+  loginUrl           String                    @map("login_url")
+  finalUrl           String?                   @map("final_url")
+  storageStateCipher String?                   @map("storage_state_cipher")
+  streamUrl          String?                   @map("stream_url")
+  expiresAt          DateTime                  @map("expires_at")
+  createdAt          DateTime                  @default(now()) @map("created_at")
+  updatedAt          DateTime                  @updatedAt @map("updated_at")
+  completedAt        DateTime?                 @map("completed_at")
+  cancelledAt        DateTime?                 @map("cancelled_at")
+  project            Project                   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  testAccount        TestAccount               @relation(fields: [testAccountId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, projectId])
+  @@index([testAccountId, status, expiresAt])
+  @@map("browser_session_states")
 }
 
 // =============================================================================

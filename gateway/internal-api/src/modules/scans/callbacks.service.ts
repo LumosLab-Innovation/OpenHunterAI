@@ -88,18 +88,19 @@ export class CallbacksService {
         errorMsg: result.errorMsg ? sanitizeText(result.errorMsg) : null,
       },
     });
+    const activity = activityForWorkerResult(kind, state, result);
     await recordActivity(this.prisma, {
       scanJobId: scanId,
-      eventType: state === 'failed' ? 'step_failed' : 'step_completed',
+      eventType: activity.eventType,
       actor: kind,
-      titleKey: state === 'failed' ? 'activity.step_failed.title' : 'activity.step_completed.title',
-      bodyKey: state === 'failed' ? 'activity.step_failed.body' : 'activity.step_completed.body',
+      titleKey: activity.titleKey,
+      bodyKey: activity.bodyKey,
       bodyParams: {
         summary: result.summary ?? result.errorMsg ?? `${kind} ${state}`,
         errorCode: result.errorCode,
       },
       status: state,
-      severity: state === 'failed' ? 'high' : null,
+      severity: activity.severity,
       visualArtifact: result.meta?.visualArtifact,
     });
     const retestUpdate = retestUpdateFromWorkerResult(result);
@@ -143,6 +144,36 @@ export class CallbacksService {
     });
     return result;
   }
+}
+
+export function activityForWorkerResult(kind: string, state: string, result: Pick<WorkerStepResult, 'errorCode'>): {
+  eventType: string;
+  titleKey: string;
+  bodyKey: string;
+  severity: string | null;
+} {
+  if (result.errorCode === 'AUTH_SESSION_REQUIRED') {
+    return {
+      eventType: 'auth_session_required',
+      titleKey: 'activity.auth_session_required.title',
+      bodyKey: 'activity.auth_session_required.body',
+      severity: 'medium',
+    };
+  }
+  if (state === 'failed') {
+    return {
+      eventType: 'step_failed',
+      titleKey: 'activity.step_failed.title',
+      bodyKey: 'activity.step_failed.body',
+      severity: 'high',
+    };
+  }
+  return {
+    eventType: 'step_completed',
+    titleKey: 'activity.step_completed.title',
+    bodyKey: 'activity.step_completed.body',
+    severity: null,
+  };
 }
 
 type RetestResultValue = 'fixed' | 'still_vulnerable' | 'partially_fixed' | 'cannot_verify';

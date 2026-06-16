@@ -19,9 +19,29 @@ export class TestAccountsService {
         notes: true,
         createdAt: true,
         updatedAt: true,
+        browserSessionStates: {
+          where: { status: 'active' },
+          orderBy: { completedAt: 'desc' },
+          take: 1,
+          select: { id: true, status: true, expiresAt: true, completedAt: true },
+        },
       },
     });
-    return accounts;
+    return accounts.map((account) => {
+      const session = (account as any).browserSessionStates?.[0];
+      const { browserSessionStates: _browserSessionStates, ...rest } = account as any;
+      return {
+        ...rest,
+        loginSession: session
+          ? {
+              id: session.id,
+              status: session.expiresAt.getTime() > Date.now() ? session.status : 'expired',
+              expiresAt: session.expiresAt.toISOString(),
+              completedAt: session.completedAt?.toISOString() ?? null,
+            }
+          : null,
+      };
+    });
   }
 
   async create(projectId: string, orgId: string, body: CreateTestAccountBody) {

@@ -49,6 +49,11 @@ export type ScanAuthorization = $Result.DefaultSelection<Prisma.$ScanAuthorizati
  */
 export type TestAccount = $Result.DefaultSelection<Prisma.$TestAccountPayload>
 /**
+ * Model BrowserSessionState
+ *
+ */
+export type BrowserSessionState = $Result.DefaultSelection<Prisma.$BrowserSessionStatePayload>
+/**
  * Model ScanJob
  *
  */
@@ -199,6 +204,16 @@ export const TestIntensityMode: {
 };
 
 export type TestIntensityMode = (typeof TestIntensityMode)[keyof typeof TestIntensityMode]
+
+
+export const BrowserSessionStateStatus: {
+  pending: 'pending',
+  active: 'active',
+  cancelled: 'cancelled',
+  expired: 'expired'
+};
+
+export type BrowserSessionStateStatus = (typeof BrowserSessionStateStatus)[keyof typeof BrowserSessionStateStatus]
 
 
 export const ScanState: {
@@ -401,6 +416,10 @@ export const TargetType: typeof $Enums.TargetType
 export type TestIntensityMode = $Enums.TestIntensityMode
 
 export const TestIntensityMode: typeof $Enums.TestIntensityMode
+
+export type BrowserSessionStateStatus = $Enums.BrowserSessionStateStatus
+
+export const BrowserSessionStateStatus: typeof $Enums.BrowserSessionStateStatus
 
 export type ScanState = $Enums.ScanState
 
@@ -658,6 +677,16 @@ export class PrismaClient<
     * ```
     */
   get testAccount(): Prisma.TestAccountDelegate<ExtArgs>;
+
+  /**
+   * `prisma.browserSessionState`: Exposes CRUD operations for the **BrowserSessionState** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BrowserSessionStates
+    * const browserSessionStates = await prisma.browserSessionState.findMany()
+    * ```
+    */
+  get browserSessionState(): Prisma.BrowserSessionStateDelegate<ExtArgs>;
 
   /**
    * `prisma.scanJob`: Exposes CRUD operations for the **ScanJob** model.
@@ -1256,6 +1285,7 @@ export namespace Prisma {
     DomainVerification: 'DomainVerification',
     ScanAuthorization: 'ScanAuthorization',
     TestAccount: 'TestAccount',
+    BrowserSessionState: 'BrowserSessionState',
     ScanJob: 'ScanJob',
     ScanStep: 'ScanStep',
     ScanActivityEvent: 'ScanActivityEvent',
@@ -1286,7 +1316,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "organization" | "user" | "project" | "domain" | "domainVerification" | "scanAuthorization" | "testAccount" | "scanJob" | "scanStep" | "scanActivityEvent" | "findingCandidate" | "finding" | "report" | "reportDraftSection" | "approvalRequest" | "approvalDecision" | "retestRun" | "creditEntry" | "payment" | "subscription" | "webhookEvent" | "auditLog"
+      modelProps: "organization" | "user" | "project" | "domain" | "domainVerification" | "scanAuthorization" | "testAccount" | "browserSessionState" | "scanJob" | "scanStep" | "scanActivityEvent" | "findingCandidate" | "finding" | "report" | "reportDraftSection" | "approvalRequest" | "approvalDecision" | "retestRun" | "creditEntry" | "payment" | "subscription" | "webhookEvent" | "auditLog"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1777,6 +1807,76 @@ export namespace Prisma {
           count: {
             args: Prisma.TestAccountCountArgs<ExtArgs>
             result: $Utils.Optional<TestAccountCountAggregateOutputType> | number
+          }
+        }
+      }
+      BrowserSessionState: {
+        payload: Prisma.$BrowserSessionStatePayload<ExtArgs>
+        fields: Prisma.BrowserSessionStateFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BrowserSessionStateFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BrowserSessionStatePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BrowserSessionStateFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BrowserSessionStatePayload>
+          }
+          findFirst: {
+            args: Prisma.BrowserSessionStateFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BrowserSessionStatePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BrowserSessionStateFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BrowserSessionStatePayload>
+          }
+          findMany: {
+            args: Prisma.BrowserSessionStateFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BrowserSessionStatePayload>[]
+          }
+          create: {
+            args: Prisma.BrowserSessionStateCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BrowserSessionStatePayload>
+          }
+          createMany: {
+            args: Prisma.BrowserSessionStateCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BrowserSessionStateCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BrowserSessionStatePayload>[]
+          }
+          delete: {
+            args: Prisma.BrowserSessionStateDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BrowserSessionStatePayload>
+          }
+          update: {
+            args: Prisma.BrowserSessionStateUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BrowserSessionStatePayload>
+          }
+          deleteMany: {
+            args: Prisma.BrowserSessionStateDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BrowserSessionStateUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.BrowserSessionStateUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BrowserSessionStatePayload>
+          }
+          aggregate: {
+            args: Prisma.BrowserSessionStateAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBrowserSessionState>
+          }
+          groupBy: {
+            args: Prisma.BrowserSessionStateGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BrowserSessionStateGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BrowserSessionStateCountArgs<ExtArgs>
+            result: $Utils.Optional<BrowserSessionStateCountAggregateOutputType> | number
           }
         }
       }
@@ -3101,6 +3201,7 @@ export namespace Prisma {
     domains: number
     scanAuthorizations: number
     testAccounts: number
+    browserSessionStates: number
     scanJobs: number
     findings: number
     reports: number
@@ -3113,6 +3214,7 @@ export namespace Prisma {
     domains?: boolean | ProjectCountOutputTypeCountDomainsArgs
     scanAuthorizations?: boolean | ProjectCountOutputTypeCountScanAuthorizationsArgs
     testAccounts?: boolean | ProjectCountOutputTypeCountTestAccountsArgs
+    browserSessionStates?: boolean | ProjectCountOutputTypeCountBrowserSessionStatesArgs
     scanJobs?: boolean | ProjectCountOutputTypeCountScanJobsArgs
     findings?: boolean | ProjectCountOutputTypeCountFindingsArgs
     reports?: boolean | ProjectCountOutputTypeCountReportsArgs
@@ -3151,6 +3253,13 @@ export namespace Prisma {
    */
   export type ProjectCountOutputTypeCountTestAccountsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TestAccountWhereInput
+  }
+
+  /**
+   * ProjectCountOutputType without action
+   */
+  export type ProjectCountOutputTypeCountBrowserSessionStatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BrowserSessionStateWhereInput
   }
 
   /**
@@ -3255,6 +3364,37 @@ export namespace Prisma {
    */
   export type ScanAuthorizationCountOutputTypeCountScanJobsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ScanJobWhereInput
+  }
+
+
+  /**
+   * Count Type TestAccountCountOutputType
+   */
+
+  export type TestAccountCountOutputType = {
+    browserSessionStates: number
+  }
+
+  export type TestAccountCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    browserSessionStates?: boolean | TestAccountCountOutputTypeCountBrowserSessionStatesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * TestAccountCountOutputType without action
+   */
+  export type TestAccountCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TestAccountCountOutputType
+     */
+    select?: TestAccountCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * TestAccountCountOutputType without action
+   */
+  export type TestAccountCountOutputTypeCountBrowserSessionStatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BrowserSessionStateWhereInput
   }
 
 
@@ -5635,6 +5775,7 @@ export namespace Prisma {
     domains?: boolean | Project$domainsArgs<ExtArgs>
     scanAuthorizations?: boolean | Project$scanAuthorizationsArgs<ExtArgs>
     testAccounts?: boolean | Project$testAccountsArgs<ExtArgs>
+    browserSessionStates?: boolean | Project$browserSessionStatesArgs<ExtArgs>
     scanJobs?: boolean | Project$scanJobsArgs<ExtArgs>
     findings?: boolean | Project$findingsArgs<ExtArgs>
     reports?: boolean | Project$reportsArgs<ExtArgs>
@@ -5668,6 +5809,7 @@ export namespace Prisma {
     domains?: boolean | Project$domainsArgs<ExtArgs>
     scanAuthorizations?: boolean | Project$scanAuthorizationsArgs<ExtArgs>
     testAccounts?: boolean | Project$testAccountsArgs<ExtArgs>
+    browserSessionStates?: boolean | Project$browserSessionStatesArgs<ExtArgs>
     scanJobs?: boolean | Project$scanJobsArgs<ExtArgs>
     findings?: boolean | Project$findingsArgs<ExtArgs>
     reports?: boolean | Project$reportsArgs<ExtArgs>
@@ -5687,6 +5829,7 @@ export namespace Prisma {
       domains: Prisma.$DomainPayload<ExtArgs>[]
       scanAuthorizations: Prisma.$ScanAuthorizationPayload<ExtArgs>[]
       testAccounts: Prisma.$TestAccountPayload<ExtArgs>[]
+      browserSessionStates: Prisma.$BrowserSessionStatePayload<ExtArgs>[]
       scanJobs: Prisma.$ScanJobPayload<ExtArgs>[]
       findings: Prisma.$FindingPayload<ExtArgs>[]
       reports: Prisma.$ReportPayload<ExtArgs>[]
@@ -6069,6 +6212,7 @@ export namespace Prisma {
     domains<T extends Project$domainsArgs<ExtArgs> = {}>(args?: Subset<T, Project$domainsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DomainPayload<ExtArgs>, T, "findMany"> | Null>
     scanAuthorizations<T extends Project$scanAuthorizationsArgs<ExtArgs> = {}>(args?: Subset<T, Project$scanAuthorizationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ScanAuthorizationPayload<ExtArgs>, T, "findMany"> | Null>
     testAccounts<T extends Project$testAccountsArgs<ExtArgs> = {}>(args?: Subset<T, Project$testAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TestAccountPayload<ExtArgs>, T, "findMany"> | Null>
+    browserSessionStates<T extends Project$browserSessionStatesArgs<ExtArgs> = {}>(args?: Subset<T, Project$browserSessionStatesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BrowserSessionStatePayload<ExtArgs>, T, "findMany"> | Null>
     scanJobs<T extends Project$scanJobsArgs<ExtArgs> = {}>(args?: Subset<T, Project$scanJobsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ScanJobPayload<ExtArgs>, T, "findMany"> | Null>
     findings<T extends Project$findingsArgs<ExtArgs> = {}>(args?: Subset<T, Project$findingsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FindingPayload<ExtArgs>, T, "findMany"> | Null>
     reports<T extends Project$reportsArgs<ExtArgs> = {}>(args?: Subset<T, Project$reportsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportPayload<ExtArgs>, T, "findMany"> | Null>
@@ -6485,6 +6629,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: TestAccountScalarFieldEnum | TestAccountScalarFieldEnum[]
+  }
+
+  /**
+   * Project.browserSessionStates
+   */
+  export type Project$browserSessionStatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BrowserSessionState
+     */
+    select?: BrowserSessionStateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BrowserSessionStateInclude<ExtArgs> | null
+    where?: BrowserSessionStateWhereInput
+    orderBy?: BrowserSessionStateOrderByWithRelationInput | BrowserSessionStateOrderByWithRelationInput[]
+    cursor?: BrowserSessionStateWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BrowserSessionStateScalarFieldEnum | BrowserSessionStateScalarFieldEnum[]
   }
 
   /**
@@ -9870,6 +10034,8 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
+    browserSessionStates?: boolean | TestAccount$browserSessionStatesArgs<ExtArgs>
+    _count?: boolean | TestAccountCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["testAccount"]>
 
   export type TestAccountSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -9899,6 +10065,8 @@ export namespace Prisma {
 
   export type TestAccountInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
+    browserSessionStates?: boolean | TestAccount$browserSessionStatesArgs<ExtArgs>
+    _count?: boolean | TestAccountCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type TestAccountIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
@@ -9908,6 +10076,7 @@ export namespace Prisma {
     name: "TestAccount"
     objects: {
       project: Prisma.$ProjectPayload<ExtArgs>
+      browserSessionStates: Prisma.$BrowserSessionStatePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -10290,6 +10459,7 @@ export namespace Prisma {
   export interface Prisma__TestAccountClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     project<T extends ProjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDefaultArgs<ExtArgs>>): Prisma__ProjectClient<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    browserSessionStates<T extends TestAccount$browserSessionStatesArgs<ExtArgs> = {}>(args?: Subset<T, TestAccount$browserSessionStatesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BrowserSessionStatePayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10646,6 +10816,26 @@ export namespace Prisma {
   }
 
   /**
+   * TestAccount.browserSessionStates
+   */
+  export type TestAccount$browserSessionStatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BrowserSessionState
+     */
+    select?: BrowserSessionStateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BrowserSessionStateInclude<ExtArgs> | null
+    where?: BrowserSessionStateWhereInput
+    orderBy?: BrowserSessionStateOrderByWithRelationInput | BrowserSessionStateOrderByWithRelationInput[]
+    cursor?: BrowserSessionStateWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BrowserSessionStateScalarFieldEnum | BrowserSessionStateScalarFieldEnum[]
+  }
+
+  /**
    * TestAccount without action
    */
   export type TestAccountDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10657,6 +10847,1053 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: TestAccountInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model BrowserSessionState
+   */
+
+  export type AggregateBrowserSessionState = {
+    _count: BrowserSessionStateCountAggregateOutputType | null
+    _min: BrowserSessionStateMinAggregateOutputType | null
+    _max: BrowserSessionStateMaxAggregateOutputType | null
+  }
+
+  export type BrowserSessionStateMinAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    projectId: string | null
+    testAccountId: string | null
+    status: $Enums.BrowserSessionStateStatus | null
+    loginUrl: string | null
+    finalUrl: string | null
+    storageStateCipher: string | null
+    streamUrl: string | null
+    expiresAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    completedAt: Date | null
+    cancelledAt: Date | null
+  }
+
+  export type BrowserSessionStateMaxAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    projectId: string | null
+    testAccountId: string | null
+    status: $Enums.BrowserSessionStateStatus | null
+    loginUrl: string | null
+    finalUrl: string | null
+    storageStateCipher: string | null
+    streamUrl: string | null
+    expiresAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    completedAt: Date | null
+    cancelledAt: Date | null
+  }
+
+  export type BrowserSessionStateCountAggregateOutputType = {
+    id: number
+    organizationId: number
+    projectId: number
+    testAccountId: number
+    status: number
+    loginUrl: number
+    finalUrl: number
+    storageStateCipher: number
+    streamUrl: number
+    expiresAt: number
+    createdAt: number
+    updatedAt: number
+    completedAt: number
+    cancelledAt: number
+    _all: number
+  }
+
+
+  export type BrowserSessionStateMinAggregateInputType = {
+    id?: true
+    organizationId?: true
+    projectId?: true
+    testAccountId?: true
+    status?: true
+    loginUrl?: true
+    finalUrl?: true
+    storageStateCipher?: true
+    streamUrl?: true
+    expiresAt?: true
+    createdAt?: true
+    updatedAt?: true
+    completedAt?: true
+    cancelledAt?: true
+  }
+
+  export type BrowserSessionStateMaxAggregateInputType = {
+    id?: true
+    organizationId?: true
+    projectId?: true
+    testAccountId?: true
+    status?: true
+    loginUrl?: true
+    finalUrl?: true
+    storageStateCipher?: true
+    streamUrl?: true
+    expiresAt?: true
+    createdAt?: true
+    updatedAt?: true
+    completedAt?: true
+    cancelledAt?: true
+  }
+
+  export type BrowserSessionStateCountAggregateInputType = {
+    id?: true
+    organizationId?: true
+    projectId?: true
+    testAccountId?: true
+    status?: true
+    loginUrl?: true
+    finalUrl?: true
+    storageStateCipher?: true
+    streamUrl?: true
+    expiresAt?: true
+    createdAt?: true
+    updatedAt?: true
+    completedAt?: true
+    cancelledAt?: true
+    _all?: true
+  }
+
+  export type BrowserSessionStateAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BrowserSessionState to aggregate.
+     */
+    where?: BrowserSessionStateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     *
+     * Determine the order of BrowserSessionStates to fetch.
+     */
+    orderBy?: BrowserSessionStateOrderByWithRelationInput | BrowserSessionStateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     *
+     * Sets the start position
+     */
+    cursor?: BrowserSessionStateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Take `±n` BrowserSessionStates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Skip the first `n` BrowserSessionStates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Count returned BrowserSessionStates
+    **/
+    _count?: true | BrowserSessionStateCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Select which fields to find the minimum value
+    **/
+    _min?: BrowserSessionStateMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Select which fields to find the maximum value
+    **/
+    _max?: BrowserSessionStateMaxAggregateInputType
+  }
+
+  export type GetBrowserSessionStateAggregateType<T extends BrowserSessionStateAggregateArgs> = {
+        [P in keyof T & keyof AggregateBrowserSessionState]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBrowserSessionState[P]>
+      : GetScalarType<T[P], AggregateBrowserSessionState[P]>
+  }
+
+
+
+
+  export type BrowserSessionStateGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BrowserSessionStateWhereInput
+    orderBy?: BrowserSessionStateOrderByWithAggregationInput | BrowserSessionStateOrderByWithAggregationInput[]
+    by: BrowserSessionStateScalarFieldEnum[] | BrowserSessionStateScalarFieldEnum
+    having?: BrowserSessionStateScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BrowserSessionStateCountAggregateInputType | true
+    _min?: BrowserSessionStateMinAggregateInputType
+    _max?: BrowserSessionStateMaxAggregateInputType
+  }
+
+  export type BrowserSessionStateGroupByOutputType = {
+    id: string
+    organizationId: string
+    projectId: string
+    testAccountId: string
+    status: $Enums.BrowserSessionStateStatus
+    loginUrl: string
+    finalUrl: string | null
+    storageStateCipher: string | null
+    streamUrl: string | null
+    expiresAt: Date
+    createdAt: Date
+    updatedAt: Date
+    completedAt: Date | null
+    cancelledAt: Date | null
+    _count: BrowserSessionStateCountAggregateOutputType | null
+    _min: BrowserSessionStateMinAggregateOutputType | null
+    _max: BrowserSessionStateMaxAggregateOutputType | null
+  }
+
+  type GetBrowserSessionStateGroupByPayload<T extends BrowserSessionStateGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BrowserSessionStateGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BrowserSessionStateGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BrowserSessionStateGroupByOutputType[P]>
+            : GetScalarType<T[P], BrowserSessionStateGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BrowserSessionStateSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    projectId?: boolean
+    testAccountId?: boolean
+    status?: boolean
+    loginUrl?: boolean
+    finalUrl?: boolean
+    storageStateCipher?: boolean
+    streamUrl?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    completedAt?: boolean
+    cancelledAt?: boolean
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    testAccount?: boolean | TestAccountDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["browserSessionState"]>
+
+  export type BrowserSessionStateSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    projectId?: boolean
+    testAccountId?: boolean
+    status?: boolean
+    loginUrl?: boolean
+    finalUrl?: boolean
+    storageStateCipher?: boolean
+    streamUrl?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    completedAt?: boolean
+    cancelledAt?: boolean
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    testAccount?: boolean | TestAccountDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["browserSessionState"]>
+
+  export type BrowserSessionStateSelectScalar = {
+    id?: boolean
+    organizationId?: boolean
+    projectId?: boolean
+    testAccountId?: boolean
+    status?: boolean
+    loginUrl?: boolean
+    finalUrl?: boolean
+    storageStateCipher?: boolean
+    streamUrl?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    completedAt?: boolean
+    cancelledAt?: boolean
+  }
+
+  export type BrowserSessionStateInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    testAccount?: boolean | TestAccountDefaultArgs<ExtArgs>
+  }
+  export type BrowserSessionStateIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    testAccount?: boolean | TestAccountDefaultArgs<ExtArgs>
+  }
+
+  export type $BrowserSessionStatePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BrowserSessionState"
+    objects: {
+      project: Prisma.$ProjectPayload<ExtArgs>
+      testAccount: Prisma.$TestAccountPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      organizationId: string
+      projectId: string
+      testAccountId: string
+      status: $Enums.BrowserSessionStateStatus
+      loginUrl: string
+      finalUrl: string | null
+      storageStateCipher: string | null
+      streamUrl: string | null
+      expiresAt: Date
+      createdAt: Date
+      updatedAt: Date
+      completedAt: Date | null
+      cancelledAt: Date | null
+    }, ExtArgs["result"]["browserSessionState"]>
+    composites: {}
+  }
+
+  type BrowserSessionStateGetPayload<S extends boolean | null | undefined | BrowserSessionStateDefaultArgs> = $Result.GetResult<Prisma.$BrowserSessionStatePayload, S>
+
+  type BrowserSessionStateCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BrowserSessionStateFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: BrowserSessionStateCountAggregateInputType | true
+    }
+
+  export interface BrowserSessionStateDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BrowserSessionState'], meta: { name: 'BrowserSessionState' } }
+    /**
+     * Find zero or one BrowserSessionState that matches the filter.
+     * @param {BrowserSessionStateFindUniqueArgs} args - Arguments to find a BrowserSessionState
+     * @example
+     * // Get one BrowserSessionState
+     * const browserSessionState = await prisma.browserSessionState.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BrowserSessionStateFindUniqueArgs>(args: SelectSubset<T, BrowserSessionStateFindUniqueArgs<ExtArgs>>): Prisma__BrowserSessionStateClient<$Result.GetResult<Prisma.$BrowserSessionStatePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one BrowserSessionState that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BrowserSessionStateFindUniqueOrThrowArgs} args - Arguments to find a BrowserSessionState
+     * @example
+     * // Get one BrowserSessionState
+     * const browserSessionState = await prisma.browserSessionState.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BrowserSessionStateFindUniqueOrThrowArgs>(args: SelectSubset<T, BrowserSessionStateFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BrowserSessionStateClient<$Result.GetResult<Prisma.$BrowserSessionStatePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first BrowserSessionState that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BrowserSessionStateFindFirstArgs} args - Arguments to find a BrowserSessionState
+     * @example
+     * // Get one BrowserSessionState
+     * const browserSessionState = await prisma.browserSessionState.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BrowserSessionStateFindFirstArgs>(args?: SelectSubset<T, BrowserSessionStateFindFirstArgs<ExtArgs>>): Prisma__BrowserSessionStateClient<$Result.GetResult<Prisma.$BrowserSessionStatePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first BrowserSessionState that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BrowserSessionStateFindFirstOrThrowArgs} args - Arguments to find a BrowserSessionState
+     * @example
+     * // Get one BrowserSessionState
+     * const browserSessionState = await prisma.browserSessionState.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BrowserSessionStateFindFirstOrThrowArgs>(args?: SelectSubset<T, BrowserSessionStateFindFirstOrThrowArgs<ExtArgs>>): Prisma__BrowserSessionStateClient<$Result.GetResult<Prisma.$BrowserSessionStatePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more BrowserSessionStates that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BrowserSessionStateFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BrowserSessionStates
+     * const browserSessionStates = await prisma.browserSessionState.findMany()
+     *
+     * // Get first 10 BrowserSessionStates
+     * const browserSessionStates = await prisma.browserSessionState.findMany({ take: 10 })
+     *
+     * // Only select the `id`
+     * const browserSessionStateWithIdOnly = await prisma.browserSessionState.findMany({ select: { id: true } })
+     *
+     */
+    findMany<T extends BrowserSessionStateFindManyArgs>(args?: SelectSubset<T, BrowserSessionStateFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BrowserSessionStatePayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a BrowserSessionState.
+     * @param {BrowserSessionStateCreateArgs} args - Arguments to create a BrowserSessionState.
+     * @example
+     * // Create one BrowserSessionState
+     * const BrowserSessionState = await prisma.browserSessionState.create({
+     *   data: {
+     *     // ... data to create a BrowserSessionState
+     *   }
+     * })
+     *
+     */
+    create<T extends BrowserSessionStateCreateArgs>(args: SelectSubset<T, BrowserSessionStateCreateArgs<ExtArgs>>): Prisma__BrowserSessionStateClient<$Result.GetResult<Prisma.$BrowserSessionStatePayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many BrowserSessionStates.
+     * @param {BrowserSessionStateCreateManyArgs} args - Arguments to create many BrowserSessionStates.
+     * @example
+     * // Create many BrowserSessionStates
+     * const browserSessionState = await prisma.browserSessionState.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *
+     */
+    createMany<T extends BrowserSessionStateCreateManyArgs>(args?: SelectSubset<T, BrowserSessionStateCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BrowserSessionStates and returns the data saved in the database.
+     * @param {BrowserSessionStateCreateManyAndReturnArgs} args - Arguments to create many BrowserSessionStates.
+     * @example
+     * // Create many BrowserSessionStates
+     * const browserSessionState = await prisma.browserSessionState.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *
+     * // Create many BrowserSessionStates and only return the `id`
+     * const browserSessionStateWithIdOnly = await prisma.browserSessionState.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     *
+     */
+    createManyAndReturn<T extends BrowserSessionStateCreateManyAndReturnArgs>(args?: SelectSubset<T, BrowserSessionStateCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BrowserSessionStatePayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a BrowserSessionState.
+     * @param {BrowserSessionStateDeleteArgs} args - Arguments to delete one BrowserSessionState.
+     * @example
+     * // Delete one BrowserSessionState
+     * const BrowserSessionState = await prisma.browserSessionState.delete({
+     *   where: {
+     *     // ... filter to delete one BrowserSessionState
+     *   }
+     * })
+     *
+     */
+    delete<T extends BrowserSessionStateDeleteArgs>(args: SelectSubset<T, BrowserSessionStateDeleteArgs<ExtArgs>>): Prisma__BrowserSessionStateClient<$Result.GetResult<Prisma.$BrowserSessionStatePayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one BrowserSessionState.
+     * @param {BrowserSessionStateUpdateArgs} args - Arguments to update one BrowserSessionState.
+     * @example
+     * // Update one BrowserSessionState
+     * const browserSessionState = await prisma.browserSessionState.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     *
+     */
+    update<T extends BrowserSessionStateUpdateArgs>(args: SelectSubset<T, BrowserSessionStateUpdateArgs<ExtArgs>>): Prisma__BrowserSessionStateClient<$Result.GetResult<Prisma.$BrowserSessionStatePayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more BrowserSessionStates.
+     * @param {BrowserSessionStateDeleteManyArgs} args - Arguments to filter BrowserSessionStates to delete.
+     * @example
+     * // Delete a few BrowserSessionStates
+     * const { count } = await prisma.browserSessionState.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     *
+     */
+    deleteMany<T extends BrowserSessionStateDeleteManyArgs>(args?: SelectSubset<T, BrowserSessionStateDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BrowserSessionStates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BrowserSessionStateUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BrowserSessionStates
+     * const browserSessionState = await prisma.browserSessionState.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     *
+     */
+    updateMany<T extends BrowserSessionStateUpdateManyArgs>(args: SelectSubset<T, BrowserSessionStateUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one BrowserSessionState.
+     * @param {BrowserSessionStateUpsertArgs} args - Arguments to update or create a BrowserSessionState.
+     * @example
+     * // Update or create a BrowserSessionState
+     * const browserSessionState = await prisma.browserSessionState.upsert({
+     *   create: {
+     *     // ... data to create a BrowserSessionState
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BrowserSessionState we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BrowserSessionStateUpsertArgs>(args: SelectSubset<T, BrowserSessionStateUpsertArgs<ExtArgs>>): Prisma__BrowserSessionStateClient<$Result.GetResult<Prisma.$BrowserSessionStatePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of BrowserSessionStates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BrowserSessionStateCountArgs} args - Arguments to filter BrowserSessionStates to count.
+     * @example
+     * // Count the number of BrowserSessionStates
+     * const count = await prisma.browserSessionState.count({
+     *   where: {
+     *     // ... the filter for the BrowserSessionStates we want to count
+     *   }
+     * })
+    **/
+    count<T extends BrowserSessionStateCountArgs>(
+      args?: Subset<T, BrowserSessionStateCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BrowserSessionStateCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BrowserSessionState.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BrowserSessionStateAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BrowserSessionStateAggregateArgs>(args: Subset<T, BrowserSessionStateAggregateArgs>): Prisma.PrismaPromise<GetBrowserSessionStateAggregateType<T>>
+
+    /**
+     * Group by BrowserSessionState.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BrowserSessionStateGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     *
+    **/
+    groupBy<
+      T extends BrowserSessionStateGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BrowserSessionStateGroupByArgs['orderBy'] }
+        : { orderBy?: BrowserSessionStateGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BrowserSessionStateGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBrowserSessionStateGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BrowserSessionState model
+   */
+  readonly fields: BrowserSessionStateFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BrowserSessionState.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BrowserSessionStateClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    project<T extends ProjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDefaultArgs<ExtArgs>>): Prisma__ProjectClient<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    testAccount<T extends TestAccountDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TestAccountDefaultArgs<ExtArgs>>): Prisma__TestAccountClient<$Result.GetResult<Prisma.$TestAccountPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BrowserSessionState model
+   */
+  interface BrowserSessionStateFieldRefs {
+    readonly id: FieldRef<"BrowserSessionState", 'String'>
+    readonly organizationId: FieldRef<"BrowserSessionState", 'String'>
+    readonly projectId: FieldRef<"BrowserSessionState", 'String'>
+    readonly testAccountId: FieldRef<"BrowserSessionState", 'String'>
+    readonly status: FieldRef<"BrowserSessionState", 'BrowserSessionStateStatus'>
+    readonly loginUrl: FieldRef<"BrowserSessionState", 'String'>
+    readonly finalUrl: FieldRef<"BrowserSessionState", 'String'>
+    readonly storageStateCipher: FieldRef<"BrowserSessionState", 'String'>
+    readonly streamUrl: FieldRef<"BrowserSessionState", 'String'>
+    readonly expiresAt: FieldRef<"BrowserSessionState", 'DateTime'>
+    readonly createdAt: FieldRef<"BrowserSessionState", 'DateTime'>
+    readonly updatedAt: FieldRef<"BrowserSessionState", 'DateTime'>
+    readonly completedAt: FieldRef<"BrowserSessionState", 'DateTime'>
+    readonly cancelledAt: FieldRef<"BrowserSessionState", 'DateTime'>
+  }
+
+
+  // Custom InputTypes
+  /**
+   * BrowserSessionState findUnique
+   */
+  export type BrowserSessionStateFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BrowserSessionState
+     */
+    select?: BrowserSessionStateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BrowserSessionStateInclude<ExtArgs> | null
+    /**
+     * Filter, which BrowserSessionState to fetch.
+     */
+    where: BrowserSessionStateWhereUniqueInput
+  }
+
+  /**
+   * BrowserSessionState findUniqueOrThrow
+   */
+  export type BrowserSessionStateFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BrowserSessionState
+     */
+    select?: BrowserSessionStateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BrowserSessionStateInclude<ExtArgs> | null
+    /**
+     * Filter, which BrowserSessionState to fetch.
+     */
+    where: BrowserSessionStateWhereUniqueInput
+  }
+
+  /**
+   * BrowserSessionState findFirst
+   */
+  export type BrowserSessionStateFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BrowserSessionState
+     */
+    select?: BrowserSessionStateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BrowserSessionStateInclude<ExtArgs> | null
+    /**
+     * Filter, which BrowserSessionState to fetch.
+     */
+    where?: BrowserSessionStateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     *
+     * Determine the order of BrowserSessionStates to fetch.
+     */
+    orderBy?: BrowserSessionStateOrderByWithRelationInput | BrowserSessionStateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     *
+     * Sets the position for searching for BrowserSessionStates.
+     */
+    cursor?: BrowserSessionStateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Take `±n` BrowserSessionStates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Skip the first `n` BrowserSessionStates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     *
+     * Filter by unique combinations of BrowserSessionStates.
+     */
+    distinct?: BrowserSessionStateScalarFieldEnum | BrowserSessionStateScalarFieldEnum[]
+  }
+
+  /**
+   * BrowserSessionState findFirstOrThrow
+   */
+  export type BrowserSessionStateFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BrowserSessionState
+     */
+    select?: BrowserSessionStateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BrowserSessionStateInclude<ExtArgs> | null
+    /**
+     * Filter, which BrowserSessionState to fetch.
+     */
+    where?: BrowserSessionStateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     *
+     * Determine the order of BrowserSessionStates to fetch.
+     */
+    orderBy?: BrowserSessionStateOrderByWithRelationInput | BrowserSessionStateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     *
+     * Sets the position for searching for BrowserSessionStates.
+     */
+    cursor?: BrowserSessionStateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Take `±n` BrowserSessionStates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Skip the first `n` BrowserSessionStates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     *
+     * Filter by unique combinations of BrowserSessionStates.
+     */
+    distinct?: BrowserSessionStateScalarFieldEnum | BrowserSessionStateScalarFieldEnum[]
+  }
+
+  /**
+   * BrowserSessionState findMany
+   */
+  export type BrowserSessionStateFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BrowserSessionState
+     */
+    select?: BrowserSessionStateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BrowserSessionStateInclude<ExtArgs> | null
+    /**
+     * Filter, which BrowserSessionStates to fetch.
+     */
+    where?: BrowserSessionStateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     *
+     * Determine the order of BrowserSessionStates to fetch.
+     */
+    orderBy?: BrowserSessionStateOrderByWithRelationInput | BrowserSessionStateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     *
+     * Sets the position for listing BrowserSessionStates.
+     */
+    cursor?: BrowserSessionStateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Take `±n` BrowserSessionStates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Skip the first `n` BrowserSessionStates.
+     */
+    skip?: number
+    distinct?: BrowserSessionStateScalarFieldEnum | BrowserSessionStateScalarFieldEnum[]
+  }
+
+  /**
+   * BrowserSessionState create
+   */
+  export type BrowserSessionStateCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BrowserSessionState
+     */
+    select?: BrowserSessionStateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BrowserSessionStateInclude<ExtArgs> | null
+    /**
+     * The data needed to create a BrowserSessionState.
+     */
+    data: XOR<BrowserSessionStateCreateInput, BrowserSessionStateUncheckedCreateInput>
+  }
+
+  /**
+   * BrowserSessionState createMany
+   */
+  export type BrowserSessionStateCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BrowserSessionStates.
+     */
+    data: BrowserSessionStateCreateManyInput | BrowserSessionStateCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BrowserSessionState createManyAndReturn
+   */
+  export type BrowserSessionStateCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BrowserSessionState
+     */
+    select?: BrowserSessionStateSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many BrowserSessionStates.
+     */
+    data: BrowserSessionStateCreateManyInput | BrowserSessionStateCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BrowserSessionStateIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BrowserSessionState update
+   */
+  export type BrowserSessionStateUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BrowserSessionState
+     */
+    select?: BrowserSessionStateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BrowserSessionStateInclude<ExtArgs> | null
+    /**
+     * The data needed to update a BrowserSessionState.
+     */
+    data: XOR<BrowserSessionStateUpdateInput, BrowserSessionStateUncheckedUpdateInput>
+    /**
+     * Choose, which BrowserSessionState to update.
+     */
+    where: BrowserSessionStateWhereUniqueInput
+  }
+
+  /**
+   * BrowserSessionState updateMany
+   */
+  export type BrowserSessionStateUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BrowserSessionStates.
+     */
+    data: XOR<BrowserSessionStateUpdateManyMutationInput, BrowserSessionStateUncheckedUpdateManyInput>
+    /**
+     * Filter which BrowserSessionStates to update
+     */
+    where?: BrowserSessionStateWhereInput
+  }
+
+  /**
+   * BrowserSessionState upsert
+   */
+  export type BrowserSessionStateUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BrowserSessionState
+     */
+    select?: BrowserSessionStateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BrowserSessionStateInclude<ExtArgs> | null
+    /**
+     * The filter to search for the BrowserSessionState to update in case it exists.
+     */
+    where: BrowserSessionStateWhereUniqueInput
+    /**
+     * In case the BrowserSessionState found by the `where` argument doesn't exist, create a new BrowserSessionState with this data.
+     */
+    create: XOR<BrowserSessionStateCreateInput, BrowserSessionStateUncheckedCreateInput>
+    /**
+     * In case the BrowserSessionState was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BrowserSessionStateUpdateInput, BrowserSessionStateUncheckedUpdateInput>
+  }
+
+  /**
+   * BrowserSessionState delete
+   */
+  export type BrowserSessionStateDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BrowserSessionState
+     */
+    select?: BrowserSessionStateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BrowserSessionStateInclude<ExtArgs> | null
+    /**
+     * Filter which BrowserSessionState to delete.
+     */
+    where: BrowserSessionStateWhereUniqueInput
+  }
+
+  /**
+   * BrowserSessionState deleteMany
+   */
+  export type BrowserSessionStateDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BrowserSessionStates to delete
+     */
+    where?: BrowserSessionStateWhereInput
+  }
+
+  /**
+   * BrowserSessionState without action
+   */
+  export type BrowserSessionStateDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BrowserSessionState
+     */
+    select?: BrowserSessionStateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BrowserSessionStateInclude<ExtArgs> | null
   }
 
 
@@ -26216,6 +27453,26 @@ export namespace Prisma {
   export type TestAccountScalarFieldEnum = (typeof TestAccountScalarFieldEnum)[keyof typeof TestAccountScalarFieldEnum]
 
 
+  export const BrowserSessionStateScalarFieldEnum: {
+    id: 'id',
+    organizationId: 'organizationId',
+    projectId: 'projectId',
+    testAccountId: 'testAccountId',
+    status: 'status',
+    loginUrl: 'loginUrl',
+    finalUrl: 'finalUrl',
+    storageStateCipher: 'storageStateCipher',
+    streamUrl: 'streamUrl',
+    expiresAt: 'expiresAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    completedAt: 'completedAt',
+    cancelledAt: 'cancelledAt'
+  };
+
+  export type BrowserSessionStateScalarFieldEnum = (typeof BrowserSessionStateScalarFieldEnum)[keyof typeof BrowserSessionStateScalarFieldEnum]
+
+
   export const ScanJobScalarFieldEnum: {
     id: 'id',
     projectId: 'projectId',
@@ -26675,6 +27932,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'BrowserSessionStateStatus'
+   */
+  export type EnumBrowserSessionStateStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BrowserSessionStateStatus'>
+
+
+
+  /**
+   * Reference to a field of type 'BrowserSessionStateStatus[]'
+   */
+  export type ListEnumBrowserSessionStateStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BrowserSessionStateStatus[]'>
+
+
+
+  /**
    * Reference to a field of type 'ScanState'
    */
   export type EnumScanStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ScanState'>
@@ -27086,6 +28357,7 @@ export namespace Prisma {
     domains?: DomainListRelationFilter
     scanAuthorizations?: ScanAuthorizationListRelationFilter
     testAccounts?: TestAccountListRelationFilter
+    browserSessionStates?: BrowserSessionStateListRelationFilter
     scanJobs?: ScanJobListRelationFilter
     findings?: FindingListRelationFilter
     reports?: ReportListRelationFilter
@@ -27105,6 +28377,7 @@ export namespace Prisma {
     domains?: DomainOrderByRelationAggregateInput
     scanAuthorizations?: ScanAuthorizationOrderByRelationAggregateInput
     testAccounts?: TestAccountOrderByRelationAggregateInput
+    browserSessionStates?: BrowserSessionStateOrderByRelationAggregateInput
     scanJobs?: ScanJobOrderByRelationAggregateInput
     findings?: FindingOrderByRelationAggregateInput
     reports?: ReportOrderByRelationAggregateInput
@@ -27127,6 +28400,7 @@ export namespace Prisma {
     domains?: DomainListRelationFilter
     scanAuthorizations?: ScanAuthorizationListRelationFilter
     testAccounts?: TestAccountListRelationFilter
+    browserSessionStates?: BrowserSessionStateListRelationFilter
     scanJobs?: ScanJobListRelationFilter
     findings?: FindingListRelationFilter
     reports?: ReportListRelationFilter
@@ -27435,6 +28709,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"TestAccount"> | Date | string
     updatedAt?: DateTimeFilter<"TestAccount"> | Date | string
     project?: XOR<ProjectRelationFilter, ProjectWhereInput>
+    browserSessionStates?: BrowserSessionStateListRelationFilter
   }
 
   export type TestAccountOrderByWithRelationInput = {
@@ -27448,6 +28723,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     project?: ProjectOrderByWithRelationInput
+    browserSessionStates?: BrowserSessionStateOrderByRelationAggregateInput
   }
 
   export type TestAccountWhereUniqueInput = Prisma.AtLeast<{
@@ -27464,6 +28740,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"TestAccount"> | Date | string
     updatedAt?: DateTimeFilter<"TestAccount"> | Date | string
     project?: XOR<ProjectRelationFilter, ProjectWhereInput>
+    browserSessionStates?: BrowserSessionStateListRelationFilter
   }, "id">
 
   export type TestAccountOrderByWithAggregationInput = {
@@ -27494,6 +28771,109 @@ export namespace Prisma {
     notes?: StringNullableWithAggregatesFilter<"TestAccount"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"TestAccount"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"TestAccount"> | Date | string
+  }
+
+  export type BrowserSessionStateWhereInput = {
+    AND?: BrowserSessionStateWhereInput | BrowserSessionStateWhereInput[]
+    OR?: BrowserSessionStateWhereInput[]
+    NOT?: BrowserSessionStateWhereInput | BrowserSessionStateWhereInput[]
+    id?: StringFilter<"BrowserSessionState"> | string
+    organizationId?: StringFilter<"BrowserSessionState"> | string
+    projectId?: StringFilter<"BrowserSessionState"> | string
+    testAccountId?: StringFilter<"BrowserSessionState"> | string
+    status?: EnumBrowserSessionStateStatusFilter<"BrowserSessionState"> | $Enums.BrowserSessionStateStatus
+    loginUrl?: StringFilter<"BrowserSessionState"> | string
+    finalUrl?: StringNullableFilter<"BrowserSessionState"> | string | null
+    storageStateCipher?: StringNullableFilter<"BrowserSessionState"> | string | null
+    streamUrl?: StringNullableFilter<"BrowserSessionState"> | string | null
+    expiresAt?: DateTimeFilter<"BrowserSessionState"> | Date | string
+    createdAt?: DateTimeFilter<"BrowserSessionState"> | Date | string
+    updatedAt?: DateTimeFilter<"BrowserSessionState"> | Date | string
+    completedAt?: DateTimeNullableFilter<"BrowserSessionState"> | Date | string | null
+    cancelledAt?: DateTimeNullableFilter<"BrowserSessionState"> | Date | string | null
+    project?: XOR<ProjectRelationFilter, ProjectWhereInput>
+    testAccount?: XOR<TestAccountRelationFilter, TestAccountWhereInput>
+  }
+
+  export type BrowserSessionStateOrderByWithRelationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    projectId?: SortOrder
+    testAccountId?: SortOrder
+    status?: SortOrder
+    loginUrl?: SortOrder
+    finalUrl?: SortOrderInput | SortOrder
+    storageStateCipher?: SortOrderInput | SortOrder
+    streamUrl?: SortOrderInput | SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    cancelledAt?: SortOrderInput | SortOrder
+    project?: ProjectOrderByWithRelationInput
+    testAccount?: TestAccountOrderByWithRelationInput
+  }
+
+  export type BrowserSessionStateWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: BrowserSessionStateWhereInput | BrowserSessionStateWhereInput[]
+    OR?: BrowserSessionStateWhereInput[]
+    NOT?: BrowserSessionStateWhereInput | BrowserSessionStateWhereInput[]
+    organizationId?: StringFilter<"BrowserSessionState"> | string
+    projectId?: StringFilter<"BrowserSessionState"> | string
+    testAccountId?: StringFilter<"BrowserSessionState"> | string
+    status?: EnumBrowserSessionStateStatusFilter<"BrowserSessionState"> | $Enums.BrowserSessionStateStatus
+    loginUrl?: StringFilter<"BrowserSessionState"> | string
+    finalUrl?: StringNullableFilter<"BrowserSessionState"> | string | null
+    storageStateCipher?: StringNullableFilter<"BrowserSessionState"> | string | null
+    streamUrl?: StringNullableFilter<"BrowserSessionState"> | string | null
+    expiresAt?: DateTimeFilter<"BrowserSessionState"> | Date | string
+    createdAt?: DateTimeFilter<"BrowserSessionState"> | Date | string
+    updatedAt?: DateTimeFilter<"BrowserSessionState"> | Date | string
+    completedAt?: DateTimeNullableFilter<"BrowserSessionState"> | Date | string | null
+    cancelledAt?: DateTimeNullableFilter<"BrowserSessionState"> | Date | string | null
+    project?: XOR<ProjectRelationFilter, ProjectWhereInput>
+    testAccount?: XOR<TestAccountRelationFilter, TestAccountWhereInput>
+  }, "id">
+
+  export type BrowserSessionStateOrderByWithAggregationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    projectId?: SortOrder
+    testAccountId?: SortOrder
+    status?: SortOrder
+    loginUrl?: SortOrder
+    finalUrl?: SortOrderInput | SortOrder
+    storageStateCipher?: SortOrderInput | SortOrder
+    streamUrl?: SortOrderInput | SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    cancelledAt?: SortOrderInput | SortOrder
+    _count?: BrowserSessionStateCountOrderByAggregateInput
+    _max?: BrowserSessionStateMaxOrderByAggregateInput
+    _min?: BrowserSessionStateMinOrderByAggregateInput
+  }
+
+  export type BrowserSessionStateScalarWhereWithAggregatesInput = {
+    AND?: BrowserSessionStateScalarWhereWithAggregatesInput | BrowserSessionStateScalarWhereWithAggregatesInput[]
+    OR?: BrowserSessionStateScalarWhereWithAggregatesInput[]
+    NOT?: BrowserSessionStateScalarWhereWithAggregatesInput | BrowserSessionStateScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"BrowserSessionState"> | string
+    organizationId?: StringWithAggregatesFilter<"BrowserSessionState"> | string
+    projectId?: StringWithAggregatesFilter<"BrowserSessionState"> | string
+    testAccountId?: StringWithAggregatesFilter<"BrowserSessionState"> | string
+    status?: EnumBrowserSessionStateStatusWithAggregatesFilter<"BrowserSessionState"> | $Enums.BrowserSessionStateStatus
+    loginUrl?: StringWithAggregatesFilter<"BrowserSessionState"> | string
+    finalUrl?: StringNullableWithAggregatesFilter<"BrowserSessionState"> | string | null
+    storageStateCipher?: StringNullableWithAggregatesFilter<"BrowserSessionState"> | string | null
+    streamUrl?: StringNullableWithAggregatesFilter<"BrowserSessionState"> | string | null
+    expiresAt?: DateTimeWithAggregatesFilter<"BrowserSessionState"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"BrowserSessionState"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"BrowserSessionState"> | Date | string
+    completedAt?: DateTimeNullableWithAggregatesFilter<"BrowserSessionState"> | Date | string | null
+    cancelledAt?: DateTimeNullableWithAggregatesFilter<"BrowserSessionState"> | Date | string | null
   }
 
   export type ScanJobWhereInput = {
@@ -28989,6 +30369,7 @@ export namespace Prisma {
     domains?: DomainCreateNestedManyWithoutProjectInput
     scanAuthorizations?: ScanAuthorizationCreateNestedManyWithoutProjectInput
     testAccounts?: TestAccountCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateCreateNestedManyWithoutProjectInput
     scanJobs?: ScanJobCreateNestedManyWithoutProjectInput
     findings?: FindingCreateNestedManyWithoutProjectInput
     reports?: ReportCreateNestedManyWithoutProjectInput
@@ -29007,6 +30388,7 @@ export namespace Prisma {
     domains?: DomainUncheckedCreateNestedManyWithoutProjectInput
     scanAuthorizations?: ScanAuthorizationUncheckedCreateNestedManyWithoutProjectInput
     testAccounts?: TestAccountUncheckedCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateUncheckedCreateNestedManyWithoutProjectInput
     scanJobs?: ScanJobUncheckedCreateNestedManyWithoutProjectInput
     findings?: FindingUncheckedCreateNestedManyWithoutProjectInput
     reports?: ReportUncheckedCreateNestedManyWithoutProjectInput
@@ -29025,6 +30407,7 @@ export namespace Prisma {
     domains?: DomainUpdateManyWithoutProjectNestedInput
     scanAuthorizations?: ScanAuthorizationUpdateManyWithoutProjectNestedInput
     testAccounts?: TestAccountUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUpdateManyWithoutProjectNestedInput
     scanJobs?: ScanJobUpdateManyWithoutProjectNestedInput
     findings?: FindingUpdateManyWithoutProjectNestedInput
     reports?: ReportUpdateManyWithoutProjectNestedInput
@@ -29043,6 +30426,7 @@ export namespace Prisma {
     domains?: DomainUncheckedUpdateManyWithoutProjectNestedInput
     scanAuthorizations?: ScanAuthorizationUncheckedUpdateManyWithoutProjectNestedInput
     testAccounts?: TestAccountUncheckedUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUncheckedUpdateManyWithoutProjectNestedInput
     scanJobs?: ScanJobUncheckedUpdateManyWithoutProjectNestedInput
     findings?: FindingUncheckedUpdateManyWithoutProjectNestedInput
     reports?: ReportUncheckedUpdateManyWithoutProjectNestedInput
@@ -29386,6 +30770,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     project: ProjectCreateNestedOneWithoutTestAccountsInput
+    browserSessionStates?: BrowserSessionStateCreateNestedManyWithoutTestAccountInput
   }
 
   export type TestAccountUncheckedCreateInput = {
@@ -29398,6 +30783,7 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    browserSessionStates?: BrowserSessionStateUncheckedCreateNestedManyWithoutTestAccountInput
   }
 
   export type TestAccountUpdateInput = {
@@ -29410,6 +30796,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     project?: ProjectUpdateOneRequiredWithoutTestAccountsNestedInput
+    browserSessionStates?: BrowserSessionStateUpdateManyWithoutTestAccountNestedInput
   }
 
   export type TestAccountUncheckedUpdateInput = {
@@ -29422,6 +30809,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    browserSessionStates?: BrowserSessionStateUncheckedUpdateManyWithoutTestAccountNestedInput
   }
 
   export type TestAccountCreateManyInput = {
@@ -29457,6 +30845,123 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BrowserSessionStateCreateInput = {
+    id?: string
+    organizationId: string
+    status?: $Enums.BrowserSessionStateStatus
+    loginUrl: string
+    finalUrl?: string | null
+    storageStateCipher?: string | null
+    streamUrl?: string | null
+    expiresAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    project: ProjectCreateNestedOneWithoutBrowserSessionStatesInput
+    testAccount: TestAccountCreateNestedOneWithoutBrowserSessionStatesInput
+  }
+
+  export type BrowserSessionStateUncheckedCreateInput = {
+    id?: string
+    organizationId: string
+    projectId: string
+    testAccountId: string
+    status?: $Enums.BrowserSessionStateStatus
+    loginUrl: string
+    finalUrl?: string | null
+    storageStateCipher?: string | null
+    streamUrl?: string | null
+    expiresAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+  }
+
+  export type BrowserSessionStateUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    status?: EnumBrowserSessionStateStatusFieldUpdateOperationsInput | $Enums.BrowserSessionStateStatus
+    loginUrl?: StringFieldUpdateOperationsInput | string
+    finalUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    storageStateCipher?: NullableStringFieldUpdateOperationsInput | string | null
+    streamUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    project?: ProjectUpdateOneRequiredWithoutBrowserSessionStatesNestedInput
+    testAccount?: TestAccountUpdateOneRequiredWithoutBrowserSessionStatesNestedInput
+  }
+
+  export type BrowserSessionStateUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    testAccountId?: StringFieldUpdateOperationsInput | string
+    status?: EnumBrowserSessionStateStatusFieldUpdateOperationsInput | $Enums.BrowserSessionStateStatus
+    loginUrl?: StringFieldUpdateOperationsInput | string
+    finalUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    storageStateCipher?: NullableStringFieldUpdateOperationsInput | string | null
+    streamUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BrowserSessionStateCreateManyInput = {
+    id?: string
+    organizationId: string
+    projectId: string
+    testAccountId: string
+    status?: $Enums.BrowserSessionStateStatus
+    loginUrl: string
+    finalUrl?: string | null
+    storageStateCipher?: string | null
+    streamUrl?: string | null
+    expiresAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+  }
+
+  export type BrowserSessionStateUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    status?: EnumBrowserSessionStateStatusFieldUpdateOperationsInput | $Enums.BrowserSessionStateStatus
+    loginUrl?: StringFieldUpdateOperationsInput | string
+    finalUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    storageStateCipher?: NullableStringFieldUpdateOperationsInput | string | null
+    streamUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BrowserSessionStateUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    testAccountId?: StringFieldUpdateOperationsInput | string
+    status?: EnumBrowserSessionStateStatusFieldUpdateOperationsInput | $Enums.BrowserSessionStateStatus
+    loginUrl?: StringFieldUpdateOperationsInput | string
+    finalUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    storageStateCipher?: NullableStringFieldUpdateOperationsInput | string | null
+    streamUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type ScanJobCreateInput = {
@@ -31192,6 +32697,12 @@ export namespace Prisma {
     none?: TestAccountWhereInput
   }
 
+  export type BrowserSessionStateListRelationFilter = {
+    every?: BrowserSessionStateWhereInput
+    some?: BrowserSessionStateWhereInput
+    none?: BrowserSessionStateWhereInput
+  }
+
   export type FindingListRelationFilter = {
     every?: FindingWhereInput
     some?: FindingWhereInput
@@ -31219,6 +32730,10 @@ export namespace Prisma {
   }
 
   export type TestAccountOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type BrowserSessionStateOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -31635,6 +33150,79 @@ export namespace Prisma {
     notes?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type EnumBrowserSessionStateStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.BrowserSessionStateStatus | EnumBrowserSessionStateStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.BrowserSessionStateStatus[] | ListEnumBrowserSessionStateStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.BrowserSessionStateStatus[] | ListEnumBrowserSessionStateStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumBrowserSessionStateStatusFilter<$PrismaModel> | $Enums.BrowserSessionStateStatus
+  }
+
+  export type TestAccountRelationFilter = {
+    is?: TestAccountWhereInput
+    isNot?: TestAccountWhereInput
+  }
+
+  export type BrowserSessionStateCountOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    projectId?: SortOrder
+    testAccountId?: SortOrder
+    status?: SortOrder
+    loginUrl?: SortOrder
+    finalUrl?: SortOrder
+    storageStateCipher?: SortOrder
+    streamUrl?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    completedAt?: SortOrder
+    cancelledAt?: SortOrder
+  }
+
+  export type BrowserSessionStateMaxOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    projectId?: SortOrder
+    testAccountId?: SortOrder
+    status?: SortOrder
+    loginUrl?: SortOrder
+    finalUrl?: SortOrder
+    storageStateCipher?: SortOrder
+    streamUrl?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    completedAt?: SortOrder
+    cancelledAt?: SortOrder
+  }
+
+  export type BrowserSessionStateMinOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    projectId?: SortOrder
+    testAccountId?: SortOrder
+    status?: SortOrder
+    loginUrl?: SortOrder
+    finalUrl?: SortOrder
+    storageStateCipher?: SortOrder
+    streamUrl?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    completedAt?: SortOrder
+    cancelledAt?: SortOrder
+  }
+
+  export type EnumBrowserSessionStateStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.BrowserSessionStateStatus | EnumBrowserSessionStateStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.BrowserSessionStateStatus[] | ListEnumBrowserSessionStateStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.BrowserSessionStateStatus[] | ListEnumBrowserSessionStateStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumBrowserSessionStateStatusWithAggregatesFilter<$PrismaModel> | $Enums.BrowserSessionStateStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumBrowserSessionStateStatusFilter<$PrismaModel>
+    _max?: NestedEnumBrowserSessionStateStatusFilter<$PrismaModel>
   }
   export type JsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -33102,6 +34690,13 @@ export namespace Prisma {
     connect?: TestAccountWhereUniqueInput | TestAccountWhereUniqueInput[]
   }
 
+  export type BrowserSessionStateCreateNestedManyWithoutProjectInput = {
+    create?: XOR<BrowserSessionStateCreateWithoutProjectInput, BrowserSessionStateUncheckedCreateWithoutProjectInput> | BrowserSessionStateCreateWithoutProjectInput[] | BrowserSessionStateUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: BrowserSessionStateCreateOrConnectWithoutProjectInput | BrowserSessionStateCreateOrConnectWithoutProjectInput[]
+    createMany?: BrowserSessionStateCreateManyProjectInputEnvelope
+    connect?: BrowserSessionStateWhereUniqueInput | BrowserSessionStateWhereUniqueInput[]
+  }
+
   export type ScanJobCreateNestedManyWithoutProjectInput = {
     create?: XOR<ScanJobCreateWithoutProjectInput, ScanJobUncheckedCreateWithoutProjectInput> | ScanJobCreateWithoutProjectInput[] | ScanJobUncheckedCreateWithoutProjectInput[]
     connectOrCreate?: ScanJobCreateOrConnectWithoutProjectInput | ScanJobCreateOrConnectWithoutProjectInput[]
@@ -33163,6 +34758,13 @@ export namespace Prisma {
     connectOrCreate?: TestAccountCreateOrConnectWithoutProjectInput | TestAccountCreateOrConnectWithoutProjectInput[]
     createMany?: TestAccountCreateManyProjectInputEnvelope
     connect?: TestAccountWhereUniqueInput | TestAccountWhereUniqueInput[]
+  }
+
+  export type BrowserSessionStateUncheckedCreateNestedManyWithoutProjectInput = {
+    create?: XOR<BrowserSessionStateCreateWithoutProjectInput, BrowserSessionStateUncheckedCreateWithoutProjectInput> | BrowserSessionStateCreateWithoutProjectInput[] | BrowserSessionStateUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: BrowserSessionStateCreateOrConnectWithoutProjectInput | BrowserSessionStateCreateOrConnectWithoutProjectInput[]
+    createMany?: BrowserSessionStateCreateManyProjectInputEnvelope
+    connect?: BrowserSessionStateWhereUniqueInput | BrowserSessionStateWhereUniqueInput[]
   }
 
   export type ScanJobUncheckedCreateNestedManyWithoutProjectInput = {
@@ -33259,6 +34861,20 @@ export namespace Prisma {
     update?: TestAccountUpdateWithWhereUniqueWithoutProjectInput | TestAccountUpdateWithWhereUniqueWithoutProjectInput[]
     updateMany?: TestAccountUpdateManyWithWhereWithoutProjectInput | TestAccountUpdateManyWithWhereWithoutProjectInput[]
     deleteMany?: TestAccountScalarWhereInput | TestAccountScalarWhereInput[]
+  }
+
+  export type BrowserSessionStateUpdateManyWithoutProjectNestedInput = {
+    create?: XOR<BrowserSessionStateCreateWithoutProjectInput, BrowserSessionStateUncheckedCreateWithoutProjectInput> | BrowserSessionStateCreateWithoutProjectInput[] | BrowserSessionStateUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: BrowserSessionStateCreateOrConnectWithoutProjectInput | BrowserSessionStateCreateOrConnectWithoutProjectInput[]
+    upsert?: BrowserSessionStateUpsertWithWhereUniqueWithoutProjectInput | BrowserSessionStateUpsertWithWhereUniqueWithoutProjectInput[]
+    createMany?: BrowserSessionStateCreateManyProjectInputEnvelope
+    set?: BrowserSessionStateWhereUniqueInput | BrowserSessionStateWhereUniqueInput[]
+    disconnect?: BrowserSessionStateWhereUniqueInput | BrowserSessionStateWhereUniqueInput[]
+    delete?: BrowserSessionStateWhereUniqueInput | BrowserSessionStateWhereUniqueInput[]
+    connect?: BrowserSessionStateWhereUniqueInput | BrowserSessionStateWhereUniqueInput[]
+    update?: BrowserSessionStateUpdateWithWhereUniqueWithoutProjectInput | BrowserSessionStateUpdateWithWhereUniqueWithoutProjectInput[]
+    updateMany?: BrowserSessionStateUpdateManyWithWhereWithoutProjectInput | BrowserSessionStateUpdateManyWithWhereWithoutProjectInput[]
+    deleteMany?: BrowserSessionStateScalarWhereInput | BrowserSessionStateScalarWhereInput[]
   }
 
   export type ScanJobUpdateManyWithoutProjectNestedInput = {
@@ -33385,6 +35001,20 @@ export namespace Prisma {
     update?: TestAccountUpdateWithWhereUniqueWithoutProjectInput | TestAccountUpdateWithWhereUniqueWithoutProjectInput[]
     updateMany?: TestAccountUpdateManyWithWhereWithoutProjectInput | TestAccountUpdateManyWithWhereWithoutProjectInput[]
     deleteMany?: TestAccountScalarWhereInput | TestAccountScalarWhereInput[]
+  }
+
+  export type BrowserSessionStateUncheckedUpdateManyWithoutProjectNestedInput = {
+    create?: XOR<BrowserSessionStateCreateWithoutProjectInput, BrowserSessionStateUncheckedCreateWithoutProjectInput> | BrowserSessionStateCreateWithoutProjectInput[] | BrowserSessionStateUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: BrowserSessionStateCreateOrConnectWithoutProjectInput | BrowserSessionStateCreateOrConnectWithoutProjectInput[]
+    upsert?: BrowserSessionStateUpsertWithWhereUniqueWithoutProjectInput | BrowserSessionStateUpsertWithWhereUniqueWithoutProjectInput[]
+    createMany?: BrowserSessionStateCreateManyProjectInputEnvelope
+    set?: BrowserSessionStateWhereUniqueInput | BrowserSessionStateWhereUniqueInput[]
+    disconnect?: BrowserSessionStateWhereUniqueInput | BrowserSessionStateWhereUniqueInput[]
+    delete?: BrowserSessionStateWhereUniqueInput | BrowserSessionStateWhereUniqueInput[]
+    connect?: BrowserSessionStateWhereUniqueInput | BrowserSessionStateWhereUniqueInput[]
+    update?: BrowserSessionStateUpdateWithWhereUniqueWithoutProjectInput | BrowserSessionStateUpdateWithWhereUniqueWithoutProjectInput[]
+    updateMany?: BrowserSessionStateUpdateManyWithWhereWithoutProjectInput | BrowserSessionStateUpdateManyWithWhereWithoutProjectInput[]
+    deleteMany?: BrowserSessionStateScalarWhereInput | BrowserSessionStateScalarWhereInput[]
   }
 
   export type ScanJobUncheckedUpdateManyWithoutProjectNestedInput = {
@@ -33635,12 +35265,86 @@ export namespace Prisma {
     connect?: ProjectWhereUniqueInput
   }
 
+  export type BrowserSessionStateCreateNestedManyWithoutTestAccountInput = {
+    create?: XOR<BrowserSessionStateCreateWithoutTestAccountInput, BrowserSessionStateUncheckedCreateWithoutTestAccountInput> | BrowserSessionStateCreateWithoutTestAccountInput[] | BrowserSessionStateUncheckedCreateWithoutTestAccountInput[]
+    connectOrCreate?: BrowserSessionStateCreateOrConnectWithoutTestAccountInput | BrowserSessionStateCreateOrConnectWithoutTestAccountInput[]
+    createMany?: BrowserSessionStateCreateManyTestAccountInputEnvelope
+    connect?: BrowserSessionStateWhereUniqueInput | BrowserSessionStateWhereUniqueInput[]
+  }
+
+  export type BrowserSessionStateUncheckedCreateNestedManyWithoutTestAccountInput = {
+    create?: XOR<BrowserSessionStateCreateWithoutTestAccountInput, BrowserSessionStateUncheckedCreateWithoutTestAccountInput> | BrowserSessionStateCreateWithoutTestAccountInput[] | BrowserSessionStateUncheckedCreateWithoutTestAccountInput[]
+    connectOrCreate?: BrowserSessionStateCreateOrConnectWithoutTestAccountInput | BrowserSessionStateCreateOrConnectWithoutTestAccountInput[]
+    createMany?: BrowserSessionStateCreateManyTestAccountInputEnvelope
+    connect?: BrowserSessionStateWhereUniqueInput | BrowserSessionStateWhereUniqueInput[]
+  }
+
   export type ProjectUpdateOneRequiredWithoutTestAccountsNestedInput = {
     create?: XOR<ProjectCreateWithoutTestAccountsInput, ProjectUncheckedCreateWithoutTestAccountsInput>
     connectOrCreate?: ProjectCreateOrConnectWithoutTestAccountsInput
     upsert?: ProjectUpsertWithoutTestAccountsInput
     connect?: ProjectWhereUniqueInput
     update?: XOR<XOR<ProjectUpdateToOneWithWhereWithoutTestAccountsInput, ProjectUpdateWithoutTestAccountsInput>, ProjectUncheckedUpdateWithoutTestAccountsInput>
+  }
+
+  export type BrowserSessionStateUpdateManyWithoutTestAccountNestedInput = {
+    create?: XOR<BrowserSessionStateCreateWithoutTestAccountInput, BrowserSessionStateUncheckedCreateWithoutTestAccountInput> | BrowserSessionStateCreateWithoutTestAccountInput[] | BrowserSessionStateUncheckedCreateWithoutTestAccountInput[]
+    connectOrCreate?: BrowserSessionStateCreateOrConnectWithoutTestAccountInput | BrowserSessionStateCreateOrConnectWithoutTestAccountInput[]
+    upsert?: BrowserSessionStateUpsertWithWhereUniqueWithoutTestAccountInput | BrowserSessionStateUpsertWithWhereUniqueWithoutTestAccountInput[]
+    createMany?: BrowserSessionStateCreateManyTestAccountInputEnvelope
+    set?: BrowserSessionStateWhereUniqueInput | BrowserSessionStateWhereUniqueInput[]
+    disconnect?: BrowserSessionStateWhereUniqueInput | BrowserSessionStateWhereUniqueInput[]
+    delete?: BrowserSessionStateWhereUniqueInput | BrowserSessionStateWhereUniqueInput[]
+    connect?: BrowserSessionStateWhereUniqueInput | BrowserSessionStateWhereUniqueInput[]
+    update?: BrowserSessionStateUpdateWithWhereUniqueWithoutTestAccountInput | BrowserSessionStateUpdateWithWhereUniqueWithoutTestAccountInput[]
+    updateMany?: BrowserSessionStateUpdateManyWithWhereWithoutTestAccountInput | BrowserSessionStateUpdateManyWithWhereWithoutTestAccountInput[]
+    deleteMany?: BrowserSessionStateScalarWhereInput | BrowserSessionStateScalarWhereInput[]
+  }
+
+  export type BrowserSessionStateUncheckedUpdateManyWithoutTestAccountNestedInput = {
+    create?: XOR<BrowserSessionStateCreateWithoutTestAccountInput, BrowserSessionStateUncheckedCreateWithoutTestAccountInput> | BrowserSessionStateCreateWithoutTestAccountInput[] | BrowserSessionStateUncheckedCreateWithoutTestAccountInput[]
+    connectOrCreate?: BrowserSessionStateCreateOrConnectWithoutTestAccountInput | BrowserSessionStateCreateOrConnectWithoutTestAccountInput[]
+    upsert?: BrowserSessionStateUpsertWithWhereUniqueWithoutTestAccountInput | BrowserSessionStateUpsertWithWhereUniqueWithoutTestAccountInput[]
+    createMany?: BrowserSessionStateCreateManyTestAccountInputEnvelope
+    set?: BrowserSessionStateWhereUniqueInput | BrowserSessionStateWhereUniqueInput[]
+    disconnect?: BrowserSessionStateWhereUniqueInput | BrowserSessionStateWhereUniqueInput[]
+    delete?: BrowserSessionStateWhereUniqueInput | BrowserSessionStateWhereUniqueInput[]
+    connect?: BrowserSessionStateWhereUniqueInput | BrowserSessionStateWhereUniqueInput[]
+    update?: BrowserSessionStateUpdateWithWhereUniqueWithoutTestAccountInput | BrowserSessionStateUpdateWithWhereUniqueWithoutTestAccountInput[]
+    updateMany?: BrowserSessionStateUpdateManyWithWhereWithoutTestAccountInput | BrowserSessionStateUpdateManyWithWhereWithoutTestAccountInput[]
+    deleteMany?: BrowserSessionStateScalarWhereInput | BrowserSessionStateScalarWhereInput[]
+  }
+
+  export type ProjectCreateNestedOneWithoutBrowserSessionStatesInput = {
+    create?: XOR<ProjectCreateWithoutBrowserSessionStatesInput, ProjectUncheckedCreateWithoutBrowserSessionStatesInput>
+    connectOrCreate?: ProjectCreateOrConnectWithoutBrowserSessionStatesInput
+    connect?: ProjectWhereUniqueInput
+  }
+
+  export type TestAccountCreateNestedOneWithoutBrowserSessionStatesInput = {
+    create?: XOR<TestAccountCreateWithoutBrowserSessionStatesInput, TestAccountUncheckedCreateWithoutBrowserSessionStatesInput>
+    connectOrCreate?: TestAccountCreateOrConnectWithoutBrowserSessionStatesInput
+    connect?: TestAccountWhereUniqueInput
+  }
+
+  export type EnumBrowserSessionStateStatusFieldUpdateOperationsInput = {
+    set?: $Enums.BrowserSessionStateStatus
+  }
+
+  export type ProjectUpdateOneRequiredWithoutBrowserSessionStatesNestedInput = {
+    create?: XOR<ProjectCreateWithoutBrowserSessionStatesInput, ProjectUncheckedCreateWithoutBrowserSessionStatesInput>
+    connectOrCreate?: ProjectCreateOrConnectWithoutBrowserSessionStatesInput
+    upsert?: ProjectUpsertWithoutBrowserSessionStatesInput
+    connect?: ProjectWhereUniqueInput
+    update?: XOR<XOR<ProjectUpdateToOneWithWhereWithoutBrowserSessionStatesInput, ProjectUpdateWithoutBrowserSessionStatesInput>, ProjectUncheckedUpdateWithoutBrowserSessionStatesInput>
+  }
+
+  export type TestAccountUpdateOneRequiredWithoutBrowserSessionStatesNestedInput = {
+    create?: XOR<TestAccountCreateWithoutBrowserSessionStatesInput, TestAccountUncheckedCreateWithoutBrowserSessionStatesInput>
+    connectOrCreate?: TestAccountCreateOrConnectWithoutBrowserSessionStatesInput
+    upsert?: TestAccountUpsertWithoutBrowserSessionStatesInput
+    connect?: TestAccountWhereUniqueInput
+    update?: XOR<XOR<TestAccountUpdateToOneWithWhereWithoutBrowserSessionStatesInput, TestAccountUpdateWithoutBrowserSessionStatesInput>, TestAccountUncheckedUpdateWithoutBrowserSessionStatesInput>
   }
 
   export type ProjectCreateNestedOneWithoutScanJobsInput = {
@@ -34814,6 +36518,23 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
+  export type NestedEnumBrowserSessionStateStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.BrowserSessionStateStatus | EnumBrowserSessionStateStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.BrowserSessionStateStatus[] | ListEnumBrowserSessionStateStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.BrowserSessionStateStatus[] | ListEnumBrowserSessionStateStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumBrowserSessionStateStatusFilter<$PrismaModel> | $Enums.BrowserSessionStateStatus
+  }
+
+  export type NestedEnumBrowserSessionStateStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.BrowserSessionStateStatus | EnumBrowserSessionStateStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.BrowserSessionStateStatus[] | ListEnumBrowserSessionStateStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.BrowserSessionStateStatus[] | ListEnumBrowserSessionStateStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumBrowserSessionStateStatusWithAggregatesFilter<$PrismaModel> | $Enums.BrowserSessionStateStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumBrowserSessionStateStatusFilter<$PrismaModel>
+    _max?: NestedEnumBrowserSessionStateStatusFilter<$PrismaModel>
+  }
+
   export type NestedEnumScanStateFilter<$PrismaModel = never> = {
     equals?: $Enums.ScanState | EnumScanStateFieldRefInput<$PrismaModel>
     in?: $Enums.ScanState[] | ListEnumScanStateFieldRefInput<$PrismaModel>
@@ -35207,6 +36928,7 @@ export namespace Prisma {
     domains?: DomainCreateNestedManyWithoutProjectInput
     scanAuthorizations?: ScanAuthorizationCreateNestedManyWithoutProjectInput
     testAccounts?: TestAccountCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateCreateNestedManyWithoutProjectInput
     scanJobs?: ScanJobCreateNestedManyWithoutProjectInput
     findings?: FindingCreateNestedManyWithoutProjectInput
     reports?: ReportCreateNestedManyWithoutProjectInput
@@ -35224,6 +36946,7 @@ export namespace Prisma {
     domains?: DomainUncheckedCreateNestedManyWithoutProjectInput
     scanAuthorizations?: ScanAuthorizationUncheckedCreateNestedManyWithoutProjectInput
     testAccounts?: TestAccountUncheckedCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateUncheckedCreateNestedManyWithoutProjectInput
     scanJobs?: ScanJobUncheckedCreateNestedManyWithoutProjectInput
     findings?: FindingUncheckedCreateNestedManyWithoutProjectInput
     reports?: ReportUncheckedCreateNestedManyWithoutProjectInput
@@ -35833,6 +37556,7 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    browserSessionStates?: BrowserSessionStateCreateNestedManyWithoutTestAccountInput
   }
 
   export type TestAccountUncheckedCreateWithoutProjectInput = {
@@ -35844,6 +37568,7 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    browserSessionStates?: BrowserSessionStateUncheckedCreateNestedManyWithoutTestAccountInput
   }
 
   export type TestAccountCreateOrConnectWithoutProjectInput = {
@@ -35853,6 +37578,48 @@ export namespace Prisma {
 
   export type TestAccountCreateManyProjectInputEnvelope = {
     data: TestAccountCreateManyProjectInput | TestAccountCreateManyProjectInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BrowserSessionStateCreateWithoutProjectInput = {
+    id?: string
+    organizationId: string
+    status?: $Enums.BrowserSessionStateStatus
+    loginUrl: string
+    finalUrl?: string | null
+    storageStateCipher?: string | null
+    streamUrl?: string | null
+    expiresAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    testAccount: TestAccountCreateNestedOneWithoutBrowserSessionStatesInput
+  }
+
+  export type BrowserSessionStateUncheckedCreateWithoutProjectInput = {
+    id?: string
+    organizationId: string
+    testAccountId: string
+    status?: $Enums.BrowserSessionStateStatus
+    loginUrl: string
+    finalUrl?: string | null
+    storageStateCipher?: string | null
+    streamUrl?: string | null
+    expiresAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+  }
+
+  export type BrowserSessionStateCreateOrConnectWithoutProjectInput = {
+    where: BrowserSessionStateWhereUniqueInput
+    create: XOR<BrowserSessionStateCreateWithoutProjectInput, BrowserSessionStateUncheckedCreateWithoutProjectInput>
+  }
+
+  export type BrowserSessionStateCreateManyProjectInputEnvelope = {
+    data: BrowserSessionStateCreateManyProjectInput | BrowserSessionStateCreateManyProjectInput[]
     skipDuplicates?: boolean
   }
 
@@ -36239,6 +38006,42 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"TestAccount"> | Date | string
   }
 
+  export type BrowserSessionStateUpsertWithWhereUniqueWithoutProjectInput = {
+    where: BrowserSessionStateWhereUniqueInput
+    update: XOR<BrowserSessionStateUpdateWithoutProjectInput, BrowserSessionStateUncheckedUpdateWithoutProjectInput>
+    create: XOR<BrowserSessionStateCreateWithoutProjectInput, BrowserSessionStateUncheckedCreateWithoutProjectInput>
+  }
+
+  export type BrowserSessionStateUpdateWithWhereUniqueWithoutProjectInput = {
+    where: BrowserSessionStateWhereUniqueInput
+    data: XOR<BrowserSessionStateUpdateWithoutProjectInput, BrowserSessionStateUncheckedUpdateWithoutProjectInput>
+  }
+
+  export type BrowserSessionStateUpdateManyWithWhereWithoutProjectInput = {
+    where: BrowserSessionStateScalarWhereInput
+    data: XOR<BrowserSessionStateUpdateManyMutationInput, BrowserSessionStateUncheckedUpdateManyWithoutProjectInput>
+  }
+
+  export type BrowserSessionStateScalarWhereInput = {
+    AND?: BrowserSessionStateScalarWhereInput | BrowserSessionStateScalarWhereInput[]
+    OR?: BrowserSessionStateScalarWhereInput[]
+    NOT?: BrowserSessionStateScalarWhereInput | BrowserSessionStateScalarWhereInput[]
+    id?: StringFilter<"BrowserSessionState"> | string
+    organizationId?: StringFilter<"BrowserSessionState"> | string
+    projectId?: StringFilter<"BrowserSessionState"> | string
+    testAccountId?: StringFilter<"BrowserSessionState"> | string
+    status?: EnumBrowserSessionStateStatusFilter<"BrowserSessionState"> | $Enums.BrowserSessionStateStatus
+    loginUrl?: StringFilter<"BrowserSessionState"> | string
+    finalUrl?: StringNullableFilter<"BrowserSessionState"> | string | null
+    storageStateCipher?: StringNullableFilter<"BrowserSessionState"> | string | null
+    streamUrl?: StringNullableFilter<"BrowserSessionState"> | string | null
+    expiresAt?: DateTimeFilter<"BrowserSessionState"> | Date | string
+    createdAt?: DateTimeFilter<"BrowserSessionState"> | Date | string
+    updatedAt?: DateTimeFilter<"BrowserSessionState"> | Date | string
+    completedAt?: DateTimeNullableFilter<"BrowserSessionState"> | Date | string | null
+    cancelledAt?: DateTimeNullableFilter<"BrowserSessionState"> | Date | string | null
+  }
+
   export type ScanJobUpsertWithWhereUniqueWithoutProjectInput = {
     where: ScanJobWhereUniqueInput
     update: XOR<ScanJobUpdateWithoutProjectInput, ScanJobUncheckedUpdateWithoutProjectInput>
@@ -36396,6 +38199,7 @@ export namespace Prisma {
     organization: OrganizationCreateNestedOneWithoutProjectsInput
     scanAuthorizations?: ScanAuthorizationCreateNestedManyWithoutProjectInput
     testAccounts?: TestAccountCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateCreateNestedManyWithoutProjectInput
     scanJobs?: ScanJobCreateNestedManyWithoutProjectInput
     findings?: FindingCreateNestedManyWithoutProjectInput
     reports?: ReportCreateNestedManyWithoutProjectInput
@@ -36413,6 +38217,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     scanAuthorizations?: ScanAuthorizationUncheckedCreateNestedManyWithoutProjectInput
     testAccounts?: TestAccountUncheckedCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateUncheckedCreateNestedManyWithoutProjectInput
     scanJobs?: ScanJobUncheckedCreateNestedManyWithoutProjectInput
     findings?: FindingUncheckedCreateNestedManyWithoutProjectInput
     reports?: ReportUncheckedCreateNestedManyWithoutProjectInput
@@ -36480,6 +38285,7 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneRequiredWithoutProjectsNestedInput
     scanAuthorizations?: ScanAuthorizationUpdateManyWithoutProjectNestedInput
     testAccounts?: TestAccountUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUpdateManyWithoutProjectNestedInput
     scanJobs?: ScanJobUpdateManyWithoutProjectNestedInput
     findings?: FindingUpdateManyWithoutProjectNestedInput
     reports?: ReportUpdateManyWithoutProjectNestedInput
@@ -36497,6 +38303,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     scanAuthorizations?: ScanAuthorizationUncheckedUpdateManyWithoutProjectNestedInput
     testAccounts?: TestAccountUncheckedUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUncheckedUpdateManyWithoutProjectNestedInput
     scanJobs?: ScanJobUncheckedUpdateManyWithoutProjectNestedInput
     findings?: FindingUncheckedUpdateManyWithoutProjectNestedInput
     reports?: ReportUncheckedUpdateManyWithoutProjectNestedInput
@@ -36594,6 +38401,7 @@ export namespace Prisma {
     organization: OrganizationCreateNestedOneWithoutProjectsInput
     domains?: DomainCreateNestedManyWithoutProjectInput
     testAccounts?: TestAccountCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateCreateNestedManyWithoutProjectInput
     scanJobs?: ScanJobCreateNestedManyWithoutProjectInput
     findings?: FindingCreateNestedManyWithoutProjectInput
     reports?: ReportCreateNestedManyWithoutProjectInput
@@ -36611,6 +38419,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     domains?: DomainUncheckedCreateNestedManyWithoutProjectInput
     testAccounts?: TestAccountUncheckedCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateUncheckedCreateNestedManyWithoutProjectInput
     scanJobs?: ScanJobUncheckedCreateNestedManyWithoutProjectInput
     findings?: FindingUncheckedCreateNestedManyWithoutProjectInput
     reports?: ReportUncheckedCreateNestedManyWithoutProjectInput
@@ -36708,6 +38517,7 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneRequiredWithoutProjectsNestedInput
     domains?: DomainUpdateManyWithoutProjectNestedInput
     testAccounts?: TestAccountUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUpdateManyWithoutProjectNestedInput
     scanJobs?: ScanJobUpdateManyWithoutProjectNestedInput
     findings?: FindingUpdateManyWithoutProjectNestedInput
     reports?: ReportUpdateManyWithoutProjectNestedInput
@@ -36725,6 +38535,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     domains?: DomainUncheckedUpdateManyWithoutProjectNestedInput
     testAccounts?: TestAccountUncheckedUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUncheckedUpdateManyWithoutProjectNestedInput
     scanJobs?: ScanJobUncheckedUpdateManyWithoutProjectNestedInput
     findings?: FindingUncheckedUpdateManyWithoutProjectNestedInput
     reports?: ReportUncheckedUpdateManyWithoutProjectNestedInput
@@ -36758,6 +38569,7 @@ export namespace Prisma {
     organization: OrganizationCreateNestedOneWithoutProjectsInput
     domains?: DomainCreateNestedManyWithoutProjectInput
     scanAuthorizations?: ScanAuthorizationCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateCreateNestedManyWithoutProjectInput
     scanJobs?: ScanJobCreateNestedManyWithoutProjectInput
     findings?: FindingCreateNestedManyWithoutProjectInput
     reports?: ReportCreateNestedManyWithoutProjectInput
@@ -36775,6 +38587,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     domains?: DomainUncheckedCreateNestedManyWithoutProjectInput
     scanAuthorizations?: ScanAuthorizationUncheckedCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateUncheckedCreateNestedManyWithoutProjectInput
     scanJobs?: ScanJobUncheckedCreateNestedManyWithoutProjectInput
     findings?: FindingUncheckedCreateNestedManyWithoutProjectInput
     reports?: ReportUncheckedCreateNestedManyWithoutProjectInput
@@ -36786,6 +38599,48 @@ export namespace Prisma {
   export type ProjectCreateOrConnectWithoutTestAccountsInput = {
     where: ProjectWhereUniqueInput
     create: XOR<ProjectCreateWithoutTestAccountsInput, ProjectUncheckedCreateWithoutTestAccountsInput>
+  }
+
+  export type BrowserSessionStateCreateWithoutTestAccountInput = {
+    id?: string
+    organizationId: string
+    status?: $Enums.BrowserSessionStateStatus
+    loginUrl: string
+    finalUrl?: string | null
+    storageStateCipher?: string | null
+    streamUrl?: string | null
+    expiresAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    project: ProjectCreateNestedOneWithoutBrowserSessionStatesInput
+  }
+
+  export type BrowserSessionStateUncheckedCreateWithoutTestAccountInput = {
+    id?: string
+    organizationId: string
+    projectId: string
+    status?: $Enums.BrowserSessionStateStatus
+    loginUrl: string
+    finalUrl?: string | null
+    storageStateCipher?: string | null
+    streamUrl?: string | null
+    expiresAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+  }
+
+  export type BrowserSessionStateCreateOrConnectWithoutTestAccountInput = {
+    where: BrowserSessionStateWhereUniqueInput
+    create: XOR<BrowserSessionStateCreateWithoutTestAccountInput, BrowserSessionStateUncheckedCreateWithoutTestAccountInput>
+  }
+
+  export type BrowserSessionStateCreateManyTestAccountInputEnvelope = {
+    data: BrowserSessionStateCreateManyTestAccountInput | BrowserSessionStateCreateManyTestAccountInput[]
+    skipDuplicates?: boolean
   }
 
   export type ProjectUpsertWithoutTestAccountsInput = {
@@ -36808,6 +38663,7 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneRequiredWithoutProjectsNestedInput
     domains?: DomainUpdateManyWithoutProjectNestedInput
     scanAuthorizations?: ScanAuthorizationUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUpdateManyWithoutProjectNestedInput
     scanJobs?: ScanJobUpdateManyWithoutProjectNestedInput
     findings?: FindingUpdateManyWithoutProjectNestedInput
     reports?: ReportUpdateManyWithoutProjectNestedInput
@@ -36825,12 +38681,181 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     domains?: DomainUncheckedUpdateManyWithoutProjectNestedInput
     scanAuthorizations?: ScanAuthorizationUncheckedUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUncheckedUpdateManyWithoutProjectNestedInput
     scanJobs?: ScanJobUncheckedUpdateManyWithoutProjectNestedInput
     findings?: FindingUncheckedUpdateManyWithoutProjectNestedInput
     reports?: ReportUncheckedUpdateManyWithoutProjectNestedInput
     creditLedger?: CreditEntryUncheckedUpdateManyWithoutProjectNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutProjectNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutProjectNestedInput
+  }
+
+  export type BrowserSessionStateUpsertWithWhereUniqueWithoutTestAccountInput = {
+    where: BrowserSessionStateWhereUniqueInput
+    update: XOR<BrowserSessionStateUpdateWithoutTestAccountInput, BrowserSessionStateUncheckedUpdateWithoutTestAccountInput>
+    create: XOR<BrowserSessionStateCreateWithoutTestAccountInput, BrowserSessionStateUncheckedCreateWithoutTestAccountInput>
+  }
+
+  export type BrowserSessionStateUpdateWithWhereUniqueWithoutTestAccountInput = {
+    where: BrowserSessionStateWhereUniqueInput
+    data: XOR<BrowserSessionStateUpdateWithoutTestAccountInput, BrowserSessionStateUncheckedUpdateWithoutTestAccountInput>
+  }
+
+  export type BrowserSessionStateUpdateManyWithWhereWithoutTestAccountInput = {
+    where: BrowserSessionStateScalarWhereInput
+    data: XOR<BrowserSessionStateUpdateManyMutationInput, BrowserSessionStateUncheckedUpdateManyWithoutTestAccountInput>
+  }
+
+  export type ProjectCreateWithoutBrowserSessionStatesInput = {
+    id?: string
+    name: string
+    packageTier?: $Enums.PackageTier
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization: OrganizationCreateNestedOneWithoutProjectsInput
+    domains?: DomainCreateNestedManyWithoutProjectInput
+    scanAuthorizations?: ScanAuthorizationCreateNestedManyWithoutProjectInput
+    testAccounts?: TestAccountCreateNestedManyWithoutProjectInput
+    scanJobs?: ScanJobCreateNestedManyWithoutProjectInput
+    findings?: FindingCreateNestedManyWithoutProjectInput
+    reports?: ReportCreateNestedManyWithoutProjectInput
+    creditLedger?: CreditEntryCreateNestedManyWithoutProjectInput
+    payments?: PaymentCreateNestedManyWithoutProjectInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectUncheckedCreateWithoutBrowserSessionStatesInput = {
+    id?: string
+    organizationId: string
+    name: string
+    packageTier?: $Enums.PackageTier
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    domains?: DomainUncheckedCreateNestedManyWithoutProjectInput
+    scanAuthorizations?: ScanAuthorizationUncheckedCreateNestedManyWithoutProjectInput
+    testAccounts?: TestAccountUncheckedCreateNestedManyWithoutProjectInput
+    scanJobs?: ScanJobUncheckedCreateNestedManyWithoutProjectInput
+    findings?: FindingUncheckedCreateNestedManyWithoutProjectInput
+    reports?: ReportUncheckedCreateNestedManyWithoutProjectInput
+    creditLedger?: CreditEntryUncheckedCreateNestedManyWithoutProjectInput
+    payments?: PaymentUncheckedCreateNestedManyWithoutProjectInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectCreateOrConnectWithoutBrowserSessionStatesInput = {
+    where: ProjectWhereUniqueInput
+    create: XOR<ProjectCreateWithoutBrowserSessionStatesInput, ProjectUncheckedCreateWithoutBrowserSessionStatesInput>
+  }
+
+  export type TestAccountCreateWithoutBrowserSessionStatesInput = {
+    id?: string
+    label: string
+    loginUrl: string
+    credentialCipher: string
+    identityEmail?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    project: ProjectCreateNestedOneWithoutTestAccountsInput
+  }
+
+  export type TestAccountUncheckedCreateWithoutBrowserSessionStatesInput = {
+    id?: string
+    projectId: string
+    label: string
+    loginUrl: string
+    credentialCipher: string
+    identityEmail?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TestAccountCreateOrConnectWithoutBrowserSessionStatesInput = {
+    where: TestAccountWhereUniqueInput
+    create: XOR<TestAccountCreateWithoutBrowserSessionStatesInput, TestAccountUncheckedCreateWithoutBrowserSessionStatesInput>
+  }
+
+  export type ProjectUpsertWithoutBrowserSessionStatesInput = {
+    update: XOR<ProjectUpdateWithoutBrowserSessionStatesInput, ProjectUncheckedUpdateWithoutBrowserSessionStatesInput>
+    create: XOR<ProjectCreateWithoutBrowserSessionStatesInput, ProjectUncheckedCreateWithoutBrowserSessionStatesInput>
+    where?: ProjectWhereInput
+  }
+
+  export type ProjectUpdateToOneWithWhereWithoutBrowserSessionStatesInput = {
+    where?: ProjectWhereInput
+    data: XOR<ProjectUpdateWithoutBrowserSessionStatesInput, ProjectUncheckedUpdateWithoutBrowserSessionStatesInput>
+  }
+
+  export type ProjectUpdateWithoutBrowserSessionStatesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    packageTier?: EnumPackageTierFieldUpdateOperationsInput | $Enums.PackageTier
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneRequiredWithoutProjectsNestedInput
+    domains?: DomainUpdateManyWithoutProjectNestedInput
+    scanAuthorizations?: ScanAuthorizationUpdateManyWithoutProjectNestedInput
+    testAccounts?: TestAccountUpdateManyWithoutProjectNestedInput
+    scanJobs?: ScanJobUpdateManyWithoutProjectNestedInput
+    findings?: FindingUpdateManyWithoutProjectNestedInput
+    reports?: ReportUpdateManyWithoutProjectNestedInput
+    creditLedger?: CreditEntryUpdateManyWithoutProjectNestedInput
+    payments?: PaymentUpdateManyWithoutProjectNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutProjectNestedInput
+  }
+
+  export type ProjectUncheckedUpdateWithoutBrowserSessionStatesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    packageTier?: EnumPackageTierFieldUpdateOperationsInput | $Enums.PackageTier
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    domains?: DomainUncheckedUpdateManyWithoutProjectNestedInput
+    scanAuthorizations?: ScanAuthorizationUncheckedUpdateManyWithoutProjectNestedInput
+    testAccounts?: TestAccountUncheckedUpdateManyWithoutProjectNestedInput
+    scanJobs?: ScanJobUncheckedUpdateManyWithoutProjectNestedInput
+    findings?: FindingUncheckedUpdateManyWithoutProjectNestedInput
+    reports?: ReportUncheckedUpdateManyWithoutProjectNestedInput
+    creditLedger?: CreditEntryUncheckedUpdateManyWithoutProjectNestedInput
+    payments?: PaymentUncheckedUpdateManyWithoutProjectNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutProjectNestedInput
+  }
+
+  export type TestAccountUpsertWithoutBrowserSessionStatesInput = {
+    update: XOR<TestAccountUpdateWithoutBrowserSessionStatesInput, TestAccountUncheckedUpdateWithoutBrowserSessionStatesInput>
+    create: XOR<TestAccountCreateWithoutBrowserSessionStatesInput, TestAccountUncheckedCreateWithoutBrowserSessionStatesInput>
+    where?: TestAccountWhereInput
+  }
+
+  export type TestAccountUpdateToOneWithWhereWithoutBrowserSessionStatesInput = {
+    where?: TestAccountWhereInput
+    data: XOR<TestAccountUpdateWithoutBrowserSessionStatesInput, TestAccountUncheckedUpdateWithoutBrowserSessionStatesInput>
+  }
+
+  export type TestAccountUpdateWithoutBrowserSessionStatesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    loginUrl?: StringFieldUpdateOperationsInput | string
+    credentialCipher?: StringFieldUpdateOperationsInput | string
+    identityEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    project?: ProjectUpdateOneRequiredWithoutTestAccountsNestedInput
+  }
+
+  export type TestAccountUncheckedUpdateWithoutBrowserSessionStatesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    loginUrl?: StringFieldUpdateOperationsInput | string
+    credentialCipher?: StringFieldUpdateOperationsInput | string
+    identityEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProjectCreateWithoutScanJobsInput = {
@@ -36843,6 +38868,7 @@ export namespace Prisma {
     domains?: DomainCreateNestedManyWithoutProjectInput
     scanAuthorizations?: ScanAuthorizationCreateNestedManyWithoutProjectInput
     testAccounts?: TestAccountCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateCreateNestedManyWithoutProjectInput
     findings?: FindingCreateNestedManyWithoutProjectInput
     reports?: ReportCreateNestedManyWithoutProjectInput
     creditLedger?: CreditEntryCreateNestedManyWithoutProjectInput
@@ -36860,6 +38886,7 @@ export namespace Prisma {
     domains?: DomainUncheckedCreateNestedManyWithoutProjectInput
     scanAuthorizations?: ScanAuthorizationUncheckedCreateNestedManyWithoutProjectInput
     testAccounts?: TestAccountUncheckedCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateUncheckedCreateNestedManyWithoutProjectInput
     findings?: FindingUncheckedCreateNestedManyWithoutProjectInput
     reports?: ReportUncheckedCreateNestedManyWithoutProjectInput
     creditLedger?: CreditEntryUncheckedCreateNestedManyWithoutProjectInput
@@ -37241,6 +39268,7 @@ export namespace Prisma {
     domains?: DomainUpdateManyWithoutProjectNestedInput
     scanAuthorizations?: ScanAuthorizationUpdateManyWithoutProjectNestedInput
     testAccounts?: TestAccountUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUpdateManyWithoutProjectNestedInput
     findings?: FindingUpdateManyWithoutProjectNestedInput
     reports?: ReportUpdateManyWithoutProjectNestedInput
     creditLedger?: CreditEntryUpdateManyWithoutProjectNestedInput
@@ -37258,6 +39286,7 @@ export namespace Prisma {
     domains?: DomainUncheckedUpdateManyWithoutProjectNestedInput
     scanAuthorizations?: ScanAuthorizationUncheckedUpdateManyWithoutProjectNestedInput
     testAccounts?: TestAccountUncheckedUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUncheckedUpdateManyWithoutProjectNestedInput
     findings?: FindingUncheckedUpdateManyWithoutProjectNestedInput
     reports?: ReportUncheckedUpdateManyWithoutProjectNestedInput
     creditLedger?: CreditEntryUncheckedUpdateManyWithoutProjectNestedInput
@@ -37910,6 +39939,7 @@ export namespace Prisma {
     domains?: DomainCreateNestedManyWithoutProjectInput
     scanAuthorizations?: ScanAuthorizationCreateNestedManyWithoutProjectInput
     testAccounts?: TestAccountCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateCreateNestedManyWithoutProjectInput
     scanJobs?: ScanJobCreateNestedManyWithoutProjectInput
     reports?: ReportCreateNestedManyWithoutProjectInput
     creditLedger?: CreditEntryCreateNestedManyWithoutProjectInput
@@ -37927,6 +39957,7 @@ export namespace Prisma {
     domains?: DomainUncheckedCreateNestedManyWithoutProjectInput
     scanAuthorizations?: ScanAuthorizationUncheckedCreateNestedManyWithoutProjectInput
     testAccounts?: TestAccountUncheckedCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateUncheckedCreateNestedManyWithoutProjectInput
     scanJobs?: ScanJobUncheckedCreateNestedManyWithoutProjectInput
     reports?: ReportUncheckedCreateNestedManyWithoutProjectInput
     creditLedger?: CreditEntryUncheckedCreateNestedManyWithoutProjectInput
@@ -38135,6 +40166,7 @@ export namespace Prisma {
     domains?: DomainUpdateManyWithoutProjectNestedInput
     scanAuthorizations?: ScanAuthorizationUpdateManyWithoutProjectNestedInput
     testAccounts?: TestAccountUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUpdateManyWithoutProjectNestedInput
     scanJobs?: ScanJobUpdateManyWithoutProjectNestedInput
     reports?: ReportUpdateManyWithoutProjectNestedInput
     creditLedger?: CreditEntryUpdateManyWithoutProjectNestedInput
@@ -38152,6 +40184,7 @@ export namespace Prisma {
     domains?: DomainUncheckedUpdateManyWithoutProjectNestedInput
     scanAuthorizations?: ScanAuthorizationUncheckedUpdateManyWithoutProjectNestedInput
     testAccounts?: TestAccountUncheckedUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUncheckedUpdateManyWithoutProjectNestedInput
     scanJobs?: ScanJobUncheckedUpdateManyWithoutProjectNestedInput
     reports?: ReportUncheckedUpdateManyWithoutProjectNestedInput
     creditLedger?: CreditEntryUncheckedUpdateManyWithoutProjectNestedInput
@@ -38300,6 +40333,7 @@ export namespace Prisma {
     domains?: DomainCreateNestedManyWithoutProjectInput
     scanAuthorizations?: ScanAuthorizationCreateNestedManyWithoutProjectInput
     testAccounts?: TestAccountCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateCreateNestedManyWithoutProjectInput
     scanJobs?: ScanJobCreateNestedManyWithoutProjectInput
     findings?: FindingCreateNestedManyWithoutProjectInput
     creditLedger?: CreditEntryCreateNestedManyWithoutProjectInput
@@ -38317,6 +40351,7 @@ export namespace Prisma {
     domains?: DomainUncheckedCreateNestedManyWithoutProjectInput
     scanAuthorizations?: ScanAuthorizationUncheckedCreateNestedManyWithoutProjectInput
     testAccounts?: TestAccountUncheckedCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateUncheckedCreateNestedManyWithoutProjectInput
     scanJobs?: ScanJobUncheckedCreateNestedManyWithoutProjectInput
     findings?: FindingUncheckedCreateNestedManyWithoutProjectInput
     creditLedger?: CreditEntryUncheckedCreateNestedManyWithoutProjectInput
@@ -38409,6 +40444,7 @@ export namespace Prisma {
     domains?: DomainUpdateManyWithoutProjectNestedInput
     scanAuthorizations?: ScanAuthorizationUpdateManyWithoutProjectNestedInput
     testAccounts?: TestAccountUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUpdateManyWithoutProjectNestedInput
     scanJobs?: ScanJobUpdateManyWithoutProjectNestedInput
     findings?: FindingUpdateManyWithoutProjectNestedInput
     creditLedger?: CreditEntryUpdateManyWithoutProjectNestedInput
@@ -38426,6 +40462,7 @@ export namespace Prisma {
     domains?: DomainUncheckedUpdateManyWithoutProjectNestedInput
     scanAuthorizations?: ScanAuthorizationUncheckedUpdateManyWithoutProjectNestedInput
     testAccounts?: TestAccountUncheckedUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUncheckedUpdateManyWithoutProjectNestedInput
     scanJobs?: ScanJobUncheckedUpdateManyWithoutProjectNestedInput
     findings?: FindingUncheckedUpdateManyWithoutProjectNestedInput
     creditLedger?: CreditEntryUncheckedUpdateManyWithoutProjectNestedInput
@@ -39272,6 +41309,7 @@ export namespace Prisma {
     domains?: DomainCreateNestedManyWithoutProjectInput
     scanAuthorizations?: ScanAuthorizationCreateNestedManyWithoutProjectInput
     testAccounts?: TestAccountCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateCreateNestedManyWithoutProjectInput
     scanJobs?: ScanJobCreateNestedManyWithoutProjectInput
     findings?: FindingCreateNestedManyWithoutProjectInput
     reports?: ReportCreateNestedManyWithoutProjectInput
@@ -39289,6 +41327,7 @@ export namespace Prisma {
     domains?: DomainUncheckedCreateNestedManyWithoutProjectInput
     scanAuthorizations?: ScanAuthorizationUncheckedCreateNestedManyWithoutProjectInput
     testAccounts?: TestAccountUncheckedCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateUncheckedCreateNestedManyWithoutProjectInput
     scanJobs?: ScanJobUncheckedCreateNestedManyWithoutProjectInput
     findings?: FindingUncheckedCreateNestedManyWithoutProjectInput
     reports?: ReportUncheckedCreateNestedManyWithoutProjectInput
@@ -39322,6 +41361,7 @@ export namespace Prisma {
     domains?: DomainUpdateManyWithoutProjectNestedInput
     scanAuthorizations?: ScanAuthorizationUpdateManyWithoutProjectNestedInput
     testAccounts?: TestAccountUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUpdateManyWithoutProjectNestedInput
     scanJobs?: ScanJobUpdateManyWithoutProjectNestedInput
     findings?: FindingUpdateManyWithoutProjectNestedInput
     reports?: ReportUpdateManyWithoutProjectNestedInput
@@ -39339,6 +41379,7 @@ export namespace Prisma {
     domains?: DomainUncheckedUpdateManyWithoutProjectNestedInput
     scanAuthorizations?: ScanAuthorizationUncheckedUpdateManyWithoutProjectNestedInput
     testAccounts?: TestAccountUncheckedUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUncheckedUpdateManyWithoutProjectNestedInput
     scanJobs?: ScanJobUncheckedUpdateManyWithoutProjectNestedInput
     findings?: FindingUncheckedUpdateManyWithoutProjectNestedInput
     reports?: ReportUncheckedUpdateManyWithoutProjectNestedInput
@@ -39383,6 +41424,7 @@ export namespace Prisma {
     domains?: DomainCreateNestedManyWithoutProjectInput
     scanAuthorizations?: ScanAuthorizationCreateNestedManyWithoutProjectInput
     testAccounts?: TestAccountCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateCreateNestedManyWithoutProjectInput
     scanJobs?: ScanJobCreateNestedManyWithoutProjectInput
     findings?: FindingCreateNestedManyWithoutProjectInput
     reports?: ReportCreateNestedManyWithoutProjectInput
@@ -39400,6 +41442,7 @@ export namespace Prisma {
     domains?: DomainUncheckedCreateNestedManyWithoutProjectInput
     scanAuthorizations?: ScanAuthorizationUncheckedCreateNestedManyWithoutProjectInput
     testAccounts?: TestAccountUncheckedCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateUncheckedCreateNestedManyWithoutProjectInput
     scanJobs?: ScanJobUncheckedCreateNestedManyWithoutProjectInput
     findings?: FindingUncheckedCreateNestedManyWithoutProjectInput
     reports?: ReportUncheckedCreateNestedManyWithoutProjectInput
@@ -39466,6 +41509,7 @@ export namespace Prisma {
     domains?: DomainUpdateManyWithoutProjectNestedInput
     scanAuthorizations?: ScanAuthorizationUpdateManyWithoutProjectNestedInput
     testAccounts?: TestAccountUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUpdateManyWithoutProjectNestedInput
     scanJobs?: ScanJobUpdateManyWithoutProjectNestedInput
     findings?: FindingUpdateManyWithoutProjectNestedInput
     reports?: ReportUpdateManyWithoutProjectNestedInput
@@ -39483,6 +41527,7 @@ export namespace Prisma {
     domains?: DomainUncheckedUpdateManyWithoutProjectNestedInput
     scanAuthorizations?: ScanAuthorizationUncheckedUpdateManyWithoutProjectNestedInput
     testAccounts?: TestAccountUncheckedUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUncheckedUpdateManyWithoutProjectNestedInput
     scanJobs?: ScanJobUncheckedUpdateManyWithoutProjectNestedInput
     findings?: FindingUncheckedUpdateManyWithoutProjectNestedInput
     reports?: ReportUncheckedUpdateManyWithoutProjectNestedInput
@@ -39527,6 +41572,7 @@ export namespace Prisma {
     domains?: DomainCreateNestedManyWithoutProjectInput
     scanAuthorizations?: ScanAuthorizationCreateNestedManyWithoutProjectInput
     testAccounts?: TestAccountCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateCreateNestedManyWithoutProjectInput
     scanJobs?: ScanJobCreateNestedManyWithoutProjectInput
     findings?: FindingCreateNestedManyWithoutProjectInput
     reports?: ReportCreateNestedManyWithoutProjectInput
@@ -39544,6 +41590,7 @@ export namespace Prisma {
     domains?: DomainUncheckedCreateNestedManyWithoutProjectInput
     scanAuthorizations?: ScanAuthorizationUncheckedCreateNestedManyWithoutProjectInput
     testAccounts?: TestAccountUncheckedCreateNestedManyWithoutProjectInput
+    browserSessionStates?: BrowserSessionStateUncheckedCreateNestedManyWithoutProjectInput
     scanJobs?: ScanJobUncheckedCreateNestedManyWithoutProjectInput
     findings?: FindingUncheckedCreateNestedManyWithoutProjectInput
     reports?: ReportUncheckedCreateNestedManyWithoutProjectInput
@@ -39610,6 +41657,7 @@ export namespace Prisma {
     domains?: DomainUpdateManyWithoutProjectNestedInput
     scanAuthorizations?: ScanAuthorizationUpdateManyWithoutProjectNestedInput
     testAccounts?: TestAccountUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUpdateManyWithoutProjectNestedInput
     scanJobs?: ScanJobUpdateManyWithoutProjectNestedInput
     findings?: FindingUpdateManyWithoutProjectNestedInput
     reports?: ReportUpdateManyWithoutProjectNestedInput
@@ -39627,6 +41675,7 @@ export namespace Prisma {
     domains?: DomainUncheckedUpdateManyWithoutProjectNestedInput
     scanAuthorizations?: ScanAuthorizationUncheckedUpdateManyWithoutProjectNestedInput
     testAccounts?: TestAccountUncheckedUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUncheckedUpdateManyWithoutProjectNestedInput
     scanJobs?: ScanJobUncheckedUpdateManyWithoutProjectNestedInput
     findings?: FindingUncheckedUpdateManyWithoutProjectNestedInput
     reports?: ReportUncheckedUpdateManyWithoutProjectNestedInput
@@ -39791,6 +41840,7 @@ export namespace Prisma {
     domains?: DomainUpdateManyWithoutProjectNestedInput
     scanAuthorizations?: ScanAuthorizationUpdateManyWithoutProjectNestedInput
     testAccounts?: TestAccountUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUpdateManyWithoutProjectNestedInput
     scanJobs?: ScanJobUpdateManyWithoutProjectNestedInput
     findings?: FindingUpdateManyWithoutProjectNestedInput
     reports?: ReportUpdateManyWithoutProjectNestedInput
@@ -39808,6 +41858,7 @@ export namespace Prisma {
     domains?: DomainUncheckedUpdateManyWithoutProjectNestedInput
     scanAuthorizations?: ScanAuthorizationUncheckedUpdateManyWithoutProjectNestedInput
     testAccounts?: TestAccountUncheckedUpdateManyWithoutProjectNestedInput
+    browserSessionStates?: BrowserSessionStateUncheckedUpdateManyWithoutProjectNestedInput
     scanJobs?: ScanJobUncheckedUpdateManyWithoutProjectNestedInput
     findings?: FindingUncheckedUpdateManyWithoutProjectNestedInput
     reports?: ReportUncheckedUpdateManyWithoutProjectNestedInput
@@ -40110,6 +42161,22 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type BrowserSessionStateCreateManyProjectInput = {
+    id?: string
+    organizationId: string
+    testAccountId: string
+    status?: $Enums.BrowserSessionStateStatus
+    loginUrl: string
+    finalUrl?: string | null
+    storageStateCipher?: string | null
+    streamUrl?: string | null
+    expiresAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+  }
+
   export type ScanJobCreateManyProjectInput = {
     id?: string
     authorizationId: string
@@ -40290,6 +42357,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    browserSessionStates?: BrowserSessionStateUpdateManyWithoutTestAccountNestedInput
   }
 
   export type TestAccountUncheckedUpdateWithoutProjectInput = {
@@ -40301,6 +42369,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    browserSessionStates?: BrowserSessionStateUncheckedUpdateManyWithoutTestAccountNestedInput
   }
 
   export type TestAccountUncheckedUpdateManyWithoutProjectInput = {
@@ -40312,6 +42381,54 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BrowserSessionStateUpdateWithoutProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    status?: EnumBrowserSessionStateStatusFieldUpdateOperationsInput | $Enums.BrowserSessionStateStatus
+    loginUrl?: StringFieldUpdateOperationsInput | string
+    finalUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    storageStateCipher?: NullableStringFieldUpdateOperationsInput | string | null
+    streamUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    testAccount?: TestAccountUpdateOneRequiredWithoutBrowserSessionStatesNestedInput
+  }
+
+  export type BrowserSessionStateUncheckedUpdateWithoutProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    testAccountId?: StringFieldUpdateOperationsInput | string
+    status?: EnumBrowserSessionStateStatusFieldUpdateOperationsInput | $Enums.BrowserSessionStateStatus
+    loginUrl?: StringFieldUpdateOperationsInput | string
+    finalUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    storageStateCipher?: NullableStringFieldUpdateOperationsInput | string | null
+    streamUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BrowserSessionStateUncheckedUpdateManyWithoutProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    testAccountId?: StringFieldUpdateOperationsInput | string
+    status?: EnumBrowserSessionStateStatusFieldUpdateOperationsInput | $Enums.BrowserSessionStateStatus
+    loginUrl?: StringFieldUpdateOperationsInput | string
+    finalUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    storageStateCipher?: NullableStringFieldUpdateOperationsInput | string | null
+    streamUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type ScanJobUpdateWithoutProjectInput = {
@@ -40732,6 +42849,70 @@ export namespace Prisma {
     budgetUsed?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BrowserSessionStateCreateManyTestAccountInput = {
+    id?: string
+    organizationId: string
+    projectId: string
+    status?: $Enums.BrowserSessionStateStatus
+    loginUrl: string
+    finalUrl?: string | null
+    storageStateCipher?: string | null
+    streamUrl?: string | null
+    expiresAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+  }
+
+  export type BrowserSessionStateUpdateWithoutTestAccountInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    status?: EnumBrowserSessionStateStatusFieldUpdateOperationsInput | $Enums.BrowserSessionStateStatus
+    loginUrl?: StringFieldUpdateOperationsInput | string
+    finalUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    storageStateCipher?: NullableStringFieldUpdateOperationsInput | string | null
+    streamUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    project?: ProjectUpdateOneRequiredWithoutBrowserSessionStatesNestedInput
+  }
+
+  export type BrowserSessionStateUncheckedUpdateWithoutTestAccountInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    status?: EnumBrowserSessionStateStatusFieldUpdateOperationsInput | $Enums.BrowserSessionStateStatus
+    loginUrl?: StringFieldUpdateOperationsInput | string
+    finalUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    storageStateCipher?: NullableStringFieldUpdateOperationsInput | string | null
+    streamUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BrowserSessionStateUncheckedUpdateManyWithoutTestAccountInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    status?: EnumBrowserSessionStateStatusFieldUpdateOperationsInput | $Enums.BrowserSessionStateStatus
+    loginUrl?: StringFieldUpdateOperationsInput | string
+    finalUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    storageStateCipher?: NullableStringFieldUpdateOperationsInput | string | null
+    streamUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type ScanStepCreateManyScanJobInput = {
@@ -41322,6 +43503,10 @@ export namespace Prisma {
      */
     export type ScanAuthorizationCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ScanAuthorizationCountOutputTypeDefaultArgs<ExtArgs>
     /**
+     * @deprecated Use TestAccountCountOutputTypeDefaultArgs instead
+     */
+    export type TestAccountCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TestAccountCountOutputTypeDefaultArgs<ExtArgs>
+    /**
      * @deprecated Use ScanJobCountOutputTypeDefaultArgs instead
      */
     export type ScanJobCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ScanJobCountOutputTypeDefaultArgs<ExtArgs>
@@ -41357,6 +43542,10 @@ export namespace Prisma {
      * @deprecated Use TestAccountDefaultArgs instead
      */
     export type TestAccountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TestAccountDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use BrowserSessionStateDefaultArgs instead
+     */
+    export type BrowserSessionStateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = BrowserSessionStateDefaultArgs<ExtArgs>
     /**
      * @deprecated Use ScanJobDefaultArgs instead
      */

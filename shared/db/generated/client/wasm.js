@@ -204,6 +204,23 @@ exports.Prisma.TestAccountScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.BrowserSessionStateScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  projectId: 'projectId',
+  testAccountId: 'testAccountId',
+  status: 'status',
+  loginUrl: 'loginUrl',
+  finalUrl: 'finalUrl',
+  storageStateCipher: 'storageStateCipher',
+  streamUrl: 'streamUrl',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  completedAt: 'completedAt',
+  cancelledAt: 'cancelledAt'
+};
+
 exports.Prisma.ScanJobScalarFieldEnum = {
   id: 'id',
   projectId: 'projectId',
@@ -488,6 +505,13 @@ exports.TestIntensityMode = exports.$Enums.TestIntensityMode = {
   aggressive_staging: 'aggressive_staging'
 };
 
+exports.BrowserSessionStateStatus = exports.$Enums.BrowserSessionStateStatus = {
+  pending: 'pending',
+  active: 'active',
+  cancelled: 'cancelled',
+  expired: 'expired'
+};
+
 exports.ScanState = exports.$Enums.ScanState = {
   queued: 'queued',
   running: 'running',
@@ -616,6 +640,7 @@ exports.Prisma.ModelName = {
   DomainVerification: 'DomainVerification',
   ScanAuthorization: 'ScanAuthorization',
   TestAccount: 'TestAccount',
+  BrowserSessionState: 'BrowserSessionState',
   ScanJob: 'ScanJob',
   ScanStep: 'ScanStep',
   ScanActivityEvent: 'ScanActivityEvent',

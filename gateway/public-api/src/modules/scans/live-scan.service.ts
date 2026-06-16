@@ -503,6 +503,7 @@ function visualIsFresh(artifact: SanitizedVisualArtifact | undefined, now: Date)
 }
 
 function localActivityTitle(titleKey: string, actor: WorkerCode | 'scan' | 'report'): string {
+  if (titleKey.includes('auth_session_required')) return 'Auth session required';
   if (titleKey.includes('reasoning')) return `${actor} reasoning summary`;
   if (titleKey.includes('browser')) return 'Browser action';
   if (titleKey.includes('finding')) return 'Finding candidate';
@@ -513,6 +514,7 @@ function localActivityTitle(titleKey: string, actor: WorkerCode | 'scan' | 'repo
 function localActivityBody(bodyKey: string, params: Record<string, unknown>): string {
   if (typeof params.summary === 'string') return sanitizeText(params.summary);
   if (typeof params.message === 'string') return sanitizeText(params.message);
+  if (bodyKey.includes('auth_session_required')) return 'Log in again with a saved test account before running authenticated coverage.';
   if (bodyKey.includes('reasoning')) return 'Sanitized reasoning summary is ready.';
   if (bodyKey.includes('browser')) return 'A browser action was observed in the verified scope.';
   if (bodyKey.includes('report')) return 'The sanitized report is being updated.';

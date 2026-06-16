@@ -77,15 +77,16 @@ model Project {
   updatedAt      DateTime     @updatedAt @map("updated_at")
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  domains            Domain[]
-  scanAuthorizations ScanAuthorization[]
-  testAccounts       TestAccount[]
-  scanJobs           ScanJob[]
-  findings           Finding[]
-  reports            Report[]
-  creditLedger       CreditEntry[]
-  payments           Payment[]
-  subscriptions      Subscription[]
+  domains              Domain[]
+  scanAuthorizations   ScanAuthorization[]
+  testAccounts         TestAccount[]
+  browserSessionStates BrowserSessionState[]
+  scanJobs             ScanJob[]
+  findings             Finding[]
+  reports              Report[]
+  creditLedger         CreditEntry[]
+  payments             Payment[]
+  subscriptions        Subscription[]
 
   @@map("projects")
 }
@@ -168,20 +169,51 @@ model ScanAuthorization {
 }
 
 model TestAccount {
-  id               String   @id @default(cuid())
-  projectId        String   @map("project_id")
-  label            String
-  loginUrl         String   @map("login_url")
+  id                   String                @id @default(cuid())
+  projectId            String                @map("project_id")
+  label                String
+  loginUrl             String                @map("login_url")
   /// Encrypted (AES-256-GCM). Never decrypted to logs or LLM prompts.
-  credentialCipher String   @map("credential_cipher")
+  credentialCipher     String                @map("credential_cipher")
   /// Encrypted JSON: { username, password, totpSecret? }.
-  identityEmail    String?  @map("identity_email")
-  notes            String?
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
-  project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  identityEmail        String?               @map("identity_email")
+  notes                String?
+  createdAt            DateTime              @default(now()) @map("created_at")
+  updatedAt            DateTime              @updatedAt @map("updated_at")
+  project              Project               @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  browserSessionStates BrowserSessionState[]
 
   @@map("test_accounts")
+}
+
+enum BrowserSessionStateStatus {
+  pending
+  active
+  cancelled
+  expired
+}
+
+model BrowserSessionState {
+  id                 String                    @id @default(cuid())
+  organizationId     String                    @map("organization_id")
+  projectId          String                    @map("project_id")
+  testAccountId      String                    @map("test_account_id")
+  status             BrowserSessionStateStatus @default(pending)
+  loginUrl           String                    @map("login_url")
+  finalUrl           String?                   @map("final_url")
+  storageStateCipher String?                   @map("storage_state_cipher")
+  streamUrl          String?                   @map("stream_url")
+  expiresAt          DateTime                  @map("expires_at")
+  createdAt          DateTime                  @default(now()) @map("created_at")
+  updatedAt          DateTime                  @updatedAt @map("updated_at")
+  completedAt        DateTime?                 @map("completed_at")
+  cancelledAt        DateTime?                 @map("cancelled_at")
+  project            Project                   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  testAccount        TestAccount               @relation(fields: [testAccountId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, projectId])
+  @@index([testAccountId, status, expiresAt])
+  @@map("browser_session_states")
 }
 
 // =============================================================================

@@ -3,11 +3,13 @@ import { workerAuth } from '../../middlewares/worker-auth.middleware.js';
 import { CallbacksService, type WorkerStepResult, type WorkerSignal } from './callbacks.service.js';
 import { ScanStateService } from './scan-state.service.js';
 import { ApprovalService, type CreateApprovalInput } from './approval.service.js';
+import { BrowserSessionStateService } from './browser-session-state.service.js';
 
 export const scanRoutes = Router();
 const service = new CallbacksService();
 const stateService = new ScanStateService();
 const approvalService = new ApprovalService();
+const browserSessionStateService = new BrowserSessionStateService();
 
 // All worker callbacks require the shared worker token.
 scanRoutes.use(workerAuth);
@@ -90,4 +92,13 @@ scanRoutes.get('/:id/approvals/:approvalId', async (req, res) => {
     return;
   }
   res.json({ state, expired });
+});
+
+scanRoutes.get('/:id/browser-session-state', async (req, res) => {
+  const state = await browserSessionStateService.getForScan(req.params.id!);
+  if (!state) {
+    res.status(404).json({ error: { code: 'AUTH_SESSION_REQUIRED' } });
+    return;
+  }
+  res.json(state);
 });

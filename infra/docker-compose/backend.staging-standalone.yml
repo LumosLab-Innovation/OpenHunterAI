@@ -30,6 +30,7 @@ services:
       APP_JWT_SECRET: ${APP_JWT_SECRET:?Set APP_JWT_SECRET in the staging env file}
       EVENTS_DISABLED: "false"
       WORKER_TOKEN: ${WORKER_TOKEN:?Set WORKER_TOKEN in the staging env file}
+      BROWSER_SESSION_BASE_URL: ${BROWSER_SESSION_BASE_URL:-}
     ports:
       - "4000:4000"
     depends_on:

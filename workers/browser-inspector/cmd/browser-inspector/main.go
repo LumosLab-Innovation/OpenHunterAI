@@ -7,6 +7,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -15,8 +16,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/chromedp/cdproto/cdp"
+	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
 
+	"openhunter/workers/shared/callback"
 	"openhunter/workers/shared/events"
 	"openhunter/workers/shared/runner"
 	"openhunter/workers/shared/scope"
@@ -83,6 +87,18 @@ func runCDP(ctx context.Context, in events.WorkerRunPayload) worker.Result {
 	browserCtx, cancelBrowser := chromedp.NewContext(allocCtx)
 	defer cancelBrowser()
 
+	authApplied := false
+	if in.AuthScope != "" && in.AuthScope != "none" {
+		state, err := callback.New(env("INTERNAL_API_URL", "http://internal-api:4100"), os.Getenv("WORKER_TOKEN")).BrowserSessionState(ctx, in.ScanID)
+		if err != nil {
+			return worker.Skipped(in, "AUTH_SESSION_REQUIRED", "Authenticated scan requested, but no valid login session state is available. Ask the user to log in again.")
+		}
+		if err := applyStorageState(browserCtx, state.StorageState, sc); err != nil {
+			return worker.Skipped(in, "AUTH_SESSION_UNUSABLE", "Stored login session could not be applied safely inside the authorized browser scope.")
+		}
+		authApplied = true
+	}
+
 	obs := pageObservation{}
 	err := chromedp.Run(browserCtx,
 		chromedp.Navigate(target),
@@ -111,6 +127,7 @@ func runCDP(ctx context.Context, in events.WorkerRunPayload) worker.Result {
 		Meta: map[string]any{
 			"finalUrl":      sanitizeText(obs.FinalURL),
 			"title":         sanitizeText(obs.Title),
+			"authSession":   authSessionMeta(authApplied),
 			"linkCount":     obs.LinkCount,
 			"formCount":     obs.FormCount,
 			"inputCount":    obs.InputCount,
@@ -119,6 +136,100 @@ func runCDP(ctx context.Context, in events.WorkerRunPayload) worker.Result {
 			"hasViewport":   obs.HasViewport,
 		},
 	}
+}
+
+func applyStorageState(ctx context.Context, state callback.StorageState, sc scope.Scope) error {
+	if len(state.Cookies) > 0 {
+		params := make([]*network.CookieParam, 0, len(state.Cookies))
+		for _, c := range state.Cookies {
+			if c.Name == "" || c.Value == "" || c.Domain == "" {
+				continue
+			}
+			host := strings.TrimPrefix(c.Domain, ".")
+			if err := scope.CheckURL("https://"+host, sc); err != nil {
+				continue
+			}
+			param := &network.CookieParam{
+				Name:     c.Name,
+				Value:    c.Value,
+				Domain:   c.Domain,
+				Path:     nonEmpty(c.Path, "/"),
+				HTTPOnly: c.HTTPOnly,
+				Secure:   c.Secure,
+				SameSite: cookieSameSite(c.SameSite),
+			}
+			if c.Expires > 0 {
+				expires := cdp.TimeSinceEpoch(time.Unix(int64(c.Expires), 0).UTC())
+				param.Expires = &expires
+			}
+			params = append(params, param)
+		}
+		if len(params) > 0 {
+			if err := chromedp.Run(ctx, network.SetCookies(params)); err != nil {
+				return err
+			}
+		}
+	}
+
+	for _, origin := range state.Origins {
+		if origin.Origin == "" {
+			continue
+		}
+		if err := scope.CheckURL(origin.Origin, sc); err != nil {
+			continue
+		}
+		if err := chromedp.Run(ctx,
+			chromedp.Navigate(origin.Origin),
+			chromedp.WaitReady("body", chromedp.ByQuery),
+			chromedp.Evaluate(storageScript(origin.LocalStorage, "localStorage"), nil),
+			chromedp.Evaluate(storageScript(origin.SessionStorage, "sessionStorage"), nil),
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func storageScript(entries []callback.StorageEntry, storageName string) string {
+	if len(entries) == 0 {
+		return "void 0"
+	}
+	payload := make(map[string]string, len(entries))
+	for _, entry := range entries {
+		if entry.Name == "" {
+			continue
+		}
+		payload[entry.Name] = entry.Value
+	}
+	raw, _ := json.Marshal(payload)
+	return fmt.Sprintf(`(() => { const entries = %s; for (const [k, v] of Object.entries(entries)) %s.setItem(k, v); })()`, string(raw), storageName)
+}
+
+func cookieSameSite(value string) network.CookieSameSite {
+	switch strings.ToLower(value) {
+	case "strict":
+		return network.CookieSameSiteStrict
+	case "none":
+		return network.CookieSameSiteNone
+	case "lax":
+		return network.CookieSameSiteLax
+	default:
+		return ""
+	}
+}
+
+func authSessionMeta(applied bool) string {
+	if applied {
+		return "applied"
+	}
+	return "none"
+}
+
+func nonEmpty(value, fallback string) string {
+	if value == "" {
+		return fallback
+	}
+	return value
 }
 
 func checkInitialRedirect(ctx context.Context, target string, sc scope.Scope) error {

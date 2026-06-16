@@ -32,6 +32,42 @@ type Client struct {
 	http    *http.Client
 }
 
+// BrowserSessionState is a sanitized Playwright-style storage state retrieved
+// over the private internal-api surface. It must never be logged or included in
+// worker step metadata.
+type BrowserSessionState struct {
+	FinalURL     string       `json:"finalUrl,omitempty"`
+	ExpiresAt    string       `json:"expiresAt"`
+	StorageState StorageState `json:"storageState"`
+}
+
+type StorageState struct {
+	Cookies []StorageCookie `json:"cookies"`
+	Origins []StorageOrigin `json:"origins"`
+}
+
+type StorageCookie struct {
+	Name     string  `json:"name"`
+	Value    string  `json:"value"`
+	Domain   string  `json:"domain"`
+	Path     string  `json:"path"`
+	Expires  float64 `json:"expires,omitempty"`
+	HTTPOnly bool    `json:"httpOnly,omitempty"`
+	Secure   bool    `json:"secure,omitempty"`
+	SameSite string  `json:"sameSite,omitempty"`
+}
+
+type StorageOrigin struct {
+	Origin         string         `json:"origin"`
+	LocalStorage   []StorageEntry `json:"localStorage"`
+	SessionStorage []StorageEntry `json:"sessionStorage"`
+}
+
+type StorageEntry struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
 // New builds a callback client. token is the shared secret expected by
 // internal-api (sent as a bearer-style header). An empty token is allowed only
 // in local/dev and is logged by the caller.
@@ -70,6 +106,20 @@ func (c *Client) SetState(ctx context.Context, scanID, state, errorMessage strin
 		return nil
 	}
 	return err
+}
+
+// BrowserSessionState fetches the latest valid authenticated storage state for
+// this scan. A 404 means the worker should report AUTH_SESSION_REQUIRED.
+func (c *Client) BrowserSessionState(ctx context.Context, scanID string) (*BrowserSessionState, error) {
+	raw, err := c.do(ctx, http.MethodGet, fmt.Sprintf("/internal/scans/%s/browser-session-state", scanID), nil)
+	if err != nil {
+		return nil, err
+	}
+	var out BrowserSessionState
+	if err := json.Unmarshal(raw, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 func (c *Client) post(ctx context.Context, path string, body any) error {
