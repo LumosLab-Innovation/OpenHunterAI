@@ -1,9 +1,10 @@
 import { publishEvent } from '@openhunter/event-core';
 import { getPrisma } from '@x-hunter/db';
-import { buildScanPlan, DEFAULT_SURFACE_FLAGS, GuardrailError, sanitizeText, type SurfaceFlags } from '@x-hunter/shared';
+import { assertInScope, buildScanPlan, DEFAULT_SURFACE_FLAGS, GuardrailError, normalizeUrl, sanitizeText, type SurfaceFlags } from '@x-hunter/shared';
 import { createInitialReportDraft } from '../reports/reports.service.js';
 import { EntitlementService } from '../billing/entitlement.service.js';
 import { recordScanActivity } from './live-scan.service.js';
+import { evaluateAggressiveStagingPreflight, type LlmReadinessInput, type PreflightResult } from './preflight.js';
 import type { CreateScanBody } from './scans.dto.js';
 
 type ScanState = 'queued' | 'running' | 'awaiting_approval' | 'completed' | 'failed' | 'cancelled' | 'timeout';
@@ -153,6 +154,64 @@ export class ScansService {
     return updated;
   }
 
+  async preflight(projectId: string, orgId: string, body: CreateScanBody): Promise<PreflightResult> {
+    const authz = await this.prisma.scanAuthorization.findFirst({
+      where: { id: body.authorizationId, projectId, project: { organizationId: orgId } },
+    });
+    if (!authz) throw new GuardrailError('NO_SCAN_AUTHORIZATION', 'Scan authorization not found');
+    const allowedHosts = authz.allowedHosts as string[];
+    const verifiedHostRows = await this.prisma.domain.findMany({
+      where: {
+        projectId,
+        project: { organizationId: orgId },
+        hostname: { in: allowedHosts },
+        verifications: {
+          some: {
+            status: 'verified',
+            OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+          },
+        },
+      },
+      select: { hostname: true },
+    });
+    const verifiedHosts = new Set(verifiedHostRows.map((row: { hostname: string }) => row.hostname.toLowerCase()));
+    const unverifiedHosts = allowedHosts.filter((host) => !verifiedHosts.has(host.toLowerCase()));
+    if (unverifiedHosts.length > 0) {
+      throw new GuardrailError('DOMAIN_NOT_VERIFIED', 'Every allowed host must still be verified before scan preflight', {
+        unverifiedHosts,
+      });
+    }
+    const sessions = await (this.prisma as any).browserSessionState.findMany({
+      where: {
+        organizationId: orgId,
+        projectId,
+        status: 'active',
+        expiresAt: { gt: new Date() },
+        storageStateCipher: { not: null },
+      },
+      select: { testAccountId: true, status: true, expiresAt: true },
+    });
+    const requireCanary = body.acceptanceProfile === 'canary_e2e';
+    const [llm, browserSessionRuntimeReady, canaryReady] = await Promise.all([
+      readLlmReadiness(),
+      checkBrowserSessionRuntime(),
+      requireCanary ? checkCanaryManifest(allowedHosts, authz.allowedPaths as string[], authz.excludedPaths as string[]) : Promise.resolve(false),
+    ]);
+    return evaluateAggressiveStagingPreflight({
+      authorization: {
+        scanMode: authz.scanMode,
+        authScope: authz.authScope,
+        testIntensityMode: authz.testIntensityMode,
+        aggressiveStagingRiskAccepted: authz.aggressiveStagingRiskAccepted,
+      },
+      llm,
+      browserSessionRuntimeReady,
+      sessions,
+      requireCanary,
+      canaryReady,
+    });
+  }
+
   async create(projectId: string, orgId: string, userId: string, body: CreateScanBody) {
     const authz = await this.prisma.scanAuthorization.findFirst({
       where: { id: body.authorizationId, projectId, project: { organizationId: orgId } },
@@ -160,6 +219,14 @@ export class ScansService {
     if (!authz) throw new GuardrailError('NO_SCAN_AUTHORIZATION', 'Scan authorization not found');
     if (authz.expiresAt && authz.expiresAt < new Date()) {
       throw new GuardrailError('AUTHORIZATION_EXPIRED', 'Scan authorization expired');
+    }
+    const preflight = await this.preflight(projectId, orgId, body);
+    if (!preflight.ok) {
+      const first = preflight.failures[0];
+      throw new GuardrailError((first?.code ?? 'INVALID_INPUT') as any, first?.message ?? 'Scan preflight failed', {
+        checks: preflight.checks,
+        acceptanceProfile: body.acceptanceProfile,
+      });
     }
     const allowedHosts = authz.allowedHosts as string[];
     const domains = await this.prisma.domain.findMany({
@@ -199,6 +266,7 @@ export class ScansService {
       testIntensityMode: authz.testIntensityMode,
       surfaceFlags,
       aggressiveStagingRiskAccepted: authz.aggressiveStagingRiskAccepted,
+      acceptanceProfile: body.acceptanceProfile,
       verifiedDomain: domain?.hostname ?? '',
       capturedAt: new Date().toISOString(),
     };
@@ -277,6 +345,91 @@ export class ScansService {
       });
     }
     return scan;
+  }
+}
+
+interface ServiceLlmHealth {
+  aliases?: {
+    low_reasoning_model?: { primary?: { provider?: string }; fallback?: { provider?: string } };
+    high_reasoning_model?: { primary?: { provider?: string }; fallback?: { provider?: string } };
+  };
+  providers?: {
+    openai?: { configured?: boolean };
+    deepseek?: { configured?: boolean };
+  };
+}
+
+async function readLlmReadiness(): Promise<LlmReadinessInput> {
+  const serviceUrls = [process.env.FINDINGS_URL, process.env.REPORTING_URL].filter((url): url is string => Boolean(url));
+  const serviceHealth = (
+    await Promise.all(serviceUrls.map((url) => fetchJson<ServiceLlmHealth>(`${url.replace(/\/+$/, '')}/health/llm`).catch(() => null)))
+  ).filter((item): item is ServiceLlmHealth => Boolean(item));
+  if (serviceHealth.length > 0) {
+    const first = serviceHealth[0]!;
+    return {
+      lowPrimaryProvider: String(first.aliases?.low_reasoning_model?.primary?.provider ?? ''),
+      lowFallbackProvider: String(first.aliases?.low_reasoning_model?.fallback?.provider ?? ''),
+      highPrimaryProvider: String(first.aliases?.high_reasoning_model?.primary?.provider ?? ''),
+      highFallbackProvider: String(first.aliases?.high_reasoning_model?.fallback?.provider ?? ''),
+      openaiConfigured: serviceHealth.every((health) => health.providers?.openai?.configured === true),
+      deepseekConfigured: serviceHealth.every((health) => health.providers?.deepseek?.configured === true),
+    };
+  }
+  return {
+    lowPrimaryProvider: process.env.LLM_LOW_REASONING_PROVIDER || 'deepseek',
+    lowFallbackProvider: process.env.LLM_LOW_REASONING_FALLBACK_PROVIDER || 'openai',
+    highPrimaryProvider: process.env.LLM_HIGH_REASONING_PROVIDER || 'deepseek',
+    highFallbackProvider: process.env.LLM_HIGH_REASONING_FALLBACK_PROVIDER || 'openai',
+    openaiConfigured: Boolean(process.env.OPENAI_API_KEY),
+    deepseekConfigured: Boolean(process.env.DEEPSEEK_API_KEY),
+  };
+}
+
+async function checkBrowserSessionRuntime(): Promise<boolean> {
+  const baseUrl = process.env.BROWSER_SESSION_BASE_URL?.replace(/\/+$/, '');
+  if (!baseUrl) return false;
+  const health = await fetchJson<{ ok?: boolean }>(`${baseUrl}/health`).catch(() => null);
+  return health?.ok === true;
+}
+
+async function checkCanaryManifest(allowedHosts: string[], allowedPaths: string[], excludedPaths: string[]): Promise<boolean> {
+  const host = allowedHosts[0];
+  if (!host) return false;
+  const manifestUrl = normalizeUrl(`https://${host}/openhunter-canary/manifest.json`).url.href;
+  try {
+    assertInScope(manifestUrl, {
+      allowedHosts,
+      allowedPaths,
+      excludedPaths,
+      testAccountPermission: true,
+      sensitiveActionPermission: true,
+      scanMode: 'ai_blackhat_mindset_check',
+      authScope: 'two_accounts',
+      targetType: 'interactive_web_app',
+      testIntensityMode: 'aggressive_staging',
+      surfaceFlags: DEFAULT_SURFACE_FLAGS,
+      aggressiveStagingRiskAccepted: true,
+    });
+    const manifest = await fetchJson<Record<string, unknown>>(manifestUrl);
+    return (
+      manifest.scenario === 'object_ownership' &&
+      typeof manifest.vulnerablePath === 'string' &&
+      typeof manifest.fixedPath === 'string'
+    );
+  } catch {
+    return false;
+  }
+}
+
+async function fetchJson<T>(url: string, timeoutMs = 2000): Promise<T> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { signal: controller.signal, headers: { accept: 'application/json' } });
+    if (!res.ok) throw new Error(`HTTP_${res.status}`);
+    return (await res.json()) as T;
+  } finally {
+    clearTimeout(timeout);
   }
 }
 

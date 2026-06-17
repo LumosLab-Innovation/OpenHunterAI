@@ -154,6 +154,26 @@ export class LoginSessionsService {
     }
   }
 
+  async revokeSavedSessionsForTestAccount(projectId: string, testAccountId: string, orgId: string) {
+    const sessions = await (this.prisma as any).browserSessionState.findMany({
+      where: {
+        organizationId: orgId,
+        projectId,
+        testAccountId,
+        status: 'active',
+        storageStateCipher: { not: null },
+      },
+      select: { id: true },
+    });
+    for (const session of sessions) {
+      await (this.prisma as any).browserSessionState.update({
+        where: { id: session.id },
+        data: { status: 'cancelled', cancelledAt: new Date(), storageStateCipher: null },
+      });
+    }
+    return { revoked: sessions.length };
+  }
+
   private async cancelPendingInteractiveSessions(testAccountId: string, orgId: string) {
     const pending = await (this.prisma as any).browserSessionState.findMany({
       where: {

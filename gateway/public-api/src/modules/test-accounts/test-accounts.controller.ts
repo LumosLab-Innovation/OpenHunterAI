@@ -51,3 +51,8 @@ export async function cancelLoginSession(req: Request, res: Response) {
     loginSession: await loginSessions.cancel(req.params.sessionId!, user.orgId, user.userId),
   });
 }
+
+export async function revokeSavedLoginSessions(req: Request, res: Response) {
+  const user = currentUser(req);
+  res.json(await loginSessions.revokeSavedSessionsForTestAccount(req.params.id!, req.params.accountId!, user.orgId));
+}

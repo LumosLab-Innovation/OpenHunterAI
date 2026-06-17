@@ -9,6 +9,7 @@ import {
   getScan,
   hideScan,
   listScans,
+  preflightScan,
   streamLiveEvents,
   streamReportEvents,
 } from './scans.controller.js';
@@ -24,4 +25,5 @@ scanRoutes.get('/scans/:id', requireUser, asyncRoute(getScan));
 scanRoutes.get('/scans/:id/progress', requireUser, asyncRoute(getScan));
 scanRoutes.post('/scans/:id/cancel', requireUser, asyncRoute(cancelScan));
 scanRoutes.delete('/scans/:id', requireUser, asyncRoute(hideScan));
+scanRoutes.post('/projects/:id/scans/preflight', requireUser, validateBody(CreateScanBody), asyncRoute(preflightScan));
 scanRoutes.post('/projects/:id/scans', requireUser, validateBody(CreateScanBody), asyncRoute(createScan));

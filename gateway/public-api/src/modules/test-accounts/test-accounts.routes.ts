@@ -10,6 +10,7 @@ import {
   deleteTestAccount,
   getLoginSession,
   listTestAccounts,
+  revokeSavedLoginSessions,
 } from './test-accounts.controller.js';
 import { CreateTestAccountBody } from './test-accounts.dto.js';
 import { proxyLoginSessionStream } from './login-session-stream.proxy.js';
@@ -32,6 +33,11 @@ testAccountRoutes.use('/login-sessions/:sessionId/stream', requireUser, proxyLog
 testAccountRoutes.get('/login-sessions/:sessionId', requireUser, asyncRoute(getLoginSession));
 testAccountRoutes.post('/login-sessions/:sessionId/complete', requireUser, asyncRoute(completeLoginSession));
 testAccountRoutes.post('/login-sessions/:sessionId/cancel', requireUser, asyncRoute(cancelLoginSession));
+testAccountRoutes.post(
+  '/projects/:id/test-accounts/:accountId/login-sessions/revoke',
+  requireUser,
+  asyncRoute(revokeSavedLoginSessions),
+);
 testAccountRoutes.delete(
   '/projects/:id/test-accounts/:accountId',
   requireUser,

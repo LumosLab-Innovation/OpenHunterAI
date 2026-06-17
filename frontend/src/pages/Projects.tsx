@@ -13,6 +13,7 @@ import {
   RefreshCw,
   ShieldCheck,
   Trash2,
+  Unplug,
   X,
 } from 'lucide-react';
 import { API_BASE, apiFetch } from '../lib/api';
@@ -323,6 +324,17 @@ export function ProjectDetailPage() {
     await load();
   }
 
+  async function revokeLoginState(accountId: string) {
+    if (!window.confirm('Revoke the saved browser login state for this test account?')) return;
+    setLoginSessionBusy(true);
+    const res = await apiFetch(`/v1/projects/${id}/test-accounts/${accountId}/login-sessions/revoke`, {
+      method: 'POST',
+    });
+    setLoginSessionBusy(false);
+    if (!res.ok) setError(res.error.message ?? `HTTP ${res.status}`);
+    else await load();
+  }
+
   async function deleteProject() {
     if (!project || deleteConfirmName !== project.name || deletingProject) return;
     setDeletingProject(true);
@@ -596,6 +608,17 @@ export function ProjectDetailPage() {
                         >
                           <LogIn className="h-4 w-4" /> Login in browser
                         </Button>
+                        {account.loginSession?.status === 'active' && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            disabled={loginSessionBusy}
+                            onClick={() => void revokeLoginState(account.id)}
+                          >
+                            <Unplug className="h-4 w-4" /> Revoke
+                          </Button>
+                        )}
                         <Button
                           type="button"
                           size="sm"

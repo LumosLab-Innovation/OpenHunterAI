@@ -28,6 +28,11 @@ export async function createScan(req: Request, res: Response) {
   res.json({ scan: service.toPublicScan(await service.create(req.params.id!, user.orgId, user.userId, req.body)) });
 }
 
+export async function preflightScan(req: Request, res: Response) {
+  const user = currentUser(req);
+  res.json({ preflight: await service.preflight(req.params.id!, user.orgId, req.body) });
+}
+
 export async function cancelScan(req: Request, res: Response) {
   const user = currentUser(req);
   res.json({ scan: service.toPublicScan(await service.cancel(req.params.id!, user.orgId, user.userId)) });

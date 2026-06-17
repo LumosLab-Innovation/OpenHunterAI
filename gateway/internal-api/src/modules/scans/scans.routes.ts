@@ -117,3 +117,12 @@ scanRoutes.get('/:id/browser-session-state', async (req, res) => {
   }
   res.json(state);
 });
+
+scanRoutes.get('/:id/browser-session-states', async (req, res) => {
+  const states = await browserSessionStateService.listForScan(req.params.id!);
+  if (states.length === 0) {
+    res.status(404).json({ error: { code: 'AUTH_SESSION_REQUIRED' } });
+    return;
+  }
+  res.json({ sessions: states });
+});

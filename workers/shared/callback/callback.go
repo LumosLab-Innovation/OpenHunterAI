@@ -36,6 +36,7 @@ type Client struct {
 // over the private internal-api surface. It must never be logged or included in
 // worker step metadata.
 type BrowserSessionState struct {
+	TestAccountID string       `json:"testAccountId,omitempty"`
 	FinalURL     string       `json:"finalUrl,omitempty"`
 	ExpiresAt    string       `json:"expiresAt"`
 	StorageState StorageState `json:"storageState"`
@@ -126,6 +127,22 @@ func (c *Client) BrowserSessionState(ctx context.Context, scanID string) (*Brows
 		return nil, err
 	}
 	return &out, nil
+}
+
+// BrowserSessionStates fetches distinct valid authenticated storage states for
+// this scan. Two-account checks use the first two distinct testAccountId values.
+func (c *Client) BrowserSessionStates(ctx context.Context, scanID string) ([]BrowserSessionState, error) {
+	raw, err := c.do(ctx, http.MethodGet, fmt.Sprintf("/internal/scans/%s/browser-session-states", scanID), nil)
+	if err != nil {
+		return nil, err
+	}
+	var out struct {
+		Sessions []BrowserSessionState `json:"sessions"`
+	}
+	if err := json.Unmarshal(raw, &out); err != nil {
+		return nil, err
+	}
+	return out.Sessions, nil
 }
 
 func (c *Client) post(ctx context.Context, path string, body any) error {

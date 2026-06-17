@@ -53,6 +53,28 @@ describe('buildLiveScanSnapshot', () => {
           createdAt: new Date('2026-06-16T10:00:40.000Z'),
         },
       ],
+      findingCandidates: [
+        {
+          id: 'candidate_1',
+          title: 'Unvalidated reflected input',
+          severity: 'medium',
+          confidence: 'medium',
+          affectedAsset: 'https://example.com/search',
+          category: 'xss',
+          evidence: { evidenceClass: 'candidate', validationState: 'unvalidated', description: 'Needs validation.' },
+          createdAt: new Date('2026-06-16T10:00:35.000Z'),
+        },
+        {
+          id: 'candidate_2',
+          title: 'Content Security Policy (CSP) Header Not Set',
+          severity: 'low',
+          confidence: 'high',
+          affectedAsset: 'https://example.com',
+          category: 'missing_security_header',
+          evidence: { evidenceClass: 'hardening_warning', validationState: 'passive_signal', description: 'Passive header gap.' },
+          createdAt: new Date('2026-06-16T10:00:36.000Z'),
+        },
+      ],
       reports: [
         {
           id: 'report_1',
@@ -81,6 +103,9 @@ describe('buildLiveScanSnapshot', () => {
     expect(JSON.stringify(snapshot)).not.toContain('sk-1234567890abcdef1234567890abcdef');
     expect(JSON.stringify(snapshot)).toContain('[REDACTED_TOKEN]');
     expect(snapshot.cursorPreview.caption).toContain('Z');
+    expect(snapshot.findingsSummary.validatedFindings).toHaveLength(1);
+    expect(snapshot.findingsSummary.candidates.map((candidate) => candidate.id)).toEqual(['candidate_1']);
+    expect(snapshot.findingsSummary.hardeningCoverage.map((item) => item.id)).toEqual(['candidate_2']);
   });
 
   it('prefers persisted activity and drops expired visual artifacts', () => {
@@ -178,7 +203,22 @@ describe('buildLiveScanSnapshot', () => {
     expect(event.visualArtifact?.synthetic).toBe(true);
   });
 
-  it('rejects non-synthetic visual artifacts before persistence', () => {
+  it('accepts real visual artifacts only when masked and rejects unmasked thumbnails', () => {
+    const masked = normalizeActivityEvent({
+      scanJobId: 'scan_1',
+      eventType: 'browser_action',
+      actor: 'browser_inspector',
+      titleKey: 'activity.browser_action.title',
+      bodyKey: 'activity.browser_action.body',
+      bodyParams: { summary: 'masked screenshot' },
+      status: 'running',
+      visualArtifact: {
+        kind: 'thumbnail',
+        dataUrl: 'data:image/png;base64,abc',
+        sanitized: true,
+        masked: true,
+      },
+    });
     const event = normalizeActivityEvent({
       scanJobId: 'scan_1',
       eventType: 'browser_action',
@@ -194,6 +234,8 @@ describe('buildLiveScanSnapshot', () => {
       },
     });
 
+    expect(masked.visualArtifact?.masked).toBe(true);
+    expect(masked.visualArtifact?.synthetic).toBeUndefined();
     expect(event.visualArtifact).toBeUndefined();
   });
 

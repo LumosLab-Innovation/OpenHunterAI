@@ -79,6 +79,29 @@ interface LiveScanSnapshot {
     status: string;
     createdAt: string;
   }>;
+  findingsSummary?: {
+    validatedFindings: LiveScanSnapshot['findingsPreview'];
+    candidates: Array<{
+      id: string;
+      title: string;
+      severity: string;
+      confidence: string;
+      affectedAsset: string;
+      category: string;
+      validationState: string;
+      createdAt: string;
+    }>;
+    hardeningCoverage: Array<{
+      id: string;
+      title: string;
+      severity: string;
+      confidence: string;
+      affectedAsset: string;
+      category: string;
+      evidenceClass: string;
+      createdAt: string;
+    }>;
+  };
   reportPreview: {
     latestReportId: string | null;
     latestReportState: string | null;
@@ -111,6 +134,7 @@ type SanitizedVisualArtifact = {
   expiresAt: string;
   sanitized: true;
   synthetic?: true;
+  masked?: true;
 };
 
 export function ScansPage() {
@@ -314,7 +338,7 @@ export function ScanDetailPage() {
           </main>
 
           <aside className="grid h-fit gap-4">
-            <FindingsPreview findings={snapshot.findingsPreview} scanState={snapshot.scan.state} locale={locale} />
+            <FindingsPreview snapshot={snapshot} locale={locale} />
             <ReportPreview preview={snapshot.reportPreview} locale={locale} />
           </aside>
         </div>
@@ -404,6 +428,11 @@ function CursorPreview({ snapshot, locale }: { snapshot: LiveScanSnapshot; local
               {cursor.visualArtifact.synthetic && (
                 <Badge tone="signal" className="absolute left-4 top-4 z-10">
                   Sanitized structural preview
+                </Badge>
+              )}
+              {cursor.visualArtifact.masked && !cursor.visualArtifact.synthetic && (
+                <Badge tone="signal" className="absolute left-4 top-4 z-10">
+                  Masked browser evidence
                 </Badge>
               )}
               <img
@@ -509,14 +538,17 @@ function ActivityTimeline({ events, locale }: { events: LiveScanSnapshot['activi
 }
 
 function FindingsPreview({
-  findings,
-  scanState,
+  snapshot,
   locale,
 }: {
-  findings: LiveScanSnapshot['findingsPreview'];
-  scanState: string;
+  snapshot: LiveScanSnapshot;
   locale: LiveLocale;
 }) {
+  const summary = snapshot.findingsSummary ?? {
+    validatedFindings: snapshot.findingsPreview,
+    candidates: [],
+    hardeningCoverage: [],
+  };
   return (
     <Card>
       <CardHeader>
@@ -525,26 +557,79 @@ function FindingsPreview({
         </CardTitle>
       </CardHeader>
       <CardBody className="grid gap-3">
-        {findings.length === 0 ? (
+        <FindingGroup
+          title={ui(locale, 'validatedFindings')}
+          empty={snapshot.scan.state === 'completed' ? ui(locale, 'noCriticalHigh') : ui(locale, 'findingsPending')}
+          items={summary.validatedFindings}
+          variant="validated"
+        />
+        <FindingGroup
+          title={ui(locale, 'candidates')}
+          empty={ui(locale, 'noCandidates')}
+          items={summary.candidates}
+          variant="candidate"
+        />
+        <FindingGroup
+          title={ui(locale, 'hardeningCoverage')}
+          empty={ui(locale, 'noHardening')}
+          items={summary.hardeningCoverage}
+          variant="hardening"
+        />
+      </CardBody>
+    </Card>
+  );
+}
+
+function FindingGroup({
+  title,
+  empty,
+  items,
+  variant,
+}: {
+  title: string;
+  empty: string;
+  items: Array<{
+    id: string;
+    title: string;
+    severity: string;
+    confidence: string;
+    affectedAsset: string;
+    category: string;
+    status?: string;
+    validationState?: string;
+    evidenceClass?: string;
+  }>;
+  variant: 'validated' | 'candidate' | 'hardening';
+}) {
+  return (
+    <section className="grid gap-2">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-xs font-medium uppercase tracking-wider text-ink-faint">{title}</span>
+        <Badge tone={items.length > 0 ? 'signal' : 'neutral'}>{items.length}</Badge>
+      </div>
+      {items.length === 0 ? (
           <p className="text-sm leading-relaxed text-ink-muted">
-            {scanState === 'completed'
-              ? ui(locale, 'noCriticalHigh')
-              : ui(locale, 'findingsPending')}
+            {empty}
           </p>
         ) : (
-          findings.map((finding) => (
+          items.slice(0, 4).map((finding) => (
             <article key={finding.id} className="grid gap-2 rounded border border-hairline bg-surface-raised p-3">
               <div className="flex items-start justify-between gap-3">
                 <h3 className="text-sm font-medium leading-snug text-ink">{finding.title}</h3>
                 <SeverityBadge severity={finding.severity} />
               </div>
               <p className="text-xs leading-relaxed text-ink-muted">{finding.affectedAsset}</p>
-              <Badge tone="neutral">{finding.status}</Badge>
+              <Badge tone="neutral">
+                {variant === 'validated'
+                  ? finding.status ?? 'validated'
+                  : variant === 'candidate'
+                    ? finding.validationState ?? 'unvalidated candidate'
+                    : finding.evidenceClass ?? 'hardening'}
+              </Badge>
             </article>
           ))
         )}
-      </CardBody>
-    </Card>
+    </section>
   );
 }
 
@@ -608,8 +693,13 @@ const COPY: Record<LiveLocale, Record<string, string>> = {
     liveActivity: 'Live activity',
     waitingLive: 'Đang chờ live event đầu tiên.',
     findings: 'Findings',
+    validatedFindings: 'Validated Findings',
+    candidates: 'Candidates',
+    hardeningCoverage: 'Hardening / Coverage',
     noCriticalHigh: 'Không phát hiện Critical/High trong phạm vi kiểm thử hiện tại. Xem coverage và limitations trong report.',
     findingsPending: 'Findings sẽ xuất hiện ở đây khi được xác nhận trong phạm vi kiểm thử hiện tại.',
+    noCandidates: 'Chưa có candidate cần xác minh.',
+    noHardening: 'Hardening và coverage gaps sẽ xuất hiện riêng tại đây.',
     reportPending: 'Report sections sẽ xuất hiện dưới dạng summaries đã sanitize.',
   },
   en: {
@@ -624,8 +714,13 @@ const COPY: Record<LiveLocale, Record<string, string>> = {
     liveActivity: 'Live activity',
     waitingLive: 'Waiting for the first live event.',
     findings: 'Findings',
+    validatedFindings: 'Validated Findings',
+    candidates: 'Candidates',
+    hardeningCoverage: 'Hardening / Coverage',
     noCriticalHigh: 'No Critical/High finding was detected within the current test scope. Review coverage and limitations in the report.',
     findingsPending: 'Findings will appear here once they are confirmed within the current test scope.',
+    noCandidates: 'No unvalidated candidate needs review yet.',
+    noHardening: 'Hardening and coverage gaps will appear here separately.',
     reportPending: 'Report sections will appear as sanitized summaries.',
   },
 };

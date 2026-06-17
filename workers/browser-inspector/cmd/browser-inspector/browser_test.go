@@ -61,3 +61,31 @@ func TestThumbnailArtifactRejectsOversizedImage(t *testing.T) {
 		t.Fatal("thumbnailArtifact accepted an oversized image")
 	}
 }
+
+func TestCanarySignalsRequireVulnerableRouteAndFixedRouteProof(t *testing.T) {
+	signals := canarySignalsFromReplay("https://staging.example.com", canaryReplayResult{
+		Available:        true,
+		VulnerableStatus: 200,
+		FixedStatus:      403,
+		VulnerablePath:   "/openhunter-canary/objects/vulnerable/b",
+		FixedPath:        "/openhunter-canary/objects/fixed/b",
+	})
+	if len(signals) != 1 {
+		t.Fatalf("signals = %d, want 1", len(signals))
+	}
+	if signals[0].Kind != "access_control_object_ownership" {
+		t.Fatalf("kind = %q", signals[0].Kind)
+	}
+	if signals[0].EvidenceClass != "validated_finding" || signals[0].ValidationState != "validated_finding" {
+		t.Fatalf("expected validated evidence, got %#v", signals[0])
+	}
+
+	noFinding := canarySignalsFromReplay("https://staging.example.com", canaryReplayResult{
+		Available:        true,
+		VulnerableStatus: 403,
+		FixedStatus:      403,
+	})
+	if len(noFinding) != 0 {
+		t.Fatalf("fixed canary should not create finding, got %#v", noFinding)
+	}
+}

@@ -2,6 +2,7 @@ import express from 'express';
 import helmet from 'helmet';
 import { createRequire } from 'node:module';
 import { REPORT_FORMAT_VERSION, renderReportMarkdown, sanitizeReportContent, sanitizeText, type ReportContentV1 } from '@x-hunter/shared';
+import { routeFor } from '@x-hunter/llm-gateway';
 import { generateFixPrompt, getGateway } from './llm.js';
 import { publishEvent } from '@openhunter/event-core';
 
@@ -14,6 +15,7 @@ const prisma = getPrisma();
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json());
 app.get('/health', (_req, res) => res.json({ ok: true, service: 'reporting' }));
+app.get('/health/llm', (_req, res) => res.json(llmHealth()));
 
 const asyncRoute =
   (handler: express.RequestHandler): express.RequestHandler =>
@@ -196,6 +198,23 @@ app.use((err: unknown, _req: express.Request, res: express.Response, _next: expr
 });
 
 app.listen(port, '0.0.0.0', () => console.log(`reporting listening on ${port}`));
+
+function llmHealth() {
+  const low = routeFor('low_reasoning_model');
+  const high = routeFor('high_reasoning_model');
+  return {
+    ok: Boolean(process.env.OPENAI_API_KEY && process.env.DEEPSEEK_API_KEY),
+    service: 'reporting',
+    aliases: {
+      low_reasoning_model: low,
+      high_reasoning_model: high,
+    },
+    providers: {
+      openai: { configured: Boolean(process.env.OPENAI_API_KEY) },
+      deepseek: { configured: Boolean(process.env.DEEPSEEK_API_KEY) },
+    },
+  };
+}
 
 async function recordActivity(
   scanJobId: string,

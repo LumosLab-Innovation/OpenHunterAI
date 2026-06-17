@@ -31,12 +31,16 @@ services:
       EVENTS_DISABLED: "false"
       WORKER_TOKEN: ${WORKER_TOKEN:?Set WORKER_TOKEN in the staging env file}
       BROWSER_SESSION_BASE_URL: http://browser-session:4700
+      FINDINGS_URL: http://findings:4300
+      REPORTING_URL: http://reporting:4400
     ports:
       - "4000:4000"
     depends_on:
       - cloud-sql-proxy
       - nats
       - browser-session
+      - findings
+      - reporting
     restart: unless-stopped
 
   browser-session:

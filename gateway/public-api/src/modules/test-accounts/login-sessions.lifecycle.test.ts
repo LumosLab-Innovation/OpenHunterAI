@@ -88,4 +88,27 @@ describe('LoginSessionsService interactive runtime lifecycle', () => {
       data: { status: 'cancelled', cancelledAt: expect.any(Date), storageStateCipher: null },
     });
   });
+
+  it('revokes saved login state for one test account without returning stored cookies', async () => {
+    prisma.browserSessionState.findMany.mockResolvedValue([
+      { id: 'saved_1' },
+      { id: 'saved_2' },
+    ]);
+
+    const result = await new LoginSessionsService().revokeSavedSessionsForTestAccount('proj_1', 'acct_1', 'org_1');
+
+    expect(result).toEqual({ revoked: 2 });
+    expect(prisma.browserSessionState.findMany).toHaveBeenCalledWith({
+      where: {
+        organizationId: 'org_1',
+        projectId: 'proj_1',
+        testAccountId: 'acct_1',
+        status: 'active',
+        storageStateCipher: { not: null },
+      },
+      select: { id: true },
+    });
+    expect(prisma.browserSessionState.update).toHaveBeenCalledTimes(2);
+    expect(JSON.stringify(prisma.browserSessionState.update.mock.calls)).not.toMatch(/cookie|token|password/i);
+  });
 });

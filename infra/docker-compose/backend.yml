@@ -11,12 +11,16 @@ services:
       API_PORT: 4000
       APP_JWT_SECRET: dev-only-rotate-me
       BROWSER_SESSION_BASE_URL: http://browser-session:4700
+      FINDINGS_URL: http://findings:4300
+      REPORTING_URL: http://reporting:4400
     ports:
       - "4000:4000"
     depends_on:
       - postgres
       - nats
       - browser-session
+      - findings
+      - reporting
 
   browser-session:
     build:

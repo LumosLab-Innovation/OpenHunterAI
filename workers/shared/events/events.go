@@ -96,6 +96,7 @@ type ScopeSnapshot struct {
 	TestIntensityMode             string          `json:"testIntensityMode"`
 	SurfaceFlags                  map[string]bool `json:"surfaceFlags"`
 	AggressiveStagingRiskAccepted bool            `json:"aggressiveStagingRiskAccepted"`
+	AcceptanceProfile             string          `json:"acceptanceProfile,omitempty"`
 	VerifiedDomain                string          `json:"verifiedDomain"`
 	CapturedAt                    string          `json:"capturedAt"`
 }
@@ -115,6 +116,7 @@ type WorkerRunPayload struct {
 	AllowedPaths      []string        `json:"allowedPaths"`
 	ExcludedPaths     []string        `json:"excludedPaths"`
 	VerifiedDomain    string          `json:"verifiedDomain"`
+	AcceptanceProfile string          `json:"acceptanceProfile,omitempty"`
 	WorkerType        string          `json:"workerType"`
 }
 

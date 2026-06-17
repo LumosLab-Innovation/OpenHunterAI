@@ -308,7 +308,8 @@ function compactActor(actor: string): string {
 function sanitizeVisualArtifact(value: unknown): Record<string, unknown> | undefined {
   const artifact = unwrapObject(sanitizeReportContent(value ?? {}));
   if (artifact.kind !== 'thumbnail' || typeof artifact.dataUrl !== 'string') return undefined;
-  if (artifact.sanitized !== true || artifact.synthetic !== true) return undefined;
+  if (artifact.sanitized !== true) return undefined;
+  if (artifact.synthetic !== true && artifact.masked !== true) return undefined;
   if (artifact.dataUrl.length > MAX_VISUAL_DATA_URL_LENGTH) return undefined;
   if (!/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/i.test(artifact.dataUrl)) return undefined;
   return {
@@ -319,7 +320,8 @@ function sanitizeVisualArtifact(value: unknown): Record<string, unknown> | undef
         ? artifact.expiresAt
         : new Date(Date.now() + 24 * 60 * 60_000).toISOString(),
     sanitized: true,
-    synthetic: true,
+    ...(artifact.synthetic === true ? { synthetic: true } : {}),
+    ...(artifact.masked === true ? { masked: true } : {}),
     ...(typeof artifact.width === 'number' ? { width: artifact.width } : {}),
     ...(typeof artifact.height === 'number' ? { height: artifact.height } : {}),
   };

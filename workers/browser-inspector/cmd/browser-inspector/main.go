@@ -95,8 +95,9 @@ func runCDP(ctx context.Context, in events.WorkerRunPayload) worker.Result {
 	defer cancelBrowser()
 
 	authApplied := false
+	cb := callback.New(env("INTERNAL_API_URL", "http://internal-api:4100"), os.Getenv("WORKER_TOKEN"))
 	if in.AuthScope != "" && in.AuthScope != "none" {
-		state, err := callback.New(env("INTERNAL_API_URL", "http://internal-api:4100"), os.Getenv("WORKER_TOKEN")).BrowserSessionState(ctx, in.ScanID)
+		state, err := cb.BrowserSessionState(ctx, in.ScanID)
 		if err != nil {
 			return worker.Skipped(in, "AUTH_SESSION_REQUIRED", "Authenticated scan requested, but no valid login session state is available. Ask the user to log in again.")
 		}
@@ -124,6 +125,31 @@ func runCDP(ctx context.Context, in events.WorkerRunPayload) worker.Result {
 	if err := scope.CheckURL(obs.FinalURL, sc); err != nil {
 		return scopeFailure(in, err, "browser navigation left authorized scope")
 	}
+	signals := browserSignals(target, obs)
+	var canaryReplay *canaryReplayResult
+	if in.AcceptanceProfile == "canary_e2e" {
+		states, err := cb.BrowserSessionStates(ctx, in.ScanID)
+		if err != nil || len(states) < 2 {
+			return worker.Skipped(in, "AUTH_SESSION_REQUIRED", "Canary E2E requires two fresh saved login sessions.")
+		}
+		replay, err := runCanaryReplay(ctx, target, sc, states[:2])
+		if err != nil {
+			return worker.Skipped(in, "CANARY_UNAVAILABLE", "The /openhunter-canary object-ownership contract is unavailable in verified scope.")
+		}
+		canaryReplay = &replay
+		signals = append(signals, canarySignalsFromReplay(target, replay)...)
+		_ = cb.PostActivity(ctx, in.ScanID, map[string]any{
+			"eventType": "canary_replay",
+			"actor":     "browser_inspector",
+			"titleKey":  "activity.canary_replay.title",
+			"bodyKey":   "activity.canary_replay.body",
+			"bodyParams": map[string]any{
+				"summary": fmt.Sprintf("Object-ownership canary replay completed: vulnerable route status %d; fixed route status %d.", replay.VulnerableStatus, replay.FixedStatus),
+			},
+			"status":   "ready",
+			"severity": canarySeverity(replay),
+		})
+	}
 	visual, visualOK := thumbnailFromObservation(obs)
 
 	meta := map[string]any{
@@ -141,6 +167,15 @@ func runCDP(ctx context.Context, in events.WorkerRunPayload) worker.Result {
 	} else {
 		meta["visualUnavailable"] = true
 	}
+	if canaryReplay != nil {
+		meta["canaryReplay"] = map[string]any{
+			"available":        canaryReplay.Available,
+			"vulnerableStatus": canaryReplay.VulnerableStatus,
+			"fixedStatus":      canaryReplay.FixedStatus,
+			"vulnerablePath":   sanitizeText(canaryReplay.VulnerablePath),
+			"fixedPath":        sanitizeText(canaryReplay.FixedPath),
+		}
+	}
 	_ = callback.New(env("INTERNAL_API_URL", "http://internal-api:4100"), os.Getenv("WORKER_TOKEN")).PostActivity(ctx, in.ScanID, map[string]any{
 		"eventType": "browser_action",
 		"actor":     "browser_inspector",
@@ -156,9 +191,165 @@ func runCDP(ctx context.Context, in events.WorkerRunPayload) worker.Result {
 		ScanID: in.ScanID, ProjectID: in.ProjectID, WorkerType: in.WorkerType,
 		State:   worker.StateDone,
 		Summary: fmt.Sprintf("Browser loaded the page and observed %d link(s), %d form(s), and %d input control(s).", obs.LinkCount, obs.FormCount, obs.InputCount),
-		Signals: browserSignals(target, obs),
+		Signals: signals,
 		Meta:    meta,
 	}
+}
+
+type canaryManifest struct {
+	Scenario       string `json:"scenario"`
+	VulnerablePath string `json:"vulnerablePath"`
+	FixedPath      string `json:"fixedPath"`
+}
+
+type canaryReplayResult struct {
+	Available        bool
+	VulnerableStatus int
+	FixedStatus      int
+	VulnerablePath   string
+	FixedPath        string
+}
+
+func runCanaryReplay(ctx context.Context, target string, sc scope.Scope, sessions []callback.BrowserSessionState) (canaryReplayResult, error) {
+	if len(sessions) < 2 {
+		return canaryReplayResult{}, errors.New("two sessions required")
+	}
+	manifestURL, err := resolveURL(target, "/openhunter-canary/manifest.json")
+	if err != nil {
+		return canaryReplayResult{}, err
+	}
+	if err := scope.CheckURL(manifestURL, sc); err != nil {
+		return canaryReplayResult{}, err
+	}
+	var manifest canaryManifest
+	if err := fetchJSON(ctx, manifestURL, cookieHeaderForURL(manifestURL, sessions[0].StorageState), &manifest); err != nil {
+		return canaryReplayResult{}, err
+	}
+	if manifest.Scenario != "object_ownership" || manifest.VulnerablePath == "" || manifest.FixedPath == "" {
+		return canaryReplayResult{}, errors.New("invalid canary manifest")
+	}
+	vulnerableURL, err := resolveURL(target, manifest.VulnerablePath)
+	if err != nil {
+		return canaryReplayResult{}, err
+	}
+	fixedURL, err := resolveURL(target, manifest.FixedPath)
+	if err != nil {
+		return canaryReplayResult{}, err
+	}
+	if err := scope.CheckURL(vulnerableURL, sc); err != nil {
+		return canaryReplayResult{}, err
+	}
+	if err := scope.CheckURL(fixedURL, sc); err != nil {
+		return canaryReplayResult{}, err
+	}
+	client := &http.Client{Timeout: 20 * time.Second}
+	return canaryReplayResult{
+		Available:        true,
+		VulnerableStatus: statusForGET(ctx, client, vulnerableURL, cookieHeaderForURL(vulnerableURL, sessions[0].StorageState)),
+		FixedStatus:      statusForGET(ctx, client, fixedURL, cookieHeaderForURL(fixedURL, sessions[0].StorageState)),
+		VulnerablePath:   manifest.VulnerablePath,
+		FixedPath:        manifest.FixedPath,
+	}, nil
+}
+
+func canarySignalsFromReplay(target string, replay canaryReplayResult) []worker.Signal {
+	if !replay.Available || !is2xx(replay.VulnerableStatus) || !isBlocked(replay.FixedStatus) {
+		return nil
+	}
+	return []worker.Signal{{
+		Kind:            "access_control_object_ownership",
+		Title:           "Validated cross-user object ownership bypass in staging canary",
+		Severity:        "high",
+		Confidence:      "high",
+		Asset:           sanitizeText(target + replay.VulnerablePath),
+		Description:     fmt.Sprintf("Canary replay showed User A could access a User B object on the vulnerable route (HTTP %d), while the fixed route blocked cross-user access (HTTP %d).", replay.VulnerableStatus, replay.FixedStatus),
+		EvidenceRefs:    []string{"openhunter-canary:object_ownership:vulnerable_route", "openhunter-canary:object_ownership:fixed_route"},
+		EvidenceClass:   "validated_finding",
+		ValidationState: "validated_finding",
+	}}
+}
+
+func canarySeverity(replay canaryReplayResult) string {
+	if len(canarySignalsFromReplay("", replay)) > 0 {
+		return "high"
+	}
+	return "info"
+}
+
+func is2xx(status int) bool {
+	return status >= 200 && status < 300
+}
+
+func isBlocked(status int) bool {
+	return status == http.StatusForbidden || status == http.StatusNotFound
+}
+
+func fetchJSON(ctx context.Context, rawURL, cookie string, out any) error {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("accept", "application/json")
+	req.Header.Set("user-agent", "OpenHunter-BrowserInspector/1.0 (+authorized-scan)")
+	if cookie != "" {
+		req.Header.Set("cookie", cookie)
+	}
+	resp, err := (&http.Client{Timeout: 15 * time.Second}).Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return fmt.Errorf("manifest status %d", resp.StatusCode)
+	}
+	return json.NewDecoder(resp.Body).Decode(out)
+}
+
+func statusForGET(ctx context.Context, client *http.Client, rawURL, cookie string) int {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
+	if err != nil {
+		return 0
+	}
+	req.Header.Set("user-agent", "OpenHunter-BrowserInspector/1.0 (+authorized-scan)")
+	if cookie != "" {
+		req.Header.Set("cookie", cookie)
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return 0
+	}
+	defer resp.Body.Close()
+	return resp.StatusCode
+}
+
+func cookieHeaderForURL(rawURL string, state callback.StorageState) string {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return ""
+	}
+	pairs := []string{}
+	for _, c := range state.Cookies {
+		host := strings.TrimPrefix(c.Domain, ".")
+		if c.Name == "" || c.Value == "" || host == "" {
+			continue
+		}
+		if u.Hostname() == host || strings.HasSuffix(u.Hostname(), "."+host) {
+			pairs = append(pairs, c.Name+"="+c.Value)
+		}
+	}
+	return strings.Join(pairs, "; ")
+}
+
+func resolveURL(baseRaw, refRaw string) (string, error) {
+	base, err := url.Parse(baseRaw)
+	if err != nil {
+		return "", err
+	}
+	ref, err := url.Parse(refRaw)
+	if err != nil {
+		return "", err
+	}
+	return base.ResolveReference(ref).String(), nil
 }
 
 type visualArtifact struct {

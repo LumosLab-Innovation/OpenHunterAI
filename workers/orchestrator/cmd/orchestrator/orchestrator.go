@@ -91,6 +91,7 @@ func fanOut(ctx context.Context, pub publisher, env *events.Envelope, log *wlog.
 			AllowedPaths:      sc.Scope.AllowedPaths,
 			ExcludedPaths:     sc.Scope.ExcludedPaths,
 			VerifiedDomain:    sc.Scope.VerifiedDomain,
+			AcceptanceProfile: sc.Scope.AcceptanceProfile,
 			WorkerType:        workerCode(workerKey),
 		}
 		if err := pub.Publish(ctx, subject, run); err != nil {

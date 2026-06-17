@@ -21,6 +21,7 @@ interface LiveScanInput {
   steps?: LiveStepInput[];
   activityEvents?: LiveActivityEventInput[];
   findings?: LiveFindingInput[];
+  findingCandidates?: LiveFindingCandidateInput[];
   reports?: LiveReportInput[];
   reportDraftSections?: LiveDraftSectionInput[];
 }
@@ -44,6 +45,17 @@ interface LiveFindingInput {
   affectedAsset: string;
   category: string;
   status: string;
+  createdAt: Date;
+}
+
+interface LiveFindingCandidateInput {
+  id: string;
+  title: string;
+  severity: string;
+  confidence: string;
+  affectedAsset: string;
+  category: string;
+  evidence?: unknown;
   createdAt: Date;
 }
 
@@ -141,6 +153,29 @@ export interface LiveScanSnapshot {
     status: string;
     createdAt: string;
   }>;
+  findingsSummary: {
+    validatedFindings: LiveScanSnapshot['findingsPreview'];
+    candidates: Array<{
+      id: string;
+      title: string;
+      severity: string;
+      confidence: string;
+      affectedAsset: string;
+      category: string;
+      validationState: string;
+      createdAt: string;
+    }>;
+    hardeningCoverage: Array<{
+      id: string;
+      title: string;
+      severity: string;
+      confidence: string;
+      affectedAsset: string;
+      category: string;
+      evidenceClass: string;
+      createdAt: string;
+    }>;
+  };
   reportPreview: {
     latestReportId: string | null;
     latestReportState: string | null;
@@ -172,6 +207,7 @@ interface SanitizedVisualArtifact {
   expiresAt: string;
   sanitized: true;
   synthetic?: true;
+  masked?: true;
 }
 
 const MAX_VISUAL_DATA_URL_LENGTH = 350_000;
@@ -210,7 +246,12 @@ export class LiveScanService {
       },
     });
     if (!scan) return null;
-    const snapshot = buildLiveScanSnapshot(scan as unknown as LiveScanInput, degraded);
+    const findingCandidates = await (this.prisma as any).findingCandidate.findMany({
+      where: { scanJobId: scanId, promotedToId: null },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+    });
+    const snapshot = buildLiveScanSnapshot({ ...(scan as unknown as LiveScanInput), findingCandidates }, degraded);
     if (!filter) return snapshot;
     const filtered = filterLiveActivity(snapshot.activity, filter);
     return {
@@ -274,6 +315,17 @@ export function buildLiveScanSnapshot(
   const cursorActivity =
     [...activity].reverse().find((event) => event.actor !== 'scan' && event.actor !== 'report') ??
     [...activity].reverse()[0];
+  const findingsPreview = (scan.findings ?? []).map((finding) => ({
+    id: finding.id,
+    title: publicWorkerText(finding.title),
+    severity: finding.severity,
+    confidence: finding.confidence,
+    affectedAsset: sanitizeText(finding.affectedAsset),
+    category: publicWorkerText(finding.category),
+    status: finding.status,
+    createdAt: finding.createdAt.toISOString(),
+  }));
+  const findingsSummary = buildFindingsSummary(findingsPreview, scan.findingCandidates ?? []);
 
   return {
     scan: {
@@ -305,16 +357,8 @@ export function buildLiveScanSnapshot(
       };
     }),
     activity,
-    findingsPreview: (scan.findings ?? []).map((finding) => ({
-      id: finding.id,
-      title: publicWorkerText(finding.title),
-      severity: finding.severity,
-      confidence: finding.confidence,
-      affectedAsset: sanitizeText(finding.affectedAsset),
-      category: publicWorkerText(finding.category),
-      status: finding.status,
-      createdAt: finding.createdAt.toISOString(),
-    })),
+    findingsPreview,
+    findingsSummary,
     reportPreview: {
       latestReportId: latestReport?.id ?? null,
       latestReportState: latestReport?.state ?? null,
@@ -489,6 +533,38 @@ function buildPersistedActivity(events: LiveActivityEventInput[], now: Date): Li
     .sort((a, b) => a.at.localeCompare(b.at));
 }
 
+function buildFindingsSummary(
+  validatedFindings: LiveScanSnapshot['findingsPreview'],
+  candidates: LiveFindingCandidateInput[],
+): LiveScanSnapshot['findingsSummary'] {
+  const mapped = candidates.map((candidate) => {
+    const evidence = unwrapObject(sanitizeReportContent(candidate.evidence ?? {}));
+    const evidenceClass = typeof evidence.evidenceClass === 'string' ? sanitizeText(evidence.evidenceClass) : 'candidate';
+    const validationState =
+      typeof evidence.validationState === 'string' ? sanitizeText(evidence.validationState) : 'unvalidated';
+    return {
+      id: candidate.id,
+      title: publicWorkerText(candidate.title),
+      severity: candidate.severity,
+      confidence: candidate.confidence,
+      affectedAsset: sanitizeText(candidate.affectedAsset),
+      category: publicWorkerText(candidate.category),
+      evidenceClass,
+      validationState,
+      createdAt: candidate.createdAt.toISOString(),
+    };
+  });
+  return {
+    validatedFindings,
+    candidates: mapped
+      .filter((candidate) => !['hardening_warning', 'signal', 'coverage_gap'].includes(candidate.evidenceClass))
+      .map(({ evidenceClass: _evidenceClass, ...candidate }) => candidate),
+    hardeningCoverage: mapped.filter((candidate) =>
+      ['hardening_warning', 'signal', 'coverage_gap'].includes(candidate.evidenceClass),
+    ),
+  };
+}
+
 export function normalizeActivityEvent(input: CreateScanActivityEventInput): {
   scanJobId: string;
   eventType: string;
@@ -539,7 +615,8 @@ export async function recordScanActivity(
 function sanitizeVisualArtifact(value: unknown): SanitizedVisualArtifact | undefined {
   const obj = unwrapObject(sanitizeReportContent(value ?? {}));
   if (obj.kind !== 'thumbnail') return undefined;
-  if (obj.sanitized !== true || obj.synthetic !== true) return undefined;
+  if (obj.sanitized !== true) return undefined;
+  if (obj.synthetic !== true && obj.masked !== true) return undefined;
   const dataUrl = typeof obj.dataUrl === 'string' ? obj.dataUrl : '';
   if (dataUrl.length > MAX_VISUAL_DATA_URL_LENGTH) return undefined;
   if (!/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/i.test(dataUrl)) return undefined;
@@ -552,7 +629,8 @@ function sanitizeVisualArtifact(value: unknown): SanitizedVisualArtifact | undef
     dataUrl,
     expiresAt,
     sanitized: true,
-    synthetic: true as const,
+    ...(obj.synthetic === true ? { synthetic: true as const } : {}),
+    ...(obj.masked === true ? { masked: true as const } : {}),
     ...(typeof obj.width === 'number' ? { width: obj.width } : {}),
     ...(typeof obj.height === 'number' ? { height: obj.height } : {}),
   };
