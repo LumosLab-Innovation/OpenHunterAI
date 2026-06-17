@@ -263,7 +263,7 @@ export function ScanDetailPage() {
   const [locale, setLocale] = useState<LiveLocale>('vi');
 
   useEffect(() => {
-    const source = new EventSource(`${API_BASE}/v1/scans/${id}/live-events?view=curated&limit=25`, {
+    const source = new EventSource(`${API_BASE}/v1/scans/${id}/live-events?view=curated&limit=100`, {
       withCredentials: true,
     });
     const apply = (event: Event) => {
@@ -326,21 +326,22 @@ export function ScanDetailPage() {
       {!snapshot ? (
         <SkeletonRows rows={6} />
       ) : (
-        <div className="grid gap-5 lg:grid-cols-[260px_minmax(0,1fr)_320px]">
-          <aside className="grid h-fit gap-4">
-            <RunSummary snapshot={snapshot} live={live} streamError={streamError} locale={locale} />
-            <WorkerRail workers={snapshot.workers} locale={locale} />
-          </aside>
+        <div className="grid gap-5">
+          <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+              <RunSummary snapshot={snapshot} live={live} streamError={streamError} locale={locale} />
+              <WorkerRail workers={snapshot.workers} locale={locale} />
+              <div className="lg:col-span-2">
+                <CursorPreview snapshot={snapshot} locale={locale} />
+              </div>
+            </div>
+            <aside className="grid h-fit gap-4">
+              <FindingsPreview snapshot={snapshot} locale={locale} />
+              <ReportPreview preview={snapshot.reportPreview} locale={locale} />
+            </aside>
+          </section>
 
-          <main className="grid gap-4">
-            <CursorPreview snapshot={snapshot} locale={locale} />
-            <ActivityTimeline events={snapshot.activity} locale={locale} />
-          </main>
-
-          <aside className="grid h-fit gap-4">
-            <FindingsPreview snapshot={snapshot} locale={locale} />
-            <ReportPreview preview={snapshot.reportPreview} locale={locale} />
-          </aside>
+          <ActivityTimeline events={snapshot.activity} locale={locale} />
         </div>
       )}
     </div>
@@ -405,11 +406,8 @@ function WorkerRail({ workers, locale }: { workers: LiveScanSnapshot['workers'];
 
 function CursorPreview({ snapshot, locale }: { snapshot: LiveScanSnapshot; locale: LiveLocale }) {
   const cursor = snapshot.cursorPreview;
-  const previewAlt = cursor.visualArtifact
-    ? cursor.visualArtifact.synthetic
-      ? 'Sanitized structural browser preview generated from safe page metrics.'
-      : cursor.screenshotAlt
-    : 'Simulated browser preview. Waiting for a sanitized thumbnail from Browser.';
+  const realArtifact = cursor.visualArtifact && !cursor.visualArtifact.synthetic ? cursor.visualArtifact : undefined;
+  const previewAlt = realArtifact ? cursor.screenshotAlt : ui(locale, 'visualUnavailable');
   return (
     <Card className="overflow-hidden">
       <CardHeader>
@@ -423,38 +421,25 @@ function CursorPreview({ snapshot, locale }: { snapshot: LiveScanSnapshot; local
       </CardHeader>
       <CardBody>
         <div className="relative h-64 overflow-hidden rounded border border-hairline bg-canvas">
-          {cursor.visualArtifact ? (
+          {realArtifact ? (
             <>
-              {cursor.visualArtifact.synthetic && (
-                <Badge tone="signal" className="absolute left-4 top-4 z-10">
-                  Sanitized structural preview
-                </Badge>
-              )}
-              {cursor.visualArtifact.masked && !cursor.visualArtifact.synthetic && (
+              {realArtifact.masked && (
                 <Badge tone="signal" className="absolute left-4 top-4 z-10">
                   Masked browser evidence
                 </Badge>
               )}
               <img
-                src={cursor.visualArtifact.dataUrl}
+                src={realArtifact.dataUrl}
                 alt={previewAlt}
                 className="h-full w-full object-cover opacity-90"
               />
             </>
           ) : (
-            <div aria-hidden="true">
-              <Badge tone="neutral" className="absolute left-4 top-4 z-10">
-                Simulated preview
-              </Badge>
-              <div className="absolute inset-x-6 top-6 h-8 rounded border border-hairline bg-surface" />
-              <div className="absolute left-6 right-6 top-20 grid gap-3">
-                <div className="h-8 w-2/3 rounded bg-surface-raised" />
-                <div className="h-20 rounded bg-surface-raised" />
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="h-12 rounded bg-surface" />
-                  <div className="h-12 rounded bg-surface" />
-                  <div className="h-12 rounded bg-surface" />
-                </div>
+            <div className="flex h-full items-center justify-center p-6 text-center">
+              <div className="max-w-md">
+                <Badge tone="neutral">visual_unavailable</Badge>
+                <p className="mt-3 text-sm leading-relaxed text-ink-muted">{ui(locale, 'visualUnavailable')}</p>
+                <p className="mt-2 text-xs leading-relaxed text-ink-faint">{ui(locale, 'visualUnavailableHint')}</p>
               </div>
             </div>
           )}
@@ -478,16 +463,27 @@ function CursorPreview({ snapshot, locale }: { snapshot: LiveScanSnapshot; local
 function ActivityTimeline({ events, locale }: { events: LiveScanSnapshot['activity']; locale: LiveLocale }) {
   const [actor, setActor] = useState('all');
   const [type, setType] = useState('all');
+  const [severity, setSeverity] = useState('all');
+  const [q, setQ] = useState('');
   const [showRaw, setShowRaw] = useState(false);
   const visibleEvents = useMemo(
     () =>
       events
         .filter((event) => actor === 'all' || pipelineCode(event.actor) === actor)
         .filter((event) => type === 'all' || event.type === type)
-        .slice(-25),
-    [actor, events, type],
+        .filter((event) => severity === 'all' || (event.severity ?? 'none') === severity)
+        .filter((event) => {
+          const needle = q.trim().toLowerCase();
+          if (!needle) return true;
+          return `${pipelineCode(event.actor)} ${event.type} ${event.status} ${activityTitle(event, locale)} ${activityBody(event, locale)}`
+            .toLowerCase()
+            .includes(needle);
+        })
+        .slice(-100),
+    [actor, events, locale, q, severity, type],
   );
   const eventTypes = Array.from(new Set(events.map((event) => event.type)));
+  const severities = Array.from(new Set(events.map((event) => event.severity).filter(Boolean))) as string[];
   return (
     <Card>
       <CardHeader>
@@ -499,10 +495,14 @@ function ActivityTimeline({ events, locale }: { events: LiveScanSnapshot['activi
         </Button>
       </CardHeader>
       <CardBody className="grid gap-3">
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_150px_190px_150px]">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint" />
+            <Input value={q} onChange={(event) => setQ(event.target.value)} placeholder="Search live console" className="pl-9" />
+          </div>
           <Select value={actor} onChange={(event) => setActor(event.target.value)} aria-label="Filter actor">
             <option value="all">All actors</option>
-            {['Browser', 'Z', 'N', 'O', 'S', 'RPT', 'RT'].map((code) => (
+            {['Browser', 'Z', 'N', 'O', 'S', 'RPT', 'RT', 'SCAN'].map((code) => (
               <option key={code} value={code}>{code}</option>
             ))}
           </Select>
@@ -512,25 +512,56 @@ function ActivityTimeline({ events, locale }: { events: LiveScanSnapshot['activi
               <option key={eventType} value={eventType}>{eventType}</option>
             ))}
           </Select>
+          <Select value={severity} onChange={(event) => setSeverity(event.target.value)} aria-label="Filter severity">
+            <option value="all">All severity</option>
+            {severities.map((item) => (
+              <option key={item} value={item}>{item}</option>
+            ))}
+            <option value="none">No severity</option>
+          </Select>
         </div>
         {visibleEvents.length === 0 ? (
           <p className="text-sm text-ink-muted">{ui(locale, 'waitingLive')}</p>
         ) : (
-          [...visibleEvents].reverse().map((event) => (
-            <article key={event.id} className="grid gap-1 rounded border border-hairline bg-canvas px-3 py-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge tone="neutral">{pipelineCode(event.actor)}</Badge>
-                <span className="font-medium text-ink">{activityTitle(event, locale)}</span>
-                <span className="text-data text-xs text-ink-faint">{formatTime(event.at)}</span>
-              </div>
-              <p className="text-sm leading-relaxed text-ink-muted">{activityBody(event, locale)}</p>
-              {showRaw && (
-                <pre className="max-h-48 overflow-auto rounded bg-surface p-2 text-xs text-ink-muted">
-                  {JSON.stringify(redactRawEvent(event), null, 2)}
-                </pre>
-              )}
-            </article>
-          ))
+          <div className="max-h-[560px] overflow-auto rounded border border-hairline">
+            <Table>
+              <THead className="sticky top-0 z-10 bg-surface">
+                <TR>
+                  <TH className="w-[110px]">Time</TH>
+                  <TH className="w-[92px]">Actor</TH>
+                  <TH className="w-[190px]">Event</TH>
+                  <TH className="w-[120px]">Status</TH>
+                  <TH className="w-[110px]">Severity</TH>
+                  <TH>Message</TH>
+                  {showRaw && <TH className="w-[360px]">Raw drawer</TH>}
+                </TR>
+              </THead>
+              <tbody>
+                {[...visibleEvents].reverse().map((event) => (
+                  <TR key={event.id} className="align-top">
+                    <TD className="text-data text-xs text-ink-faint">{formatTime(event.at)}</TD>
+                    <TD><Badge tone="neutral">{pipelineCode(event.actor)}</Badge></TD>
+                    <TD>
+                      <div className="grid gap-1">
+                        <span className="text-sm font-medium text-ink">{activityTitle(event, locale)}</span>
+                        <span className="text-data text-[11px] text-ink-faint">{event.type}</span>
+                      </div>
+                    </TD>
+                    <TD><StatusBadge state={event.status} /></TD>
+                    <TD>{event.severity ? <SeverityBadge severity={event.severity} /> : <span className="text-xs text-ink-faint">-</span>}</TD>
+                    <TD className="min-w-[320px] text-sm leading-relaxed text-ink-muted">{activityBody(event, locale)}</TD>
+                    {showRaw && (
+                      <TD>
+                        <pre className="max-h-40 max-w-[360px] overflow-auto rounded bg-surface p-2 text-xs text-ink-muted">
+                          {JSON.stringify(redactRawEvent(event), null, 2)}
+                        </pre>
+                      </TD>
+                    )}
+                  </TR>
+                ))}
+              </tbody>
+            </Table>
+          </div>
         )}
       </CardBody>
     </Card>
@@ -701,6 +732,8 @@ const COPY: Record<LiveLocale, Record<string, string>> = {
     noCandidates: 'Chưa có candidate cần xác minh.',
     noHardening: 'Hardening và coverage gaps sẽ xuất hiện riêng tại đây.',
     reportPending: 'Report sections sẽ xuất hiện dưới dạng summaries đã sanitize.',
+    visualUnavailable: 'Chưa có ảnh trình duyệt thật đã sanitize cho bước này.',
+    visualUnavailableHint: 'OpenHunter chỉ hiển thị thumbnail thật khi Browser tạo được ảnh đã mask; không dùng mô phỏng như bằng chứng.',
   },
   en: {
     report: 'Report',
@@ -722,6 +755,8 @@ const COPY: Record<LiveLocale, Record<string, string>> = {
     noCandidates: 'No unvalidated candidate needs review yet.',
     noHardening: 'Hardening and coverage gaps will appear here separately.',
     reportPending: 'Report sections will appear as sanitized summaries.',
+    visualUnavailable: 'No sanitized real browser image is available for this step yet.',
+    visualUnavailableHint: 'OpenHunter only shows masked real thumbnails from Browser; placeholder visuals are not used as evidence.',
   },
 };
 
@@ -740,7 +775,7 @@ function activityTitle(event: LiveScanSnapshot['activity'][number], locale: Live
 }
 
 function activityBody(event: LiveScanSnapshot['activity'][number], locale: LiveLocale): string {
-  const summary = typeof event.bodyParams?.summary === 'string' ? event.bodyParams.summary : event.body;
+  const summary = typeof event.bodyParams?.summary === 'string' ? event.bodyParams.summary : stringifyPublicValue(event.body);
   if (!event.bodyKey) return translateKnown(summary, locale);
   if (event.bodyKey.includes('reasoning')) {
     return locale === 'vi' ? `Tóm tắt suy luận đã sanitize: ${summary}` : `Sanitized reasoning summary: ${summary}`;
@@ -759,7 +794,7 @@ function translateCaption(caption: string, locale: LiveLocale): string {
 }
 
 function translateKnown(value: string, locale: LiveLocale): string {
-  const safe = publicCopy(value);
+  const safe = publicCopy(stringifyPublicValue(value));
   if (locale === 'en') return safe;
   return safe
     .replace('The live pipeline is checking the verified scope.', 'Pipeline live đang kiểm tra scope đã xác minh.')
@@ -770,6 +805,7 @@ function translateKnown(value: string, locale: LiveLocale): string {
 
 function pipelineCode(kind: string): string {
   const normalized = kind.toLowerCase().replace(/[-\s]/g, '_');
+  if (normalized === 'scan') return 'SCAN';
   if (matchesAny(normalized, ['browser', joinParts('browser', 'inspector')])) return 'Browser';
   if (matchesAny(normalized, [joinParts('za', 'p'), joinParts('za', 'p_signal'), 'z', 'z_signal'])) return 'Z';
   if (matchesAny(normalized, [joinParts('nu', 'clei'), joinParts('nu', 'clei_signal'), 'n', 'n_signal'])) return 'N';
@@ -781,7 +817,7 @@ function pipelineCode(kind: string): string {
 }
 
 function publicCopy(value: string): string {
-  return value
+  return stringifyPublicValue(value)
     .replace(new RegExp(joinParts('browser', '[_ -]?inspector'), 'gi'), 'Browser')
     .replace(new RegExp(joinParts('za', 'p') + '(?:[_ -]?signal|[_ -]?proxy)?', 'gi'), 'Z')
     .replace(new RegExp(joinParts('nu', 'clei') + '(?:[_ -]?signal|[_ -]?proxy)?', 'gi'), 'N')
@@ -791,6 +827,25 @@ function publicCopy(value: string): string {
     .replace(new RegExp(`\\b${joinParts('N', '_signal')}\\b`, 'gi'), 'N')
     .replace(new RegExp(`\\b${joinParts('O', '_hunter')}\\b`, 'gi'), 'O')
     .replace(new RegExp(`\\b${joinParts('S', '_core')}\\b`, 'gi'), 'S');
+}
+
+function stringifyPublicValue(value: unknown): string {
+  if (typeof value === 'string') return value;
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (Array.isArray(value)) return value.map(stringifyPublicValue).filter(Boolean).join(', ');
+  if (typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    for (const key of ['summary', 'message', 'title', 'body', 'reason']) {
+      if (typeof obj[key] === 'string') return obj[key] as string;
+    }
+    return Object.entries(obj)
+      .slice(0, 6)
+      .map(([key, child]) => `${key}: ${stringifyPublicValue(child)}`)
+      .filter((item) => !item.endsWith(': '))
+      .join('; ');
+  }
+  return '';
 }
 
 function matchesAny(value: string, aliases: string[]): boolean {

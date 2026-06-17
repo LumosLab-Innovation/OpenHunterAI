@@ -5,6 +5,7 @@ import { createInitialReportDraft } from '../reports/reports.service.js';
 import { EntitlementService } from '../billing/entitlement.service.js';
 import { recordScanActivity } from './live-scan.service.js';
 import { evaluateAggressiveStagingPreflight, type LlmReadinessInput, type PreflightResult } from './preflight.js';
+import { ensureScanRuntimeReady, ScanRuntimeUnavailableError } from './scan-runtime.service.js';
 import type { CreateScanBody } from './scans.dto.js';
 
 type ScanState = 'queued' | 'running' | 'awaiting_approval' | 'completed' | 'failed' | 'cancelled' | 'timeout';
@@ -311,6 +312,40 @@ export class ScansService {
       bodyParams: { target: scope.verifiedDomain, mode: authz.scanMode },
       status: 'queued',
     }).catch(() => {});
+    try {
+      await ensureScanRuntimeReady((activity) =>
+        recordScanActivity(this.prisma, {
+          scanJobId: scan.id,
+          actor: 'scan',
+          ...activity,
+        }),
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Scan runtime unavailable';
+      await this.prisma.scanJob.update({
+        where: { id: scan.id },
+        data: {
+          state: 'failed',
+          finishedAt: new Date(),
+          errorMessage: `Scan runtime unavailable: ${message}`.slice(0, 2000),
+        },
+      });
+      if (!(error instanceof ScanRuntimeUnavailableError)) {
+        await recordScanActivity(this.prisma, {
+          scanJobId: scan.id,
+          eventType: 'runtime_unavailable',
+          actor: 'scan',
+          titleKey: 'activity.runtime_unavailable.title',
+          bodyKey: 'activity.runtime_unavailable.body',
+          bodyParams: { message },
+          status: 'failed',
+          severity: 'high',
+        }).catch(() => {});
+      }
+      throw new GuardrailError('TOOL_UNAVAILABLE', 'Scan runtime is unavailable; scan was not started', {
+        scanId: scan.id,
+      });
+    }
     try {
       await publishEvent('scan.created', {
         scanId: scan.id,
