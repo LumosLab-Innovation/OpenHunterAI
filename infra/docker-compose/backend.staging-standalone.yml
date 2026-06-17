@@ -33,6 +33,16 @@ services:
       BROWSER_SESSION_BASE_URL: http://browser-session:4700
       FINDINGS_URL: http://findings:4300
       REPORTING_URL: http://reporting:4400
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?Set OPENAI_API_KEY in the staging env file}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:?Set DEEPSEEK_API_KEY in the staging env file}
+      LLM_LOW_REASONING_PROVIDER: openai
+      LLM_LOW_REASONING_MODEL: gpt-4o-mini
+      LLM_LOW_REASONING_FALLBACK_PROVIDER: deepseek
+      LLM_LOW_REASONING_FALLBACK_MODEL: deepseek-v4-flash
+      LLM_HIGH_REASONING_PROVIDER: openai
+      LLM_HIGH_REASONING_MODEL: gpt-4o
+      LLM_HIGH_REASONING_FALLBACK_PROVIDER: deepseek
+      LLM_HIGH_REASONING_FALLBACK_MODEL: deepseek-v4-pro
     ports:
       - "4000:4000"
     depends_on:
@@ -85,6 +95,16 @@ services:
       FINDINGS_PORT: 4300
       DATABASE_URL: ${DATABASE_URL:?Set Cloud SQL DATABASE_URL in the staging env file}
       WORKER_TOKEN: ${WORKER_TOKEN:?Set WORKER_TOKEN in the staging env file}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?Set OPENAI_API_KEY in the staging env file}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:?Set DEEPSEEK_API_KEY in the staging env file}
+      LLM_LOW_REASONING_PROVIDER: openai
+      LLM_LOW_REASONING_MODEL: gpt-4o-mini
+      LLM_LOW_REASONING_FALLBACK_PROVIDER: deepseek
+      LLM_LOW_REASONING_FALLBACK_MODEL: deepseek-v4-flash
+      LLM_HIGH_REASONING_PROVIDER: openai
+      LLM_HIGH_REASONING_MODEL: gpt-4o
+      LLM_HIGH_REASONING_FALLBACK_PROVIDER: deepseek
+      LLM_HIGH_REASONING_FALLBACK_MODEL: deepseek-v4-pro
     ports:
       - "4300:4300"
     depends_on:
@@ -103,6 +123,16 @@ services:
       DATABASE_URL: ${DATABASE_URL:?Set Cloud SQL DATABASE_URL in the staging env file}
       NATS_URL: nats://nats:4222
       WORKER_TOKEN: ${WORKER_TOKEN:?Set WORKER_TOKEN in the staging env file}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?Set OPENAI_API_KEY in the staging env file}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:?Set DEEPSEEK_API_KEY in the staging env file}
+      LLM_LOW_REASONING_PROVIDER: openai
+      LLM_LOW_REASONING_MODEL: gpt-4o-mini
+      LLM_LOW_REASONING_FALLBACK_PROVIDER: deepseek
+      LLM_LOW_REASONING_FALLBACK_MODEL: deepseek-v4-flash
+      LLM_HIGH_REASONING_PROVIDER: openai
+      LLM_HIGH_REASONING_MODEL: gpt-4o
+      LLM_HIGH_REASONING_FALLBACK_PROVIDER: deepseek
+      LLM_HIGH_REASONING_FALLBACK_MODEL: deepseek-v4-pro
     ports:
       - "4400:4400"
     depends_on:
