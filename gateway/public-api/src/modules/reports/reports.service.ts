@@ -350,6 +350,10 @@ function displayUnitCode(key: string): string {
     case 'strix_core':
     case 'S':
       return 'S';
+    case 'recon':
+    case 'recon_signal':
+    case 'R':
+      return 'R';
     case 'report':
       return 'RPT';
     case 'retest':
@@ -412,7 +416,9 @@ function publicWorkerText(value: string): string {
     .replace(/\bopenhack[_-]hunter\b/gi, 'O')
     .replace(/\bopenhack\b/gi, 'O')
     .replace(/\bstrix[_-]core\b/gi, 'S')
-    .replace(/\bstrix\b/gi, 'S');
+    .replace(/\bstrix\b/gi, 'S')
+    .replace(/\brecon[_-]signal\b/gi, 'R')
+    .replace(/\brecon\b/gi, 'R');
 }
 
 function renderSimplePdf(markdown: string): Buffer {

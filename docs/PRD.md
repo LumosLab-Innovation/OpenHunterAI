@@ -191,16 +191,19 @@ OpenHack
 
 Strix
   Attacker-mindset reasoning + controlled validation planning. Produces hypothesis, abuse path, validation plan, severity/confidence, fix prompt, retest scenario. Not an uncontrolled runner.
+
+Recon
+  Passive subdomain/DNS discovery (subfinder/dnsx) followed by a scope-gated active probe (httpx/katana). Discovered assets outside the authorized scope are reported as pending approval, never probed.
 ```
 
 Worker selection by Target Type:
 
-| Target Type | Browser | ZAP | Nuclei | OpenHack | Strix |
-|---|---|---|---|---|---|
-| static_content_website | light | passive mini | exposure/config mini | content exposure + hardening | only if candidate |
-| interactive_web_app | medium/deep | passive/baseline | standard-safe | API/session/auth/admin-like | hypothesis + validation reasoning |
-| api_service | docs/UI only | API passive/spec if available | API exposure/templates | API surface/auth/data | API abuse/data exposure reasoning |
-| ai_llm_application | chat-focused | hygiene only | exposure only | AI prompt/RAG/tool-call | prompt/RAG/tool-call reasoning |
+| Target Type | Browser | ZAP | Nuclei | OpenHack | Strix | Recon |
+|---|---|---|---|---|---|---|
+| static_content_website | light | passive mini | exposure/config mini | content exposure + hardening | only if candidate | light |
+| interactive_web_app | medium/deep | passive/baseline | standard-safe | API/session/auth/admin-like | hypothesis + validation reasoning | standard-safe |
+| api_service | docs/UI only | API passive/spec if available | API exposure/templates | API surface/auth/data | API abuse/data exposure reasoning | standard-safe |
+| ai_llm_application | chat-focused | hygiene only | exposure only | AI prompt/RAG/tool-call | prompt/RAG/tool-call reasoning | mini |
 
 ---
 

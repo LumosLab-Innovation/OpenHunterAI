@@ -57,6 +57,7 @@ export type ScanStepKind =
   | 'nuclei_signal'
   | 'openhack_hunter'
   | 'strix_core'
+  | 'recon_signal'
   | 'report'
   | 'retest';
 
@@ -97,7 +98,7 @@ export interface FindingEvidence {
 }
 
 export interface FindingCandidate {
-  source: 'browser' | 'zap' | 'nuclei' | 'openhack' | 'strix';
+  source: 'browser' | 'zap' | 'nuclei' | 'openhack' | 'strix' | 'recon';
   title: string;
   severity: Severity;
   confidence: Confidence;

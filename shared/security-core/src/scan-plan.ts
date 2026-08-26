@@ -104,6 +104,7 @@ export function buildScanPlan(input: ScanPlanInput): ScanPlan {
       enabledWorkers.nuclei = 'mini';
       enabledWorkers.openhack = 'light';
       enabledWorkers.strix = 'candidate_only';
+      enabledWorkers.recon = 'light';
       enabledHunters.push('content_exposure', 'hardening');
       if (input.surfaceFlags.has_login) enabledHunters.push('auth_session_smoke');
       break;
@@ -113,6 +114,7 @@ export function buildScanPlan(input: ScanPlanInput): ScanPlan {
       enabledWorkers.nuclei = 'standard_safe';
       enabledWorkers.openhack = 'medium';
       enabledWorkers.strix = 'deep';
+      enabledWorkers.recon = 'standard_safe';
       enabledHunters.push('api_surface', 'session_auth', 'admin_like_surface');
       if (!input.surfaceFlags.has_login) {
         skippedHunters.push({ hunter: 'authenticated_access_control', reason: 'surface flag has_login is false' });
@@ -125,6 +127,7 @@ export function buildScanPlan(input: ScanPlanInput): ScanPlan {
       enabledWorkers.nuclei = 'standard_safe';
       enabledWorkers.openhack = 'medium';
       enabledWorkers.strix = 'deep';
+      enabledWorkers.recon = 'standard_safe';
       enabledHunters.push('api_surface', 'api_auth', 'data_exposure');
       break;
     case 'ai_llm_application':
@@ -133,6 +136,7 @@ export function buildScanPlan(input: ScanPlanInput): ScanPlan {
       enabledWorkers.nuclei = 'mini';
       enabledWorkers.openhack = 'medium';
       enabledWorkers.strix = 'deep';
+      enabledWorkers.recon = 'mini';
       enabledHunters.push('ai_prompt', 'rag_exposure', 'tool_calling');
       if (!input.surfaceFlags.has_chatbot_or_rag_or_tool_calling) {
         skippedHunters.push({ hunter: 'ai_deep_reasoning', reason: 'AI surface flag is not set' });

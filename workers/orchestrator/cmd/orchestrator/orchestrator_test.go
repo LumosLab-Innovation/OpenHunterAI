@@ -54,14 +54,14 @@ func scanCreatedEnv(t *testing.T, plan string) *events.Envelope {
 }
 
 func TestFanOutDispatchesEnabledWorkers(t *testing.T) {
-	env := scanCreatedEnv(t, `{"enabledWorkers":{"browser":"deep","zap":"standard_safe","nuclei":"standard_safe","openhack":"medium","strix":"deep"}}`)
+	env := scanCreatedEnv(t, `{"enabledWorkers":{"browser":"deep","zap":"standard_safe","nuclei":"standard_safe","openhack":"medium","strix":"deep","recon":"standard_safe"}}`)
 	pub := &fakePub{}
 	got, err := fanOut(context.Background(), pub, env, wlog.New(wlog.Fields{}))
 	if err != nil {
 		t.Fatalf("fanOut: %v", err)
 	}
 	sort.Strings(got)
-	want := []string{"N", "O", "S", "Z", "browser-inspector"}
+	want := []string{"N", "O", "R", "S", "Z", "browser-inspector"}
 	if len(got) != len(want) {
 		t.Fatalf("dispatched %v, want %v", got, want)
 	}

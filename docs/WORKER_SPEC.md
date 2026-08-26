@@ -64,18 +64,21 @@ OpenHack
 
 Strix
   Attacker-mindset reasoning + controlled validation planning. Not an uncontrolled runner.
+
+Recon
+  Passive discovery (subfinder/dnsx) -> scope-gated active probe (httpx/katana) signal layer. Discovered out-of-scope subdomains are reported, never probed.
 ```
 
 ---
 
 # 4. Target Type Matrix
 
-| Target Type | Browser | ZAP | Nuclei | OpenHack | Strix |
-|---|---|---|---|---|---|
-| static_content_website | light | passive mini | exposure/config mini | content exposure + hardening | only if candidate |
-| interactive_web_app | medium/deep | passive/baseline | standard-safe | API/session/auth/admin-like | hypothesis + validation reasoning |
-| api_service | only if docs/UI | API passive/spec if available | API exposure/templates | API surface/auth/data | API abuse/data exposure reasoning |
-| ai_llm_application | chat-focused | hygiene only | exposure only | AI prompt/RAG/tool-call hunter | prompt/RAG/tool-call reasoning |
+| Target Type | Browser | ZAP | Nuclei | OpenHack | Strix | Recon |
+|---|---|---|---|---|---|---|
+| static_content_website | light | passive mini | exposure/config mini | content exposure + hardening | only if candidate | light |
+| interactive_web_app | medium/deep | passive/baseline | standard-safe | API/session/auth/admin-like | hypothesis + validation reasoning | standard-safe |
+| api_service | only if docs/UI | API passive/spec if available | API exposure/templates | API surface/auth/data | API abuse/data exposure reasoning | standard-safe |
+| ai_llm_application | chat-focused | hygiene only | exposure only | AI prompt/RAG/tool-call hunter | prompt/RAG/tool-call reasoning | mini |
 
 Skipped hunters must include a reason.
 

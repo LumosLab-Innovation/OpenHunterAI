@@ -42,6 +42,7 @@ describe('buildScanPlan', () => {
       nuclei: 'mini',
       openhack: 'light',
       strix: 'candidate_only',
+      recon: 'light',
     });
     expect(plan.enabledHunters).toContain('content_exposure');
   });

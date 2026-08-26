@@ -1,7 +1,7 @@
 import { getPrisma } from '@x-hunter/db';
 import { sanitizeReportContent, sanitizeText } from '@x-hunter/shared';
 
-type WorkerCode = 'Browser' | 'Z' | 'N' | 'O' | 'S' | 'RPT';
+type WorkerCode = 'Browser' | 'Z' | 'N' | 'O' | 'S' | 'R' | 'RPT';
 
 interface LiveScanInput {
   id: string;
@@ -212,13 +212,14 @@ interface SanitizedVisualArtifact {
 
 const MAX_VISUAL_DATA_URL_LENGTH = 350_000;
 
-const WORKER_ORDER: WorkerCode[] = ['Browser', 'Z', 'N', 'O', 'S', 'RPT'];
+const WORKER_ORDER: WorkerCode[] = ['Browser', 'Z', 'N', 'O', 'S', 'R', 'RPT'];
 const WORKER_TITLES: Record<WorkerCode, string> = {
   Browser: 'Browser',
   Z: 'Z',
   N: 'N',
   O: 'O',
   S: 'S',
+  R: 'R',
   RPT: 'Report',
 };
 
@@ -745,6 +746,12 @@ function workerCode(kind: string): string {
     case 's':
     case 's_core':
       return 'S';
+    case 'recon':
+    case 'recon_proxy':
+    case 'recon_signal':
+    case 'r':
+    case 'r_signal':
+      return 'R';
     case 'report':
     case 'rpt':
       return 'RPT';
@@ -780,6 +787,7 @@ function cursorX(actor: LiveScanSnapshot['cursorPreview']['actor']): number {
   if (actor === 'N') return 52;
   if (actor === 'O') return 62;
   if (actor === 'S') return 72;
+  if (actor === 'R') return 77;
   return 82;
 }
 
@@ -819,8 +827,11 @@ function publicWorkerText(value: string): string {
     .replace(/\bopenhack\b/gi, 'O')
     .replace(/\bstrix[_-]core\b/gi, 'S')
     .replace(/\bstrix\b/gi, 'S')
+    .replace(/\brecon[_-]signal\b/gi, 'R')
+    .replace(/\brecon\b/gi, 'R')
     .replace(/\bZ_signal\b/g, 'Z')
     .replace(/\bN_signal\b/g, 'N')
     .replace(/\bO_hunter\b/g, 'O')
-    .replace(/\bS_core\b/g, 'S');
+    .replace(/\bS_core\b/g, 'S')
+    .replace(/\bR_signal\b/g, 'R');
 }

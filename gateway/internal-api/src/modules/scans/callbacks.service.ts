@@ -26,6 +26,8 @@ const KIND_MAP: Record<string, string> = {
   O: 'openhack_hunter',
   strix: 'strix_core',
   S: 'strix_core',
+  recon: 'recon_signal',
+  R: 'recon_signal',
   report: 'report',
   retest: 'retest',
 };
@@ -298,6 +300,10 @@ function compactActor(actor: string): string {
     case 'strix_core':
     case 's':
       return 'S';
+    case 'recon':
+    case 'recon_signal':
+    case 'r':
+      return 'R';
     case 'report':
       return 'RPT';
     default:

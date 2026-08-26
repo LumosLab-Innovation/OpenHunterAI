@@ -4,6 +4,7 @@ use (
 	./contracts/generated/go
 	./integrations/nuclei
 	./integrations/openhack
+	./integrations/recon
 	./integrations/strix
 	./integrations/zaproxy
 	./workers

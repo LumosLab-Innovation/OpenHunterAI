@@ -317,6 +317,7 @@ enum ScanStepKind {
   nuclei_signal
   openhack_hunter
   strix_core
+  recon_signal
   report
   retest
 }

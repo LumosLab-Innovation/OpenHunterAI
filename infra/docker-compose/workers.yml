@@ -58,6 +58,15 @@ services:
     ports:
       - "5150:5150"
 
+  R:
+    build:
+      context: ../..
+      dockerfile: workers/R/Dockerfile
+    env_file:
+      - ../../workers/R/env/R.env.example
+    ports:
+      - "5170:5170"
+
   retest:
     build:
       context: ../..

@@ -30,11 +30,12 @@
 
 # 3. Workers And Integrations
 
-- [ ] Per-family images exist for web, API, orchestrator, browser, ZAP, Nuclei, OpenHack, Strix, report, retest.
+- [ ] Per-family images exist for web, API, orchestrator, browser, ZAP, Nuclei, OpenHack, Strix, Recon, report, retest.
 - [ ] Integration adapter images expose health checks and stable ports.
 - [ ] ZAP is pinned/restricted and passive/baseline by default.
 - [ ] Nuclei image uses pinned binary + internal curated templates only.
 - [ ] Playwright/browser worker has isolation, low concurrency, hard timeout, egress/scope guardrails.
+- [ ] Recon (subfinder/dnsx/httpx/katana) only actively probes hosts that pass the scope guard; discovered out-of-scope subdomains are reported, never scanned. Staging/production images and CI wiring are not yet done (dev/local only as of 2026-08-26).
 - [ ] Tool unavailable becomes skipped/coverage gap, not fake success.
 
 ---

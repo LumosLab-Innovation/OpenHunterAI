@@ -19,11 +19,18 @@ Defaults:
 ```text
 ZAP_IMAGE=ghcr.io/zaproxy/zaproxy:stable
 NUCLEI_IMAGE=projectdiscovery/nuclei:v3.4.10
+SUBFINDER_IMAGE=projectdiscovery/subfinder:v2.16.0
+DNSX_IMAGE=projectdiscovery/dnsx:v1.3.0
+HTTPX_IMAGE=projectdiscovery/httpx:v1.10.0
+KATANA_IMAGE=projectdiscovery/katana:v1.7.0
 ZAPROXY_ADAPTER_IMAGE=openhunter/zaproxy-adapter:<tag>
 NUCLEI_ADAPTER_IMAGE=openhunter/nuclei-adapter:<tag>
 OPENHACK_ADAPTER_IMAGE=openhunter/openhack-adapter:<tag>
 STRIX_ADAPTER_IMAGE=openhunter/strix-adapter:<tag>
+RECON_ADAPTER_IMAGE=openhunter/recon-adapter:<tag>
 ```
+
+`recon-adapter` bundles four upstream ProjectDiscovery binaries (subfinder, dnsx, httpx, katana) behind one HTTP adapter — see `integrations/recon`. It is the only adapter that runs a two-stage pipeline: passive discovery (subfinder/dnsx, no connection to the target's own infrastructure) followed by an active probe (httpx/katana) that is re-gated against `allowedHosts` before every connection. Discovered subdomains outside scope are returned as `discovered_pending_scope_approval` signals, never probed further.
 
 Adapters must expose health checks and fail loudly when their runtime/tool is
 unavailable. They must not fake success or persist raw evidence. Execution
@@ -52,4 +59,5 @@ make up-integration INTEGRATION=zaproxy
 make up-integration INTEGRATION=nuclei
 make up-integration INTEGRATION=openhack
 make up-integration INTEGRATION=strix
+make up-integration INTEGRATION=recon
 ```

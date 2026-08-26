@@ -54,6 +54,7 @@ Cụ thể:
 - Nuclei curated safe templates.
 - OpenHack-style Free Hunter workflow.
 - Strix attacker-mindset reasoning.
+- Recon signal layer (subfinder/dnsx/httpx/katana): passive discovery, scope-gated active probe only. Dev/local only — staging/CI rollout chưa làm.
 - Human-readable report.
 - AI/dev-readable report.
 - Finding board.

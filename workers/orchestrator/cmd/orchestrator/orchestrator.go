@@ -16,6 +16,7 @@ var workerSubjects = map[string]string{
 	"nuclei":   events.SubjectWorkerNuclei,
 	"openhack": events.SubjectWorkerOpenHack,
 	"strix":    events.SubjectWorkerStrix,
+	"recon":    events.SubjectWorkerRecon,
 }
 
 // scanPlanShape is the subset of the scan plan the orchestrator reads.
@@ -116,6 +117,8 @@ func workerCode(workerKey string) string {
 		return "O"
 	case "strix", "S":
 		return "S"
+	case "recon", "R":
+		return "R"
 	default:
 		return workerKey
 	}

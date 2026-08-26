@@ -96,6 +96,7 @@ zap-worker
 nuclei-worker
 openhack-worker
 strix-worker
+recon-worker
 report-worker
 retest-worker
 ```
@@ -115,12 +116,14 @@ Core does not import or know tool internals. Tool unavailable becomes skipped/co
 
 # 5. Target Type Matrix
 
-| Target Type | Browser | ZAP | Nuclei | OpenHack | Strix |
-|---|---|---|---|---|---|
-| static_content_website | light | passive mini | exposure/config mini | content exposure + hardening | candidate only |
-| interactive_web_app | medium/deep | passive/baseline | standard-safe | API/session/auth/admin-like | hypothesis + validation reasoning |
-| api_service | docs/UI only | API passive/spec if available | API exposure/templates | API surface/auth/data | API abuse/data exposure reasoning |
-| ai_llm_application | chat-focused | hygiene only | exposure only | prompt/RAG/tool-call hunters | prompt/RAG/tool-call reasoning |
+| Target Type | Browser | ZAP | Nuclei | OpenHack | Strix | Recon |
+|---|---|---|---|---|---|---|
+| static_content_website | light | passive mini | exposure/config mini | content exposure + hardening | candidate only | light |
+| interactive_web_app | medium/deep | passive/baseline | standard-safe | API/session/auth/admin-like | hypothesis + validation reasoning | standard-safe |
+| api_service | docs/UI only | API passive/spec if available | API exposure/templates | API surface/auth/data | API abuse/data exposure reasoning | standard-safe |
+| ai_llm_application | chat-focused | hygiene only | exposure only | prompt/RAG/tool-call hunters | prompt/RAG/tool-call reasoning | mini |
+
+Recon (subfinder/dnsx/httpx/katana) is a passive-discovery -> scope-gated active-probe signal layer (WSTG-INFO/WSTG-CONF). Passive stages (subfinder/dnsx) run against every discovered candidate; active stages (httpx/katana) only ever touch hosts that already pass the scope guard. See `README.md` §7 and `integrations/recon`.
 
 ---
 
@@ -207,6 +210,7 @@ openhunter/zap-worker:<git-sha>
 openhunter/nuclei-worker:<git-sha>
 openhunter/openhack-worker:<git-sha>
 openhunter/strix-worker:<git-sha>
+openhunter/recon-worker:<git-sha>
 openhunter/report-worker:<git-sha>
 openhunter/retest-worker:<git-sha>
 ```
@@ -218,7 +222,10 @@ openhunter/zaproxy-adapter:<git-sha>
 openhunter/nuclei-adapter:<git-sha>
 openhunter/openhack-adapter:<git-sha>
 openhunter/strix-adapter:<git-sha>
+openhunter/recon-adapter:<git-sha>
 ```
+
+`recon-worker`/`recon-adapter` are wired into local dev (`infra/docker-compose/integrations.yml`, `workers.yml`) and `ops/scripts/publish-images.sh`. Staging/production rollout (`infra/docker-compose/*.staging.yml`, `infra/cloudbuild/pipeline-runtime.yaml`) is a separate, not-yet-done step.
 
 Infra services:
 

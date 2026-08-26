@@ -1,0 +1,17 @@
+name: recon
+language: go
+mode: http
+requires_runtime: true
+docker_profile: recon
+internal_base_url: http://recon-adapter:6140
+health_endpoint: /health
+required_env:
+  - SUBFINDER_BIN
+  - DNSX_BIN
+  - HTTPX_BIN
+  - KATANA_BIN
+capabilities:
+  - passive_subdomain_enumeration
+  - dns_resolution
+  - http_probing
+  - endpoint_crawl_discovery

@@ -1,0 +1,7 @@
+services:
+  recon-adapter:
+    build:
+      context: ../../..
+      dockerfile: integrations/recon/Dockerfile
+    ports:
+      - "6140:6140"

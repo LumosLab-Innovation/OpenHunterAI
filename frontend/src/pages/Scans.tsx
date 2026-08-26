@@ -502,7 +502,7 @@ function ActivityTimeline({ events, locale }: { events: LiveScanSnapshot['activi
         <div className="grid gap-2 sm:grid-cols-2">
           <Select value={actor} onChange={(event) => setActor(event.target.value)} aria-label="Filter actor">
             <option value="all">All actors</option>
-            {['Browser', 'Z', 'N', 'O', 'S', 'RPT', 'RT'].map((code) => (
+            {['Browser', 'Z', 'N', 'O', 'S', 'R', 'RPT', 'RT'].map((code) => (
               <option key={code} value={code}>{code}</option>
             ))}
           </Select>
@@ -775,6 +775,7 @@ function pipelineCode(kind: string): string {
   if (matchesAny(normalized, [joinParts('nu', 'clei'), joinParts('nu', 'clei_signal'), 'n', 'n_signal'])) return 'N';
   if (matchesAny(normalized, [joinParts('open', 'hack'), joinParts('open', 'hack_hunter'), 'o', 'o_hunter'])) return 'O';
   if (matchesAny(normalized, [joinParts('st', 'rix'), joinParts('st', 'rix_core'), 's', 's_core'])) return 'S';
+  if (matchesAny(normalized, [joinParts('re', 'con'), joinParts('re', 'con_signal'), 'r', 'r_signal'])) return 'R';
   if (normalized === 'report') return 'RPT';
   if (normalized === 'retest') return 'RT';
   return publicCopy(kind);
@@ -787,10 +788,12 @@ function publicCopy(value: string): string {
     .replace(new RegExp(joinParts('nu', 'clei') + '(?:[_ -]?signal|[_ -]?proxy)?', 'gi'), 'N')
     .replace(new RegExp(joinParts('open', 'hack') + '(?:[_ -]?hunter|[_ -]?proxy)?', 'gi'), 'O')
     .replace(new RegExp(joinParts('st', 'rix') + '(?:[_ -]?core|[_ -]?proxy)?', 'gi'), 'S')
+    .replace(new RegExp(joinParts('re', 'con') + '(?:[_ -]?signal|[_ -]?proxy)?', 'gi'), 'R')
     .replace(new RegExp(`\\b${joinParts('Z', '_signal')}\\b`, 'gi'), 'Z')
     .replace(new RegExp(`\\b${joinParts('N', '_signal')}\\b`, 'gi'), 'N')
     .replace(new RegExp(`\\b${joinParts('O', '_hunter')}\\b`, 'gi'), 'O')
-    .replace(new RegExp(`\\b${joinParts('S', '_core')}\\b`, 'gi'), 'S');
+    .replace(new RegExp(`\\b${joinParts('S', '_core')}\\b`, 'gi'), 'S')
+    .replace(new RegExp(`\\b${joinParts('R', '_signal')}\\b`, 'gi'), 'R');
 }
 
 function matchesAny(value: string, aliases: string[]): boolean {

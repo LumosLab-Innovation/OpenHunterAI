@@ -48,3 +48,12 @@ services:
       - ../../integrations/strix/runtime/.env.example
     ports:
       - "6130:6130"
+
+  recon-adapter:
+    build:
+      context: ../..
+      dockerfile: integrations/recon/Dockerfile
+    env_file:
+      - ../../integrations/recon/runtime/.env.example
+    ports:
+      - "6140:6140"
