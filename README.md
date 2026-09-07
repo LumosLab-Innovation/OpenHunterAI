@@ -10,6 +10,12 @@ Technical requirements for OpenHunterAI's black-box pentest workflow and MVP arc
 > [mandatory security guardrails](docs/SECURITY_GUARDRAILS.md).
 > Raw credentials, HAR and sensitive request/response data are not report artifacts.
 
+## License
+
+OpenHunterAI is source-available under the [PolyForm Noncommercial License
+1.0.0](LICENSE). Commercial use requires a separate written license from
+HungBil. See [LICENSING.md](LICENSING.md).
+
 ## 1. Technical Scope
 
 - **Model**: AI Agentic Workflow — AI orchestrates, analyzes context, and chooses actions; open-source tools handle recon, crawling, request sending, OAST, and known-vulnerability checks.
