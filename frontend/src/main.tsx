@@ -20,8 +20,18 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
+const isPublicSite = import.meta.env.VITE_PUBLIC_SITE === 'true';
+
+function PublicSite() {
+  return (
+    <ThemeProvider>
+      <HomePage />
+    </ThemeProvider>
+  );
+}
+
+function Application() {
+  return (
     <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
@@ -44,5 +54,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         </BrowserRouter>
       </AuthProvider>
     </ThemeProvider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    {isPublicSite ? <PublicSite /> : <Application />}
   </React.StrictMode>,
 );
