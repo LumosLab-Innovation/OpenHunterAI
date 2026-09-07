@@ -384,7 +384,7 @@ Khi implement tính năng dùng LLM, phải kiểm tra:
 
 ### Issue tracker
 
-Issues live in this repo's GitHub Issues (`ViCore-Technology/OpenHunterAI`), managed via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+Issues live in this repo's GitHub Issues (`LumosLab-Innovation/OpenHunterAI`), managed via the `gh` CLI. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

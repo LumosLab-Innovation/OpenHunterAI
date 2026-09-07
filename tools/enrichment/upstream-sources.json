@@ -12,7 +12,7 @@
   "sources": [
     {
       "id": "openhunter_core",
-      "url": "https://github.com/ViCore-Technology/OpenHunterAI",
+      "url": "https://github.com/LumosLab-Innovation/OpenHunterAI",
       "ref": "this-repo",
       "role": "Native OpenHunterAI hunters, scan plan, and product logic.",
       "importMode": "native",
