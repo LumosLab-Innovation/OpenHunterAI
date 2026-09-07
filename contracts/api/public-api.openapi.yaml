@@ -72,11 +72,45 @@ paths:
         - name: format
           in: query
           schema:
-            enum: [html, pdf]
+            type: string
+            enum: [docx, csv, json, html, pdf]
+            default: html
         - name: view
           in: query
           schema:
+            type: string
             enum: [snapshot, latest]
+            default: latest
       responses:
         "200":
-          description: On-demand sanitized HTML/PDF export
+          description: On-demand sanitized final or superseded report download; Content-Disposition attachment. JSON contains snapshot and optional latestOverlay. CSV separates findings, hardening, coverage gaps, and limitations.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [snapshot]
+                properties:
+                  snapshot:
+                    type: object
+                  latestOverlay:
+                    type: object
+            text/csv:
+              schema:
+                type: string
+            application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Unsupported format/view, or report is not finalized
+        "401":
+          description: Authentication required
+        "404":
+          description: Report does not exist in the current organization

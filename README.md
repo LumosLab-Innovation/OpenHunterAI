@@ -2,6 +2,14 @@
 
 Technical requirements for OpenHunterAI's black-box pentest workflow and MVP architecture.
 
+> Release status: this document mixes implemented features with proposed tools.
+> The running stack is React/Vite, Express/TypeScript, Go, Postgres and NATS;
+> the technology catalogue below is not a ready-to-use capability guarantee.
+> See [public release gates](docs/PUBLIC_RELEASE_READINESS.md),
+> [current architecture](docs/ARCHITECTURE.md) and
+> [mandatory security guardrails](docs/SECURITY_GUARDRAILS.md).
+> Raw credentials, HAR and sensitive request/response data are not report artifacts.
+
 ## 1. Technical Scope
 
 - **Model**: AI Agentic Workflow — AI orchestrates, analyzes context, and chooses actions; open-source tools handle recon, crawling, request sending, OAST, and known-vulnerability checks.

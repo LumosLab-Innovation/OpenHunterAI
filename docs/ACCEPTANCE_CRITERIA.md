@@ -115,7 +115,10 @@ raw credentials/cookies/tokens/HAR/request/response are not stored/logged/report
 detected secrets store only masked fingerprint/hash/metadata
 report_v1 structured JSON is the canonical report snapshot
 draft sections stream over SSE
-HTML/PDF exports are generated on demand and not persisted as artifacts
+DOCX/CSV/JSON/HTML/PDF exports are generated on demand and not persisted as artifacts
+downloads require an org-scoped final or superseded report; drafts cannot be downloaded as final
+JSON preserves the report_v1 snapshot; latest status is an optional separate overlay
+CSV neutralizes spreadsheet formulas and separates validated findings from hardening/coverage rows
 LLM ranking recommendations cannot invent findings or override deterministic policy
 ```
 

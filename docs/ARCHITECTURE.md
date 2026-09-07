@@ -18,7 +18,7 @@ web dashboard
 → manual retest / Monitor Workspace
 ```
 
-Core v1 stores sanitized reports/findings in Postgres. External artifact storage is not a core v1 dependency. HTML/PDF exports are rendered on demand from sanitized report JSON and are not stored as files.
+Core v1 stores sanitized reports/findings in Postgres. External artifact storage is not a core v1 dependency. DOCX/CSV/JSON/HTML/PDF exports are rendered on demand from sanitized report JSON and are not stored as files. Downloads require an org-scoped final or superseded snapshot. JSON includes the canonical snapshot and, when requested, a separate latest-status overlay. CSV is a flat findings/coverage summary, not a lossless replacement for JSON.
 
 Reports use `report_v1` structured JSON snapshots in Postgres. Draft report sections stream to the UI through SSE while a scan runs.
 

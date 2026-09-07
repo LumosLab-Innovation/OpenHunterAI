@@ -5,6 +5,7 @@ import { API_BASE, apiFetch } from '../lib/api';
 import { PageHeader } from '../components/PageHeader';
 import { Badge, SeverityBadge, StatusBadge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
+import { Select } from '../components/ui/Field';
 import { Card, CardBody, CardHeader, CardTitle } from '../components/ui/Card';
 import { EmptyState, ErrorState } from '../components/ui/States';
 import { SkeletonRows } from '../components/ui/Loading';
@@ -144,6 +145,10 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export function ReportDetailPage() {
   const { id = '' } = useParams();
   const [report, setReport] = useState<ReportEnvelope | null>(null);
+  const [format, setFormat] = useState('docx');
+  const [view, setView] = useState('snapshot');
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -156,8 +161,37 @@ export function ReportDetailPage() {
   }, [id]);
 
   const content = report?.snapshot.content ?? {};
-  const exportBase = `${API_BASE}/v1/reports/${id}/export`;
+  const exportFormats = ['docx', 'csv', 'json', 'html', 'pdf'].filter((item) => report?.exports.formats.includes(item));
+  const selectedFormat = exportFormats.includes(format) ? format : (exportFormats[0] ?? 'docx');
+  const canExport = !!report && ['final', 'superseded'].includes(report.snapshot.state) && exportFormats.length > 0;
   const findings = content.findings ?? [];
+
+  async function downloadReport() {
+    if (!canExport || downloading) return;
+    setDownloading(true);
+    setDownloadError(null);
+    try {
+      const response = await fetch(`${API_BASE}/v1/reports/${encodeURIComponent(id)}/export?${new URLSearchParams({ format: selectedFormat, view })}`, {
+        credentials: 'include', cache: 'no-store', signal: AbortSignal.timeout(60_000),
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        throw new Error(data?.error?.message ?? `Download failed (HTTP ${response.status})`);
+      }
+      const url = URL.createObjectURL(await response.blob());
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `openhunter-report-${id}.${selectedFormat}`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch (err) {
+      setDownloadError(err instanceof Error ? err.message : 'Report download failed');
+    } finally {
+      setDownloading(false);
+    }
+  }
 
   return (
     <div>
@@ -165,19 +199,24 @@ export function ReportDetailPage() {
         title={content.ownerSummary?.headline ?? 'Report'}
         description={<span className="text-data text-xs text-ink-faint">{id}</span>}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex max-w-full flex-wrap items-center gap-2">
             <StatusBadge state={report?.snapshot.state} />
-            <Button variant="secondary" size="sm" onClick={() => window.open(`${exportBase}?format=html&view=latest`)}>
-              <Download className="h-4 w-4" /> HTML
-            </Button>
-            <Button variant="secondary" size="sm" onClick={() => window.open(`${exportBase}?format=pdf&view=latest`)}>
-              <Download className="h-4 w-4" /> PDF
+            <Select aria-label="Report format" className="w-auto" value={selectedFormat} onChange={(e) => setFormat(e.target.value)} disabled={!canExport || downloading}>
+              {exportFormats.map((item) => <option key={item} value={item}>{item.toUpperCase()}</option>)}
+            </Select>
+            <Select aria-label="Report view" className="w-auto" value={view} onChange={(e) => setView(e.target.value)} disabled={!canExport || downloading}>
+              <option value="snapshot">Scan snapshot</option>
+              <option value="latest">With latest status</option>
+            </Select>
+            <Button variant="secondary" size="icon" aria-label="Download report" title="Download report" onClick={() => void downloadReport()} disabled={!canExport || downloading} aria-busy={downloading}>
+              <Download className="h-4 w-4" />
             </Button>
           </div>
         }
       />
 
       {error && <ErrorState message={error} className="mb-4" />}
+      {downloadError && <ErrorState message={downloadError} className="mb-4" />}
       {loading ? (
         <SkeletonRows rows={5} />
       ) : (
