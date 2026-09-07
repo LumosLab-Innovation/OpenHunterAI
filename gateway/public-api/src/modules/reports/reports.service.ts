@@ -6,7 +6,9 @@ import {
   sanitizeReportContent,
   sanitizeText,
   type ReportContentV1,
+  GuardrailError,
 } from '@x-hunter/shared';
+import { REPORT_EXPORT_FORMATS, reportCsv, reportDocx, type ReportExportFormat } from './report-downloads.js';
 
 export class ReportsService {
   private readonly prisma = getPrisma();
@@ -54,10 +56,30 @@ export class ReportsService {
     return this.toEnvelope(report);
   }
 
-  async export(id: string, orgId: string, format: 'html' | 'pdf', view: 'snapshot' | 'latest') {
+  async export(id: string, orgId: string, format: ReportExportFormat, view: 'snapshot' | 'latest') {
     const envelope = await this.get(id, orgId);
     if (!envelope) return null;
+    if (!['final', 'superseded'].includes(envelope.snapshot.state)) {
+      throw new GuardrailError('INVALID_INPUT', 'Report is still being prepared');
+    }
     const content = sanitizeReportContent(envelope.snapshot.content as ReportContentV1);
+    if (format === 'json') return {
+      contentType: 'application/json; charset=utf-8', filename: `openhunter-report-${id}.json`,
+      // Serialize dates before sanitizing the complete public download envelope.
+      body: Buffer.from(JSON.stringify(sanitizeReportContent(JSON.parse(JSON.stringify({
+        snapshot: envelope.snapshot,
+        ...(view === 'latest' ? { latestOverlay: envelope.latestOverlay } : {}),
+      }))), null, 2), 'utf8'),
+    };
+    if (format === 'csv') return {
+      contentType: 'text/csv; charset=utf-8', filename: `openhunter-report-${id}.csv`,
+      body: Buffer.from(reportCsv(content, view === 'latest' ? renderOverlayMarkdown(envelope.latestOverlay) : undefined), 'utf8'),
+    };
+    if (format === 'docx') return {
+      contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      filename: `openhunter-report-${id}.docx`,
+      body: await reportDocx(content, view === 'latest' ? renderOverlayMarkdown(envelope.latestOverlay) : undefined),
+    };
     const html = renderReportHtml(content, view === 'latest' ? envelope.latestOverlay : undefined);
     if (format === 'html') {
       return {
@@ -156,7 +178,7 @@ ${renderOverlayMarkdown(envelope.latestOverlay)}`
       },
       latestOverlay,
       exports: {
-        formats: ['html', 'pdf'],
+        formats: REPORT_EXPORT_FORMATS,
         generatedOnDemand: true,
       },
     };
