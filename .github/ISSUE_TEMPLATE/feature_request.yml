@@ -1,0 +1,26 @@
+name: Feature request
+description: Propose an improvement consistent with the authorized-testing scope.
+title: "[Feature]: "
+labels: [needs-triage]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe the smallest behavior that would solve the problem.
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This does not require private-network scanning, unrestricted offensive behavior, destructive testing, or CI/CD-triggered retests.
+          required: true
