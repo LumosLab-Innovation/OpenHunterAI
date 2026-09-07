@@ -27,7 +27,8 @@ to their terms.
 
 Do not apply a new root license until these gates are met:
 
-- [ ] Owner confirms the actual legal licensor name and commercial contact.
+- [x] Owner confirmed the legal licensor: HungBil. Commercial inquiries route
+      through <https://github.com/HungBil>.
 - [ ] Confirm rights to the existing contributions. Git author names are not
       proof of employment, assignment or permission to relicense.
 - [ ] Inventory third-party code and retain its licenses/notices. In particular,

@@ -342,6 +342,12 @@ export function HomePage() {
       <footer className="border-t border-hairline">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm text-ink-faint lg:px-8">
           <span className="font-display font-700 text-ink">OpenHunterAI</span>
+          <a
+            className="underline decoration-hairline-strong underline-offset-4 hover:text-ink"
+            href="https://github.com/LumosLab-Innovation/OpenHunterAI/blob/main/LICENSING.md"
+          >
+            Source-available under PolyForm Noncommercial
+          </a>
           <span>Authorized external web/app security testing. Verified scope only.</span>
         </div>
       </footer>
