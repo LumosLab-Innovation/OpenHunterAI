@@ -9,7 +9,7 @@ const rootDir = dirname(fileURLToPath(import.meta.url));
 export default defineConfig(({ mode }) => {
   const publicSite = mode === 'public-site';
   return {
-    base: publicSite ? '/openhunterai-site/' : '/',
+    base: '/',
     plugins: [react()],
     build: publicSite
       ? { rollupOptions: { input: { index: resolve(rootDir, 'index.public-site.html') } } }
