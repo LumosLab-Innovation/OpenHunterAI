@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://lumoslab-innovation.github.io/openhunterai-site/">
+  <a href="https://github.com/LumosLab-Innovation/OpenHunterAI">
     <img src="frontend/public/logo.png" width="96" alt="OpenHunterAI logo">
   </a>
 </p>
@@ -21,7 +21,6 @@
 > use, and feedback. It is not a claim of production readiness or a guarantee
 > that any target has been scanned successfully.
 
-[Product guide](https://lumoslab-innovation.github.io/openhunterai-site/) ·
 [Documentation](docs/) · [Security policy](SECURITY.md) ·
 [Commercial licensing](LICENSING.md) · [Technical requirements](#technical-requirements-restored-from-433ecf7970fdb5cbfbf47399e56bf006db719a85) · [Star history](#star-history)
 
