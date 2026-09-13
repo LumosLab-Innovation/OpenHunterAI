@@ -3,6 +3,7 @@ import { createHmac, randomBytes, scryptSync, timingSafeEqual } from 'node:crypt
 import { Buffer } from 'node:buffer';
 import { getPrisma } from '@x-hunter/db';
 import { GuardrailError } from '@x-hunter/shared';
+import { isLocalWorkspaceRequest, localWorkspaceUser, workspaceMode } from '../modules/workspace/local-workspace.js';
 
 export interface SessionUser {
   userId: string;
@@ -104,6 +105,18 @@ export function clearSessionCookie(res: Response) {
 }
 
 export function requireUser(req: Request, res: Response, next: NextFunction) {
+  if (workspaceMode() === 'local') {
+    if (!isLocalWorkspaceRequest(req)) {
+      res.status(403).json({ error: { code: 'LOCAL_ONLY', message: 'Local workspace access requires localhost.' } });
+      return;
+    }
+    void localWorkspaceUser().then((user) => {
+      req.user = user;
+      res.setHeader('Cache-Control', 'no-store');
+      next();
+    }).catch(next);
+    return;
+  }
   void authenticateSessionToken(req.cookies?.[cookieName])
     .then((user) => {
       if (!user) {

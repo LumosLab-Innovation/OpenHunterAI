@@ -1,11 +1,19 @@
 # PRD.md - OpenHunterAI
 
-> Public positioning: **OpenHunterAI - Authorized Attacker-Mindset Security Workspace**.
+> Public positioning: **OpenHunterAI - Local-first AI red team for web, API, and LLM application security**.
 > PRD defines product behavior. Technical worker details live in ARCHITECTURE and WORKER_SPEC.
 
 ---
 
 # 1. Product
+
+The default local experience opens a single-user workspace directly: no signup,
+password, or hosted subscription. Projects, domains, findings, and reports remain
+scoped to a dedicated local organization. The existing package identifiers remain
+API-compatible; local projects use the existing tier that permits both scan modes,
+without charging hosted credits. Hosted mode retains its session and entitlement
+requirements. Target verification, authorization, quotas, cooldowns, and human
+approval remain mandatory in both modes. See [LOCAL_WORKSPACE.md](LOCAL_WORKSPACE.md).
 
 OpenHunterAI tests verified public web/app targets with attacker-mindset reasoning and governed execution. It is not an uncontrolled offensive tool, checklist scanner, or compliance audit.
 

@@ -17,6 +17,7 @@ import {
   X,
 } from 'lucide-react';
 import { API_BASE, apiFetch } from '../lib/api';
+import { useAuth } from '../lib/auth';
 import { PACKAGE_OPTIONS, labelFor, TARGET_TYPE_OPTIONS, SCAN_MODE_OPTIONS } from '../lib/product';
 import { PageHeader } from '../components/PageHeader';
 import { AuthorizationWizard } from '../components/AuthorizationWizard';
@@ -59,12 +60,16 @@ interface VerificationInstructions {
 }
 
 export function ProjectsPage() {
+  const navigate = useNavigate();
+  const { mode } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
 
   async function load() {
     setLoading(true);
+    setError(null);
     const res = await apiFetch<{ projects: Project[] }>('/v1/projects');
     if (res.ok) setProjects(res.data.projects);
     else setError(res.error.message ?? `HTTP ${res.status}`);
@@ -73,84 +78,58 @@ export function ProjectsPage() {
 
   async function create(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const res = await apiFetch('/v1/projects', {
+    if (creating) return;
+    const formElement = e.currentTarget;
+    const form = new FormData(formElement);
+    setCreating(true);
+    setError(null);
+    const res = await apiFetch<{ project: Project }>('/v1/projects', {
       method: 'POST',
-      body: JSON.stringify({ name: form.get('name'), packageTier: form.get('packageTier') }),
+      body: JSON.stringify({
+        name: String(form.get('name')).trim(),
+        packageTier: mode === 'local' ? 'enterprise_payg' : form.get('packageTier'),
+      }),
     });
+    setCreating(false);
     if (!res.ok) setError(res.error.message ?? `HTTP ${res.status}`);
-    else {
-      e.currentTarget.reset();
-      await load();
-    }
+    else navigate(`/projects/${res.data.project.id}`);
   }
 
-  useEffect(() => {
-    void load();
-  }, []);
+  useEffect(() => { void load(); }, []);
 
-  return (
-    <div>
-      <PageHeader
-        title="Projects"
-        description="Each project holds its domains, scan authorizations, and findings."
-      />
-
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>New project</CardTitle>
-        </CardHeader>
-        <CardBody>
-          <form className="flex flex-wrap items-end gap-3" onSubmit={create}>
-            <Field label="Name" htmlFor="name" className="min-w-[200px] flex-1" required>
-              <Input id="name" name="name" placeholder="Acme production" required />
-            </Field>
-            <Field label="Package" htmlFor="packageTier" className="min-w-[200px]">
-              <Select id="packageTier" name="packageTier" defaultValue="free_hunter">
-                {PACKAGE_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-            <Button type="submit">
-              <Plus className="h-4 w-4" /> Create
-            </Button>
-          </form>
-        </CardBody>
-      </Card>
-
-      {error && <ErrorState message={error} className="mb-4" onRetry={() => void load()} />}
-
-      {loading ? (
-        <SkeletonRows rows={3} />
-      ) : projects.length === 0 ? (
-        <EmptyState
-          icon={FolderKanban}
-          title="No projects yet"
-          description="Create your first project above to start verifying domains and authorizing scans."
-        />
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((p) => (
-            <Link key={p.id} to={`/projects/${p.id}`}>
-              <Card className="h-full p-5 transition-colors hover:border-signal/50">
-                <FolderKanban className="h-5 w-5 text-signal" />
-                <h3 className="mt-3 font-display text-base font-700 text-ink">{p.name}</h3>
-                <Badge tone="neutral" className="mt-2">
-                  {labelFor(PACKAGE_OPTIONS, p.packageTier, 'Free Hunter')}
-                </Badge>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  return <div className="animate-fade-up">
+    <PageHeader title="Projects" description="Organize your targets, scope and evidence. Start with a name; add your domain next." />
+    <section className="mb-8 rounded-xl border border-hairline bg-surface p-5 sm:p-6">
+      <h2 className="mb-4 text-sm font-semibold">Create a project</h2>
+      <form className="flex flex-wrap items-end gap-3" onSubmit={create}>
+        <Field label="Project name" htmlFor="name" className="min-w-0 flex-1 basis-60" required>
+          <Input id="name" name="name" placeholder="My app security review" maxLength={128} required disabled={creating} autoFocus={new URLSearchParams(window.location.search).has('new')} />
+        </Field>
+        {mode === 'hosted' && <Field label="Package" htmlFor="packageTier" className="min-w-[200px]">
+          <Select id="packageTier" name="packageTier" defaultValue="free_hunter">
+            {PACKAGE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </Select>
+        </Field>}
+        <Button type="submit" disabled={creating}><Plus size={16} />{creating ? 'Creating…' : 'Create project'}</Button>
+      </form>
+      <p className="mt-3 text-xs leading-5 text-ink-faint">{mode === 'local' ? 'Stored in your local workspace. Choose your scan mode after verifying a domain. No subscription required.' : 'Next: verify a domain and define the authorized scope.'}</p>
+    </section>
+    {error && <ErrorState message={error} className="mb-4" onRetry={() => void load()} />}
+    <div className="mb-4 flex items-center justify-between"><h2 className="text-sm font-semibold">All projects</h2><span className="text-xs text-ink-faint">{loading ? 'Loading…' : `${projects.length} projects`}</span></div>
+    {loading ? <SkeletonRows rows={3} /> : projects.length === 0 ? <EmptyState icon={FolderKanban} title="No projects yet" description="Create a project above. Nothing is scanned until you verify ownership and authorize a scan." /> :
+      <div className="divide-y divide-hairline border-y border-hairline">
+        {projects.map((p) => <Link key={p.id} to={`/projects/${p.id}`} className="flex items-center gap-4 rounded-md px-2 py-5 transition-colors hover:bg-surface-raised">
+          <span className="rounded-lg bg-surface-raised p-3 text-signal"><FolderKanban size={18} /></span>
+          <div className="min-w-0 flex-1"><h3 className="truncate text-sm font-medium">{p.name}</h3><p className="mt-1 text-xs text-ink-faint">Domains, authorizations and findings</p></div>
+          <span className="hidden text-xs text-ink-faint sm:block">{mode === 'local' ? 'Local project' : labelFor(PACKAGE_OPTIONS, p.packageTier, 'Free Hunter')}</span>
+          <span aria-hidden="true" className="text-ink-faint">→</span>
+        </Link>)}
+      </div>}
+  </div>;
 }
 
 export function ProjectDetailPage() {
+  const { mode } = useAuth();
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(null);
@@ -193,14 +172,15 @@ export function ProjectDetailPage() {
 
   async function addDomain(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const form = new FormData(e.currentTarget);
+    const formElement = e.currentTarget;
+    const form = new FormData(formElement);
     const res = await apiFetch(`/v1/projects/${id}/domains`, {
       method: 'POST',
       body: JSON.stringify({ hostname: String(form.get('hostname')).trim().toLowerCase() }),
     });
     if (!res.ok) setError(res.error.message ?? `HTTP ${res.status}`);
     else {
-      e.currentTarget.reset();
+      formElement.reset();
       await load();
     }
   }
@@ -260,7 +240,8 @@ export function ProjectDetailPage() {
 
   async function createTestAccount(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const form = new FormData(e.currentTarget);
+    const formElement = e.currentTarget;
+    const form = new FormData(formElement);
     const res = await apiFetch(`/v1/projects/${id}/test-accounts`, {
       method: 'POST',
       body: JSON.stringify({
@@ -273,7 +254,7 @@ export function ProjectDetailPage() {
     });
     if (!res.ok) setError(res.error.message ?? `HTTP ${res.status}`);
     else {
-      e.currentTarget.reset();
+      formElement.reset();
       await load();
     }
   }
@@ -539,13 +520,16 @@ export function ProjectDetailPage() {
       </Card>
 
       {/* Test accounts */}
-      <Card className="mb-6">
+      <details className="mb-6 rounded-lg border border-hairline bg-surface">
+        <summary className="cursor-pointer px-5 py-4 text-sm font-medium text-ink-muted">Optional: target test accounts ({testAccounts.length})</summary>
+      <Card className="border-0 shadow-none">
         <CardHeader>
           <div className="grid gap-1">
             <CardTitle>Test accounts</CardTitle>
             <CardDescription>
               Optional sandbox login credentials for authenticated testing. Use throwaway accounts only; never use a personal or production admin account.
             </CardDescription>
+            {mode === 'local' && <p className="text-xs leading-5 text-ink-faint">These are accounts on your target application, not OpenHunterAI login. For interactive capture, start with <code>node ops/local.mjs start --with-browser</code>.</p>}
           </div>
         </CardHeader>
         <CardBody className="grid gap-4">
@@ -554,13 +538,13 @@ export function ProjectDetailPage() {
               <Input id="test-label" name="label" placeholder="User A" required />
             </Field>
             <Field label="Login URL" htmlFor="test-login-url" required>
-              <Input id="test-login-url" name="loginUrl" placeholder="https://kopymatch.com/login" required />
+              <Input id="test-login-url" name="loginUrl" placeholder="https://your-domain.example/login" required />
             </Field>
             <Field label="Username / email" htmlFor="test-username">
               <Input id="test-username" name="username" placeholder="optional display hint" />
             </Field>
             <Field label="Password" htmlFor="test-password">
-              <Input id="test-password" name="password" type="password" placeholder="optional; manual login preferred" />
+              <Input id="test-password" name="password" type="password" autoComplete="new-password" placeholder="optional; manual login preferred" />
             </Field>
             <Field label="Notes" htmlFor="test-notes" className="lg:col-span-3">
               <Input id="test-notes" name="notes" placeholder="Role, permissions, or reset instructions" />
@@ -637,6 +621,7 @@ export function ProjectDetailPage() {
         </CardBody>
       </Card>
 
+      </details>
       {/* Authorizations */}
       <Card>
         <CardHeader>

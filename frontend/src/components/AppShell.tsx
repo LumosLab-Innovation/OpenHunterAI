@@ -1,36 +1,41 @@
-import { useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
+  ArrowUpRight,
   Crosshair,
   FileText,
   FolderKanban,
+  House,
   Menu,
   Moon,
   Radar,
+  Settings2,
   Sun,
   X,
-} from 'lucide-react';
-import { cn } from '../lib/cn';
-import { useTheme } from '../lib/theme';
-import { useAuth } from '../lib/auth';
-import { Button } from './ui/Button';
-import { ButtonLink } from './ui/ButtonLink';
+} from "lucide-react";
+import { cn } from "../lib/cn";
+import { useTheme } from "../lib/theme";
+import { useAuth } from "../lib/auth";
+import { Button } from "./ui/Button";
+import { ButtonLink } from "./ui/ButtonLink";
 
 const NAV = [
-  { to: '/projects', label: 'Projects', icon: FolderKanban },
-  { to: '/scans', label: 'Scans', icon: Radar },
-  { to: '/findings', label: 'Findings', icon: Crosshair },
-  { to: '/reports', label: 'Reports', icon: FileText },
+  { to: "/", label: "Overview", icon: House },
+  { to: "/projects", label: "Projects", icon: FolderKanban },
+  { to: "/scans", label: "Scan runs", icon: Radar },
+  { to: "/findings", label: "Findings", icon: Crosshair },
+  { to: "/reports", label: "Reports", icon: FileText },
 ];
+const REPO = "https://github.com/LumosLab-Innovation/OpenHunterAI";
 
-function BrandMark({ className }: { className?: string }) {
+function BrandMark() {
   return (
-    <Link to="/" className={cn('group flex items-center gap-2', className)}>
-      <span className="relative flex h-7 w-7 items-center justify-center rounded border border-signal/50 bg-signal/10">
-        <Radar className="h-4 w-4 text-signal transition-transform duration-500 group-hover:rotate-90" />
+    <Link to="/" className="flex items-center gap-2.5">
+      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-signal text-signal-ink">
+        <Crosshair size={18} />
       </span>
-      <span className="font-display text-base font-900 tracking-tight text-ink">
-        Open<span className="text-signal">Hunter</span>AI
+      <span className="font-display text-base font-semibold tracking-tight">
+        OpenHunter<span className="text-ink-muted">AI</span>
       </span>
     </Link>
   );
@@ -39,172 +44,199 @@ function BrandMark({ className }: { className?: string }) {
 function ThemeToggle() {
   const { theme, toggle } = useTheme();
   return (
-    <Button variant="ghost" size="icon" onClick={toggle} aria-label="Toggle theme">
-      {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={toggle}
+      aria-label={
+        theme === "dark" ? "Switch to light theme" : "Switch to dark theme"
+      }
+    >
+      {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
     </Button>
   );
 }
 
-function UserMenu() {
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
-  if (!user) return null;
-  const initial = (user.displayName ?? user.email ?? '?').charAt(0).toUpperCase();
-  return (
-    <div className="grid w-full min-w-0 gap-3">
-      <div className="flex min-w-0 items-center gap-3">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-hairline-strong bg-surface-raised text-xs font-700 text-signal">
-          {initial}
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-xs font-medium text-ink" title={user.displayName ?? user.email}>
-            {user.displayName ?? user.email}
-          </p>
-          {user.orgName && (
-            <p className="text-data truncate text-[11px] text-ink-faint" title={user.orgName}>
-              {user.orgName}
-            </p>
-          )}
-        </div>
-      </div>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="w-full justify-start"
-        onClick={() => {
-          void signOut().then(() => navigate('/login', { replace: true }));
-        }}
-      >
-        Sign out
-      </Button>
-    </div>
-  );
-}
-
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, mode, status, loading, signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMobileOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [mobileOpen]);
+  const title =
+    location.pathname === "/setup"
+      ? "Setup & models"
+      : (NAV.find(({ to }) => to !== "/" && location.pathname.startsWith(to))
+          ?.label ?? "Overview");
 
-  // Signed-out / marketing chrome: minimal centered topbar.
-  if (!user) {
+  if (mode === "hosted" && !user && !loading)
     return (
       <div className="min-h-screen">
-        <header className="sticky top-0 z-40 border-b border-hairline bg-canvas/80 backdrop-blur">
+        <header className="border-b border-hairline">
           <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
             <BrandMark />
-            <div className="flex items-center gap-2">
+            <div className="flex gap-2">
               <ThemeToggle />
-              {!loading && (
-                <>
-                  <ButtonLink to="/login" variant="ghost" size="sm">
-                    Sign in
-                  </ButtonLink>
-                  <ButtonLink to="/register" variant="primary" size="sm">
-                    Create workspace
-                  </ButtonLink>
-                </>
-              )}
+              <ButtonLink to="/login" variant="ghost">
+                Sign in
+              </ButtonLink>
+              <ButtonLink to="/register">Create workspace</ButtonLink>
             </div>
           </div>
         </header>
         <main>{children}</main>
       </div>
     );
+
+  function navigation() {
+    return (
+      <>
+        <p className="mb-3 px-3 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+          Workspace
+        </p>
+        {NAV.map(({ to, label, icon: Icon }) => (
+          <NavLink
+            end={to === "/"}
+            key={to}
+            to={to}
+            onClick={() => setMobileOpen(false)}
+            className={({ isActive }) =>
+              cn(
+                "mb-1 flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-colors",
+                isActive
+                  ? "bg-signal/10 text-signal"
+                  : "text-ink-muted hover:bg-surface-raised hover:text-ink",
+              )
+            }
+          >
+            <Icon size={17} strokeWidth={1.6} />
+            {label}
+          </NavLink>
+        ))}
+        <div className="my-5 border-t border-hairline" />
+        <NavLink
+          to="/setup"
+          onClick={() => setMobileOpen(false)}
+          className={({ isActive }) =>
+            cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] transition-colors",
+              isActive
+                ? "bg-signal/10 text-signal"
+                : "text-ink-muted hover:text-ink",
+            )
+          }
+        >
+          <Settings2 size={17} />
+          Setup & models
+        </NavLink>
+        <a
+          href={REPO}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-1 flex items-center gap-3 px-3 py-2.5 text-[13px] text-ink-muted hover:text-ink"
+        >
+          <ArrowUpRight size={17} />
+          GitHub repository
+        </a>
+      </>
+    );
   }
 
-  // Signed-in chrome: sidebar + content.
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-[240px_1fr]">
-      {/* Desktop sidebar */}
-      <aside className="hidden border-r border-hairline bg-surface lg:flex lg:flex-col">
-        <div className="flex h-16 items-center border-b border-hairline px-5">
+    <div className="min-h-screen lg:grid lg:grid-cols-[224px_minmax(0,1fr)]">
+      <a
+        href="#workspace-content"
+        className="sr-only z-50 rounded bg-signal p-3 text-signal-ink focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+      >
+        Skip to content
+      </a>
+      <aside className="sticky top-0 hidden h-screen flex-col border-r border-hairline bg-surface lg:flex">
+        <div className="flex h-[76px] shrink-0 items-center px-5">
           <BrandMark />
         </div>
-        <nav className="flex flex-1 flex-col gap-1 p-3">
-          {NAV.map(({ to, label, icon: Icon }) => (
-            <SidebarLink key={to} to={to} label={label} Icon={Icon} />
-          ))}
+        <nav
+          aria-label="Main navigation"
+          className="flex-1 overflow-y-auto px-3 py-5"
+        >
+          {navigation()}
         </nav>
-        <div className="border-t border-hairline p-3">
-          <UserMenu />
+        <div className="m-4 border-t border-hairline pt-4">
+          <div className="flex items-center gap-2 text-xs font-medium">
+            <span
+              className={cn(
+                "h-1.5 w-1.5 rounded-full",
+                status ? "bg-emerald-500" : "bg-ink-faint",
+              )}
+            />
+            {mode === "local"
+              ? "Local workspace"
+              : (user?.orgName ?? "Workspace")}
+          </div>
+          <p className="mt-2 text-[11px] leading-5 text-ink-faint">
+            {mode === "local"
+              ? "Runs on your machine.\nNo account needed."
+              : user?.email}
+          </p>
+          {mode === "hosted" && user && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => void signOut().then(() => navigate("/login"))}
+            >
+              Sign out
+            </Button>
+          )}
         </div>
       </aside>
-
-      {/* Mobile header */}
-      <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-hairline bg-canvas/80 px-5 backdrop-blur lg:hidden">
-        <BrandMark />
-        <div className="flex items-center gap-1">
-          <ThemeToggle />
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Menu"
-            onClick={() => setMobileOpen((v) => !v)}
+      <div className="min-w-0">
+        <header className="sticky top-0 z-30 flex h-[64px] items-center justify-between border-b border-hairline bg-canvas/95 px-5 backdrop-blur lg:px-9">
+          <div className="lg:hidden">
+            <BrandMark />
+          </div>
+          <div className="hidden items-center gap-3 text-xs lg:flex">
+            <span className="text-ink-faint">Workspace</span>
+            <span className="text-ink-faint">/</span>
+            <span className="font-medium">{title}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="hidden rounded border border-hairline px-2 py-1 font-mono text-[10px] text-ink-muted sm:inline">
+              {mode === "local" ? "LOCAL" : "HOSTED"}
+            </span>
+            <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
+              aria-label={mobileOpen ? "Close navigation" : "Open navigation"}
+              aria-expanded={mobileOpen}
+              onClick={() => setMobileOpen(!mobileOpen)}
+            >
+              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            </Button>
+          </div>
+        </header>
+        {mobileOpen && (
+          <nav
+            aria-label="Mobile navigation"
+            className="fixed inset-0 top-16 z-40 overflow-y-auto bg-surface p-5 lg:hidden"
           >
-            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
-        </div>
-      </header>
-
-      {/* Mobile drawer */}
-      {mobileOpen && (
-        <div className="fixed inset-0 top-16 z-30 bg-canvas lg:hidden">
-          <nav className="flex flex-col gap-1 p-4">
-            {NAV.map(({ to, label, icon: Icon }) => (
-              <SidebarLink
-                key={to}
-                to={to}
-                label={label}
-                Icon={Icon}
-                onClick={() => setMobileOpen(false)}
-              />
-            ))}
-            <div className="mt-4 border-t border-hairline pt-4">
-              <UserMenu />
-            </div>
+            {navigation()}
           </nav>
-        </div>
-      )}
-
-      <div className="flex min-w-0 flex-col">
-        {/* Desktop topbar with theme toggle */}
-        <div className="hidden h-16 items-center justify-end border-b border-hairline px-6 lg:flex">
-          <ThemeToggle />
-        </div>
-        <main className="mx-auto w-full max-w-6xl flex-1 px-5 py-6 lg:px-8 lg:py-8">
+        )}
+        <main
+          id="workspace-content"
+          className="mx-auto w-full max-w-[1280px] px-5 py-8 sm:px-8 lg:px-10 lg:py-10"
+        >
           {children}
         </main>
       </div>
     </div>
-  );
-}
-
-function SidebarLink({
-  to,
-  label,
-  Icon,
-  onClick,
-}: {
-  to: string;
-  label: string;
-  Icon: typeof Radar;
-  onClick?: () => void;
-}) {
-  return (
-    <NavLink
-      to={to}
-      onClick={onClick}
-      className={({ isActive }) =>
-        cn(
-          'flex items-center gap-3 rounded px-3 py-2 text-sm font-medium transition-colors',
-          isActive
-            ? 'bg-signal/10 text-signal'
-            : 'text-ink-muted hover:bg-surface-raised hover:text-ink',
-        )
-      }
-    >
-      <Icon className="h-4 w-4" />
-      {label}
-    </NavLink>
   );
 }

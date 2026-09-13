@@ -1,5 +1,6 @@
 import { getPrisma } from '@x-hunter/db';
 import { GuardrailError } from '@x-hunter/shared';
+import { LOCAL_ORG_ID, workspaceMode } from '../workspace/local-workspace.js';
 
 /**
  * Entitlement check applied before a scan is created. Enforces that the project
@@ -27,6 +28,9 @@ export class EntitlementService {
    * for PAYG. Throws GuardrailError when not entitled. Returns nothing on success.
    */
   async assertCanScan(projectId: string, orgId: string, packageTier: string): Promise<void> {
+    // BYO local infrastructure has no hosted subscription or credit requirement.
+    // Scope, ownership, quotas and approval gates are enforced by the scan flow.
+    if (workspaceMode() === 'local' && orgId === LOCAL_ORG_ID) return;
     if (packageTier === 'free_hunter') return;
 
     if (packageTier === 'enterprise_payg') {

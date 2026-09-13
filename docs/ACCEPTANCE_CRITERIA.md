@@ -6,6 +6,21 @@
 
 # 1. Product Contract
 
+## Local workspace acceptance
+
+- A fresh local stack opens at localhost:3001 without signup/login, creates one
+  isolated workspace identity, and retains projects across reloads/restarts.
+- Cross-origin/rebinding requests are rejected before bootstrap; hosted mode still
+  rejects requests without a session. No credentials appear in workspace status.
+- UI shows actionable connection errors and real empty states; model key presence
+  is not described as verified model access or completed tool coverage.
+- One Agent Skills command installs the bundled skill into the requested clients'
+  project discovery paths. Installing the skill does not start a network test.
+- Local subscription checks are skipped only for the reserved local organization.
+  Domain verification, scope, approvals, scan quotas, and cooldowns remain enforced.
+- Baseline runtime startup and project CRUD are checked separately from authorized
+  scan E2E. Optional unavailable runtimes are documented, never masked as success.
+
 V1 is accepted when:
 
 ```text

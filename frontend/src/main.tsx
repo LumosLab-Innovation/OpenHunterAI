@@ -10,14 +10,24 @@ import { LoginPage, RegisterPage } from './pages/Auth';
 import { ProjectDetailPage, ProjectsPage } from './pages/Projects';
 import { ReportDetailPage, ReportsPage } from './pages/Reports';
 import { ScanDetailPage, ScansPage } from './pages/Scans';
+import { WorkspacePage } from './pages/Workspace';
+import { SetupPage } from './pages/Setup';
 import './styles.css';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading, mode } = useAuth();
 
-  if (loading) return null;
+  if (mode === 'local') return <>{children}</>;
+  if (loading) return <p className="text-ink-muted">Connecting to workspace…</p>;
   if (!user) return <Navigate to="/login" replace />;
   return <>{children}</>;
+}
+
+function EntryPage({ kind }: { kind: 'home' | 'login' | 'register' }) {
+  const { mode, loading } = useAuth();
+  if (loading) return <WorkspacePage />;
+  if (mode === 'local') return kind === 'home' ? <WorkspacePage /> : <Navigate to="/" replace />;
+  return kind === 'login' ? <LoginPage /> : kind === 'register' ? <RegisterPage /> : <HomePage />;
 }
 
 const isPublicSite = import.meta.env.VITE_PUBLIC_SITE === 'true';
@@ -37,9 +47,10 @@ function Application() {
         <BrowserRouter>
           <AppShell>
             <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/" element={<EntryPage kind="home" />} />
+              <Route path="/login" element={<EntryPage kind="login" />} />
+              <Route path="/register" element={<EntryPage kind="register" />} />
+              <Route path="/setup" element={<RequireAuth><SetupPage /></RequireAuth>} />
               <Route path="/projects" element={<RequireAuth><ProjectsPage /></RequireAuth>} />
               <Route path="/projects/:id" element={<RequireAuth><ProjectDetailPage /></RequireAuth>} />
               <Route path="/scans" element={<RequireAuth><ScansPage /></RequireAuth>} />

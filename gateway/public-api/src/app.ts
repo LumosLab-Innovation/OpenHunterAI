@@ -16,11 +16,14 @@ import { scanRoutes } from './modules/scans/scans.routes.js';
 import { approvalRoutes } from './modules/approvals/approvals.routes.js';
 import { billingRoutes } from './modules/billing/billing.routes.js';
 import { testAccountRoutes } from './modules/test-accounts/test-accounts.routes.js';
+import { localWorkspaceBoundary, workspaceMode } from './modules/workspace/local-workspace.js';
+import { workspaceRoutes } from './modules/workspace/workspace.routes.js';
 
 export function createApp() {
   const app = express();
 
-  app.set('trust proxy', 1);
+  app.set('trust proxy', workspaceMode() === 'local' ? false : 1);
+  app.use(localWorkspaceBoundary);
   app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
   // Allow the SPA origin(s) with credentials. CORS_ORIGINS is a comma-separated
   // allowlist (e.g. https://openhunterai.pages.dev); falls back to reflecting any
@@ -43,7 +46,8 @@ export function createApp() {
   app.use(requestContext);
 
   app.use('/health', healthRoutes);
-  app.use('/v1/auth', authRoutes);
+  app.use('/v1/workspace', workspaceRoutes);
+  if (workspaceMode() === 'hosted') app.use('/v1/auth', authRoutes);
   app.use('/v1/projects', projectRoutes);
   app.use('/v1', domainRoutes);
   app.use('/v1', testAccountRoutes);

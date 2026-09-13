@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target: apiBase,
           changeOrigin: true,
+          ws: true,
           rewrite: (path) => path.replace(/^\/api/, ''),
         },
       },

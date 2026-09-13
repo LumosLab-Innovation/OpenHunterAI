@@ -1,0 +1,231 @@
+# Local-only workspace. Only the UI and public API are published, on loopback.
+# No host Docker socket is mounted. Stop never deletes the database volume.
+x-runtime: &runtime
+  NODE_ENV: production
+  DATABASE_URL: postgresql://openhunter:${POSTGRES_PASSWORD:?Run node ops/local.mjs start}@postgres:5432/openhunter?schema=public
+  NATS_URL: nats://nats:4222
+  WORKER_TOKEN: ${WORKER_TOKEN:?Run node ops/local.mjs start}
+  APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:?Run node ops/local.mjs start}
+  OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+  DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+  LLM_LOW_REASONING_PROVIDER: ${LLM_LOW_REASONING_PROVIDER:-deepseek}
+  LLM_LOW_REASONING_MODEL: ${LLM_LOW_REASONING_MODEL:-deepseek-chat}
+  LLM_HIGH_REASONING_PROVIDER: ${LLM_HIGH_REASONING_PROVIDER:-deepseek}
+  LLM_HIGH_REASONING_MODEL: ${LLM_HIGH_REASONING_MODEL:-deepseek-reasoner}
+  LLM_LOW_REASONING_FALLBACK_PROVIDER: ${LLM_LOW_REASONING_FALLBACK_PROVIDER:-}
+  LLM_LOW_REASONING_FALLBACK_MODEL: ${LLM_LOW_REASONING_FALLBACK_MODEL:-}
+  LLM_HIGH_REASONING_FALLBACK_PROVIDER: ${LLM_HIGH_REASONING_FALLBACK_PROVIDER:-}
+  LLM_HIGH_REASONING_FALLBACK_MODEL: ${LLM_HIGH_REASONING_FALLBACK_MODEL:-}
+
+x-worker: &worker
+  NATS_URL: nats://nats:4222
+  INTERNAL_API_URL: http://internal-api:4100
+  FINDINGS_URL: http://findings:4300
+  REPORTING_URL: http://reporting:4400
+  WORKER_TOKEN: ${WORKER_TOKEN:?Run node ops/local.mjs start}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: openhunter
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run node ops/local.mjs start}
+      POSTGRES_DB: openhunter
+    volumes: [local-db:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U openhunter -d openhunter"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  nats:
+    image: nats:2.10-alpine
+    command: ["-js", "-sd", "/data"]
+    volumes: [local-queue:/data]
+    healthcheck:
+      test: [CMD-SHELL, "nc -z localhost 4222"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    image: openhunter-local/public-api
+    pull_policy: never
+    environment: *runtime
+    working_dir: /app/shared/db
+    command: ["node", "node_modules/prisma/build/index.js", "migrate", "deploy", "--schema", "prisma/schema.prisma"]
+    depends_on:
+      postgres: {condition: service_healthy}
+
+  public-api:
+    image: openhunter-local/public-api
+    build: {context: ., dockerfile: gateway/public-api/Dockerfile}
+    environment:
+      <<: *runtime
+      OPENHUNTER_MODE: local
+      API_HOST: 0.0.0.0
+      API_PORT: 4000
+      BROWSER_SESSION_BASE_URL: http://browser-session:4700
+      FINDINGS_URL: http://findings:4300
+      REPORTING_URL: http://reporting:4400
+    ports: ["127.0.0.1:4000:4000"]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      nats: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:4000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  frontend:
+    build: {context: ., dockerfile: frontend/Dockerfile}
+    ports: ["127.0.0.1:3001:80"]
+    depends_on:
+      public-api: {condition: service_healthy}
+
+  browser-session:
+    profiles: [authenticated-targets]
+    build: {context: ., dockerfile: backend/browser-session/Dockerfile}
+    environment: {BROWSER_SESSION_PORT: 4700}
+    shm_size: 1gb
+
+  internal-api:
+    build: {context: ., dockerfile: gateway/internal-api/Dockerfile}
+    environment:
+      <<: *runtime
+      INTERNAL_API_PORT: 4100
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      nats: {condition: service_healthy}
+
+  findings:
+    build: {context: ., dockerfile: backend/findings/Dockerfile}
+    environment:
+      <<: *runtime
+      FINDINGS_PORT: 4300
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      nats: {condition: service_healthy}
+
+  reporting:
+    build: {context: ., dockerfile: backend/reporting/Dockerfile}
+    environment:
+      <<: *runtime
+      REPORTING_PORT: 4400
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      nats: {condition: service_healthy}
+
+  orchestrator:
+    build: {context: ., dockerfile: workers/orchestrator/Dockerfile}
+    environment:
+      <<: *worker
+      PORT: 5100
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    depends_on:
+      nats: {condition: service_healthy}
+      internal-api: {condition: service_started}
+
+  browser-inspector:
+    build: {context: ., dockerfile: workers/browser-inspector/Dockerfile}
+    environment:
+      <<: *worker
+      PORT: 5110
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    depends_on:
+      nats: {condition: service_healthy}
+      internal-api: {condition: service_started}
+
+  z:
+    build: {context: ., dockerfile: workers/Z/Dockerfile}
+    environment:
+      <<: *worker
+      PORT: 5120
+      ZAPROXY_INTEGRATION_URL: http://zaproxy-adapter:6100
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    depends_on:
+      nats: {condition: service_healthy}
+      internal-api: {condition: service_started}
+
+  n:
+    build: {context: ., dockerfile: workers/N/Dockerfile}
+    environment:
+      <<: *worker
+      PORT: 5130
+      NUCLEI_INTEGRATION_URL: http://nuclei-adapter:6110
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    depends_on:
+      nats: {condition: service_healthy}
+      internal-api: {condition: service_started}
+
+  o:
+    build: {context: ., dockerfile: workers/O/Dockerfile}
+    environment:
+      <<: *worker
+      PORT: 5140
+      OPENHACK_INTEGRATION_URL: ${OPENHACK_INTEGRATION_URL:-http://host.docker.internal:6120}
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    depends_on:
+      nats: {condition: service_healthy}
+      internal-api: {condition: service_started}
+
+  s:
+    build: {context: ., dockerfile: workers/S/Dockerfile}
+    environment:
+      <<: *worker
+      PORT: 5150
+      STRIX_INTEGRATION_URL: ${STRIX_INTEGRATION_URL:-http://host.docker.internal:6130}
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    depends_on:
+      nats: {condition: service_healthy}
+      internal-api: {condition: service_started}
+
+  r:
+    build: {context: ., dockerfile: workers/R/Dockerfile}
+    environment:
+      <<: *worker
+      PORT: 5170
+      RECON_INTEGRATION_URL: http://recon-adapter:6140
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    depends_on:
+      nats: {condition: service_healthy}
+      internal-api: {condition: service_started}
+
+  retest:
+    build: {context: ., dockerfile: workers/retest/Dockerfile}
+    environment:
+      <<: *worker
+      PORT: 5160
+      OPENHACK_INTEGRATION_URL: ${OPENHACK_INTEGRATION_URL:-http://host.docker.internal:6120}
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    depends_on:
+      nats: {condition: service_healthy}
+      internal-api: {condition: service_started}
+
+  zap:
+    image: ghcr.io/zaproxy/zaproxy:stable
+    environment:
+      ZAP_API_KEY: ${ZAP_API_KEY:?Run node ops/local.mjs start}
+    command: ["sh", "-c", "zap.sh -daemon -host 0.0.0.0 -port 8080 -config api.disablekey=false -config api.key=$$ZAP_API_KEY -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true"]
+
+  zaproxy-adapter:
+    build: {context: ., dockerfile: integrations/zaproxy/Dockerfile}
+    environment:
+      ZAP_BASE_URL: http://zap:8080
+      ZAP_API_KEY: ${ZAP_API_KEY:?Run node ops/local.mjs start}
+    depends_on: [zap]
+
+  nuclei-adapter:
+    build: {context: ., dockerfile: integrations/nuclei/Dockerfile}
+    environment:
+      NUCLEI_BIN: nuclei
+      NUCLEI_TEMPLATES_DIR: /opt/openhunter/nuclei-templates
+      NUCLEI_DISABLE_TEMPLATE_DOWNLOAD: "true"
+
+  recon-adapter:
+    build: {context: ., dockerfile: integrations/recon/Dockerfile}
+
+volumes:
+  local-db:
+  local-queue:

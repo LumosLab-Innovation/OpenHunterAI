@@ -7,7 +7,9 @@
 <h1 align="center">OpenHunterAI</h1>
 
 <p align="center">
-  A governed workspace for authorized external web and application security testing.
+  Local-first AI red team for web, API, and LLM application security.
+  <br>
+  Think like an attacker. Validate with evidence. Run on your own machine.
 </p>
 
 <p align="center">
@@ -21,13 +23,15 @@
 > use, and feedback. It is not a claim of production readiness or a guarantee
 > that any target has been scanned successfully.
 
-[Documentation](docs/) · [Security policy](SECURITY.md) ·
+[Run locally](#quick-start) · [Install the agent skill](#use-with-your-coding-agent) · [Documentation](docs/) · [Security policy](SECURITY.md) ·
 [Commercial licensing](LICENSING.md) · [Technical requirements](#technical-requirements-restored-from-433ecf7970fdb5cbfbf47399e56bf006db719a85) · [Star history](#star-history)
 
 ## What it is
 
-OpenHunterAI helps an authorized owner inspect a **verified public** web or
-application target. It builds a deterministic plan before execution, records
+OpenHunterAI is a local-first AI red-team workspace for assessing **verified public**
+websites, APIs, and AI/LLM applications you own or are authorized to test.
+Open the workspace without signup or login, bring your model keys, and investigate
+attacker hypotheses with a visible evidence trail. It builds a deterministic plan before execution, records
 sanitized activity as it runs, separates signals from validated findings, and
 produces a report with coverage and limitations.
 
@@ -44,7 +48,7 @@ verified scope + authorization
 The public labels above are compact workflow labels. Tool and upstream
 attribution remains in the documentation and bundled notices.
 
-## Why it is governed
+## Attacker mindset, controlled execution
 
 - **No authorization, no scan.** Domains must be verified, scope must be
   explicit, and redirects outside that scope are blocked.
@@ -69,27 +73,58 @@ running the project.
 
 ## Quick start
 
-Prerequisites: Docker Compose, Node.js with pnpm, Go, and Make.
+Prerequisites: **Git, Node.js 22+, and Docker Desktop/Engine with Compose v2**.
+No account, hosted subscription, Go installation, or Make required for the local stack.
 
 ```bash
-make install
-make app
-make db-generate
-make db-migrate
-make db-seed
+git clone https://github.com/LumosLab-Innovation/OpenHunterAI.git
+cd OpenHunterAI
+node ops/local.mjs start
 ```
 
-For a local frontend and public API development loop:
+Open **[localhost:3001](http://localhost:3001)**. Create a project → verify your
+domain → authorize a scan → review findings. The first start downloads/builds
+container images, creates a local database, and generates unique secrets in the
+ignored `.env.local`.
+
+```text
+node ops/local.mjs status
+node ops/local.mjs logs public-api
+node ops/local.mjs restart
+node ops/local.mjs stop
+```
+
+Stopping retains your projects and findings. Add provider keys/models to
+`.env.local` and restart for AI reasoning. Browser inspection, ZAP, Nuclei and
+recon are included; OpenHack and Strix require separately configured runtimes.
+Interactive **target** login capture is optional: `node ops/local.mjs start --with-browser`.
+Unavailable tools are not reported as a successful or clean scan.
+
+Local mode binds published ports to loopback and does not require workspace
+authentication. Do not expose it publicly or share it between untrusted users.
+Existing hosted deployments retain authentication with `OPENHUNTER_MODE=hosted`.
+Local hosting does **not** remove target verification, scope restrictions, quotas,
+or human approval gates. See [local setup and troubleshooting](docs/LOCAL_WORKSPACE.md).
+
+## Use with your coding agent
+
+Run this one command in the project you want your agent to assess:
 
 ```bash
-make dev
-# later
-make dev-down
+npx skills add LumosLab-Innovation/OpenHunterAI --skill openhunter --agent codex claude-code gemini-cli grok --yes
 ```
 
-Use `make help` for the complete command list. Provider keys and runtime
-configuration belong in ignored local configuration; never place them in the
-repository.
+Installs the same [OpenHunter skill](skills/openhunter/SKILL.md) for **Codex, Claude
+Code, Gemini CLI, and Grok Build**. **OMP (Oh My Pi)** can discover the shared
+`.agents/skills` copy. Restart/reload your agent, then ask:
+
+> Use OpenHunter to prepare an authorized security assessment of my application.
+> Check the local workspace, propose scope, and wait for my approval before scanning.
+
+The skill includes a read-only local API helper and a scope → scan → evidence →
+fix/retest workflow. Installing it does not start Docker, run a scan, install an
+agent, or grant permission to test a target. See
+[agent compatibility and installation](docs/LOCAL_WORKSPACE.md#coding-agent-skill).
 
 ## Repository map
 
@@ -104,6 +139,8 @@ repository.
 | `contracts/` | OpenAPI, AsyncAPI, schema, and generated types |
 | `infra/` | Compose and runtime configuration |
 | `docs/` | Product contract, guardrails, architecture, and release gates |
+| `skills/openhunter/` | Portable Agent Skill, API workflow, and read-only helper |
+| `ops/local.mjs` | Cross-platform local startup, status, logs, and shutdown |
 
 ## Documentation
 

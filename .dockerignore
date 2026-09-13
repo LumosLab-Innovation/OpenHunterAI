@@ -10,3 +10,10 @@ third_party_research
 infra/docker-compose
 ops
 docs
+# Never bake local credentials or browser evidence into runtime images.
+.env.local
+.env.local.*
+**/.env
+output
+.playwright-cli
+_worktrees

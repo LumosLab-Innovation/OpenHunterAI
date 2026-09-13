@@ -36,9 +36,9 @@ export default {
         ring: 'hsl(var(--signal) / <alpha-value>)',
       },
       fontFamily: {
-        display: ['Chivo', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        sans: ['"IBM Plex Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        mono: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+        display: ['ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['ui-monospace', 'Cascadia Code', 'SFMono-Regular', 'monospace'],
       },
       borderRadius: {
         sm: '4px',

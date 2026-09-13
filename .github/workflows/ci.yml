@@ -45,3 +45,6 @@ jobs:
 
       - name: Build Go services
         run: make go-build
+
+      - name: Test portable agent skill
+        run: node --test skills/openhunter/scripts/openhunter.test.mjs

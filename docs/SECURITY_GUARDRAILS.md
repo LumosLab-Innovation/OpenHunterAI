@@ -6,6 +6,16 @@
 
 # 1. No Verified Authorization, No Scan
 
+Local workspace mode is a single-user, loopback-only trust boundary, not a
+permission bypass. Host, Origin, and cross-site Fetch Metadata checks reject
+foreign browser requests before identity bootstrap. The Docker UI/API ports must
+remain bound to `127.0.0.1`; never put a public proxy/tunnel in front of local mode.
+Use `OPENHUNTER_MODE=hosted` with existing authentication for shared deployments.
+Local identities are isolated from existing organizations, cannot use password
+login, and are not issued session cookies. Only local commercial entitlements
+are skipped; all scan/target safety checks remain. Provider secrets stay in the
+ignored `.env.local` and are excluded from Docker build contexts.
+
 Do not create scan/retest jobs if:
 
 ```text

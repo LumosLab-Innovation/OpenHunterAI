@@ -2,9 +2,45 @@ openapi: 3.0.3
 info:
   title: OpenHunter Public API
   version: 0.1.0
+  description: |
+    Local mode is single-user and loopback-only, without workspace login or session
+    cookies. Hosted mode retains authentication. Both modes enforce target ownership,
+    scan scope and approvals. See docs/LOCAL_WORKSPACE.md.
 paths:
+  /v1/workspace:
+    get:
+      summary: Discover local or hosted workspace mode
+      responses:
+        "200":
+          description: Workspace mode (no credentials)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [mode]
+                properties:
+                  mode:
+                    type: string
+                    enum: [local, hosted]
+        "403":
+          description: Local request boundary rejected the Host or Origin
+  /v1/workspace/status:
+    get:
+      summary: Workspace connection and model configuration status
+      description: |
+        Requires a session in hosted mode; bootstraps the isolated operator in local
+        mode. Reports API/database/queue connectivity and model-key presence, not
+        completed scan coverage or validated provider access. Never returns raw keys.
+      responses:
+        "200":
+          description: Workspace, operator, service connectivity and model metadata
+        "401":
+          description: Hosted session required
+        "403":
+          description: Local request boundary rejected the Host or Origin
   /v1/auth/signin:
     post:
+      description: Hosted mode only; this route is not mounted in local mode.
       responses:
         "200":
           description: Signed in

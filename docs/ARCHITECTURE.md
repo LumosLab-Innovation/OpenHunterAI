@@ -6,6 +6,17 @@
 
 # 1. High-Level Flow
 
+Local startup is `node ops/local.mjs start` using `compose.local.yml`. The nginx
+frontend proxies `/api` (including SSE/WebSocket) to the public API. Only
+`127.0.0.1:3001` and `127.0.0.1:4000` are published; internal services and the
+database have no host ports. Prisma migrations complete before the API starts.
+`OPENHUNTER_MODE=local` bootstraps a fixed local organization/operator, without a
+password or cookie. Production defaults to hosted authentication unless local
+mode is explicitly selected. `/v1/workspace` advertises the mode;
+`/v1/workspace/status` returns connection/configuration metadata, never raw keys.
+The local stack does not mount the host Docker socket. Target-login capture is an
+optional `authenticated-targets` profile; advanced OpenHack/Strix adapters are BYO.
+
 ```text
 web dashboard
 → public API

@@ -7,7 +7,7 @@ import { Badge, SeverityBadge, StatusBadge } from '../components/ui/Badge';
 import { ButtonLink } from '../components/ui/ButtonLink';
 import { Button } from '../components/ui/Button';
 import { Card, CardBody, CardHeader, CardTitle } from '../components/ui/Card';
-import { EmptyState } from '../components/ui/States';
+import { EmptyState, ErrorState } from '../components/ui/States';
 import { SkeletonRows } from '../components/ui/Loading';
 import { Table, TD, TH, THead, TR } from '../components/ui/Table';
 import { Input, Select } from '../components/ui/Field';
@@ -139,6 +139,8 @@ type SanitizedVisualArtifact = {
 
 export function ScansPage() {
   const [scans, setScans] = useState<Scan[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [reload, setReload] = useState(0);
   const [loading, setLoading] = useState(true);
   const [state, setState] = useState('all');
   const [mode, setMode] = useState('all');
@@ -146,33 +148,41 @@ export function ScansPage() {
   const [q, setQ] = useState('');
 
   useEffect(() => {
+    let active = true;
     const params = new URLSearchParams();
     if (state !== 'all') params.set('state', state);
     if (mode !== 'all') params.set('mode', mode);
     if (q.trim()) params.set('q', q.trim());
     params.set('sort', sort);
     setLoading(true);
+    setError(null);
     void apiFetch<{ scans: Scan[] }>(`/v1/scans?${params.toString()}`).then((res) => {
+      if (!active) return;
       if (res.ok) setScans(res.data.scans);
+      else setError(res.error.message ?? `HTTP ${res.status}`);
       setLoading(false);
     });
-  }, [mode, q, sort, state]);
+    return () => { active = false; };
+  }, [mode, q, sort, state, reload]);
 
   async function stopScan(scan: Scan) {
     if (!window.confirm(`Stop scan ${scan.id.slice(0, 8)}?`)) return;
     const res = await apiFetch<{ scan: Scan }>(`/v1/scans/${scan.id}/cancel`, { method: 'POST' });
     if (res.ok) setScans((current) => current.map((item) => (item.id === scan.id ? res.data.scan : item)));
+    else setError(res.error.message ?? `HTTP ${res.status}`);
   }
 
   async function hideScan(scan: Scan) {
     if (!window.confirm(`Hide scan ${scan.id.slice(0, 8)} from this list?`)) return;
     const res = await apiFetch<{ scan: Scan }>(`/v1/scans/${scan.id}`, { method: 'DELETE' });
     if (res.ok) setScans((current) => current.filter((item) => item.id !== scan.id));
+    else setError(res.error.message ?? `HTTP ${res.status}`);
   }
 
   return (
     <div>
       <PageHeader title="Scans" description="Live and historical scan jobs across your projects." />
+      {error && <ErrorState message={error} className="mb-4" onRetry={() => setReload((value) => value + 1)} />}
       <Card className="mb-4">
         <CardBody className="grid gap-3 md:grid-cols-[minmax(0,1fr)_160px_190px_150px]">
           <div className="relative">

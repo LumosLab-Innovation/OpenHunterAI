@@ -24,15 +24,20 @@ const FILTERS = ['all', ...SEVERITY_ORDER] as const;
 
 export function FindingsPage() {
   const [findings, setFindings] = useState<Finding[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [reload, setReload] = useState(0);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>('all');
 
   useEffect(() => {
+    setLoading(true);
+    setError(null);
     void apiFetch<{ findings: Finding[] }>('/v1/findings').then((res) => {
       if (res.ok) setFindings(res.data.findings);
+      else setError(res.error.message ?? `HTTP ${res.status}`);
       setLoading(false);
     });
-  }, []);
+  }, [reload]);
 
   const sorted = useMemo(
     () =>
@@ -49,6 +54,7 @@ export function FindingsPage() {
   return (
     <div>
       <PageHeader title="Findings" description="Sanitized, ranked findings across your scans." />
+      {error && <ErrorState message={error} className="mb-4" onRetry={() => setReload((value) => value + 1)} />}
 
       <div className="mb-4 flex flex-wrap gap-2">
         {FILTERS.map((f) => {

@@ -6,21 +6,29 @@ export async function apiFetch<T = unknown>(
 ): Promise<
   { ok: true; data: T } | { ok: false; status: number; error: { code?: string; message?: string } }
 > {
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(init.headers ?? {}),
-    },
-    credentials: 'include',
-    cache: 'no-store',
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(init.headers ?? {}),
+      },
+      credentials: 'include',
+      cache: 'no-store',
+      signal: init.signal ?? AbortSignal.timeout(15_000),
+    });
+  } catch {
+    return { ok: false, status: 0, error: { code: 'API_UNREACHABLE', message: 'Cannot reach the local API. Start OpenHunterAI, then retry.' } };
+  }
 
   let data: unknown = null;
   try {
     data = await res.json();
   } catch {
-    // Some health or signout responses may be intentionally empty.
+    if (res.ok && res.status !== 204) {
+      return { ok: false, status: res.status, error: { code: 'INVALID_API_RESPONSE', message: 'The API returned an unexpected response. Check the frontend API proxy and restart.' } };
+    }
   }
 
   if (!res.ok) {
