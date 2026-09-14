@@ -10,7 +10,7 @@ In the OpenHunterAI checkout, run `node ops/local.mjs start`. It creates an igno
 
 Use `node ops/local.mjs status` and `node ops/local.mjs logs <service>` to diagnose startup. `stop` retains database volumes. `restart` applies edited model keys/configuration. Never delete Docker volumes as a troubleshooting shortcut.
 
-Workspace status describes API, database, queue connectivity and model-key presence, not a successful scan or verified model access. Baseline browser/ZAP/Nuclei/recon adapters ship with the stack. OpenHack and Strix need separately installed real runtimes; absent tools must be reported as unavailable. Optional interactive target-login capture: `node ops/local.mjs start --with-browser`.
+Workspace status describes API, database, queue connectivity and model-key presence, not a successful scan or verified model access. Browser/ZAP/recon runtimes and the Nuclei adapter/binary ship with the stack. The current Nuclei template directory contains no reviewed templates, and its Compose template settings do not match the adapter input. Before any scan, read the checkout's `docs/PUBLIC_RELEASE_READINESS.md` and require that template-policy and execution-failure blockers are resolved. Workspace setup/read-only checks can proceed without scanning. OpenHack and Strix need separately installed real runtimes; absent tools must be reported as unavailable. Optional interactive target-login capture: `node ops/local.mjs start --with-browser`.
 
 ## Read endpoints
 

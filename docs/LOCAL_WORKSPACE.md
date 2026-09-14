@@ -1,13 +1,12 @@
 # Local workspace
 
-OpenHunterAI is a local-first AI red-team workspace for authorized web, API and
-AI/LLM application testing. Running the workspace locally does not authorize a
-target or make private-network scanning available.
+Run the UI and database on your machine, without a workspace account.
+Local hosting does not authorize a target or enable private-network scanning.
 
 ## Start
 
-Install Git, Node.js 22+, and Docker Desktop (Windows/macOS) or Docker Engine with
-Compose v2 (Linux). Start Docker first, then:
+Requires Git, Node.js 22+, and Docker Desktop (Windows/macOS) or Docker Engine
+with Compose v2 (Linux). Start Docker first.
 
 ```bash
 git clone https://github.com/LumosLab-Innovation/OpenHunterAI.git
@@ -15,139 +14,129 @@ cd OpenHunterAI
 node ops/local.mjs start
 ```
 
-Open http://localhost:3001. No signup, password or hosted subscription. The initial
-build downloads several scanner images and may take several minutes; later starts
-reuse Docker's cache. The script exits nonzero if startup or its workspace check
-fails, rather than printing a ready message.
+Open [localhost:3001](http://localhost:3001). First startup builds/downloads images,
+creates private `.env.local` secrets, applies migrations, and checks the workspace
+API. It exits nonzero on startup/check failure.
 
-Create a project, add your **public** domain, complete its DNS ownership challenge,
-define the allowed hosts/paths/actions, then authorize a scan. Nothing is scanned
-just by opening the UI, installing a skill, or creating a project.
+**Before scanning:** resolve the [Nuclei template-policy blocker](PUBLIC_RELEASE_READINESS.md#open-gaps).
+The binary is packaged, but reviewed templates and effective configuration are
+not complete. You can inspect/configure the workspace without starting a scan.
+
+Once runtime prerequisites are satisfied: create a project, add a **public**
+domain, complete DNS ownership verification, define exact scope, then authorize
+the scan. Opening the UI, creating a project, or installing a skill does not scan.
 
 | Command | Result |
 | --- | --- |
-| `node ops/local.mjs start` | Build/start the local stack and check the workspace API |
-| `node ops/local.mjs status` | Show container status, including failed services |
-| `node ops/local.mjs logs public-api` | Last 100 API log lines |
-| `node ops/local.mjs restart` | Recreate services with updated configuration |
-| `node ops/local.mjs stop` | Stop containers; retain project/database volumes |
-| `node ops/local.mjs start --with-browser` | Also start interactive target-login capture |
+| `node ops/local.mjs start` | Build/start stack and check workspace |
+| `node ops/local.mjs status` | Container state, including failed services |
+| `node ops/local.mjs logs public-api` | Recent API logs |
+| `node ops/local.mjs restart` | Recreate with edited configuration |
+| `node ops/local.mjs stop` | Stop; retain database/queue volumes |
+| `node ops/local.mjs start --with-browser` | Add optional interactive target-login capture |
 
-The Compose project is `openhunter-local`. Its database/queue use dedicated named
-volumes, separate from the historical dev stack. There is no automatic seed with
-demo users or data. Do not use `down -v` unless you deliberately want to destroy the
-local database. The startup script never runs that command.
+The Compose project is `openhunter-local`, separate from the older developer
+stack. There is no automatic demo seed. Do not use `down -v` as a troubleshooting
+shortcut: it deletes persisted data. The startup script never uses it.
 
-## Configure models and tools
+## Models and tools
 
-First start creates `.env.local` from `.env.local.example` with unique database,
-worker, ZAP, and encryption secrets. Keep this file private and preserve its
-encryption key when retaining existing encrypted target credentials.
+The first start generates unique database, worker, ZAP, and encryption secrets.
+Existing `.env.local` is not overwritten. Keep the file private and preserve its
+encryption key when retaining encrypted target credentials.
 
-Set `OPENAI_API_KEY` or `DEEPSEEK_API_KEY`, then choose valid provider/model IDs
-for `LLM_LOW_REASONING_*` and `LLM_HIGH_REASONING_*`. Provider accounts may incur
-usage charges. The Setup & models screen only reports whether a model and matching
-key are present; it does not validate credentials, balance, or model access.
-Restart the stack after editing configuration. Never paste raw keys into an agent
-chat, report, README, or a public issue.
+Set `OPENAI_API_KEY` or `DEEPSEEK_API_KEY` and the
+`LLM_LOW_REASONING_*` / `LLM_HIGH_REASONING_*` provider/model values, then restart.
+Use IDs available to your provider account. Keys may incur provider charges;
+never paste them into an agent chat, report, or issue.
 
-Included baseline runtimes: browser-inspector, ZAP, Nuclei (bundled templates), and
-recon, plus the queue, orchestrator, internal API, findings and reporting services.
-OpenHack and Strix require separately installed real runtimes/adapters; point
-`OPENHACK_INTEGRATION_URL` and `STRIX_INTEGRATION_URL` at them. By default these
-point to the Docker host, not to a fabricated successful adapter. Missing tools
-produce unavailable/failed coverage and can prevent a run from completing.
-No host Docker socket is exposed to containers.
+| Surface | What it actually checks/provides |
+| --- | --- |
+| Setup model status | Key/model presence, not verified credentials, balance, or model access |
+| Queue status | TCP connectivity, not worker completion or JetStream acceptance |
+| Browser / ZAP / recon | Packaged local runtimes |
+| Nuclei | Adapter/binary; template-policy blocker remains |
+| OpenHack / Strix | Worker processes; supply separate real runtimes/adapters |
+| Target-login capture | Optional browser-session service, separate from workspace access |
 
-Interactive login capture is for **the target application's test accounts**, not
-workspace authentication. It is optional and uses the `--with-browser` flag.
-Retain explicit consent and use dedicated test accounts, never production users.
+Configure `OPENHACK_INTEGRATION_URL` and `STRIX_INTEGRATION_URL` for actual
+runtimes. Defaults point at the Docker host. Their absence can fail or prevent a
+run from completing; no runtime should be replaced with fabricated success.
+See [integration packaging](../infra/INTEGRATIONS.md) and
+[model routing/fallback behavior](LLM_PROVIDER_SPEC.md).
 
-## Security and hosted mode
+Interactive target login is for dedicated test accounts, with explicit consent.
+The optional browser image has separate runtime prerequisites; baseline startup
+does not prove login capture works. No host Docker socket is mounted.
 
-The frontend is http://localhost:3001; direct local API is
-http://127.0.0.1:4000. Only these ports are published, on IPv4 loopback. Internal
-services, Postgres, and NATS are not published to the host. The API rejects
-non-loopback Host headers, foreign browser Origins, and cross-site Fetch Metadata.
-It does not trust forwarded headers to opt a request into local access.
+## Access and data
 
-Local mode trusts the person/processes on your machine. Do not expose these ports
-via public tunnels, reverse proxies, LAN binds, or shared user sessions. A malicious
-local process can access this workspace. Use a dedicated machine/account where
-appropriate.
+| Endpoint/data | Boundary |
+| --- | --- |
+| UI | `http://localhost:3001`, published on IPv4 loopback |
+| Direct API | `http://127.0.0.1:4000`, loopback |
+| Database, NATS, worker callbacks, adapters | Internal Docker network; no local host publication |
+| Target credentials/session state | Encrypted dedicated fields |
+| Findings/reports | Sanitized records in the local database |
 
-`OPENHUNTER_MODE=local` explicitly selects passwordless local access.
-`OPENHUNTER_MODE=hosted` retains existing account/session and commercial
-entitlement checks. If the mode is unset, production/test default to hosted;
-development defaults to local and binds the API to 127.0.0.1.
-Hosted deployment still needs its normal secrets and security review; do not reuse
-the local Compose file as a production deployment.
+The API rejects non-loopback Host, foreign browser Origin, and cross-site Fetch
+Metadata; forwarded headers cannot opt into local access.
+Local mode trusts processes/users on your machine. Do not expose it through a
+public tunnel, LAN bind, shared reverse proxy, or untrusted shared user session.
 
-Local organization/operator IDs are reserved and do not adopt data belonging to
-another organization. Local projects use the existing `enterprise_payg` identifier
-to allow both scan modes, without charging hosted credits. Safety quotas remain
-scan-mode dependent; the free profile still has its finding/retest/cooldown caps.
-License terms are unchanged: local mode is not a commercial license grant.
+`OPENHUNTER_MODE=local` selects local access. `hosted` retains account/session and
+commercial checks. If unset, production/test default to hosted; development
+defaults to local. Local Compose explicitly chooses local mode.
+
+The reserved organization does not adopt another organization's data.
+Local projects use `enterprise_payg` to permit both scan modes without hosted
+credits, while scan-mode safety quotas/cooldowns remain. Local mode is not a
+commercial license grant. Do not use local Compose as a production deployment.
 
 ## Coding-agent skill
 
-From the application repository you want your coding agent to assess:
+Run in the **application repository being assessed**, not necessarily the
+OpenHunterAI checkout:
 
 ```bash
-npx skills add LumosLab-Innovation/OpenHunterAI --skill openhunter --agent codex claude-code gemini-cli grok --yes
+npx --yes skills add LumosLab-Innovation/OpenHunterAI --skill openhunter --agent codex claude-code gemini-cli grok --yes
 ```
 
-This installs project-scoped skill files, not agent applications. It does not
-change your global agent configuration or run the security scanner.
-
-| Client | Discovery path from this command |
+| Client | Discovery path |
 | --- | --- |
 | Codex | `.agents/skills/openhunter/SKILL.md` |
 | Claude Code | `.claude/skills/openhunter/SKILL.md` |
 | Gemini CLI | Shared `.agents/skills/openhunter/SKILL.md` |
 | Grok Build | `.grok/skills/openhunter/SKILL.md` |
-| OMP / Oh My Pi | Shared `.agents/skills/openhunter/SKILL.md` through its Agents provider |
+| OMP / Oh My Pi | Shared `.agents/skills` via its Agents provider |
 
-The [Skills installer](https://github.com/vercel-labs/skills) supports the named
-agent targets. [Gemini CLI](https://geminicli.com/docs/cli/skills/) accepts the shared
-directory; [OMP's skill discovery](https://github.com/can1357/oh-my-pi/blob/main/docs/skills.md)
-includes an Agents provider. OMP users must keep `enableAgentsProject` enabled.
-“Grok” here means Grok Build's Agent Skills integration, not the web chat product.
-Clients and third-party forks without skill discovery are not automatically supported.
+Compatibility references: [Skills installer](https://github.com/vercel-labs/skills),
+[Gemini CLI](https://geminicli.com/docs/cli/skills/),
+[OMP discovery](https://github.com/can1357/oh-my-pi/blob/main/docs/skills.md).
+OMP needs `enableAgentsProject`. Grok here means Grok Build, not web chat.
 
-For only one client, keep its agent name, for example `--agent claude-code`.
-For an already-cloned copy before publication, replace the repository name with
-the absolute checkout path. Windows users who cannot create symlinks can add
-`--copy`. Reload/restart the agent after installation.
-
-Try: “Use OpenHunter to check my local workspace and prepare a scoped security
-assessment. Wait for my approval before starting the scan.”
-
-The skill bundles an API workflow and a dependency-free **read-only** helper:
+Keep only your desired `--agent` targets if needed. On Windows, add `--copy` when
+symlinks are unavailable. Reload the agent after installation.
+This installs project skill files, not agent applications or global settings.
 
 ```text
 node .agents/skills/openhunter/scripts/openhunter.mjs status
 node .agents/skills/openhunter/scripts/openhunter.mjs projects
 ```
 
-Use the installed client's path if different. API setup is in the OpenHunterAI
-checkout; skill installation is in the target application's checkout. Do not run
-`ops/local.mjs` in an unrelated target repository.
+Use the installed client's path if different. Startup/configuration belongs in
+the OpenHunterAI checkout; never run `ops/local.mjs` in an unrelated target repo.
+The helper is read-only; see [the API workflow](../skills/openhunter/references/workflow.md)
+for authorized writes.
 
 ## Troubleshooting
 
-- **Docker is not ready:** start Docker Desktop/the daemon and retry.
-- **Image download/build fails:** read the named service error; ensure the machine
-  can reach Docker Hub, GHCR, npm and Go module registries. Optional browser capture
-  also needs Microsoft's container registry. Retry after connectivity is restored.
-- **Port already in use:** stop the conflicting service or previous OpenHunter
-  dev stack. Do not expose the workspace on a public interface to work around it.
-- **API/database offline:** inspect `status`, then `logs migrate` and
-  `logs public-api`. Migrations must succeed before API startup.
-- **No findings:** check the actual scan/worker state and coverage; an empty list
-  is not a clean bill of health. No scan has happened on an empty new workspace.
-- **Private target rejected:** localhost is the workspace address, not a supported
-  scan target. The existing target policy requires verified public external scope.
-- **Need hot reload:** the historical Makefile/dev services remain available.
-  Set local mode explicitly, keep API/frontend on loopback, and preserve the
-  same-origin `/api` proxy. See `make help` for contributor workflows.
+| Symptom | Check |
+| --- | --- |
+| Docker unavailable | Start Docker Desktop/daemon, then retry |
+| Image/build download failure | Named service logs and access to Docker Hub/GHCR/npm/Go registries; optional browser image also uses Microsoft's registry |
+| Port conflict | Stop the conflicting local service; do not switch to a public bind |
+| API/database offline | `status`, `logs migrate`, `logs public-api`; migrations must succeed |
+| No findings | Actual scan/worker state and coverage; an empty workspace has run nothing |
+| Private target rejected | Workspace localhost is not a supported scan target |
+| Need hot reload | Existing Makefile workflows require Bash/Make and separate dev configuration; preserve loopback access and same-origin proxy |

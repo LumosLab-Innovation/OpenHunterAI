@@ -1,114 +1,103 @@
-# LLM_PROVIDER_SPEC.md - LLM Gateway
+# LLM provider specification
 
-> Business logic uses model role aliases only. Provider/model selection lives behind the LLM Gateway.
+Business logic calls [LLMGateway](../shared/llm-gateway-core/src/gateway.ts), using
+a use case rather than a provider SDK or model ID. Configuration belongs in
+[llm-gateway-core](../shared/llm-gateway-core/).
 
----
+## Aliases and use cases
 
-# 1. Model Aliases
+| Alias | Use cases |
+| --- | --- |
+| `low_reasoning_model` | `signal_summary`, `candidate_dedupe`, `suspicious_surface_ranking` |
+| `high_reasoning_model` | `first_valuable_finding`, `attacker_hypothesis`, `validation_plan`, `access_control_reasoning`, `api_reasoning`, `llm_app_reasoning`, `report_generation`, `fix_prompt`, `retest_reasoning` |
 
-```text
-low_reasoning_model
-  signal_summary
-  candidate_dedupe
-  suspicious_surface_ranking
-  cheap triage
+These are supported routing identifiers, not a claim that every use case is
+invoked in every scan. Current backend call sites include
+[findings triage](../backend/findings/src/triage.ts) and
+[report fix prompts](../backend/reporting/src/llm.ts).
+OpenHack/Strix run behind tool adapters with separately configured runtimes;
+they are not automatically clients of this TypeScript gateway.
 
-high_reasoning_model
-  first_valuable_finding
-  attacker_hypothesis
-  validation_plan
-  access_control_reasoning
-  api_reasoning
-  llm_app_reasoning
-  report_generation
-  fix_prompt
-  retest_reasoning
+## Gateway flow
+
+```mermaid
+flowchart LR
+  CASE["Use-case allowance"] --> CLEAN["Prompt sanitizer"]
+  CLEAN --> BUDGET["Budget check"]
+  BUDGET --> ALIAS["Alias routing"]
+  ALIAS --> PROVIDER["Primary / fallback provider"]
+  PROVIDER --> OUTPUT["Normalized response<br/>Safe call metadata"]
 ```
 
-Provider config example:
+Requests carry project/scan identity, package tier, prompts, and optional compact
+context. Responses expose output, usage, latency, and typed errors. Raw prompts
+must not appear in logs.
 
-```text
-LLM_LOW_REASONING_PROVIDER=deepseek
-LLM_LOW_REASONING_MODEL=deepseek-v4-flash
-LLM_HIGH_REASONING_PROVIDER=deepseek
-LLM_HIGH_REASONING_MODEL=deepseek-v4-pro
-```
+## Local configuration
 
-Business logic must not hardcode OpenAI, Claude, Anthropic, DeepSeek, or model ids.
+Set values in the private `.env.local`, then run `node ops/local.mjs restart`.
+Use [the local example](../.env.local.example) for keys and Compose-supported
+settings; model IDs must be valid for your provider account.
 
----
+| Setting | Meaning |
+| --- | --- |
+| `LLM_LOW_REASONING_PROVIDER` / `LLM_LOW_REASONING_MODEL` | Low-reasoning route |
+| `LLM_HIGH_REASONING_PROVIDER` / `LLM_HIGH_REASONING_MODEL` | High-reasoning route |
+| `LLM_*_FALLBACK_PROVIDER` / `LLM_*_FALLBACK_MODEL` | Fallback route per alias |
+| `OPENAI_API_KEY` / `DEEPSEEK_API_KEY` | Keys passed into the default local stack |
 
-# 2. Gateway Pipeline
+The gateway also implements a `claude` adapter using `ANTHROPIC_API_KEY`, but the
+default local Compose file does not pass that key through. A gateway adapter's
+existence is not the same as a supported local setup option.
 
-```text
-OpenHack / Strix / Report / Retest
-→ LLM Gateway
-→ Prompt Sanitizer
-→ Budget & Policy Check
-→ Alias Router
-→ Provider Adapter
-→ Response Normalizer
-→ safe audit/cost metadata
-```
+Local Compose explicitly supplies model values; bare gateway defaults in
+[config.ts](../shared/llm-gateway-core/src/config.ts) differ. Do not rely on those
+defaults as proof that a model exists or your account can access it. Empty fallback
+settings resolve to the gateway defaults; they do not disable fallback.
 
-No worker or backend service calls provider SDKs directly.
+The Setup screen checks key/model presence only. It does not verify provider
+authentication, balance, availability, or tool coverage.
 
----
+## Budgets
 
-# 3. Use Cases
+Current [package budgets](../shared/llm-gateway-core/src/config.ts):
 
-```ts
-type LLMUseCase =
-  | "signal_summary"
-  | "candidate_dedupe"
-  | "suspicious_surface_ranking"
-  | "first_valuable_finding"
-  | "attacker_hypothesis"
-  | "validation_plan"
-  | "access_control_reasoning"
-  | "api_reasoning"
-  | "llm_app_reasoning"
-  | "report_generation"
-  | "fix_prompt"
-  | "retest_reasoning";
-```
+| Package | Calls per scan | Input tokens/call¹ | Output tokens/call | Timeout |
+| --- | --- | --- | --- | --- |
+| `free_hunter` | 3 | 6,000 | 1,200 | 30 s |
+| `ai_blackhat_mindset_check` | 24 | 22,000 | 5,000 | 75 s |
+| `monitor_workspace` | 4 | 12,000 | 2,500 | 45 s |
+| `enterprise_payg` | 60 | 30,000 | 6,000 | 90 s |
 
-Free Hunter may use high reasoning for `first_valuable_finding`, but is still limited by first finding/one monitored finding/one retest/7-day cooldown.
+¹ Input budgeting uses an estimate, not the provider's tokenizer.
 
-For reports, LLM output is recommendation-only. It may summarize sanitized facts, propose ranking reasons, and draft wording. It must not create new findings, reference unknown finding IDs, override severity policy, or add evidence that is not present in sanitized inputs.
+Budgets are in-memory per gateway instance, not a durable cross-service spending
+limit. They differ from [scan-mode quotas](WORKER_SPEC.md#3-profiles-by-target-type).
+Local projects use the existing enterprise package for gateway budgeting even
+when a free scan profile is selected.
 
----
+Free allows high reasoning for `first_valuable_finding`, but not every high-reasoning
+use case. Exhaustion must stop extra calls and preserve an explicit limitation,
+never fabricated output. The gateway defaults to one attempt per provider; report
+fix guidance has a deterministic fallback if generation fails.
 
-# 4. Prompt And Data Policy
+## Data and output policy
 
-Never send raw password, raw token, raw cookie, raw API key, Authorization header, raw request/response, raw HAR, raw browser storage, raw credential, raw private data, or unsanitized secret to any provider.
+Never send raw credentials, passwords, API keys, authorization headers, cookies,
+tokens, HAR, browser storage, sensitive requests/responses, or private data to a
+provider. Detected secrets are represented only by masked fingerprints or metadata.
 
-If a secret/key is detected, only masked fingerprint/hash/metadata may be used and the report recommends rotate/revoke.
+LLM output is recommendation-only. It cannot create a finding, invent evidence,
+reference an unknown finding ID, or override severity, scope, quotas, or approval
+policy. Local inference hosting does not relax these constraints.
 
----
+## Required verification
 
-# 5. Budgets
+- Alias/environment resolution and use-case mapping.
+- Package allowance, token/call budgets, timeout/retry/fallback behavior.
+- Sanitization of prompts, compact context, output, and audit metadata.
+- No direct provider calls from business logic.
+- Explicit provider failure and fallback status; no invented findings.
 
-Internal budgets are enforced by package/use case:
-
-```text
-free_hunter
-ai_blackhat_mindset_check
-monitor_workspace
-enterprise_payg
-```
-
-Budget exceeded must stop extra calls and produce budget-limited coverage/limitations. It must never fake output.
-
----
-
-# 6. Required Tests
-
-```text
-- low_reasoning_model and high_reasoning_model resolve from env/config
-- use cases map to the correct alias
-- package/use-case allowance is enforced
-- prompt sanitizer masks secrets/raw evidence
-- fallback/timeout/retry do not fake output
-- business logic does not instantiate provider SDK directly
-```
+Tests: [gateway.test.ts](../shared/llm-gateway-core/src/gateway.test.ts) and
+[package-model.test.ts](../shared/llm-gateway-core/src/package-model.test.ts).

@@ -10,13 +10,13 @@
 Trước khi implement bất kỳ task nào, agent phải đọc theo thứ tự:
 
 ```text
-1. PRD.md
-2. ARCHITECTURE.md
-3. SECURITY_GUARDRAILS.md
-4. ACCEPTANCE_CRITERIA.md
-5. WORKER_SPEC.md
-6. LLM_PROVIDER_SPEC.md
-7. PRODUCTION_READINESS.md
+1. docs/PRD.md
+2. docs/ARCHITECTURE.md
+3. docs/SECURITY_GUARDRAILS.md
+4. docs/ACCEPTANCE_CRITERIA.md
+5. docs/WORKER_SPEC.md
+6. docs/LLM_PROVIDER_SPEC.md
+7. docs/PRODUCTION_READINESS.md
 ```
 
 Nếu nội dung các file mâu thuẫn nhau, ưu tiên theo thứ tự:
@@ -54,7 +54,7 @@ Cụ thể:
 - Nuclei curated safe templates.
 - OpenHack-style Free Hunter workflow.
 - Strix attacker-mindset reasoning.
-- Recon signal layer (subfinder/dnsx/httpx/katana): passive discovery, scope-gated active probe only. Dev/local only — staging/CI rollout chưa làm.
+- Recon signal layer (subfinder/dnsx/httpx/katana): passive discovery, scope-gated active probe only. Có trong local Compose và developer tooling; staging worker overlay/cloud build chưa có R. Xem docs/ARCHITECTURE.md.
 - Human-readable report.
 - AI/dev-readable report.
 - Finding board.
@@ -392,7 +392,7 @@ Default vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-
 
 ### Domain docs
 
-Single-context: one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+Use `docs/PRD.md`, `docs/ARCHITECTURE.md`, and status-labeled `docs/adr/`. This checkout has no root `CONTEXT.md`. See `docs/agents/domain.md`.
 
 ### Upstream enrichment
 

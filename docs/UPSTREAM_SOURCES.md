@@ -1,96 +1,62 @@
-# UPSTREAM_SOURCES.md — OpenHunterAI
+# Upstream sources
 
-> Registry of upstream sources used to **manually** enrich OpenHunterAI.
-> Machine-readable form: [`tools/enrichment/upstream-sources.json`](../tools/enrichment/upstream-sources.json).
-> Process rules: [`MANUAL_UPSTREAM_ENRICHMENT_POLICY.md`](./MANUAL_UPSTREAM_ENRICHMENT_POLICY.md).
+Repository attribution and **manual enrichment** registry.
+Machine-readable source: [upstream-sources.json](../tools/enrichment/upstream-sources.json).
+Listing a project here does not fetch, install, execute, or auto-sync it.
 
-This file describes **what each upstream is, how it may be used, and its current state in this repo**. It is reference metadata. Nothing listed here is auto-synced. No source is fetched or executed at runtime by the product simply because it appears here.
+## Reference and runtime boundaries
 
----
+| Source | Role | Checked-in material / runtime |
+| --- | --- | --- |
+| [OpenHack](https://github.com/hadriansecurity/openhack) | Scenario workflow, hunter schema, review methodology | Curated reference subset under `third_party_research/openhack`; optional tool runtime is separately configured |
+| [ZAP](https://github.com/zaproxy/zaproxy) | Passive/baseline DAST signals | Adapter and upstream runtime image; upstream source not vendored |
+| [Strix](https://github.com/usestrix/strix) | Reasoning guides and controlled validation | Curated skill reference subset; optional CLI through adapter |
+| [Nuclei](https://github.com/projectdiscovery/nuclei) | Known-pattern/exposure signals | Adapter/binary; reviewed template bundle currently missing |
+| [Claude-BugHunter](https://github.com/elementalsouls/Claude-BugHunter) | Playbook, evidence hygiene, triage, report references | External reference only; not a worker or runtime dependency |
 
-## 1. Defaults
+Reference subsets are not runtime installations. They are excluded from Docker
+build contexts and must not be executed/imported as product code.
+OpenHack's reference-only registry entry describes enrichment of that subset,
+not a claim that the separate `integrations/openhack` adapter does not exist.
 
-```text
-autoSync        = false   (no cron, no GitHub Action pull, no bot)
-canSubmodule    = false   (no git submodule by default)
-canVendorFull   = false   (no full upstream repo copied into this repo)
-importMode      = reference_only
-importedBy      = manual_claude_code_run
-```
+Recon packages subfinder/dnsx/httpx/katana; exact checked-in image versions and
+runtime boundaries are in [integration packaging](../infra/INTEGRATIONS.md).
+The enrichment registry is not an exhaustive binary/dependency license inventory.
 
-Any deviation from a default requires explicit owner confirmation and must be recorded as a proposal in `docs/` before implementation.
+## Defaults
 
----
+| Setting | Value |
+| --- | --- |
+| `autoSync` | false |
+| `canSubmodule` | false |
+| `canVendorFull` | false |
+| `importMode` | reference_only |
+| `importedBy` | manual_claude_code_run |
 
-## 2. Vendor-state vocabulary
+No scheduled upstream pulls, automatic enrichment PRs, submodules, full-repo
+vendoring, or scope expansion. Deviations need explicit owner approval.
+Follow the [manual enrichment policy](MANUAL_UPSTREAM_ENRICHMENT_POLICY.md).
 
-| State | Meaning |
-|---|---|
-| `native` | OpenHunterAI's own code. |
-| `curated_subset_in_third_party_research` | A pruned, reference-only subset lives under `third_party_research/`. Not built, not executed. |
-| `adapter_runtime_only` | Used at runtime only through a packaged adapter image (`integrations/*`). Source is **not** vendored. |
-| `reference_external_only` | Consulted from its public URL during a manual enrichment run. Nothing is vendored. |
-| `full_vendored_in_third_party_research` | A full upstream repo is checked in. **Discouraged** — flag for pruning. |
+## Allowed use
 
-`third_party_research/` is reference material only. It is excluded from the Docker build context (`.dockerignore`) and is never imported by core code or adapters.
+| Source family | Allowed | Not allowed |
+| --- | --- | --- |
+| OpenHack / Claude-BugHunter references | Adapt workflows, schemas, evidence/triage/report guidance | Direct execution of reference files, a new worker, or new scope |
+| Strix | Reasoning guides and bounded adapter validation | Unrestricted execution or bypass of intensity/approval |
+| ZAP | Passive/baseline adapter configuration and parsing | Active scanning by default |
+| Nuclei | Reviewed allowlist content and parsing | Full community templates or active scanning by default |
 
----
+Claude-BugHunter's exact in-scope/rejected skill IDs remain in the
+[machine-readable registry](../tools/enrichment/upstream-sources.json).
+Apply current web/app/API/LLM scope; do not import cloud/identity/VPN/mobile,
+supply-chain, post-exploitation, or other rejected material.
 
-## 3. Sources
+## Provenance and notices
 
-### O — OpenHack
-- **URL:** https://github.com/hadriansecurity/openhack
-- **Role:** scenario-first workflow, hunter schema, triage/review methodology.
-- **Import mode:** `reference_only`
-- **Vendor state:** `curated_subset_in_third_party_research`
-  - Kept: `agents/`, `config/`, `templates/`, `LICENSE`, `README.md`
-- **Allowed:** scenario workflow, hunter schema, review methodology.
-- **Forbidden:** runtime worker, direct execution, opening new scope.
+Every enriched hunter/playbook/guide carries
+[HunterProvenance](../shared/security-core/src/hunter-provenance.ts).
+Hunter IDs must be emit-able by the deterministic scan planner.
 
-### Z — ZAP Proxy
-- **URL:** https://github.com/zaproxy/zaproxy — runtime image `ghcr.io/zaproxy/zaproxy:stable`
-- **Docs:** https://www.zaproxy.org/docs/docker/baseline-scan/
-- **Role:** passive/baseline DAST signal layer.
-- **Import mode:** `runtime_adapter` (via `integrations/zaproxy`)
-- **Vendor state:** `adapter_runtime_only` — source not vendored.
-- **Allowed:** passive/baseline adapter config, alert parser.
-- **Forbidden:** business-logic hunter, active scan by default, full vendor.
-
-### S — Strix
-- **URL:** https://github.com/usestrix/strix
-- **Role:** attacker-mindset reasoning, controlled validation planning; runtime via the `strix` CLI behind `integrations/strix`.
-- **Import mode:** `reasoning_guide` (skills) + `runtime_adapter` (CLI)
-- **Vendor state:** `curated_subset_in_third_party_research`
-  - Kept: `strix/skills/`, `LICENSE`, `README.md`
-- **Allowed:** high-reasoning guides, controlled-validation adapter.
-- **Forbidden:** unrestricted execution, out-of-scope scan, bypassing Test Intensity Mode or approval gates.
-
-### N — Nuclei
-- **URL:** https://github.com/projectdiscovery/nuclei — runtime image `projectdiscovery/nuclei:v3.4.10`
-- **Docs:** https://docs.projectdiscovery.io/opensource/nuclei/overview
-- **Role:** known-pattern / exposure / misconfiguration signal layer.
-- **Import mode:** `curated_content` (via `integrations/nuclei`)
-- **Vendor state:** `adapter_runtime_only` — source not vendored. Curated templates live in `integrations/nuclei/templates`.
-- **Allowed:** curated template allowlist, output parser.
-- **Forbidden:** full community templates by default, active scan by default, full vendor.
-
-### Claude-BugHunter
-- **URL:** https://github.com/elementalsouls/Claude-BugHunter
-- **License:** MIT
-- **Role:** reference playbook / skill / validation gate / evidence hygiene / report pattern source.
-- **Import mode:** `reference_only`
-- **Vendor state:** `reference_external_only` — **not vendored**; consulted from its public URL during a manual enrichment run.
-- **Allowed:** enrich OpenHack workflow + Strix reasoning guides; evidence hygiene, triage/validation, report patterns.
-- **Forbidden:** runtime worker, direct execution, vendoring the full repo, opening new scope.
-
-**In-scope skills to reference** (web/app/API/LLM only):
-`evidence-hygiene`, `triage-validation`, `redteam-mindset`, `report-writing`, `hunt-idor`, `hunt-auth-bypass`, `hunt-business-logic`, `hunt-ssrf`, `hunt-api-misconfig`, `hunt-llm-ai`, `hunt-graphql`, `hunt-cors`, `hunt-csrf`, `hunt-open-redirect`.
-
-**Out-of-scope skills — reject for v1** (match `SECURITY_GUARDRAILS.md` and `AGENTS.md` §2):
-`cloud-iam-deep`, `enterprise-vpn-attack`, `m365-entra-attack`, `okta-attack`, `apk-redteam-pipeline`, `supply-chain-attack-recon`, `web3-audit`, `meme-coin-audit`, `vmware-vcenter-attack`, `hunt-sharepoint`, `hunt-ldap`, `hunt-ntlm-info`, `hunt-saml`, `hunt-k8s`, `hunt-cicd`, `offensive-osint`.
-
----
-
-## 4. Provenance
-
-Every hunter/playbook/guide enriched from an upstream source must carry provenance metadata. See `shared/security-core/src/hunter-provenance.ts`. Provenance `hunterId`s must map to hunters that the deterministic Scan Plan (`shared/security-core/src/scan-plan.ts`) can actually emit.
+Retain bundled [OpenHack](../third_party_research/openhack/LICENSE) and
+[Strix](../third_party_research/strix/LICENSE) notices, and applicable runtime
+notices. The root license does not replace third-party licenses.

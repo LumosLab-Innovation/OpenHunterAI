@@ -1,156 +1,82 @@
-# ACCEPTANCE_CRITERIA.md - OpenHunterAI
+# Acceptance criteria
 
-> Conditions for v1 to be considered correct.
+Required acceptance checks for v1. Unchecked items are gates, **not a status
+report**. Record the tested commit, environment, command, and sanitized evidence
+before marking a release accepted. See [current gaps](PUBLIC_RELEASE_READINESS.md#open-gaps).
 
----
+## Local workspace
 
-# 1. Product Contract
+- [ ] Fresh clone starts at localhost:3001 without workspace signup/login.
+- [ ] Reserved identity is isolated; projects survive reload and restart.
+- [ ] Host/Origin/rebinding/cross-site requests are rejected before bootstrap.
+- [ ] Hosted mode still rejects missing/invalid sessions and wrong-organization access.
+- [ ] Status contains no credentials and distinguishes key presence from verified model access.
+- [ ] UI has loading, empty, error/retry states and usable desktop/mobile layouts.
+- [ ] Skill installs into the documented clients' discovery paths without starting a scan.
+- [ ] Only the reserved local organization bypasses hosted commercial checks.
+- [ ] Baseline startup is tested separately from authorized scan E2E; missing tools are explicit.
 
-## Local workspace acceptance
+## Product and authorization
 
-- A fresh local stack opens at localhost:3001 without signup/login, creates one
-  isolated workspace identity, and retains projects across reloads/restarts.
-- Cross-origin/rebinding requests are rejected before bootstrap; hosted mode still
-  rejects requests without a session. No credentials appear in workspace status.
-- UI shows actionable connection errors and real empty states; model key presence
-  is not described as verified model access or completed tool coverage.
-- One Agent Skills command installs the bundled skill into the requested clients'
-  project discovery paths. Installing the skill does not start a network test.
-- Local subscription checks are skipped only for the reserved local organization.
-  Domain verification, scope, approvals, scan quotas, and cooldowns remain enforced.
-- Baseline runtime startup and project CRUD are checked separately from authorized
-  scan E2E. Optional unavailable runtimes are documented, never masked as success.
+| Contract | Required result |
+| --- | --- |
+| Packages | Free Hunter / AI Black-hat Mindset Check / Monitor Workspace / Enterprise / PAYG |
+| Auth scope | Target-account scope, not another package |
+| Readiness export | Report view/export, not a scan package |
+| Monitor sub-tiers | Not public package names; no automatic retest implied |
+| Domain and consent | Verified/unexpired public domain plus explicit unexpired authorization |
+| Scope | Allowed hosts/paths and exclusions preserved; private targets and scope-escaping redirects blocked |
+| Account count | `none`: zero required; `one_account`: at least one; `two_accounts`: at least two |
+| Intensity | Aggressive staging requires explicit controlled staging/dev/test acceptance |
 
-V1 is accepted when:
+## Deterministic plan
 
-```text
-public packages are Free Hunter / AI Black-hat Mindset Check / Monitor Workspace / Enterprise / PAYG
-Authenticated Scope is auth_scope, not a package
-Readiness Report View/Export is export mode, not scan package
-Monitor sub-tiers are not public package names
-Free Hunter is not report-only and not a weak scanner
-```
+- [ ] Target type and flags produce the [documented worker/hunter matrix](WORKER_SPEC.md#3-profiles-by-target-type).
+- [ ] Plan includes skipped-hunter reasons, quotas, and validation/approval level.
+- [ ] LLM does not choose target type or the worker set; no profiler worker is added.
+- [ ] Free may use each target/intensity when authorized and subject to the same safety gates.
+- [ ] Sensitive actions require human approval; budget exhaustion never opens broader scope.
 
----
+## Free Hunter
 
-# 2. Authorization And Onboard
+- [ ] One returned finding, one monitored finding, one retest, seven-day cooldown.
+- [ ] First valuable finding stops expensive remaining work.
+- [ ] Limited finding/retest view does not become the full paid workspace.
+- [ ] No valuable finding returns coverage, hardening, limitations, and next steps.
 
-Scan authorization must require:
+The first-valuable-finding output cap is not proof that early stopping is complete.
+See [fan-in limitations](WORKER_SPEC.md#5-completion-and-reporting-limits).
 
-```text
-verified domain
-allowed_hosts / allowed_paths / excluded_paths
-scanMode
-authScope
-targetType
-testIntensityMode
-surfaceFlags
-risk acceptance for aggressive_staging
-```
+## Workers and models
 
-Validation:
+- [ ] ZAP remains passive/baseline; Nuclei runs only a reviewed allowlist.
+- [ ] Nuclei template configuration is effective; missing/failed runtime cannot return fake clean success.
+- [ ] OpenHack/Strix use real configured runtimes, within scope/intensity/approval limits.
+- [ ] Recon actively probes only approved hosts; discovery never auto-expands scope.
+- [ ] Every worker has bounded timeout/retries, explicit failed/skipped coverage, and sanitized callbacks.
+- [ ] Business logic uses LLM aliases through the gateway.
+- [ ] Sanitizer, use-case allowance, budgets, timeout, retry, and fallback are tested.
+- [ ] Model recommendations cannot invent findings, evidence, IDs, or override policy.
 
-```text
-authScope none requires no test account
-authScope one_account requires >= 1 test account
-authScope two_accounts requires >= 2 test accounts
-aggressive_staging requires explicit staging/dev/test acceptance
-```
+## Storage, reports, and exports
 
----
+- [ ] Sanitized findings/reports are stored in Postgres; no external artifact-store dependency.
+- [ ] Credentials/session state use dedicated encrypted fields; hosted access uses hashes.
+- [ ] Raw secrets, cookies, tokens, HAR, sensitive traffic, and private data never enter evidence/logs/prompts/exports.
+- [ ] Detected secrets retain only masked fingerprint/hash/metadata.
+- [ ] `report_v1` JSON is the immutable report snapshot; draft sections stream through scoped SSE.
+- [ ] DOCX/CSV/JSON/HTML/PDF exports are generated on demand, not persisted as raw artifacts.
+- [ ] Downloads require an organization-scoped final/superseded report; drafts are not final downloads.
+- [ ] JSON preserves the snapshot; latest status remains a separate optional overlay.
+- [ ] CSV neutralizes spreadsheet formulas and separates findings from hardening/coverage.
+- [ ] Long and Unicode report content is not lost in exported formats.
+- [ ] Manual retest updates its result and latest view without rewriting historical evidence.
 
-# 3. Scan Plan
+## Excluded scope
 
-Scan Plan builder is accepted when:
+Fail acceptance if unapproved implementation adds private/cloud/VPS scanning,
+server agents, mobile APK auditing, SAST/SCA/secrets scanning, automatic GitHub/Jira
+integration, CI/CD/deployment retest, or unrestricted offensive execution.
+The product remains attacker-style security assessment, not a compliance certification.
 
-```text
-each Target Type enables the documented worker/hunter set
-Free quotas are enforced
-Free can use every Target Type and Test Intensity Mode if authorized
-skippedHunters include reason
-LLM does not choose Target Type or worker set
-profiler worker does not exist
-```
-
----
-
-# 4. Free Hunter
-
-Free Hunter is accepted when:
-
-```text
-max_returned_findings = 1
-max_monitored_findings = 1
-max_retests = 1
-cooldown_days = 7
-first valuable finding stops expensive steps
-one limited monitored finding view exists
-one retest quota exists
-no full paid board/retest workspace is opened
-no valuable finding returns coverage/hardening/limitations
-```
-
----
-
-# 5. Worker/Tool Behavior
-
-```text
-ZAP = passive/baseline DAST signal layer
-Nuclei = curated known-pattern/exposure/misconfig templates only
-OpenHack = scenario-first hunter workflow/schema layer
-Strix = attacker-mindset reasoning + controlled validation planning
-```
-
-Workers must fail loudly, never fake success, and never persist raw evidence.
-
----
-
-# 6. LLM Gateway
-
-Accepted when:
-
-```text
-business logic calls only LLM Gateway
-low_reasoning_model and high_reasoning_model resolve from env/config
-provider/model names are not hardcoded in business logic
-prompt sanitizer blocks raw secrets/evidence
-budget/timeout/retry/fallback do not fake output
-```
-
----
-
-# 7. Storage
-
-Accepted when:
-
-```text
-external artifact storage is absent from v1 core docs/env/code path
-sanitized reports/findings are stored in Postgres
-raw credentials/cookies/tokens/HAR/request/response are not stored/logged/reported
-detected secrets store only masked fingerprint/hash/metadata
-report_v1 structured JSON is the canonical report snapshot
-draft sections stream over SSE
-DOCX/CSV/JSON/HTML/PDF exports are generated on demand and not persisted as artifacts
-downloads require an org-scoped final or superseded report; drafts cannot be downloaded as final
-JSON preserves the report_v1 snapshot; latest status is an optional separate overlay
-CSV neutralizes spreadsheet formulas and separates validated findings from hardening/coverage rows
-LLM ranking recommendations cannot invent findings or override deterministic policy
-```
-
----
-
-# 8. Not V1
-
-Fail if implementation adds:
-
-```text
-CI/CD retest
-deployment-triggered retest
-GitHub/Jira integration
-cloud/VPS/private network scan
-server agent
-mobile APK audit
-SAST/SCA/secrets scanning
-unrestricted aggressive/offensive mode
-white-hat audit/compliance repositioning
-```
+Use [production readiness](PRODUCTION_READINESS.md) for release-environment checks.

@@ -1,264 +1,138 @@
-# PRD.md - OpenHunterAI
+# Product requirements
 
-> Public positioning: **OpenHunterAI - Local-first AI red team for web, API, and LLM application security**.
-> PRD defines product behavior. Technical worker details live in ARCHITECTURE and WORKER_SPEC.
+OpenHunterAI is a local-first AI red-team workspace for authorized external
+web, API, and AI/LLM application testing. This document defines the product
+contract; [release status](PUBLIC_RELEASE_READINESS.md) records implementation gaps.
 
----
+## Audience and outcome
 
-# 1. Product
+| User | Outcome |
+| --- | --- |
+| Application owner | Understand tested scope, validated risks, coverage, and next steps |
+| Developer | Inspect sanitized evidence and remediation guidance; request a narrow retest |
+| Security tester | Prepare bounded attacker hypotheses without losing human control |
+| Coding-agent user | Read workspace state and follow an explicitly authorized assessment workflow |
 
-The default local experience opens a single-user workspace directly: no signup,
-password, or hosted subscription. Projects, domains, findings, and reports remain
-scoped to a dedicated local organization. The existing package identifiers remain
-API-compatible; local projects use the existing tier that permits both scan modes,
-without charging hosted credits. Hosted mode retains its session and entitlement
-requirements. Target verification, authorization, quotas, cooldowns, and human
-approval remain mandatory in both modes. See [LOCAL_WORKSPACE.md](LOCAL_WORKSPACE.md).
+The workflow is black-box: repository access is not required by the scanner.
+A coding agent may separately inspect or fix the user's application repository
+when asked; this does not add SAST or automatic source-code access to OpenHunterAI.
 
-OpenHunterAI tests verified public web/app targets with attacker-mindset reasoning and governed execution. It is not an uncontrolled offensive tool, checklist scanner, or compliance audit.
+## User journey
 
-Execution is controlled by:
-
-```text
-verified domain
-scan authorization
-Target Type
-Surface Flags
-Test Intensity Mode
-package quota
-policy gates
-approval gates
-rate limits
-data-handling policy
+```mermaid
+flowchart LR
+  LOCAL["Start workspace"] --> SCOPE["Verify domain<br/>Authorize scope"]
+  SCOPE --> SCAN["Run bounded plan"]
+  SCAN --> REVIEW["Review evidence<br/>Coverage + fixes"]
+  REVIEW --> RETEST["Request manual retest"]
 ```
 
-V1 does not include CI/CD retest, GitHub/Jira integration, VPS/cloud/private network scan, server agent, SAST/SCA/secrets scanning, mobile APK audit, or destructive unrestricted testing.
-
----
-
-# 2. Canonical Public Packages
-
-Public packages:
-
-```text
-Free Hunter
-AI Black-hat Mindset Check
-Monitor Workspace
-Enterprise / PAYG
-```
-
-Rules:
-
-```text
-- Authenticated Scope is not a public package. It is an auth_scope inside AI Black-hat Mindset Check or Enterprise / PAYG.
-- Readiness Report View/Export is a report/export mode, not a scan package.
-- Monitor sub-tiers may exist as internal quota tiers, not public package names.
-```
-
----
-
-# 3. Free Hunter
-
-Free Hunter is not the weak version. It uses the same Target Type and Test Intensity Mode model as paid, subject to authorization and risk acceptance.
-
-Free Hunter limits:
-
-```text
-max_returned_findings = 1
-max_monitored_findings = 1
-max_retests = 1
-cooldown_days = 7
-```
-
-Behavior:
-
-```text
-- Stop after the first valuable finding.
-- Create a limited finding view for the one monitored finding.
-- Allow one retest quota for that finding.
-- Do not open the full paid finding board/retest workspace.
-- If no valuable finding is found inside budget, return coverage report + hardening + limitations.
-```
-
-Free can use every Target Type and every Test Intensity Mode when the user is authorized and accepts the relevant risk. Aggressive Staging still requires staging/dev/test risk acceptance.
-
----
-
-# 4. Onboard Inputs
-
-User selects exactly one Target Type:
-
-```text
-static_content_website
-  Landing page, blog, docs, portfolio, marketing/content site with little deep interaction.
-
-interactive_web_app
-  UI with forms, login, dashboard, user data, admin/upload/payment if present.
-
-api_service
-  REST, GraphQL, webhook, OpenAPI/Swagger, or backend endpoints as the main surface.
-
-ai_llm_application
-  Chatbot, RAG, agent, prompt input, model output, tool calling, or knowledge base.
-```
-
-Surface Flags:
-
-```text
-has_login
-has_test_account
-has_api_docs
-has_file_upload
-has_payment
-has_admin_dashboard
-has_webhook
-has_chatbot_or_rag_or_tool_calling
-```
-
-Auth Scope:
-
-```text
-none
-one_account
-two_accounts
-```
-
-Auth Scope enables authenticated observation/access-control checks inside AI Black-hat Mindset Check or Enterprise / PAYG. It is not a package.
-
----
-
-# 5. Test Intensity Mode
-
-```text
-safe_discovery
-  Passive/baseline signals, observation, hypothesis, little or no validation.
-
-controlled_attack_simulation
-  Controlled validation in verified scope, benign PoC where allowed. Default paid mode.
-
-aggressive_staging
-  Staging/dev/test only. More hypotheses and validation attempts. Requires explicit risk acceptance.
-```
-
-Risk Acceptance requires user to confirm:
-
-```text
-- domain/env is under their control;
-- active validation can cause errors, load, test data, or alerts;
-- aggressive_staging target is staging/dev/test;
-- emergency contact / testing window for risky modes;
-- raw secrets are not stored, only masked fingerprint/hash/metadata.
-```
-
-Even Aggressive Staging forbids malware, persistence, stealth/evasion, credential stuffing/bruteforce, destructive wipe, raw secret exfiltration, and out-of-scope scan.
-
----
-
-# 6. Deterministic Scan Plan
-
-Scan Orchestrator builds a deterministic Scan Plan from:
-
-```text
-package_tier
-target_type
-surface_flags
-auth_scope
-test_intensity_mode
-verified scope
-policy gates
-budget/quota
-```
-
-There is no profiler worker. LLM does not decide Target Type or which worker runs. LLM reasons over sanitized context after the deterministic plan is built.
-
-Scan Plan output includes:
-
-```text
-enabledWorkers
-enabledHunters
-skippedHunters with reason
-allowedValidationLevel
-budgets
-requiresApprovalForSensitiveActions
-coverage expectations
-```
-
----
-
-# 7. Worker Roles
-
-```text
-ZAP Proxy
-  Passive/baseline DAST signal layer. Captures headers, cookie flags, CSP/CORS, mixed content, passive/baseline alerts. Not a hacker agent.
-
-Nuclei
-  Curated known-pattern / exposure / misconfig signal layer. Uses internal selected templates only. No full community templates by default.
-
-OpenHack
-  Scenario-first hunter workflow + schema layer. Converts signals to candidate / warning / hardening / coverage_gap / finding by Target Type.
-
-Strix
-  Attacker-mindset reasoning + controlled validation planning. Produces hypothesis, abuse path, validation plan, severity/confidence, fix prompt, retest scenario. Not an uncontrolled runner.
-
-Recon
-  Passive subdomain/DNS discovery (subfinder/dnsx) followed by a scope-gated active probe (httpx/katana). Discovered assets outside the authorized scope are reported as pending approval, never probed.
-```
-
-Worker selection by Target Type:
-
-| Target Type | Browser | ZAP | Nuclei | OpenHack | Strix | Recon |
-|---|---|---|---|---|---|---|
-| static_content_website | light | passive mini | exposure/config mini | content exposure + hardening | only if candidate | light |
-| interactive_web_app | medium/deep | passive/baseline | standard-safe | API/session/auth/admin-like | hypothesis + validation reasoning | standard-safe |
-| api_service | docs/UI only | API passive/spec if available | API exposure/templates | API surface/auth/data | API abuse/data exposure reasoning | standard-safe |
-| ai_llm_application | chat-focused | hygiene only | exposure only | AI prompt/RAG/tool-call | prompt/RAG/tool-call reasoning | mini |
-
----
-
-# 8. Reports And Monitor
-
-Reports never include raw credentials, raw cookies, raw tokens, raw HAR, sensitive raw request/response, raw secrets, or unsanitized PII.
-
-If a secret/key is detected, store only masked fingerprint/hash/metadata and recommend rotate/revoke.
-
-The canonical report output is `report_v1` structured JSON, not free-form Markdown. User-facing views are rendered from this sanitized snapshot:
-
-```text
-Owner Summary
-Developer Fix Pack
-Retest / Monitor Actions
-Coverage / Limitations
-```
-
-Report generation streams draft sections over SSE while the scan runs. Final reports are immutable versions; current finding/retest state is returned as a latest overlay.
-
-HTML/PDF export is generated on demand from sanitized report JSON. Export files are not persisted, and external artifact storage is not a v1 core dependency.
-
-Free Hunter report behavior:
-
-```text
-- valuable finding found: return one ranked finding + limited monitored finding + one retest path
-- no valuable finding: return coverage_only report with coverage, hardening, limitations, and next steps
-- never create fake low-severity findings to fill the report
-```
-
-Readiness Report View/Export is an export mode from sanitized reports/findings. It is not a scan package and does not run a new scan.
-
-Monitor Workspace stores history, reminders, quota, limited/full finding workspace depending on package, and manual retest queue. Monitor does not auto scan all findings, run after deploy, or implement CI/CD retest.
-
----
-
-# 9. Acceptance Summary
-
-PRD is aligned when:
-
-```text
-- public packages are Free Hunter / AI Black-hat Mindset Check / Monitor Workspace / Enterprise / PAYG;
-- Authenticated Scope is an auth_scope, not a package;
-- Free Hunter is first valuable finding + one monitored finding + one retest + 7-day cooldown;
-- Target Type, Surface Flags, and Test Intensity Mode drive Scan Plan;
-- no profiler worker exists;
-- LLM uses low_reasoning_model and high_reasoning_model aliases through LLM Gateway;
-- no external artifact storage is part of v1 core;
-- no v1 scope creep into CI/CD, GitHub/Jira, cloud/private network, mobile, server agent, SAST/SCA/secrets scanning.
-```
+Local workspace access has no login or subscription requirement. It does not
+waive domain verification, authorization, approval gates, or scan safety quotas.
+Hosted deployments retain their existing account/session flow.
+
+## Product vocabulary
+
+| Concept | Values / meaning |
+| --- | --- |
+| Scan mode | `free_hunter`, `ai_blackhat_mindset_check` |
+| Target type | `static_content_website`, `interactive_web_app`, `api_service`, `ai_llm_application` |
+| Auth scope | `none`, `one_account`, `two_accounts`; target test accounts, not workspace login |
+| Intensity | `safe_discovery`, `controlled_attack_simulation`, `aggressive_staging` |
+| Package tier | Existing hosted entitlement identifiers; not another scan intensity |
+| Readiness export | A report view/export, not a scan package |
+| Monitor Workspace | Existing package vocabulary; does not imply automated monitoring/retests |
+
+Hosted package labels remain Free Hunter, AI Black-hat Mindset Check,
+Monitor Workspace, and Enterprise / PAYG. Optional monitor sub-tiers are not
+public package names. Local projects use the existing `enterprise_payg` tier to
+permit both scan modes without hosted credit checks. License terms are unchanged.
+
+Canonical enums: [packages.ts](../shared/security-core/src/packages.ts).
+
+## Authorization inputs
+
+Every scan needs a verified, unexpired public domain and an explicit authorization:
+
+| Input | Requirement |
+| --- | --- |
+| Scope | `allowedHosts`, `allowedPaths`, `excludedPaths`; never auto-expand on discovery |
+| Execution | Scan mode, target type, intensity, and surface flags |
+| Accounts | None / at least one / at least two test accounts according to auth scope |
+| Consent | Recorded scope authorization; separate approval for sensitive actions |
+| Aggressive staging | Explicit staging/dev/test ownership and risk acceptance |
+
+Surface flags: `has_login`, `has_test_account`, `has_api_docs`,
+`has_file_upload`, `has_payment`, `has_admin_dashboard`, `has_webhook`,
+`has_chatbot_or_rag_or_tool_calling`.
+
+Risk acceptance must explain possible errors, load, test data, or alerts.
+Risky runs should include a testing window and emergency contact.
+
+## Planning and execution
+
+The public API calls the deterministic planner using authorized inputs and
+package policy. The LLM does not choose target type or the enabled worker set.
+Worker profiles, hunter decisions, validation level, budgets, and skipped reasons
+are saved with the scan. See the [canonical worker matrix](WORKER_SPEC.md#3-profiles-by-target-type).
+
+| Layer | Responsibility |
+| --- | --- |
+| Browser / recon / ZAP / Nuclei | Observations and bounded signals, not automatic proof |
+| OpenHack / Strix | Scenario and reasoning adapters within the same policy gates |
+| Findings service | Sanitized candidate promotion and deterministic limits |
+| Reporting service | Owner summary, developer fix guidance, coverage and limitations |
+| Retest worker | Separately requested replay for one finding |
+
+Tool availability and safety policy are different questions. In particular,
+Nuclei template wiring is an [open blocker](PUBLIC_RELEASE_READINESS.md#open-gaps).
+
+## Free Hunter requirements
+
+Free Hunter uses the same target/intensity model when authorized; it is a bounded
+assessment, not a full pentest or merely a report preview.
+
+| Limit | Value |
+| --- | --- |
+| Returned findings | 1 |
+| Monitored findings | 1 |
+| Retests | 1 |
+| Cooldown | 7 days |
+
+The product requirement is to stop expensive work after the first valuable
+finding. Current fan-in waits for all expected workers; only the output/promotion
+cap is implemented. Keep early stopping as an unresolved acceptance item.
+
+No valuable finding means a coverage report with hardening, limitations, and
+next steps—not a declaration that the application is secure.
+
+## Reports and remediation
+
+The canonical artifact is a sanitized, versioned `report_v1` JSON snapshot in
+Postgres. Draft updates are streamed through the public API; latest finding/retest
+status is a separate overlay, not a rewrite of historical evidence.
+
+| Reader | Content |
+| --- | --- |
+| Owner | What was tested, risk/outcome, recommended next action |
+| Developer | Finding evidence, root-cause hypothesis, fix guidance, validation steps |
+| Security reviewer | Worker/hunter coverage, skipped checks, limitations, approval context |
+
+DOCX, CSV, JSON, HTML, and PDF download routes exist. The current PDF renderer is
+a limited one-page text export; use other formats for long reports until fixed.
+All downloads require an organization-scoped final/superseded report.
+
+AI recommendations cannot invent evidence, unknown finding IDs, or severity.
+Black-box remediation is guidance requiring developer review, not a guaranteed
+mergeable patch.
+
+## Out of scope
+
+No unverified/private/internal/metadata targets, mass scanning, destructive
+testing, malware, persistence, stealth/evasion, credential stuffing, or unrestricted
+offensive mode. No CI/CD/deployment-triggered retests, cloud/VPS account scanning,
+server agents, mobile APK auditing, SAST/SCA/secrets-scanning product, or automatic
+GitHub/Jira integration.
+
+Mandatory rules: [security guardrails](SECURITY_GUARDRAILS.md).
+Required verification: [acceptance criteria](ACCEPTANCE_CRITERIA.md).

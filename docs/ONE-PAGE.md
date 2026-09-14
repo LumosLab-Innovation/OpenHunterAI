@@ -1,97 +1,32 @@
-# ONE-PAGE.md - OpenHunterAI
+# OpenHunterAI at a glance
 
-**OpenHunterAI - Authorized Attacker-Mindset Security Workspace**
+**A local AI red team for web, API, and LLM applications.**
 
-OpenHunterAI tests verified public web/app targets with attacker-mindset reasoning, deterministic scan planning, strict policy gates, and sanitized reporting.
+OpenHunterAI gives developers and security testers a workspace for authorized
+external assessments: define scope, inspect scan activity, review evidence,
+and turn findings into remediation and manual retests.
 
-## Public Packages
+| Question | Answer |
+| --- | --- |
+| Where does it run? | Your machine, using Docker Compose |
+| Is a workspace account required? | No in local mode; hosted mode retains authentication |
+| What can it assess? | Verified public websites, web apps, APIs, AI/LLM apps |
+| How is work selected? | A deterministic plan from target, scope, intensity, and quotas |
+| What does AI do? | Assist triage, hypotheses, and fix guidance within policy boundaries |
+| Who stays in control? | The user authorizes scans and approves sensitive actions |
+| What comes back? | Sanitized findings, coverage gaps, reports, remediation guidance |
+| Can a coding agent use it? | Yes, through the portable OpenHunter skill |
+| Is it production-ready? | Alpha; see [current gaps](PUBLIC_RELEASE_READINESS.md#open-gaps) |
 
-```text
-Free Hunter
-AI Black-hat Mindset Check
-Monitor Workspace
-Enterprise / PAYG
-```
+**Workflow:** start workspace → verify domain → authorize scope → scan →
+review coverage and evidence → request a finding-scoped retest.
 
-Not packages:
+Browser inspection, ZAP, recon, and the Nuclei adapter are packaged locally.
+OpenHack/Strix need separately configured runtimes. Nuclei's reviewed-template
+bundle and configuration are not complete; resolve that blocker before scanning.
 
-```text
-Authenticated Scope = auth_scope inside paid/enterprise checks
-Readiness Report View/Export = report/export mode
-Monitor sub-tiers = optional internal quota tiers
-```
+Local-first does not mean fully offline: configured model providers and scan
+targets are external. Local hosting does not permit private-network scanning.
 
-## Free Hunter
-
-Free Hunter is not weak. It uses the same Target Type and Test Intensity Mode model as paid, but stops at first valuable finding.
-
-```text
-max_returned_findings = 1
-max_monitored_findings = 1
-max_retests = 1
-cooldown_days = 7
-```
-
-If no valuable finding is found in budget, user gets coverage, hardening, limitations, and next steps.
-
-## Onboard Inputs
-
-Target Type:
-
-```text
-static_content_website
-interactive_web_app
-api_service
-ai_llm_application
-```
-
-Surface Flags:
-
-```text
-has_login
-has_test_account
-has_api_docs
-has_file_upload
-has_payment
-has_admin_dashboard
-has_webhook
-has_chatbot_or_rag_or_tool_calling
-```
-
-Test Intensity:
-
-```text
-safe_discovery
-controlled_attack_simulation
-aggressive_staging
-```
-
-Aggressive Staging is staging/dev/test only and always blocks destructive/offensive unrestricted behavior.
-
-## Scan Plan
-
-Orchestrator builds a deterministic plan from package, target type, surface flags, auth scope, intensity, verified scope, gates, and quota. LLM does not choose target type or worker set.
-
-## Worker Roles
-
-```text
-ZAP = passive/baseline DAST signal
-Nuclei = curated known-pattern/exposure/misconfig signal
-OpenHack = scenario-first hunter workflow + schema
-Strix = attacker-mindset reasoning + controlled validation planning
-```
-
-## LLM
-
-Business logic uses:
-
-```text
-low_reasoning_model
-high_reasoning_model
-```
-
-Provider/model mapping is config behind LLM Gateway.
-
-## Not V1
-
-No CI/CD retest, GitHub/Jira integration, VPS/cloud/private network scan, mobile APK audit, server agent, SAST/SCA/secrets scanning, raw evidence persistence, or external artifact storage core dependency.
+[Run locally](LOCAL_WORKSPACE.md) · [Install the skill](LOCAL_WORKSPACE.md#coding-agent-skill) ·
+[Architecture](ARCHITECTURE.md) · [Product contract](PRD.md) · [Licensing](../LICENSING.md)

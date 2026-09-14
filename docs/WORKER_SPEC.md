@@ -1,106 +1,118 @@
-# WORKER_SPEC.md - OpenHunterAI
+# Worker specification
 
-> Workers are internal integrations, not public packages.
+Runtime reference plus mandatory worker rules. Profiles come from
+[scan-plan.ts](../shared/security-core/src/scan-plan.ts); this document does not
+grant permission to expand scope or enable additional tools.
 
----
+## 1. Identity and input
 
-# 1. Required Worker Input
+Plan keys, runtime IDs, and Docker service names are different identifiers:
 
-Every worker input must include:
+| Plan key | Runtime ID / source | NATS subject | Local service |
+| --- | --- | --- | --- |
+| `browser` | [browser-inspector](../workers/browser-inspector/) | `worker.browser.run` | `browser-inspector` |
+| `zap` | [Z](../workers/Z/) | `worker.zap.run` | `z` |
+| `nuclei` | [N](../workers/N/) | `worker.nuclei.run` | `n` |
+| `openhack` | [O](../workers/O/) | `worker.openhack.run` | `o` |
+| `strix` | [S](../workers/S/) | `worker.strix.run` | `s` |
+| `recon` | [R](../workers/R/) | `worker.recon.run` | `r` |
+| — | [retest](../workers/retest/) | `retest.requested` | `retest` |
 
-```json
-{
-  "scanId": "scan_123",
-  "projectId": "proj_123",
-  "scanMode": "free_hunter|ai_blackhat_mindset_check",
-  "targetType": "static_content_website|interactive_web_app|api_service|ai_llm_application",
-  "authScope": "none|one_account|two_accounts",
-  "testIntensityMode": "safe_discovery|controlled_attack_simulation|aggressive_staging",
-  "surfaceFlags": {},
-  "scanPlan": {},
-  "allowedHosts": [],
-  "allowedPaths": [],
-  "excludedPaths": []
-}
+The [orchestrator mapping](../workers/orchestrator/cmd/orchestrator/orchestrator.go)
+normalizes aliases for dispatch and fan-in. Reporting is
+[backend/reporting](../backend/reporting/), not an enabled scan worker.
+
+The wire contract is [workers/shared/events/events.go](../workers/shared/events/events.go).
+Events use `{id, subject, occurredAt, payload}`; fields use camelCase.
+
+| Payload | Fields |
+| --- | --- |
+| `scan.created` | `scanId`, `projectId`, `authorizationId`, `mode`, `scope`, `scanPlan` |
+| `WorkerRunPayload` | Identity, `scanMode`, `targetType`, `authScope`, `testIntensityMode`, `surfaceFlags`, `scanPlan`, allowed/excluded scope, `verifiedDomain`, optional `acceptanceProfile` |
+| `worker.completed` | `scanId`, `projectId`, `workerType`, `state`, `signalCount`, `coverageGap` |
+| `retest.requested` | Finding/retest IDs, original scan identity, narrow `retestScenario`, verified scope |
+
+Budgets, hunters, and allowed validation level are inside `scanPlan`, not
+invented top-level fields. Workers must preserve the authorized scope snapshot.
+
+## 2. Lifecycle and result
+
+```mermaid
+flowchart LR
+  INPUT["Validate input"] --> SCOPE["Check scope + policy"]
+  SCOPE --> RUN["Bounded tool execution"]
+  RUN --> RESULT["Sanitized result"]
+  RESULT --> CALLBACK["Persist callbacks"]
+  CALLBACK --> DONE["Publish completion"]
 ```
 
-No worker receives a legacy authenticated package/mode. Authenticated behavior is controlled by `authScope`.
+The [shared runner](../workers/shared/runner/runner.go) posts steps and signals
+before publishing completion. Callback failures trigger delivery retries.
+The shared signal-worker consumer has `MaxDeliver=5`; per-worker timeouts are set
+in its entry point. Retest has a separate finding-scoped handler.
 
----
+| Result state | Meaning |
+| --- | --- |
+| `done` | Worker returned; not proof of a vulnerability or full coverage |
+| `skipped` | Unavailable/not-implemented tool or policy-skipped work; coverage gap |
+| `failed` | Invalid input, scope rejection, adapter failure, or timeout; coverage gap |
 
-# 2. Report Worker
+[Result](../workers/shared/worker/worker.go) includes `errorCode`, `errorMsg`,
+`coverageGap`, `summary`, sanitized `signals`, timestamps, and optional `meta`.
+Typical codes: `TOOL_UNAVAILABLE`, `ADAPTER_ERROR`, `WORKER_TIMEOUT`,
+`WORKER_INVALID_INPUT`. A connection failure is not necessarily the same error
+as an adapter explicitly reporting an unavailable tool.
 
-`report-worker` is the canonical report generator. It writes sanitized `report_v1` draft sections, validates LLM ranking recommendations against existing findings/candidates, finalizes immutable report versions, and never stores raw evidence or export files.
+All workers must have bounded execution/retries, structured identity-bearing
+logs, sanitized output, explicit failures, and audit records for sensitive actions.
+No fake success, unrestricted execution, raw credentials, or raw evidence.
 
----
+## 3. Profiles by target type
 
-# 2. Worker Principles
+These are the exact current planner profiles, not guarantees of tool coverage.
 
-Workers must have timeout, retry limit, structured logs, `scan_id`, `project_id`, `worker_type`, error handling, and sanitized output.
+| Target type | Browser | ZAP | Nuclei | OpenHack | Strix | Recon |
+| --- | --- | --- | --- | --- | --- | --- |
+| `static_content_website` | light | mini | mini | light | candidate_only | light |
+| `interactive_web_app` | medium¹ / deep | standard_safe | standard_safe | medium | deep | standard_safe |
+| `api_service` | light² / omitted | standard_safe | standard_safe | medium | deep | standard_safe |
+| `ai_llm_application` | medium | hygiene | mini | medium | deep | mini |
 
-Workers must not run forever, scan outside scope, log raw secrets, persist raw evidence, silently fail, fake success, or return mock production results.
+¹ Medium for `safe_discovery`; deep otherwise.
+² Browser enabled only when `has_api_docs=true`.
 
-Tool unavailable:
+The planner also records enabled/skipped hunters, validation level, and approval
+requirements. Profile names do not override safety rules.
 
-```text
-state = skipped
-error_code = TOOL_UNAVAILABLE
-coverage_gap = true
-```
+| Scan-mode budget | Free Hunter | AI Black-hat Mindset Check |
+| --- | --- | --- |
+| Returned / monitored findings | 1 / 1 | 50 / 50 |
+| Retests / cooldown days | 1 / 7 | 10 / 0 |
+| Hypotheses / validation attempts | 3 / 1 | 20 / 8 |
 
----
+These scan budgets are separate from [LLM package budgets](LLM_PROVIDER_SPEC.md#budgets).
 
-# 3. Roles
+## 4. Tool responsibilities
 
-```text
-ZAP Proxy
-  Passive/baseline DAST signal layer. Not a hacker agent.
+| Worker | Boundary |
+| --- | --- |
+| Browser | Playwright-based observation; optional authorized target-session replay |
+| Z | ZAP passive/baseline signals; no active scan by default |
+| N | Reviewed-template-only policy; bundle/configuration currently incomplete — do not treat the packaged binary as validated coverage |
+| O | Scenario-first hunter adapter; requires an actual configured runtime |
+| S | Attacker-style reasoning/validation adapter; approval and intensity gates still apply |
+| R | Subdomain/DNS discovery, HTTP probing, crawling; discovered hosts do not expand scope |
+| Retest | Explicit user request for one finding; reuses OpenHack adapter |
 
-Nuclei
-  Curated known-pattern / exposure / misconfig signal layer. Internal templates only.
+Missing OpenHack/Strix runtimes reduce coverage and may prevent completion.
+Adapter/build details: [integration packaging](../infra/INTEGRATIONS.md).
 
-OpenHack
-  Scenario-first hunter workflow + schema layer. Produces candidate/warning/hardening/coverage_gap/finding.
+## 5. Completion and reporting limits
 
-Strix
-  Attacker-mindset reasoning + controlled validation planning. Not an uncontrolled runner.
+Fan-in finalizes after expected completions, including reported failed/skipped
+outcomes. Read the report's coverage and individual steps before judging a run.
 
-Recon
-  Passive discovery (subfinder/dnsx) -> scope-gated active probe (httpx/katana) signal layer. Discovered out-of-scope subdomains are reported, never probed.
-```
-
----
-
-# 4. Target Type Matrix
-
-| Target Type | Browser | ZAP | Nuclei | OpenHack | Strix | Recon |
-|---|---|---|---|---|---|---|
-| static_content_website | light | passive mini | exposure/config mini | content exposure + hardening | only if candidate | light |
-| interactive_web_app | medium/deep | passive/baseline | standard-safe | API/session/auth/admin-like | hypothesis + validation reasoning | standard-safe |
-| api_service | only if docs/UI | API passive/spec if available | API exposure/templates | API surface/auth/data | API abuse/data exposure reasoning | standard-safe |
-| ai_llm_application | chat-focused | hygiene only | exposure only | AI prompt/RAG/tool-call hunter | prompt/RAG/tool-call reasoning | mini |
-
-Skipped hunters must include a reason.
-
----
-
-# 5. Free Hunter Gate
-
-Free Hunter uses the same plan model but has quota:
-
-```text
-max_returned_findings = 1
-max_monitored_findings = 1
-max_retests = 1
-cooldown_days = 7
-```
-
-If a valuable finding is promoted, remaining expensive hypothesis/validation steps stop. If none is found in budget, report coverage, hardening, and limitations.
-
-Free Hunter must not create fake low-severity findings just to populate a report.
-
----
-
-# 6. Forbidden Worker Behavior
-
-Even in `aggressive_staging`, workers must not run malware, persistence, stealth/evasion, credential stuffing/bruteforce, destructive wipe, raw secret exfiltration, or out-of-scope scans.
+Free Hunter's first-valuable-finding **output cap** exists; immediate cancellation
+of remaining workers is still a [release gap](PUBLIC_RELEASE_READINESS.md#open-gaps).
+A manual retest request and a worker callback alone do not prove that the
+finding status or latest-report overlay was updated end to end.

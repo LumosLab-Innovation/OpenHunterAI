@@ -1,157 +1,105 @@
-# SECURITY_GUARDRAILS.md - OpenHunterAI
+# Security guardrails
 
-> Highest-priority implementation rules.
+Highest-priority implementation rules. These are **mandatory requirements**, not
+a statement that every runtime path has passed verification. Known gaps remain
+in [release status](PUBLIC_RELEASE_READINESS.md#open-gaps).
 
----
+## 1. No verified authorization, no scan
 
-# 1. No Verified Authorization, No Scan
+Do not create scan/retest jobs when the domain is unverified, verification or
+authorization has expired, consent is absent, or the target:
 
-Local workspace mode is a single-user, loopback-only trust boundary, not a
-permission bypass. Host, Origin, and cross-site Fetch Metadata checks reject
-foreign browser requests before identity bootstrap. The Docker UI/API ports must
-remain bound to `127.0.0.1`; never put a public proxy/tunnel in front of local mode.
-Use `OPENHUNTER_MODE=hosted` with existing authentication for shared deployments.
-Local identities are isolated from existing organizations, cannot use password
-login, and are not issued session cookies. Only local commercial entitlements
-are skipped; all scan/target safety checks remain. Provider secrets stay in the
-ignored `.env.local` and are excluded from Docker build contexts.
+- Falls outside `allowedHosts` / `allowedPaths` or matches an exclusion.
+- Resolves to private, internal, loopback, link-local, or metadata addresses.
+- Redirects outside the verified scope.
 
-Do not create scan/retest jobs if:
+Local mode is a single-user, loopback trust boundary—not a target-policy bypass.
+Check Host, Origin, and cross-site Fetch Metadata before identity bootstrap.
+Publish local UI/API ports only on `127.0.0.1`; no public proxy or tunnel.
+Use hosted authentication for shared deployments.
 
-```text
-domain is not verified
-verification expired
-scan authorization is missing/expired
-target is outside allowed_hosts/allowed_paths
-target is excluded
-target is private/local/metadata IP
-redirect leaves scope
-```
+Local identities must remain isolated from other organizations, have no password
+login/session cookie, and bypass only local commercial entitlement checks.
+Scan safety quotas and approval gates remain mandatory.
+Keep provider secrets in ignored configuration excluded from build contexts.
 
----
+## 2. Controlled attacker-style reasoning
 
-# 2. Governed Attacker-Mindset
+Every action is bounded by verified scope, target type, surface flags, intensity,
+auth scope, quota, rate limits, policy, approval, and data-handling rules.
 
-OpenHunterAI keeps black-hat mindset reasoning but governed execution. Every action is constrained by verified scope, Target Type, Surface Flags, Test Intensity Mode, auth_scope, package quota, policy gates, approval gates, rate limits, and data-handling policy.
+Always forbidden: out-of-scope/private/internal scanning; malware; persistence;
+stealth/evasion; credential stuffing/brute force; destructive actions; DoS;
+raw secret exfiltration; plaintext credential or raw sensitive traffic
+persistence; abuse instructions outside verified scope.
 
-Forbidden always:
+`aggressive_staging` is staging/dev/test only. It does not relax forbidden actions.
 
-```text
-out-of-scope scan
-private/internal/local/metadata scan
-malware
-persistence
-stealth/evasion
-credential stuffing/bruteforce
-destructive wipe
-DoS
-raw secret exfiltration
-raw credential/cookie/token/HAR/request/response persistence
-abuse instructions outside verified scope
-```
+## 3. Onboarding and risk acceptance
 
-Aggressive Staging is staging/dev/test only and still follows all forbidden-action rules.
+Authorization records `scanMode`, `authScope`, `targetType`,
+`testIntensityMode`, `surfaceFlags`, `allowedHosts`, `allowedPaths`,
+`excludedPaths`, and explicit risk acceptance for aggressive staging.
 
----
+Risk acceptance must confirm control of a staging/dev/test environment and
+explain possible errors, load, test data, or alerts. Risky modes should include
+a testing window and emergency contact.
 
-# 3. Onboard And Risk Acceptance
+## 4. Credentials and evidence
 
-Authorization must store:
+| Data | Required handling |
+| --- | --- |
+| Target test credentials / captured sessions | Encrypt in dedicated credential/storage-state fields; enforce lifecycle/expiry |
+| Hosted passwords / session tokens | Hash; never store or expose raw values |
+| Detected secret | Masked fingerprint/hash/metadata only; recommend rotate/revoke |
+| Findings / reports / audit detail | Sanitized structured data |
+| Raw HAR, sensitive request/response, unsanitized PII/private data | Never persist as evidence or send to prompts, logs, reports, or exports |
 
-```text
-scanMode
-authScope
-targetType
-testIntensityMode
-surfaceFlags
-allowedHosts
-allowedPaths
-excludedPaths
-risk acceptance if aggressive_staging
-```
+Encrypted target-session storage is an explicit authentication mechanism, not
+permission to retain raw browser artifacts. Raw credentials, cookies, tokens,
+API keys, authorization headers, and browser storage must never enter LLM context.
 
-`aggressive_staging` requires explicit confirmation that the target is staging/dev/test and user controls the environment.
+V1 stores sanitized findings/reports in Postgres; external artifact storage is not
+a core dependency.
 
-Risk copy must state active validation can cause errors, load, test data, or alerts. For risky modes user should provide emergency contact/testing window.
+## 5. Human approval
 
----
+Approval is required **before**:
 
-# 4. Credential And Evidence Policy
+- Access-control validation or sensitive use of test accounts.
+- POST/PUT/PATCH/DELETE and other potentially mutating actions.
+- Billing/payment, file upload/delete/export, email, or webhooks.
+- High/Critical retests.
 
-Do not log/store/report/send to LLM:
+Show the action, host/path, relevant account label, excluded actions, residual
+risk, and approve/cancel controls. Prior consent or a checkpoint resume does not
+silently approve a new sensitive action.
 
-```text
-raw password
-raw token
-raw cookie
-raw API key
-raw credential
-raw HAR
-sensitive raw request/response
-unsanitized PII/private data
-```
+## 6. Manual retest only
 
-If a secret/key is found, persist only masked fingerprint/hash/metadata and recommend rotate/revoke.
+Retest is tied to one finding and a narrow authorized scenario.
+No CI/CD/deployment-triggered retest, background full-app retest, or automatic
+retest of every finding. Recheck scope and sensitive-action approval.
 
-V1 core stores sanitized reports/findings in Postgres. External artifact storage is not a core dependency.
+## 7. Worker rules
 
----
+Workers require a timeout, retry limit, structured logs with scan/project/worker
+identity, explicit error handling, audit records, and sanitized output.
 
-# 5. User Approval Gate
+An explicitly unavailable tool must become skipped coverage, never successful
+coverage. Transport/runtime failures may be failed coverage; preserve their cause.
+ZAP stays passive/baseline by default. Nuclei requires a reviewed internal template
+allowlist and must not auto-download community templates. Its current template
+wiring is a release blocker, not an exception to this rule.
 
-Approval is required before sensitive actions:
+## 8. Release blockers
 
-```text
-access-control validation
-using test accounts for sensitive validation
-POST/PUT/PATCH/DELETE
-billing/payment
-file upload/delete/export
-email/webhook
-High/Critical retest
-actions that may mutate data
-```
+Do not release a production path that permits:
 
-Approval must show action, host/path, account label/email if relevant, what will not be done, residual risk, approve/cancel.
+- Unverified targets, private/metadata targets, or out-of-scope redirects.
+- Raw secrets/evidence in logs, prompts, reports, or plaintext storage.
+- Sensitive actions without approval or workers without bounded execution.
+- Fake/mock scan results presented as real.
+- Direct provider SDK calls outside the LLM Gateway.
 
----
-
-# 6. Retest
-
-Retest is manual and tied to one finding.
-
-Do not implement:
-
-```text
-CI/CD-based automated retesting
-deployment-triggered retest
-background full-app retest
-auto retest for all findings
-```
-
----
-
-# 7. Worker Rules
-
-Workers must have timeout, retry limit, structured logs, scan_id, project_id, worker_type, error handling, and sanitized output.
-
-Tool unavailable must become skipped/coverage gap. No fake success.
-
-ZAP is passive/baseline only by default. Nuclei uses internal curated safe templates only.
-
----
-
-# 8. Production Blockers
-
-Do not release if:
-
-```text
-unverified domains can scan
-private/local/metadata targets can scan
-redirect outside scope is followed
-raw secrets/evidence appear in logs/prompts/reports/storage
-sensitive actions bypass approval
-workers can run without timeout
-production path returns mock scan results
-LLM provider SDK is called outside gateway
-```
+Required checks: [acceptance criteria](ACCEPTANCE_CRITERIA.md).

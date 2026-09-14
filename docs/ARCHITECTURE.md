@@ -1,249 +1,164 @@
-# ARCHITECTURE.md - OpenHunterAI
+# Architecture
 
-> V1 architecture for an **Authorized Attacker-Mindset Security Workspace**. Only verified public web/app targets are in scope.
+This describes the checked-in local runtime, not a claim about live cloud
+deployments. Start with [local setup](LOCAL_WORKSPACE.md); service definitions are
+in [compose.local.yml](../compose.local.yml).
 
----
+## Runtime
 
-# 1. High-Level Flow
-
-Local startup is `node ops/local.mjs start` using `compose.local.yml`. The nginx
-frontend proxies `/api` (including SSE/WebSocket) to the public API. Only
-`127.0.0.1:3001` and `127.0.0.1:4000` are published; internal services and the
-database have no host ports. Prisma migrations complete before the API starts.
-`OPENHUNTER_MODE=local` bootstraps a fixed local organization/operator, without a
-password or cookie. Production defaults to hosted authentication unless local
-mode is explicitly selected. `/v1/workspace` advertises the mode;
-`/v1/workspace/status` returns connection/configuration metadata, never raw keys.
-The local stack does not mount the host Docker socket. Target-login capture is an
-optional `authenticated-targets` profile; advanced OpenHack/Strix adapters are BYO.
-
-```text
-web dashboard
-→ public API
-→ Postgres + NATS/queue
-→ scan orchestrator
-→ deterministic Scan Plan
-→ worker families / integration adapters
-→ LLM Gateway
-→ sanitized findings/reports in Postgres
-→ manual retest / Monitor Workspace
+```mermaid
+flowchart TB
+  subgraph HOST["Your machine · loopback access"]
+    UI["React workspace<br/>localhost:3001"]
+    CLI["Coding-agent skill<br/>Read-only helper"]
+  end
+  subgraph STACK["Local Docker network"]
+    API["Public API · 4000<br/>Identity, scope, scan plan"]
+    DB[("Postgres · 5432")]
+    NATS["NATS JetStream · 4222"]
+    ORCH["Go orchestrator<br/>Dispatch + completion tracking"]
+    W["Browser / Z / N / O / S / R"]
+    INT["Internal API · 4100<br/>Worker callbacks"]
+    FIND["Findings · 4300<br/>Promotion policy"]
+    REPORT["Reporting · 4400<br/>Drafts + report_v1"]
+    TOOLS["ZAP / Nuclei / recon adapters"]
+  end
+  OPTIONAL["Optional runtimes<br/>OpenHack / Strix"]
+  UI -->|"nginx /api proxy"| API
+  CLI -->|"127.0.0.1:4000"| API
+  API <--> DB
+  API -->|"scan.created"| NATS
+  NATS --> ORCH
+  ORCH -->|"worker.*.run via NATS"| W
+  W --> TOOLS
+  W --> OPTIONAL
+  W -->|"Steps + signals"| INT
+  INT --> DB
+  ORCH -->|"Promote candidates"| FIND
+  FIND --> DB
+  W -->|"worker.completed via NATS"| ORCH
+  ORCH -->|"Finalize"| REPORT
+  REPORT --> DB
+  REPORT -->|"Report events"| NATS
+  NATS -->|"Report updates"| API
+  API -->|"SSE + reads"| UI
 ```
 
-Core v1 stores sanitized reports/findings in Postgres. External artifact storage is not a core v1 dependency. DOCX/CSV/JSON/HTML/PDF exports are rendered on demand from sanitized report JSON and are not stored as files. Downloads require an org-scoped final or superseded snapshot. JSON includes the canonical snapshot and, when requested, a separate latest-status overlay. CSV is a flat findings/coverage summary, not a lossless replacement for JSON.
+Browser inspection runs inside its worker. Interactive target-login capture is a
+separate optional `browser-session` service; it is not workspace authentication.
+OpenHack and Strix worker processes start with the local stack, but their tool
+runtimes must be supplied separately. Nuclei's adapter/binary is packaged; its
+reviewed template bundle and runtime configuration remain a release blocker.
 
-Reports use `report_v1` structured JSON snapshots in Postgres. Draft report sections stream to the UI through SSE while a scan runs.
+| Component | Source | Local exposure |
+| --- | --- | --- |
+| UI + same-origin proxy | [frontend](../frontend/) | `127.0.0.1:3001` |
+| Public API | [gateway/public-api](../gateway/public-api/) | `127.0.0.1:4000` |
+| Callback API | [gateway/internal-api](../gateway/internal-api/) | Internal `4100` |
+| Findings / reporting | [backend](../backend/) | Internal `4300 / 4400` |
+| Browser-session capture | [backend/browser-session](../backend/browser-session/) | Optional, internal `4700` |
+| Workers / orchestrator | [workers](../workers/) | Internal health ports `5100–5170` |
+| Tool adapters | [integrations](../integrations/) | Internal; [runtime map](../infra/INTEGRATIONS.md) |
+| Postgres / NATS | [Compose](../compose.local.yml) | Internal `5432 / 4222`; named volumes |
 
----
+There is no `report-worker` service. `backend/control-plane` and older
+`infra/docker-compose` overlays exist for contributor/hosted workflows; they are
+not additional services in the default local stack.
 
-# 2. Product Model In Architecture
+## Scan lifecycle
 
-Public packages:
-
-```text
-free_hunter
-ai_blackhat_mindset_check
-monitor_workspace
-enterprise_payg
+```mermaid
+sequenceDiagram
+  actor User
+  participant API as Public API
+  participant DB as Postgres
+  participant Bus as NATS / orchestrator
+  participant Workers
+  participant Internal as Internal API
+  participant Findings
+  participant Report as Reporting
+  User->>API: Verify domain and authorize exact scope
+  User->>API: POST project scan
+  API->>API: Validate policy and build deterministic plan
+  API->>DB: Save scope snapshot, plan, initial draft
+  API->>Bus: scan.created
+  API-->>User: Scan ID
+  Bus->>Workers: worker.*.run for enabled keys
+  Workers->>Internal: Sanitized steps and candidate signals
+  Internal->>DB: Persist steps and candidate signals
+  Workers->>Bus: worker.completed
+  Bus->>Findings: Promote eligible candidates after completions
+  Findings->>DB: Persist validated findings
+  Bus->>Report: Finalize report
+  Report->>DB: Immutable report_v1 snapshot
+  Report-->>API: Report events with DB polling fallback
+  API-->>User: SSE updates and report reads
 ```
 
-Scan modes:
+The planner is [buildScanPlan](../shared/security-core/src/scan-plan.ts), invoked
+by [ScansService](../gateway/public-api/src/modules/scans/scans.service.ts).
+The orchestrator dispatches that plan; an LLM does not choose the worker set.
 
-```text
-free_hunter
-ai_blackhat_mindset_check
+Completion tracking normalizes plan keys into runtime IDs. It waits for expected
+worker completions; `completed` does not mean every check succeeded. Inspect step
+states and report coverage. Free-mode result limits are enforced at promotion
+and report generation; immediate cancellation of other workers after the first
+valuable finding is not implemented in fan-in.
+
+Reports are generated by [backend/reporting](../backend/reporting/src/server.ts).
+The public API serves snapshots, latest-status overlays, and DOCX/CSV/JSON/HTML/PDF
+exports. Retest is separately requested for one finding, not a background loop.
+
+## Data model
+
+[Prisma](../shared/db/prisma/schema.prisma) is the database authority.
+
+```mermaid
+erDiagram
+  Organization ||--o{ Project : owns
+  Project ||--o{ Domain : verifies
+  Project ||--o{ ScanAuthorization : authorizes
+  Project ||--o{ ScanJob : runs
+  ScanJob ||--o{ ScanStep : records
+  ScanJob ||--o{ FindingCandidate : collects
+  ScanJob ||--o{ Finding : validates
+  ScanJob ||--o{ Report : snapshots
+  Finding ||--o{ RetestRun : retests
 ```
 
-Auth Scope is stored as:
+| Data | Storage rule |
+| --- | --- |
+| Scope, steps, findings, drafts, reports | Structured records in Postgres |
+| Test-account credentials / captured target sessions | Encrypted credential and storage-state fields; never plaintext evidence |
+| Hosted workspace access | Password hashes and session-token hashes |
+| Sanitized report evidence | Sanitized JSON and controlled evidence references |
+| Queue progress | NATS JetStream and KV; local queue volume |
+| Raw HAR / sensitive request bodies / secrets | Must not enter logs, prompts, reports, or exports |
 
-```text
-none
-one_account
-two_accounts
-```
+## Trust boundaries
 
-Authenticated Scope is a scope/mode inside AI Black-hat Mindset Check or Enterprise / PAYG, not a public package.
+| Mode | Access | Entitlements |
+| --- | --- | --- |
+| Local | Reserved local identity, loopback Host/Origin checks, no workspace login | Hosted payment checks bypassed only for the reserved local organization; scan safety quotas remain |
+| Hosted | Existing account/session flow with `OPENHUNTER_MODE=hosted` | Existing hosted checks retained |
 
----
+Local mode trusts local machine processes. Do not expose its ports through a
+tunnel, shared reverse proxy, or LAN bind. Published host ports are loopback even
+though the API binds `0.0.0.0` **inside** its container.
 
-# 3. Scan Plan Builder
+Model-provider calls can leave the machine. LLM context must be sanitized; a local
+database is not a promise of fully offline inference. See
+[LLM routing](LLM_PROVIDER_SPEC.md) and [guardrails](SECURITY_GUARDRAILS.md).
 
-The orchestrator builds a deterministic Scan Plan from:
+## Deployment status
 
-```text
-packageTier
-scanMode
-targetType
-surfaceFlags
-authScope
-testIntensityMode
-allowedHosts/paths
-policy gates
-budget/quota
-```
+- [Local Compose](../compose.local.yml) is the documented end-user entry point.
+- [Staging overlays](../infra/docker-compose/) and [Cloud Build configuration](../infra/cloudbuild/pipeline-runtime.yaml)
+  are checked-in deployment assets, not proof of a running deployment.
+- Recon is included locally and in developer integration tooling; the staging
+  worker overlay and cloud build pipeline do not include it.
+- The [managed-runtime ADR](adr/2026-06-16-managed-scan-runtime.md) is a proposal.
+  NATS has not been replaced by Pub/Sub in the local runtime.
 
-Output:
-
-```text
-enabledWorkers
-enabledHunters
-skippedHunters with reason
-allowedValidationLevel
-budgets
-requiresApprovalForSensitiveActions
-notes / coverage expectations
-```
-
-There is no profiler worker. LLM does not select Target Type or worker set.
-
----
-
-# 4. Worker / Integration Runtime Boundary
-
-Workers and adapters are internal. Public package names are never worker names.
-
-```text
-browser-worker
-zap-worker
-nuclei-worker
-openhack-worker
-strix-worker
-recon-worker
-report-worker
-retest-worker
-```
-
-Integration runtimes are packaged behind adapter ports:
-
-```text
-core/orchestrator
-→ adapter health/execution API
-→ packaged runtime image
-→ sanitized signal output
-```
-
-Core does not import or know tool internals. Tool unavailable becomes skipped/coverage_gap, never fake success.
-
----
-
-# 5. Target Type Matrix
-
-| Target Type | Browser | ZAP | Nuclei | OpenHack | Strix | Recon |
-|---|---|---|---|---|---|---|
-| static_content_website | light | passive mini | exposure/config mini | content exposure + hardening | candidate only | light |
-| interactive_web_app | medium/deep | passive/baseline | standard-safe | API/session/auth/admin-like | hypothesis + validation reasoning | standard-safe |
-| api_service | docs/UI only | API passive/spec if available | API exposure/templates | API surface/auth/data | API abuse/data exposure reasoning | standard-safe |
-| ai_llm_application | chat-focused | hygiene only | exposure only | prompt/RAG/tool-call hunters | prompt/RAG/tool-call reasoning | mini |
-
-Recon (subfinder/dnsx/httpx/katana) is a passive-discovery -> scope-gated active-probe signal layer (WSTG-INFO/WSTG-CONF). Passive stages (subfinder/dnsx) run against every discovered candidate; active stages (httpx/katana) only ever touch hosts that already pass the scope guard. See `README.md` §7 and `integrations/recon`.
-
----
-
-# 6. Test Intensity
-
-```text
-safe_discovery
-  observe, passive/baseline, hypothesis, little/no validation
-
-controlled_attack_simulation
-  controlled validation in scope, benign PoC where allowed, default paid mode
-
-aggressive_staging
-  staging/dev/test only, more hypothesis/validation attempts, explicit risk acceptance
-```
-
-Aggressive Staging is still blocked from malware, persistence, stealth/evasion, credential stuffing/bruteforce, destructive wipe, raw secret exfiltration, and out-of-scope scan.
-
----
-
-# 7. Data Stores
-
-Postgres:
-
-```text
-users
-organizations
-projects
-domains
-domain_verifications
-scan_authorizations
-test_accounts
-scan_jobs
-scan_steps
-finding_candidates
-findings
-reports
-report_draft_sections
-retest_runs
-approval_requests
-approval_decisions
-credit_ledger
-audit_logs
-```
-
-NATS/queue:
-
-```text
-job events
-scan step coordination
-worker progress
-rate-limit / retry coordination
-```
-
-No raw evidence persistence in DB, logs, reports, prompts, or storage.
-
----
-
-# 8. LLM Gateway
-
-Business logic calls aliases only:
-
-```text
-low_reasoning_model
-high_reasoning_model
-```
-
-Provider/model mapping is config behind the LLM Gateway. No business logic hardcodes OpenAI, Claude, Anthropic, DeepSeek, or model ids.
-
----
-
-# 9. Deployment Target
-
-First production target: Docker/Compose host with tagged images and rollback.
-
-Core images:
-
-```text
-openhunter/web:<git-sha>
-openhunter/public-api:<git-sha>
-openhunter/orchestrator:<git-sha>
-openhunter/browser-worker:<git-sha>
-openhunter/zap-worker:<git-sha>
-openhunter/nuclei-worker:<git-sha>
-openhunter/openhack-worker:<git-sha>
-openhunter/strix-worker:<git-sha>
-openhunter/recon-worker:<git-sha>
-openhunter/report-worker:<git-sha>
-openhunter/retest-worker:<git-sha>
-```
-
-Integration adapter images:
-
-```text
-openhunter/zaproxy-adapter:<git-sha>
-openhunter/nuclei-adapter:<git-sha>
-openhunter/openhack-adapter:<git-sha>
-openhunter/strix-adapter:<git-sha>
-openhunter/recon-adapter:<git-sha>
-```
-
-`recon-worker`/`recon-adapter` are wired into local dev (`infra/docker-compose/integrations.yml`, `workers.yml`) and `ops/scripts/publish-images.sh`. Staging/production rollout (`infra/docker-compose/*.staging.yml`, `infra/cloudbuild/pipeline-runtime.yaml`) is a separate, not-yet-done step.
-
-Infra services:
-
-```text
-postgres
-nats/queue
-reverse-proxy
-observability/log shipper
-zap daemon if used separately
-```
+See [release gaps](PUBLIC_RELEASE_READINESS.md#open-gaps) before making
+end-to-end or production-readiness claims.

@@ -1,5 +1,9 @@
 # OpenHunter Canary Contract
 
+An opt-in, authorized staging fixture—not a production feature or a localhost
+scan exception. Resolve [runtime blockers](PUBLIC_RELEASE_READINESS.md#open-gaps)
+before attempting end-to-end acceptance.
+
 Staging/dev targets that run `acceptanceProfile=canary_e2e` must expose a hidden
 test-only namespace under `/openhunter-canary`.
 
@@ -24,4 +28,4 @@ scope. Production targets must not expose this namespace.
 - Browser Inspector replays User A against both paths.
 - `vulnerablePath` intentionally returns `2xx` for User A accessing User B's canary object.
 - `fixedPath` returns `403` or `404` for the same cross-user access.
-- OpenHunter stores only sanitized status/path metadata and optional masked thumbnail evidence. It must not store raw response bodies, HAR, cookies, tokens, browser storage, or passwords.
+- OpenHunter stores only sanitized status/path metadata and optional masked thumbnail evidence. Evidence must not contain raw response bodies, HAR, cookies, tokens, browser storage, or passwords. Captured login state is encrypted separately under the [credential policy](SECURITY_GUARDRAILS.md#4-credentials-and-evidence).

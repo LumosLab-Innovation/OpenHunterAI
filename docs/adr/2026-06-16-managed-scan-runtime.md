@@ -1,36 +1,39 @@
-# ADR: Managed Scan Runtime Target
+# ADR: Managed scan runtime
 
-## Status
-
-Proposed after hybrid pipeline hardening.
+**Status: proposed, historical (2026-06-16).** Not implemented by the local-first
+workspace. Current runtime: [ARCHITECTURE.md](../ARCHITECTURE.md).
 
 ## Context
 
-The current v1 runtime is hybrid: Cloudflare Pages serves the frontend, Cloud Run serves the public API, and the scan bus/workers/browser runtime run on the VM. This is acceptable for the immediate v1 hardening phase, but it creates operational drift between managed API services and VM-hosted workers.
+The June investigation described a hybrid hosted deployment: Pages frontend,
+Cloud Run API, and VM-hosted NATS/workers. This is historical context, not verified
+current infrastructure state.
 
-## Decision
+## Proposed decision
 
-Keep the current hybrid deployment until the scan pipeline passes end-to-end smoke tests. The target architecture after that is:
+Keep the hybrid deployment until end-to-end scan acceptance is demonstrated.
+A later managed migration was proposed:
 
-```text
-Cloudflare Pages
-  -> Cloud Run public-api
-  -> Cloud Run internal services
-  -> Pub/Sub scan/work/report topics
-  -> Cloud Run jobs/services for Browser, Z, N, O, S, reporting, findings
-  -> Cloud SQL, Secret Manager, Artifact Registry, Cloud Logging
+```mermaid
+flowchart LR
+  UI["Pages frontend"] --> API["Cloud Run API"]
+  API --> BUS["Pub/Sub"]
+  BUS --> JOBS["Managed workers / jobs"]
+  JOBS --> DATA["Cloud SQL + managed secrets"]
 ```
 
-## Standards
+This diagram is a proposal only. The checked-in local stack uses NATS and
+Postgres; no migration to Pub/Sub is implied or authorized.
 
-- API boundaries use typed errors, cursor pagination, and resumable SSE where streaming is required.
-- Workers remain bounded by timeout, retry limit, structured logs, and explicit coverage gaps on tool failure.
-- Browser artifacts are sanitized thumbnails with TTL only; no raw HAR, raw request/response, cookie, token, or browser storage is persisted.
-- Passive signals and hardening warnings do not become findings without an evidence gate.
+## Gates retained
 
-## Migration Gates
+- Typed API failures, scoped/resumable streams where required.
+- Bounded workers, retries, structured logs, and explicit tool-failure coverage.
+- Sanitized evidence only; no raw HAR, traffic, cookies, tokens, or session data
+  in evidence. Dedicated encrypted auth state follows current guardrails.
+- Evidence-gated findings, not automatic promotion of passive observations.
+- Authorized local/staging E2E, operational observability, and a tested rollback
+  before replacing the queue/runtime.
 
-- Local compose smoke: domain/auth/scan -> bus -> Browser/Z/N/O/S -> candidates -> promotion gate -> report.
-- Staging smoke on verified target with `controlled_attack_simulation`.
-- Cloud Logging dashboards for queue publish latency, worker completion, tool unavailable, report finalized, and scan cancelled.
-- Rollback path documented for public-api and workers before replacing VM NATS.
+See [production readiness](../PRODUCTION_READINESS.md) for the active acceptance
+path. Reopen this decision explicitly before changing architecture.

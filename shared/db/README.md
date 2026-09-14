@@ -1,28 +1,48 @@
-# @x-hunter/db
+# Database
 
-Prisma schema and client for the OpenHunter Workspace.
+Prisma schema and client for OpenHunterAI. The package identifier remains
+`@x-hunter/db`; it is an internal name, not a different product.
 
-## Layout
-
-- `prisma/schema.prisma` — single source of truth for the v1 data model (see
-  `ARCHITECTURE.md` §7.1).
-- `src/index.ts` — singleton-style Prisma client factory.
-- `src/seed.ts` — local dev seed.
+| File | Purpose |
+| --- | --- |
+| [schema.prisma](prisma/schema.prisma) | Authoritative data model |
+| [migrations](prisma/migrations/) | Versioned database changes |
+| [src/index.ts](src/index.ts) | Prisma client factory |
+| [src/seed.ts](src/seed.ts) | Explicit contributor demo seed; not run by local bootstrap |
 
 ## Commands
 
+Run from the repository root with pnpm installed:
+
 ```bash
-pnpm db:generate     # generate the Prisma client (after schema changes)
-pnpm db:migrate      # apply migrations to DATABASE_URL (deploy mode)
-pnpm db:seed         # seed demo org / user / project
-pnpm run migrate:dev # create a new migration locally
-pnpm run studio      # open Prisma Studio
+pnpm --dir shared/db run generate
+pnpm --dir shared/db run migrate
 ```
 
-## Schema notes
+`generate` creates the client; `migrate` applies existing migrations to the
+configured `DATABASE_URL`. Check the target database before executing.
 
-- All credentials and personal secrets are AES-256-GCM ciphertext (`credentialCipher`).
-- The schema does **not** store raw passwords, cookies, or tokens anywhere.
-- Finding candidate/finding/report evidence is stored only as sanitized JSON;
-  workers must run the evidence sanitizer before insert.
-- `audit_logs.detail` is always sanitized JSON.
+For a deliberately configured development database only:
+
+```bash
+pnpm --dir shared/db run migrate:dev
+pnpm --dir shared/db run studio
+pnpm --dir shared/db run seed
+```
+
+The local Docker bootstrap applies migrations itself and does not seed demo users.
+See [local setup](../../docs/LOCAL_WORKSPACE.md); stop/restart preserves volumes.
+
+## Sensitive data
+
+| Field/data | Representation |
+| --- | --- |
+| Target test account | AES-256-GCM `credentialCipher` |
+| Captured target session | Encrypted `storageStateCipher`, with lifecycle/expiry |
+| Hosted password / session token | `passwordHash` / `tokenHash` |
+| Candidate, finding, report, audit detail | Sanitized JSON; never raw secrets or traffic |
+
+Encryption is not permission to expose decrypted fields in logs, prompts, reports,
+or exports. Preserve the encryption key when keeping an existing database.
+See [data model](../../docs/ARCHITECTURE.md#data-model) and
+[security guardrails](../../docs/SECURITY_GUARDRAILS.md).
