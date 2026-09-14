@@ -19,6 +19,7 @@
 <p align="center">
   <a href="#quick-start">Quick start</a> ·
   <a href="#coding-agent-skill">Agent skill</a> ·
+  <a href="#assessment-model">Assessment model</a> ·
   <a href="#architecture">Architecture</a> ·
   <a href="docs/README.md">Docs</a> ·
   <a href="#star-history">Star history</a>
@@ -39,6 +40,36 @@ assess **verified public applications you own or are authorized to test**.
 
 > **Alpha.** Integration coverage depends on configured runtimes. A healthy
 > workspace or an empty report does not prove a target is secure.
+
+## Assessment model
+
+OpenHunterAI keeps the useful core of the
+[48bf9036 technical requirements](https://github.com/LumosLab-Innovation/OpenHunterAI/blob/48bf9036debf797cef3d24308c3cfa1ec2a20c15/README.md):
+assess externally observable behaviour from an attacker's perspective. Source
+code is not required. Every run stays constrained to a verified public target
+and an approved scope.
+
+```mermaid
+flowchart LR
+  S["1. Lock scope"] --> M["2. Map surface"]
+  M --> B["3. Establish baseline"]
+  B --> H["4. Test bounded hypotheses"]
+  H --> E["5. Gate evidence"]
+  E --> R["6. Report and retest"]
+```
+
+| Stage | Output | Control |
+| --- | --- | --- |
+| Scope lock | Verified host, approved paths, scan plan | Authorization before work begins |
+| Surface mapping | Browser and recon signals | Public, in-scope surface only |
+| Baseline | Normal responses and coverage context | Bounded workers and adapter policies |
+| Hypothesis testing | Candidate security signals | No destructive actions; sensitive validation needs approval |
+| Evidence gate | Sanitized, reproducible finding | Separate observed signals from analyst judgement |
+| Report and retest | Fix guidance, limitations, manual confirmation | A human owns impact decisions and closure |
+
+OpenAPI/Swagger descriptions, Postman examples, sanitized HTTP captures, and
+dedicated test accounts can help define the agreed test surface. Automated
+import or retention of raw sensitive traffic is not a promised capability.
 
 ## Quick start
 
