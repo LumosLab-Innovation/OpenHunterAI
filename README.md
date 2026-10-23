@@ -17,6 +17,7 @@
 </p>
 
 <p align="center">
+  <a href="https://lumoslab-innovation.github.io/OpenHunterAI/">Project website</a> ·
   <a href="#quick-start">Quick start</a> ·
   <a href="#coding-agent-skill">Agent skill</a> ·
   <a href="#assessment-model">Assessment model</a> ·
@@ -28,6 +29,10 @@
 OpenHunterAI brings scope, scan activity, findings, and remediation into one
 local workspace. Start without an account, connect your model providers, and
 assess **verified public applications you own or are authorized to test**.
+
+The [public landing](https://lumoslab-innovation.github.io/OpenHunterAI/)
+introduces the project; the operational workspace runs locally.
+See [public versus local builds](docs/PUBLIC_SITE.md).
 
 | Capability | What you get |
 | --- | --- |

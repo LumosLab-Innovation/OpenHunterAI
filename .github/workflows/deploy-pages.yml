@@ -1,17 +1,24 @@
-name: Deploy public site
+name: Deploy public landing
 
 on:
   push:
     branches: [main]
     paths:
-      - 'frontend/**'
+      - 'site/**'
+      - 'tools/build-public-site.mjs'
+      - 'tools/public-site.test.mjs'
+      - '.github/workflows/deploy-pages.yml'
+  pull_request:
+    paths:
+      - 'site/**'
+      - 'tools/build-public-site.mjs'
+      - 'tools/public-site.test.mjs'
+      - 'frontend/package.json'
       - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: github-pages
@@ -20,33 +27,38 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-      - uses: actions/configure-pages@v5
-      - name: Install frontend dependencies
-        working-directory: frontend
-        run: npm ci
-      - name: Build public site
-        working-directory: frontend
-        env:
-          VITE_PUBLIC_BASE: /OpenHunterAI/
-        run: npm run build:public-site
-      - uses: actions/upload-pages-artifact@v4
+      - name: Check public build isolation
+        run: node --test tools/public-site.test.mjs
+      - name: Build static landing
+        run: node tools/build-public-site.mjs
+      - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+        if: github.event_name != 'pull_request'
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        if: github.event_name != 'pull_request'
         with:
           path: frontend/dist
 
   deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    needs: build
-    runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

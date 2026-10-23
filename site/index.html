@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071119">
+  <meta name="description" content="OpenHunterAI is a self-hosted engine for authorized web, API and AI security assessment. Explore its workflow, research and evidence boundaries.">
+  <meta property="og:title" content="OpenHunterAI — Authorized pentesting. Evidence first.">
+  <meta property="og:description" content="From an authorized target to a bounded assessment. Research attack methods, inspect sanitized evidence and prepare a clear handoff.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <title>OpenHunterAI — Authorized pentesting. Evidence first.</title>
+  <link rel="icon" href="./assets/mark.svg" type="image/svg+xml">
+  <link rel="preload" as="image" href="./assets/hunter-character.png" fetchpriority="high">
+  <link rel="stylesheet" href="./style.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="wordmark" href="#top" aria-label="OpenHunterAI home"><img src="./assets/mark.svg" alt="" width="26" height="26"><span>OpenHunterAI</span></a>
+    <nav aria-label="Main navigation"><a href="#workflow">Workflow</a><a href="#intelligence">AI &amp; evidence</a><a href="#research">Research</a></nav>
+    <a class="header-link" aria-label="View OpenHunterAI on GitHub" href="https://github.com/LumosLab-Innovation/OpenHunterAI">GitHub <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="hero-atmosphere" aria-hidden="true"></div>
+      <img class="hero-art" src="./assets/hunter-character.png" width="1429" height="1092" alt="OpenHunterAI's hooded robotic hunter with luminous cyan eyes." fetchpriority="high">
+      <div class="hero-shade" aria-hidden="true"></div>
+      <div class="hero-content">
+        <p class="eyebrow hero-enter">Independent security assessment</p>
+        <h1 id="hero-title" class="hero-enter">OpenHunterAI<span>.</span></h1>
+        <p class="hero-promise hero-enter">Authorized pentesting.<br>Evidence first.</p>
+        <p class="hero-description hero-enter">Explore the surface. Question the assumption.<br class="desktop-break"> Keep the evidence behind every conclusion.</p>
+        <div class="hero-actions hero-enter"><a class="button" href="#workflow">Explore the workflow <span aria-hidden="true">↘</span></a><a class="text-link" href="https://github.com/LumosLab-Innovation/OpenHunterAI">View on GitHub <span aria-hidden="true">↗</span></a></div>
+      </div>
+      <div class="hero-bottom"><p><span class="status-dot" aria-hidden="true"></span> Self-hosted · Under active development</p><p class="hero-caption">Public introduction. Assessments run in your local workspace.</p><a href="#workflow" class="scroll-link" aria-label="Scroll to assessment workflow">↓</a></div>
+    </section>
+
+    <section class="section-shell workflow" id="workflow" aria-labelledby="workflow-title">
+      <div class="section-heading reveal"><p class="eyebrow">01 / The assessment workflow</p><div class="heading-row"><h2 id="workflow-title">A clear path<br>from scope to evidence.</h2><p class="section-intro">One engine for the dashboard and CLI. A declared public target, a bounded plan and a report that makes its limits visible.</p></div></div>
+      <ol class="workflow-steps reveal">
+        <li><span class="step-number">01</span><h3>Declare the scope</h3><p>Choose the exact public HTTPS host and paths you may test. Confirm authority and select Quick, Standard or Deep.</p><span class="step-detail">Authorization before execution</span></li>
+        <li><span class="step-number">02</span><h3>Review the plan</h3><p>Check worker readiness and resource limits. Missing tools become explicit coverage gaps that require review.</p><span class="step-detail">No silent profile downgrade</span></li>
+        <li><span class="step-number">03</span><h3>Inspect the evidence</h3><p>Follow scoped observations and review candidates separately from validated findings. Sensitive actions require approval.</p><span class="step-detail">A signal starts a question</span></li>
+        <li><span class="step-number">04</span><h3>Keep a useful record</h3><p>Export the sanitized assessment, verification criteria and limitations. Prepare a manual handoff to OpenShieldAI.</p><span class="step-detail">One immutable report snapshot</span></li>
+      </ol>
+      <div class="capability-line reveal"><p>Web applications · APIs · AI / LLM applications</p><a class="text-link" href="https://github.com/LumosLab-Innovation/OpenHunterAI/blob/main/docs/PRD.md">Read the product scope <span aria-hidden="true">↗</span></a></div>
+    </section>
+
+    <section class="section-shell intelligence" id="intelligence" aria-labelledby="intelligence-title">
+      <div class="intelligence-copy reveal"><p class="eyebrow">02 / AI with a defined job</p><h2 id="intelligence-title">Reason about risk.<br>Stay grounded in facts.</h2><p class="section-lead">Models help decide which questions deserve attention. The engine keeps authority, execution and evidence under explicit controls.</p><a class="text-link" href="https://github.com/LumosLab-Innovation/OpenHunterAI/blob/main/docs/LLM_PROVIDER_SPEC.md">Explore reasoning routes <span aria-hidden="true">↗</span></a></div>
+      <div class="responsibilities reveal">
+        <article><span class="row-label">OBSERVE</span><div><h3>Tools collect signals.</h3><p>Browser inspection, passive surface checks, ZAP and curated Nuclei adapters provide observations. Their availability is checked for each run.</p></div></article>
+        <article><span class="row-label">REASON</span><div><h3>AI connects the context.</h3><p>Summarize and deduplicate observations, rank surfaces, propose bounded hypotheses and validation plans, then explain verified facts.</p></div></article>
+        <article><span class="row-label">CONTROL</span><div><h3>Policy sets the boundary.</h3><p>Scope, approvals, tool access and resource budgets constrain execution. Models cannot grant permission or manufacture evidence.</p></div></article>
+        <article><span class="row-label">VERIFY</span><div><h3>Proof earns the verdict.</h3><p>Independent replay and matched controls remain release gates. A worker claim or model agreement alone cannot establish a vulnerability.</p></div></article>
+      </div>
+    </section>
+
+    <section class="section-shell collaboration" id="collaboration" aria-labelledby="collaboration-title">
+      <div class="section-heading reveal"><p class="eyebrow">03 / A focused role in the security loop</p><div class="heading-row"><h2 id="collaboration-title">Assessment meets<br>response.</h2><p class="section-intro">Two distinct responsibilities, connected by a reviewable evidence record. Each product keeps its own authority and action controls.</p></div></div>
+      <div class="ownership reveal">
+        <article class="hunter-role"><p class="role-kicker">OpenHunterAI / Assessment</p><h3>Find. Explain. Verify.</h3><p>Attack-method research, authorized testing, sanitized evidence, finding validation and finding-scoped manual retest.</p><span class="ownership-footnote">Produces the assessment record</span></article>
+        <div class="handoff-arrow" aria-hidden="true">→</div>
+        <article class="shield-role"><p class="role-kicker">OpenShieldAI / Response</p><h3>Investigate. Act. Recover.</h3><p>Situation investigation, incident context, human-controlled containment, remediation coordination and recovery.</p><a class="text-link" href="https://github.com/LumosLab-Innovation/OpenShieldAI">Explore OpenShieldAI <span aria-hidden="true">↗</span></a></article>
+      </div>
+      <div class="handoff-note reveal"><p><strong>Development handoff: a manually transferred JSON file.</strong> The snapshot includes scope, finding and validation context, sanitized evidence references, coverage and verification criteria. A digest protects snapshot integrity; downstream asset mapping and authorization remain independent. The OpenShield importer is not implemented.</p><a class="text-link" href="https://github.com/LumosLab-Innovation/OpenHunterAI/pull/26">Review the development handoff <span aria-hidden="true">↗</span></a></div>
+    </section>
+
+    <section class="section-shell research" id="research" aria-labelledby="research-title">
+      <div class="section-heading reveal"><p class="eyebrow">04 / Methods under study</p><div class="heading-row"><h2 id="research-title">Follow the changing<br>attack surface.</h2><p class="section-intro">The development catalog contains nine source-linked research methods, organized around evidence, negative controls and a precise role for AI. Executor acceptance is pending.</p></div></div>
+      <p class="research-preview">Development preview · Research links open the work in <a href="https://github.com/LumosLab-Innovation/OpenHunterAI/pull/26">PR #26</a>.</p>
+      <div class="research-list reveal">
+        <a href="https://github.com/LumosLab-Innovation/OpenHunterAI/pull/26"><span class="research-index">01</span><div><h3>Identity &amp; authorization</h3><p>Object and property boundaries, OAuth / OIDC lifecycle, delegated MCP identity.</p></div><span aria-hidden="true">↗</span></a>
+        <a href="https://github.com/LumosLab-Innovation/OpenHunterAI/pull/26"><span class="research-index">02</span><div><h3>AI applications &amp; agents</h3><p>Indirect input at tool boundaries and retrieval isolation between tenants.</p></div><span aria-hidden="true">↗</span></a>
+        <a href="https://github.com/LumosLab-Innovation/OpenHunterAI/pull/26"><span class="research-index">03</span><div><h3>APIs &amp; protocol boundaries</h3><p>ORM / filter disclosure, cache behavior, workflow concurrency and parser discrepancies. Cache, race and desync methods remain lab-only research.</p></div><span aria-hidden="true">↗</span></a>
+        <a href="https://github.com/LumosLab-Innovation/OpenHunterAI/pull/26"><span class="research-index">04</span><div><h3>Global security frameworks</h3><p>An offline development harness for mapping evidence and evaluating coverage across jurisdictions. Certification remains outside its scope.</p></div><span aria-hidden="true">↗</span></a>
+      </div>
+      <aside class="current-state reveal" aria-labelledby="current-state-title"><p class="eyebrow">Current evidence boundary</p><div><h3 id="current-state-title">Know what has been demonstrated.</h3><ul><li>Worker output stays a signal or candidate until an independent validation decision exists.</li><li>Independent replay and positive / negative efficacy benchmarks are unfinished release gates.</li><li>Manual retest without a supported replay executor returns <code>RETEST_UNSUPPORTED</code>.</li><li>Missing workers, failed checks and budget stops remain visible. Zero validated findings does not establish a secure target.</li></ul><a class="text-link" href="https://github.com/LumosLab-Innovation/OpenHunterAI/blob/main/docs/ACCEPTANCE_CRITERIA.md">Inspect the acceptance gates <span aria-hidden="true">↗</span></a></div></aside>
+    </section>
+
+    <section class="section-shell get-started" id="start" aria-labelledby="start-title">
+      <div class="reveal"><p class="eyebrow">Start on your machine</p><h2 id="start-title">Your target.<br>Your authorized scope.</h2><p class="section-intro">Node.js 22+, Docker with Compose v2 and Git. The operational workspace runs locally; this public page never starts an assessment.</p><div class="closing-actions"><a class="button" href="https://github.com/LumosLab-Innovation/OpenHunterAI">Get the source <span aria-hidden="true">↗</span></a><a class="text-link" href="https://github.com/LumosLab-Innovation/OpenHunterAI/blob/main/docs/LOCAL_WORKSPACE.md">Installation guide <span aria-hidden="true">↗</span></a></div></div>
+      <div class="install-block reveal"><p class="code-label">LOCAL QUICK START</p><pre aria-label="Local installation commands"><code>git clone https://github.com/LumosLab-Innovation/OpenHunterAI.git
+cd OpenHunterAI
+node ops/local.mjs start</code></pre><p>Open the local workspace at <code>http://localhost:3001</code>.</p><p class="install-note">Existing installation? Review the backup and migration instructions before upgrading a database.</p><a class="text-link" href="https://github.com/LumosLab-Innovation/OpenHunterAI/blob/main/docs/LOCAL_WORKSPACE.md">Read setup requirements <span aria-hidden="true">↗</span></a></div>
+    </section>
+  </main>
+  <footer class="section-shell site-footer"><a class="footer-brand" href="#top">OpenHunter<span>AI</span></a><p>Authorized assessment. Evidence you can inspect.</p><nav aria-label="Footer navigation"><a href="https://github.com/LumosLab-Innovation/OpenHunterAI">GitHub</a><a href="https://github.com/LumosLab-Innovation/OpenHunterAI/tree/main/docs">Documentation</a><a href="https://github.com/LumosLab-Innovation/OpenHunterAI/blob/main/SECURITY.md">Security</a><a href="https://github.com/LumosLab-Innovation/OpenHunterAI/blob/main/LICENSE">License</a></nav><small>Source-available · PolyForm Noncommercial 1.0.0 · A public introduction, with no hosted scanner or live demo.</small></footer>
+</body>
+</html>
