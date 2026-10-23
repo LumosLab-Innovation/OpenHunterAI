@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1530" viewBox="0 0 1200 1530" role="img" aria-labelledby="title description">
+  <title id="title">OpenHunterAI M0 dashboard wireframe</title>
+  <desc id="description">Three desktop views: start an authorized scan, follow real execution and coverage, review validated findings and run a manual retest.</desc>
+  <style>
+    text { font-family: Inter, Arial, sans-serif; fill: #17242a; }
+    .page { fill: #eef2f2; }
+    .frame { fill: #fff; stroke: #c8d2d4; stroke-width: 2; }
+    .rail { fill: #f8faf9; stroke: #dce3e4; stroke-width: 1; }
+    .line { stroke: #d5dfe0; stroke-width: 1.5; }
+    .field { fill: #fff; stroke: #aebdbf; stroke-width: 1.5; }
+    .soft { fill: #f3f7f7; stroke: #d4e0e0; stroke-width: 1.2; }
+    .accent { fill: #d9f4ef; stroke: #59b9ab; stroke-width: 1.5; }
+    .primary { fill: #127e74; }
+    .warning { fill: #fff4e8; stroke: #d9a863; stroke-width: 1.2; }
+    .muted { fill: #5b6f73; }
+    .light { fill: #fff; }
+    .label { font-size: 14px; font-weight: 700; letter-spacing: .7px; }
+    .body { font-size: 17px; }
+    .small { font-size: 14px; }
+    .heading { font-size: 24px; font-weight: 750; }
+    .screen { font-size: 21px; font-weight: 750; }
+  </style>
+
+  <rect class="page" width="1200" height="1530"/>
+  <text x="40" y="47" class="screen">OpenHunterAI · M0 scan flow</text>
+  <text x="40" y="71" class="small muted">Low-fidelity layout contract · sample data, not scan results · English-first UI</text>
+
+  <!-- 01: start -->
+  <text x="40" y="105" class="label muted">01  START — ONE DECISION: WHAT, WHERE, HOW DEEP</text>
+  <rect x="40" y="119" width="1120" height="384" rx="12" class="frame"/>
+  <rect x="41" y="120" width="1118" height="52" rx="11" class="rail"/>
+  <text x="65" y="153" class="body" font-weight="800">OpenHunterAI</text>
+  <text x="325" y="153" class="small">New scan</text>
+  <text x="430" y="153" class="small muted">Scans</text>
+  <text x="505" y="153" class="small muted">Reports</text>
+  <circle cx="986" cy="146" r="5" fill="#159b83"/>
+  <text x="1000" y="152" class="small">Engine ready</text>
+  <text x="65" y="217" class="heading">Scan an authorized target</text>
+  <text x="65" y="241" class="small muted">Enter one public HTTPS URL. No account or DNS challenge.</text>
+  <text x="65" y="278" class="label">TARGET URL</text>
+  <rect x="65" y="289" width="1070" height="46" rx="7" class="field"/>
+  <text x="83" y="318" class="body">https://example.com/app</text>
+  <text x="65" y="363" class="label">SCOPE</text>
+  <circle cx="86" cy="384" r="8" fill="#127e74"/>
+  <circle cx="86" cy="384" r="3" fill="#fff"/>
+  <text x="102" y="390" class="small">/app and descendants</text>
+  <circle cx="312" cy="384" r="8" fill="#fff" stroke="#819698" stroke-width="1.5"/>
+  <text x="329" y="390" class="small">Entire host</text>
+  <text x="65" y="425" class="label">PROFILE</text>
+  <rect x="149" y="405" width="142" height="36" rx="6" class="soft"/>
+  <text x="195" y="429" class="small">Quick</text>
+  <rect x="300" y="405" width="190" height="36" rx="6" class="accent"/>
+  <text x="323" y="429" class="small" font-weight="700">Standard · default</text>
+  <rect x="499" y="405" width="177" height="36" rx="6" class="soft"/>
+  <text x="527" y="429" class="small">Deep staging</text>
+  <text x="694" y="429" class="small muted">Controlled validation in scope</text>
+  <rect x="65" y="458" width="15" height="15" rx="2" fill="#127e74"/>
+  <path d="M68 465l3 3 6-7" fill="none" stroke="#fff" stroke-width="2"/>
+  <text x="88" y="471" class="small">I am authorized to test example.com/app.</text>
+  <text x="742" y="471" class="small muted">Advanced options ▾</text>
+  <rect x="966" y="448" width="169" height="39" rx="6" class="primary"/>
+  <text x="1006" y="474" class="small light" font-weight="700">Start scan →</text>
+
+  <!-- 02: running -->
+  <text x="40" y="539" class="label muted">02  RUNNING — SHOW EXECUTION, NOT A DECORATIVE PROGRESS PERCENT</text>
+  <rect x="40" y="553" width="1120" height="386" rx="12" class="frame"/>
+  <rect x="41" y="554" width="1118" height="52" rx="11" class="rail"/>
+  <text x="65" y="587" class="body" font-weight="800">OpenHunterAI</text>
+  <text x="324" y="587" class="small muted">New scan</text>
+  <text x="430" y="587" class="small">Scans</text>
+  <text x="505" y="587" class="small muted">Reports</text>
+  <text x="65" y="652" class="heading">example.com/app</text>
+  <text x="65" y="677" class="small muted">Standard · path scope · run ID 7fd2…</text>
+  <rect x="975" y="627" width="160" height="37" rx="6" class="field"/>
+  <text x="1030" y="651" class="small">Cancel run</text>
+  <line x1="65" y1="706" x2="1135" y2="706" class="line"/>
+  <text x="67" y="732" class="small">✓ Discover</text>
+  <text x="320" y="732" class="small">◉ Test</text>
+  <text x="583" y="732" class="small muted">○ Validate</text>
+  <text x="850" y="732" class="small muted">○ Report</text>
+  <line x1="65" y1="748" x2="1135" y2="748" class="line"/>
+  <text x="65" y="783" class="label">WORK ACTUALLY EXECUTED</text>
+  <text x="65" y="817" class="small">Browser discovery</text>
+  <text x="417" y="817" class="small" fill="#127e74">Complete</text>
+  <text x="65" y="847" class="small">Nuclei curated checks</text>
+  <text x="417" y="847" class="small" fill="#127e74">Complete</text>
+  <text x="65" y="877" class="small">Controlled probes</text>
+  <text x="417" y="877" class="small">Running</text>
+  <line x1="575" y1="770" x2="575" y2="899" class="line"/>
+  <text x="600" y="783" class="label">WHAT WE KNOW SO FAR</text>
+  <text x="600" y="817" class="small">1 candidate awaiting validation</text>
+  <text x="600" y="847" class="small">0 validated findings yet</text>
+  <rect x="600" y="863" width="535" height="48" rx="6" class="warning"/>
+  <text x="615" y="883" class="small">Coverage gap: IDOR not tested — second</text>
+  <text x="615" y="902" class="small">test account was not provided.</text>
+
+  <!-- 03: report and retest -->
+  <text x="40" y="975" class="label muted">03  REPORT — FINDING, EVIDENCE, FIX, RETEST; COVERAGE STAYS VISIBLE</text>
+  <rect x="40" y="989" width="1120" height="503" rx="12" class="frame"/>
+  <rect x="41" y="990" width="1118" height="52" rx="11" class="rail"/>
+  <text x="65" y="1023" class="body" font-weight="800">OpenHunterAI</text>
+  <text x="324" y="1023" class="small muted">New scan</text>
+  <text x="430" y="1023" class="small muted">Scans</text>
+  <text x="505" y="1023" class="small">Reports</text>
+  <text x="65" y="1088" class="heading">Report · example.com/app</text>
+  <text x="65" y="1114" class="small muted">Final report · Standard · 20 Sep 2026</text>
+  <rect x="984" y="1062" width="151" height="39" rx="6" class="field"/>
+  <text x="1007" y="1087" class="small">Download ▾</text>
+  <line x1="65" y1="1141" x2="1135" y2="1141" class="line"/>
+  <text x="65" y="1171" class="body" font-weight="700">1 independently validated finding</text>
+  <text x="734" y="1171" class="small">Coverage: partial · 1 gap</text>
+  <rect x="65" y="1195" width="592" height="132" rx="7" class="soft"/>
+  <text x="84" y="1224" class="small" font-weight="700">HIGH  ·  Reflected XSS  ·  /search</text>
+  <text x="84" y="1253" class="small">Impact: script executed in a test browser.</text>
+  <text x="84" y="1280" class="small muted">Baseline + probe + independent replay linked</text>
+  <text x="84" y="1308" class="small" fill="#127e74">Open evidence and fix →</text>
+  <rect x="678" y="1195" width="457" height="209" rx="7" class="frame"/>
+  <text x="696" y="1224" class="label">FINDING DETAIL</text>
+  <text x="696" y="1253" class="small">Evidence: baseline → probe → validator</text>
+  <text x="696" y="1280" class="small">Fix: encode untrusted output in /search</text>
+  <text x="696" y="1307" class="small muted">Retest after deploying the fix.</text>
+  <rect x="696" y="1325" width="181" height="38" rx="6" class="primary"/>
+  <text x="720" y="1350" class="small light" font-weight="700">Run manual retest</text>
+  <text x="696" y="1386" class="small muted">Result: fixed / reproducible / inconclusive</text>
+  <rect x="65" y="1347" width="592" height="93" rx="7" class="warning"/>
+  <text x="84" y="1377" class="label">COVERAGE GAP</text>
+  <text x="84" y="1405" class="small">IDOR not tested: add a second account and rerun.</text>
+  <text x="65" y="1471" class="small muted">No finding ≠ clean bill of health. Never present a failed or skipped worker as tested.</text>
+  <text x="40" y="1519" class="small muted">Desktop layout: 1200 px. Mobile stacks the same content in this order; no information is hidden behind hover.</text>
+</svg>

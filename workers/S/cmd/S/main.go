@@ -14,6 +14,7 @@ import (
 	"openhunter/workers/shared/events"
 	"openhunter/workers/shared/gate"
 	"openhunter/workers/shared/runner"
+	"openhunter/workers/shared/scope"
 	"openhunter/workers/shared/signal"
 	"openhunter/workers/shared/worker"
 	"openhunter/workers/shared/wlog"
@@ -41,7 +42,7 @@ func run(ctx context.Context, in events.WorkerRunPayload) worker.Result {
 		cb := callback.New(env("INTERNAL_API_URL", "http://internal-api:4100"), os.Getenv("WORKER_TOKEN"))
 		approvalID, err := cb.CreateApproval(ctx, in.ScanID, callback.ApprovalRequestInput{
 			Action:         "strix_controlled_validation",
-			Target:         "https://" + in.VerifiedDomain,
+			Target:         scope.SeedURL(in.TargetURL, in.VerifiedDomain, in.AllowedPaths),
 			WillNotPerform: []string{"destructive actions", "out-of-scope requests", "raw credential use"},
 			ResidualRisk:   "Controlled attacker-mindset validation within authorized scope.",
 		})
@@ -63,7 +64,7 @@ func run(ctx context.Context, in events.WorkerRunPayload) worker.Result {
 
 	return signal.Run(ctx, in,
 		env("STRIX_INTEGRATION_URL", "http://strix-adapter:6130"),
-		"/reason", "attacker_mindset", nil)
+		"/reason", "attacker_mindset", map[string]any{"scanId": in.ScanID})
 }
 
 func env(key, fallback string) string {

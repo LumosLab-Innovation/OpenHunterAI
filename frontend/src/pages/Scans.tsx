@@ -14,11 +14,12 @@ import { Input, Select } from '../components/ui/Field';
 
 interface Scan {
   id: string;
-  mode: string;
+  profile: string;
   state: string;
+  target?: string;
   targetType?: string;
   createdAt?: string;
-  scopeSnapshot?: { verifiedDomain?: string; allowedHosts?: string[] };
+  scopeSnapshot?: { targetHost?: string; verifiedDomain?: string; allowedHosts?: string[] };
   steps?: Array<{ kind: string; state: string }>;
   reports?: Array<{ id: string; state: string; version: number }>;
   reportDraftSections?: DraftSection[];
@@ -35,7 +36,7 @@ interface LiveScanSnapshot {
   scan: {
     id: string;
     projectId: string;
-    mode: string;
+    profile: string;
     targetType: string;
     authScope: string;
     testIntensityMode: string;
@@ -69,6 +70,10 @@ interface LiveScanSnapshot {
     severity?: string | null;
     sanitized: true;
   }>;
+  llmRoutes?: {
+    capturedAt: string;
+    routes: Array<{ useCase: string; slot: string; cli?: string; provider?: string; model: string; reasoningLevel?: string; accepted: boolean }>;
+  };
   findingsPreview: Array<{
     id: string;
     title: string;
@@ -141,14 +146,14 @@ export function ScansPage() {
   const [scans, setScans] = useState<Scan[]>([]);
   const [loading, setLoading] = useState(true);
   const [state, setState] = useState('all');
-  const [mode, setMode] = useState('all');
+  const [profile, setProfile] = useState('all');
   const [sort, setSort] = useState('newest');
   const [q, setQ] = useState('');
 
   useEffect(() => {
     const params = new URLSearchParams();
     if (state !== 'all') params.set('state', state);
-    if (mode !== 'all') params.set('mode', mode);
+    if (profile !== 'all') params.set('profile', profile);
     if (q.trim()) params.set('q', q.trim());
     params.set('sort', sort);
     setLoading(true);
@@ -156,7 +161,7 @@ export function ScansPage() {
       if (res.ok) setScans(res.data.scans);
       setLoading(false);
     });
-  }, [mode, q, sort, state]);
+  }, [profile, q, sort, state]);
 
   async function stopScan(scan: Scan) {
     if (!window.confirm(`Stop scan ${scan.id.slice(0, 8)}?`)) return;
@@ -189,10 +194,11 @@ export function ScansPage() {
             <option value="cancelled">Cancelled</option>
             <option value="timeout">Timeout</option>
           </Select>
-          <Select value={mode} onChange={(event) => setMode(event.target.value)} aria-label="Filter mode">
-            <option value="all">All modes</option>
-            <option value="free_hunter">Free Hunter</option>
-            <option value="ai_blackhat_mindset_check">AI mindset check</option>
+          <Select value={profile} onChange={(event) => setProfile(event.target.value)} aria-label="Filter profile">
+            <option value="all">All profiles</option>
+            <option value="quick">Quick</option>
+            <option value="standard">Standard</option>
+            <option value="deep">Deep</option>
           </Select>
           <Select value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Sort scans">
             <option value="newest">Newest</option>
@@ -216,7 +222,7 @@ export function ScansPage() {
               <TR>
                 <TH>Scan</TH>
                 <TH>Target</TH>
-                <TH>Mode</TH>
+                <TH>Profile</TH>
                 <TH>State</TH>
                 <TH className="text-right">Action</TH>
               </TR>
@@ -226,7 +232,7 @@ export function ScansPage() {
                 <TR key={scan.id}>
                   <TD className="text-data text-xs">{scan.id.slice(0, 8)}</TD>
                   <TD className="max-w-[260px] truncate text-sm">{scanTarget(scan)}</TD>
-                  <TD>{scan.mode}</TD>
+                  <TD>{scan.profile}</TD>
                   <TD>
                     <StatusBadge state={scan.state} />
                   </TD>
@@ -260,7 +266,7 @@ export function ScanDetailPage() {
   const [snapshot, setSnapshot] = useState<LiveScanSnapshot | null>(null);
   const [live, setLive] = useState(false);
   const [streamError, setStreamError] = useState<string | null>(null);
-  const [locale, setLocale] = useState<LiveLocale>('vi');
+  const [locale, setLocale] = useState<LiveLocale>('en');
 
   useEffect(() => {
     const source = new EventSource(`${API_BASE}/v1/scans/${id}/live-events?view=curated&limit=100`, {
@@ -341,6 +347,18 @@ export function ScanDetailPage() {
             </aside>
           </section>
 
+          {snapshot.llmRoutes && (
+            <section aria-label="Frozen reasoning routes" className="border border-hairline p-4 text-xs text-ink-muted">
+              <h2 className="font-display text-sm font-700 text-ink">Reasoning routes captured {snapshot.llmRoutes.capturedAt}</h2>
+              <ul className="mt-2 grid gap-1">
+                {snapshot.llmRoutes.routes.map((route) => (
+                  <li key={`${route.useCase}-${route.slot}`}>
+                    {route.useCase} {route.slot} {route.cli ?? route.provider}/{route.model}{route.reasoningLevel ? `/${route.reasoningLevel}` : ''} {route.accepted ? 'accepted' : 'not accepted'}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
           <ActivityTimeline events={snapshot.activity} locale={locale} />
         </div>
       )}
@@ -367,7 +385,7 @@ function RunSummary({
       </CardHeader>
       <CardBody className="grid gap-3 text-sm">
         <SummaryRow label={ui(locale, 'target')} value={snapshot.scan.target} />
-        <SummaryRow label={ui(locale, 'mode')} value={snapshot.scan.mode} />
+        <SummaryRow label={ui(locale, 'profile')} value={snapshot.scan.profile} />
         <SummaryRow label={ui(locale, 'intensity')} value={snapshot.scan.testIntensityMode} />
         <SummaryRow label={ui(locale, 'stream')} value={snapshot.degraded?.events ? 'degraded' : live ? 'live' : 'offline'} />
         {(streamError || snapshot.degraded?.reason || snapshot.scan.errorMessage) && (
@@ -502,7 +520,7 @@ function ActivityTimeline({ events, locale }: { events: LiveScanSnapshot['activi
           </div>
           <Select value={actor} onChange={(event) => setActor(event.target.value)} aria-label="Filter actor">
             <option value="all">All actors</option>
-            {['Browser', 'Z', 'N', 'O', 'S', 'RPT', 'RT', 'SCAN'].map((code) => (
+            {['Browser', 'Z', 'N', 'Passive surface', 'S', 'RPT', 'RT', 'SCAN'].map((code) => (
               <option key={code} value={code}>{code}</option>
             ))}
           </Select>
@@ -702,7 +720,7 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 }
 
 function scanTarget(scan: Scan): string {
-  return scan.scopeSnapshot?.verifiedDomain ?? scan.scopeSnapshot?.allowedHosts?.[0] ?? scan.targetType ?? 'verified scope';
+  return scan.target ?? scan.scopeSnapshot?.targetHost ?? scan.scopeSnapshot?.verifiedDomain ?? scan.scopeSnapshot?.allowedHosts?.[0] ?? scan.targetType ?? 'authorized scope';
 }
 
 function formatTime(value: string): string {
@@ -716,7 +734,7 @@ const COPY: Record<LiveLocale, Record<string, string>> = {
     report: 'Report',
     run: 'Run',
     target: 'Target',
-    mode: 'Mode',
+    profile: 'Hồ sơ',
     intensity: 'Intensity',
     stream: 'Stream',
     pipeline: 'Pipeline',
@@ -739,7 +757,7 @@ const COPY: Record<LiveLocale, Record<string, string>> = {
     report: 'Report',
     run: 'Run',
     target: 'Target',
-    mode: 'Mode',
+    profile: 'Profile',
     intensity: 'Intensity',
     stream: 'Stream',
     pipeline: 'Pipeline',
@@ -781,7 +799,7 @@ function activityBody(event: LiveScanSnapshot['activity'][number], locale: LiveL
     return locale === 'vi' ? `Tóm tắt suy luận đã sanitize: ${summary}` : `Sanitized reasoning summary: ${summary}`;
   }
   if (event.bodyKey.includes('browser')) {
-    return locale === 'vi' ? `Browser đang kiểm tra scope đã xác minh: ${summary}` : `Browser is checking the verified scope: ${summary}`;
+    return locale === 'vi' ? `Browser đang kiểm tra phạm vi đã khai báo: ${summary}` : `Browser is checking the declared scope: ${summary}`;
   }
   if (event.bodyKey.includes('report')) {
     return locale === 'vi' ? `Report đang cập nhật: ${summary}` : `Report is updating: ${summary}`;
@@ -797,7 +815,7 @@ function translateKnown(value: string, locale: LiveLocale): string {
   const safe = publicCopy(stringifyPublicValue(value));
   if (locale === 'en') return safe;
   return safe
-    .replace('The live pipeline is checking the verified scope.', 'Pipeline live đang kiểm tra scope đã xác minh.')
+    .replace('The live pipeline is checking the declared scope.', 'Pipeline live đang kiểm tra phạm vi đã khai báo.')
     .replace('Sanitized reasoning summary is ready.', 'Reasoning summary đã sanitize sẵn sàng.')
     .replace('The sanitized report is being updated.', 'Report đã sanitize đang được cập nhật.')
     .replace('Live activity updated.', 'Live activity đã cập nhật.');
@@ -809,7 +827,7 @@ function pipelineCode(kind: string): string {
   if (matchesAny(normalized, ['browser', joinParts('browser', 'inspector')])) return 'Browser';
   if (matchesAny(normalized, [joinParts('za', 'p'), joinParts('za', 'p_signal'), 'z', 'z_signal'])) return 'Z';
   if (matchesAny(normalized, [joinParts('nu', 'clei'), joinParts('nu', 'clei_signal'), 'n', 'n_signal'])) return 'N';
-  if (matchesAny(normalized, [joinParts('open', 'hack'), joinParts('open', 'hack_hunter'), 'o', 'o_hunter'])) return 'O';
+  if (matchesAny(normalized, [joinParts('open', 'hack'), joinParts('open', 'hack_hunter'), 'o', 'o_hunter', 'passive_surface'])) return 'Passive surface';
   if (matchesAny(normalized, [joinParts('st', 'rix'), joinParts('st', 'rix_core'), 's', 's_core'])) return 'S';
   if (normalized === 'report') return 'RPT';
   if (normalized === 'retest') return 'RT';
@@ -821,11 +839,11 @@ function publicCopy(value: string): string {
     .replace(new RegExp(joinParts('browser', '[_ -]?inspector'), 'gi'), 'Browser')
     .replace(new RegExp(joinParts('za', 'p') + '(?:[_ -]?signal|[_ -]?proxy)?', 'gi'), 'Z')
     .replace(new RegExp(joinParts('nu', 'clei') + '(?:[_ -]?signal|[_ -]?proxy)?', 'gi'), 'N')
-    .replace(new RegExp(joinParts('open', 'hack') + '(?:[_ -]?hunter|[_ -]?proxy)?', 'gi'), 'O')
+    .replace(new RegExp(joinParts('open', 'hack') + '(?:[_ -]?hunter|[_ -]?proxy)?', 'gi'), 'Passive surface')
     .replace(new RegExp(joinParts('st', 'rix') + '(?:[_ -]?core|[_ -]?proxy)?', 'gi'), 'S')
     .replace(new RegExp(`\\b${joinParts('Z', '_signal')}\\b`, 'gi'), 'Z')
     .replace(new RegExp(`\\b${joinParts('N', '_signal')}\\b`, 'gi'), 'N')
-    .replace(new RegExp(`\\b${joinParts('O', '_hunter')}\\b`, 'gi'), 'O')
+    .replace(new RegExp(`\\b${joinParts('O', '_hunter')}\\b`, 'gi'), 'Passive surface')
     .replace(new RegExp(`\\b${joinParts('S', '_core')}\\b`, 'gi'), 'S');
 }
 

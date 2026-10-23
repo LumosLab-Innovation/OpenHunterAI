@@ -14,8 +14,8 @@ import { projectRoutes } from './modules/projects/projects.routes.js';
 import { reportRoutes } from './modules/reports/reports.routes.js';
 import { scanRoutes } from './modules/scans/scans.routes.js';
 import { approvalRoutes } from './modules/approvals/approvals.routes.js';
-import { billingRoutes } from './modules/billing/billing.routes.js';
 import { testAccountRoutes } from './modules/test-accounts/test-accounts.routes.js';
+import { llmRoutes } from './modules/llm/llm-routes.routes.js';
 
 export function createApp() {
   const app = express();
@@ -32,12 +32,7 @@ export function createApp() {
       credentials: true,
     }),
   );
-  // Webhook routes need the raw body for signature verification, so the global
-  // JSON parser skips them; those routes apply express.raw() themselves.
-  app.use((req, res, next) => {
-    if (req.path.startsWith('/v1/webhooks/')) return next();
-    return express.json({ limit: '1mb' })(req, res, next);
-  });
+  app.use(express.json({ limit: '1mb' }));
   app.use(cookieParser());
   app.use(rateLimit({ limit: 300, windowMs: 60_000 }));
   app.use(requestContext);
@@ -49,9 +44,9 @@ export function createApp() {
   app.use('/v1', testAccountRoutes);
   app.use('/v1/projects', authorizationRoutes);
   app.use('/v1', scanRoutes);
+  app.use('/v1', llmRoutes);
   app.use('/v1', findingRoutes);
   app.use('/v1', approvalRoutes);
-  app.use('/v1', billingRoutes);
   app.use('/v1/reports', reportRoutes);
 
   app.use(errorHandler);

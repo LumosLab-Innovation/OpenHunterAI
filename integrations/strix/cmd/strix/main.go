@@ -1,4 +1,5 @@
-// strix-adapter wires worker S to the packaged Strix attacker-mindset runtime.
+// strix-adapter wires worker S to either the packaged Strix runtime or a
+// separate Codex-guided, reasoning-only path in the findings service.
 //
 // Boundary (infra/INTEGRATIONS.md): worker -> this adapter HTTP -> packaged
 // Strix runtime -> sanitized signal output. The adapter:
@@ -34,18 +35,35 @@ func main() {
 	_ = srv.ListenAndServe()
 }
 
-func healthHandler(w http.ResponseWriter, _ *http.Request) {
+func healthHandler(w http.ResponseWriter, r *http.Request) {
 	bin := env("STRIX_BIN", "strix")
-	available := runtimeAvailable(bin) || boolEnv("STRIX_BUILTIN_PLANNER")
-	if !available {
+	installed := runtimeAvailable(bin)
+	configured := strixRuntimeConfigured()
+	codexMode := boolEnv("STRIX_CODEX_REASONING")
+	reasoning := codexMode && codexReasoningAvailable(r.Context())
+	ready := reasoning
+	mode := "unavailable"
+	if codexMode {
+		mode = "codex_reasoning"
+	} else if installed && configured {
+		ready = true
+		mode = "strix_runtime"
+	} else if boolEnv("STRIX_BUILTIN_PLANNER") {
+		ready = true
+		mode = "builtin_planner"
+	}
+	if !ready {
 		w.WriteHeader(http.StatusServiceUnavailable)
 	}
 	writeJSON(w, map[string]any{
-		"ok":                available,
-		"service":           "strix-adapter",
-		"runtime_available": available,
-		"runtime_bin":       bin,
-		"builtin_planner":   boolEnv("STRIX_BUILTIN_PLANNER"),
+		"ok":                  ready,
+		"service":             "strix-adapter",
+		"runtime_available":   installed,
+		"runtime_configured":  configured,
+		"runtime_bin":         bin,
+		"builtin_planner":     boolEnv("STRIX_BUILTIN_PLANNER"),
+		"reasoning_available": reasoning,
+		"execution_mode":      mode,
 	})
 }
 

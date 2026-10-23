@@ -2,29 +2,24 @@ import { FormEvent, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   Check,
-  CheckCircle2,
-  Clipboard,
   Clock,
   FolderKanban,
-  Globe,
   KeyRound,
   LogIn,
   Plus,
-  RefreshCw,
   ShieldCheck,
   Trash2,
   Unplug,
   X,
 } from 'lucide-react';
 import { API_BASE, apiFetch } from '../lib/api';
-import { PACKAGE_OPTIONS, labelFor, TARGET_TYPE_OPTIONS, SCAN_MODE_OPTIONS } from '../lib/product';
+import { labelFor, TARGET_TYPE_OPTIONS, SCAN_PROFILE_OPTIONS, profileFromIntensity } from '../lib/product';
 import { PageHeader } from '../components/PageHeader';
 import { AuthorizationWizard } from '../components/AuthorizationWizard';
-import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { ButtonLink } from '../components/ui/ButtonLink';
 import { Card, CardBody, CardDescription, CardHeader, CardTitle } from '../components/ui/Card';
-import { Field, Input, Select } from '../components/ui/Field';
+import { Field, Input } from '../components/ui/Field';
 import { EmptyState, ErrorState } from '../components/ui/States';
 import { SkeletonRows } from '../components/ui/Loading';
 import { Table, TD, TH, THead, TR } from '../components/ui/Table';
@@ -32,30 +27,13 @@ import { Table, TD, TH, THead, TR } from '../components/ui/Table';
 interface Project {
   id: string;
   name: string;
-  packageTier?: string;
-}
-interface Domain {
-  id: string;
-  hostname: string;
-  verified?: boolean;
-  verification?: {
-    status: string;
-    lastError?: string | null;
-  } | null;
 }
 interface Authorization {
   id: string;
-  scanMode: string;
   targetType?: string;
   authScope?: string;
   testIntensityMode?: string;
   allowedHosts: string[];
-}
-
-interface VerificationInstructions {
-  recordName: string;
-  recordValue: string;
-  expiresAt?: string;
 }
 
 export function ProjectsPage() {
@@ -73,14 +51,15 @@ export function ProjectsPage() {
 
   async function create(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const form = new FormData(e.currentTarget);
+    const formElement = e.currentTarget;
+    const form = new FormData(formElement);
     const res = await apiFetch('/v1/projects', {
       method: 'POST',
-      body: JSON.stringify({ name: form.get('name'), packageTier: form.get('packageTier') }),
+      body: JSON.stringify({ name: form.get('name') }),
     });
     if (!res.ok) setError(res.error.message ?? `HTTP ${res.status}`);
     else {
-      e.currentTarget.reset();
+      formElement.reset();
       await load();
     }
   }
@@ -91,10 +70,7 @@ export function ProjectsPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Projects"
-        description="Each project holds its domains, scan authorizations, and findings."
-      />
+      <PageHeader title="Projects" description="Group authorized targets, scans, findings, and reports." />
 
       <Card className="mb-6">
         <CardHeader>
@@ -104,15 +80,6 @@ export function ProjectsPage() {
           <form className="flex flex-wrap items-end gap-3" onSubmit={create}>
             <Field label="Name" htmlFor="name" className="min-w-[200px] flex-1" required>
               <Input id="name" name="name" placeholder="Acme production" required />
-            </Field>
-            <Field label="Package" htmlFor="packageTier" className="min-w-[200px]">
-              <Select id="packageTier" name="packageTier" defaultValue="free_hunter">
-                {PACKAGE_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </Select>
             </Field>
             <Button type="submit">
               <Plus className="h-4 w-4" /> Create
@@ -129,7 +96,7 @@ export function ProjectsPage() {
         <EmptyState
           icon={FolderKanban}
           title="No projects yet"
-          description="Create your first project above to start verifying domains and authorizing scans."
+          description="Create your first project above, declare the hosts you may test, and authorize a scan."
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -138,9 +105,6 @@ export function ProjectsPage() {
               <Card className="h-full p-5 transition-colors hover:border-signal/50">
                 <FolderKanban className="h-5 w-5 text-signal" />
                 <h3 className="mt-3 font-display text-base font-700 text-ink">{p.name}</h3>
-                <Badge tone="neutral" className="mt-2">
-                  {labelFor(PACKAGE_OPTIONS, p.packageTier, 'Free Hunter')}
-                </Badge>
               </Card>
             </Link>
           ))}
@@ -154,17 +118,11 @@ export function ProjectDetailPage() {
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(null);
-  const [domains, setDomains] = useState<Domain[]>([]);
   const [auths, setAuths] = useState<Authorization[]>([]);
   const [testAccounts, setTestAccounts] = useState<TestAccount[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showWizard, setShowWizard] = useState(false);
-  const [verificationInstructions, setVerificationInstructions] = useState<
-    Record<string, VerificationInstructions>
-  >({});
-  const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  const [busyDomainId, setBusyDomainId] = useState<string | null>(null);
   const [startingAuthorizationId, setStartingAuthorizationId] = useState<string | null>(null);
   const [deleteProjectOpen, setDeleteProjectOpen] = useState(false);
   const [deleteConfirmName, setDeleteConfirmName] = useState('');
@@ -175,92 +133,50 @@ export function ProjectDetailPage() {
 
   async function load() {
     setLoading(true);
-    const [p, d, a, t] = await Promise.all([
+    const [p, a, t] = await Promise.all([
       apiFetch<{ project: Project }>(`/v1/projects/${id}`),
-      apiFetch<{ domains: Domain[] }>(`/v1/projects/${id}/domains`),
       apiFetch<{ authorizations: Authorization[] }>(`/v1/projects/${id}/authorizations`),
       apiFetch<{ testAccounts: TestAccount[] }>(`/v1/projects/${id}/test-accounts`),
     ]);
     if (p.ok) setProject(p.data.project);
-    if (d.ok) setDomains(d.data.domains);
     if (a.ok) setAuths(a.data.authorizations);
     if (t.ok) setTestAccounts(t.data.testAccounts);
     if (!p.ok) setError(p.error.message ?? `HTTP ${p.status}`);
-    if (!d.ok) setError(d.error.message ?? `HTTP ${d.status}`);
     if (!t.ok) setError(t.error.message ?? `HTTP ${t.status}`);
     setLoading(false);
-  }
-
-  async function addDomain(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const res = await apiFetch(`/v1/projects/${id}/domains`, {
-      method: 'POST',
-      body: JSON.stringify({ hostname: String(form.get('hostname')).trim().toLowerCase() }),
-    });
-    if (!res.ok) setError(res.error.message ?? `HTTP ${res.status}`);
-    else {
-      e.currentTarget.reset();
-      await load();
-    }
   }
 
   async function startScan(authId: string) {
     if (startingAuthorizationId) return;
     setStartingAuthorizationId(authId);
-    const res = await apiFetch<{ scan: { id: string } }>(`/v1/projects/${id}/scans`, {
+    const preflight = await apiFetch<{ ok: boolean; coverageGaps: string[]; failures: Array<{ message: string }> }>(`/v1/projects/${id}/scans/preflight`, {
       method: 'POST',
       body: JSON.stringify({ authorizationId: authId }),
+    });
+    if (!preflight.ok || !preflight.data.ok) {
+      setStartingAuthorizationId(null);
+      setError(preflight.ok ? preflight.data.failures.map((failure) => failure.message).join('; ') : preflight.error.message ?? `HTTP ${preflight.status}`);
+      return;
+    }
+    const gaps = preflight.data.coverageGaps ?? [];
+    if (gaps.length > 0 && !window.confirm(`Unavailable workers: ${gaps.join(', ')}. Continue with this profile and record these coverage gaps?`)) {
+      setStartingAuthorizationId(null);
+      return;
+    }
+    const res = await apiFetch<{ scan: { id: string } }>(`/v1/projects/${id}/scans`, {
+      method: 'POST',
+      body: JSON.stringify({ authorizationId: authId, acceptedCoverageGaps: gaps }),
     });
     setStartingAuthorizationId(null);
     if (!res.ok) setError(res.error.message ?? `HTTP ${res.status}`);
     else navigate(`/scans/${res.data.scan.id}`);
   }
 
-  async function requestVerification(domainId: string) {
-    setBusyDomainId(domainId);
-    setError(null);
-    const res = await apiFetch<{ verification: VerificationInstructions }>(
-      `/v1/projects/${id}/domains/${domainId}/verification`,
-      { method: 'POST' },
-    );
-    setBusyDomainId(null);
-    if (!res.ok) setError(res.error.message ?? `HTTP ${res.status}`);
-    else {
-      setVerificationInstructions((current) => ({
-        ...current,
-        [domainId]: res.data.verification,
-      }));
-      await load();
-    }
-  }
-
-  async function checkVerification(domainId: string) {
-    setBusyDomainId(domainId);
-    setError(null);
-    const res = await apiFetch<{ verification: { verified: boolean; message?: string } }>(
-      `/v1/projects/${id}/domains/${domainId}/verification/check`,
-      { method: 'POST' },
-    );
-    setBusyDomainId(null);
-    if (!res.ok) setError(res.error.message ?? `HTTP ${res.status}`);
-    else {
-      if (!res.data.verification.verified) {
-        setError(res.data.verification.message ?? 'DNS verification is still pending.');
-      }
-      await load();
-    }
-  }
-
-  async function copyValue(key: string, value: string) {
-    await navigator.clipboard.writeText(value);
-    setCopiedKey(key);
-    window.setTimeout(() => setCopiedKey((current) => (current === key ? null : current)), 1600);
-  }
 
   async function createTestAccount(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const form = new FormData(e.currentTarget);
+    const formElement = e.currentTarget;
+    const form = new FormData(formElement);
     const res = await apiFetch(`/v1/projects/${id}/test-accounts`, {
       method: 'POST',
       body: JSON.stringify({
@@ -273,7 +189,7 @@ export function ProjectDetailPage() {
     });
     if (!res.ok) setError(res.error.message ?? `HTTP ${res.status}`);
     else {
-      e.currentTarget.reset();
+      formElement.reset();
       await load();
     }
   }
@@ -351,10 +267,7 @@ export function ProjectDetailPage() {
     void load();
   }, [id]);
 
-  const hasDomain = domains.length > 0;
-  const hasVerifiedDomain = domains.some((domain) => domain.verified);
   const hasAuthorization = auths.length > 0;
-  const verifiedHosts = domains.filter((domain) => domain.verified).map((domain) => domain.hostname);
 
   return (
     <div>
@@ -397,146 +310,9 @@ export function ProjectDetailPage() {
       )}
 
       <ProjectGuide
-        hasDomain={hasDomain}
-        hasVerifiedDomain={hasVerifiedDomain}
         hasAuthorization={hasAuthorization}
         onNewAuthorization={() => setShowWizard(true)}
       />
-
-      {/* Domains */}
-      <Card className="mb-6">
-        <CardHeader>
-          <div className="grid gap-1">
-            <CardTitle>Domains</CardTitle>
-            <CardDescription>
-              Add a hostname, publish the generated DNS TXT record, then check DNS before creating scan scope.
-            </CardDescription>
-          </div>
-        </CardHeader>
-        <CardBody className="grid gap-4">
-          <form className="flex flex-wrap items-end gap-3" onSubmit={addDomain}>
-            <Field label="Hostname" htmlFor="hostname" className="min-w-[220px] flex-1" required>
-              <Input id="hostname" name="hostname" placeholder="example.com" required />
-            </Field>
-            <Button type="submit" variant="secondary">
-              <Plus className="h-4 w-4" /> Add domain
-            </Button>
-          </form>
-          {loading ? (
-            <SkeletonRows rows={2} />
-          ) : domains.length === 0 ? (
-            <EmptyState icon={Globe} title="No domains" description="Add a hostname to verify ownership before scanning." />
-          ) : (
-            <Table>
-              <THead>
-                <TR>
-                  <TH>Hostname</TH>
-                  <TH>Status</TH>
-                  <TH className="text-right">Action</TH>
-                </TR>
-              </THead>
-              <tbody>
-                {domains.map((d) => (
-                  <TR key={d.id}>
-                    <TD className="text-data">{d.hostname}</TD>
-                    <TD>
-                      <Badge tone={d.verified ? 'signal' : 'medium'}>
-                        {d.verified ? 'verified' : 'pending'}
-                      </Badge>
-                    </TD>
-                    <TD className="text-right">
-                      {d.verified ? (
-                        <span className="inline-flex items-center gap-1 text-xs text-signal">
-                          <CheckCircle2 className="h-4 w-4" /> Verified
-                        </span>
-                      ) : (
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            disabled={busyDomainId === d.id}
-                            onClick={() => void requestVerification(d.id)}
-                          >
-                            Get TXT record
-                          </Button>
-                          {d.verification && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              disabled={busyDomainId === d.id}
-                              onClick={() => void checkVerification(d.id)}
-                            >
-                              <RefreshCw className="h-4 w-4" /> Check DNS
-                            </Button>
-                          )}
-                        </div>
-                      )}
-                    </TD>
-                  </TR>
-                ))}
-              </tbody>
-            </Table>
-          )}
-          {domains
-            .filter((domain) => verificationInstructions[domain.id])
-            .map((domain) => {
-              const instructions = verificationInstructions[domain.id]!;
-              return (
-                <div key={domain.id} className="border-t border-hairline pt-4">
-                  <p className="mb-3 text-sm font-medium text-ink">
-                    DNS TXT verification for {domain.hostname}
-                  </p>
-                  <p className="mb-4 text-sm leading-relaxed text-ink-muted">
-                    Create this as a DNS TXT record under the domain's DNS records. Do not add it
-                    under Cloudflare Pages Variables and secrets; that setting is only for build/runtime
-                    environment variables and DNS cannot see it.
-                  </p>
-                  <dl className="grid gap-3 text-sm sm:grid-cols-2">
-                    <div>
-                      <dt className="text-xs uppercase text-ink-faint">Record name</dt>
-                      <dd className="mt-1 flex min-w-0 items-center gap-2">
-                        <code className="min-w-0 flex-1 break-all rounded border border-hairline bg-canvas px-2 py-1 font-mono text-xs text-ink">
-                          {instructions.recordName}
-                        </code>
-                        <CopyButton
-                          copied={copiedKey === `${domain.id}:name`}
-                          onClick={() => void copyValue(`${domain.id}:name`, instructions.recordName)}
-                        />
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs uppercase text-ink-faint">TXT value</dt>
-                      <dd className="mt-1 flex min-w-0 items-center gap-2">
-                        <code className="min-w-0 flex-1 break-all rounded border border-hairline bg-canvas px-2 py-1 font-mono text-xs text-ink">
-                          {instructions.recordValue}
-                        </code>
-                        <CopyButton
-                          copied={copiedKey === `${domain.id}:value`}
-                          onClick={() => void copyValue(`${domain.id}:value`, instructions.recordValue)}
-                        />
-                      </dd>
-                    </div>
-                  </dl>
-                  <div className="mt-4 flex flex-wrap items-center gap-3">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      disabled={busyDomainId === domain.id}
-                      onClick={() => void checkVerification(domain.id)}
-                    >
-                      <RefreshCw className="h-4 w-4" />
-                      {busyDomainId === domain.id ? 'Checking DNS...' : 'Check DNS now'}
-                    </Button>
-                    <p className="text-xs leading-relaxed text-ink-faint">
-                      In Cloudflare, use <span className="text-ink-muted">DNS → Records → Add record → TXT</span>.
-                      DNS usually updates within a few minutes.
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-        </CardBody>
-      </Card>
 
       {/* Test accounts */}
       <Card className="mb-6">
@@ -656,7 +432,6 @@ export function ProjectDetailPage() {
           {showWizard ? (
             <AuthorizationWizard
               projectId={id}
-              verifiedHosts={verifiedHosts}
               testAccountCount={testAccounts.length}
               onCancel={() => setShowWizard(false)}
               onCreated={() => {
@@ -675,7 +450,7 @@ export function ProjectDetailPage() {
             <Table>
               <THead>
                 <TR>
-                  <TH>Mode</TH>
+                  <TH>Profile</TH>
                   <TH>Target</TH>
                   <TH>Intensity</TH>
                   <TH>Hosts</TH>
@@ -685,7 +460,7 @@ export function ProjectDetailPage() {
               <tbody>
                 {auths.map((a) => (
                   <TR key={a.id}>
-                    <TD>{labelFor(SCAN_MODE_OPTIONS, a.scanMode, a.scanMode)}</TD>
+                    <TD>{labelFor(SCAN_PROFILE_OPTIONS, profileFromIntensity(a.testIntensityMode))}</TD>
                     <TD>{labelFor(TARGET_TYPE_OPTIONS, a.targetType, a.targetType ?? '—')}</TD>
                     <TD className="text-data text-xs">{a.testIntensityMode ?? '—'}</TD>
                     <TD className="text-data text-xs">{a.allowedHosts.join(', ')}</TD>
@@ -751,31 +526,17 @@ interface LoginSession {
 }
 
 function ProjectGuide({
-  hasDomain,
-  hasVerifiedDomain,
   hasAuthorization,
   onNewAuthorization,
 }: {
-  hasDomain: boolean;
-  hasVerifiedDomain: boolean;
   hasAuthorization: boolean;
   onNewAuthorization: () => void;
 }) {
   const steps = [
     {
-      label: 'Add domain',
-      done: hasDomain,
-      body: 'Register the hostname you own or control.',
-    },
-    {
-      label: 'Verify ownership',
-      done: hasVerifiedDomain,
-      body: 'Publish the TXT record, wait for DNS, then check it.',
-    },
-    {
       label: 'Authorize scan',
       done: hasAuthorization,
-      body: 'Set scope, target type, auth scope, and intensity.',
+      body: 'Declare public hosts you may test, scope, target type, and intensity.',
     },
     {
       label: 'Start scan',
@@ -795,13 +556,13 @@ function ProjectGuide({
             {currentStep?.body ?? 'Use a saved authorization to launch the pipeline.'}
           </p>
         </div>
-        {hasVerifiedDomain && !hasAuthorization && (
+        {!hasAuthorization && (
           <Button size="sm" onClick={onNewAuthorization}>
             <ShieldCheck className="h-4 w-4" /> New authorization
           </Button>
         )}
       </div>
-      <ol className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+      <ol className="mt-4 grid gap-2 sm:grid-cols-2">
         {steps.map((step, index) => (
           <li
             key={step.label}
@@ -818,21 +579,6 @@ function ProjectGuide({
         ))}
       </ol>
     </section>
-  );
-}
-
-function CopyButton({ copied, onClick }: { copied: boolean; onClick: () => void }) {
-  return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon"
-      className="h-8 w-8 shrink-0"
-      aria-label={copied ? 'Copied' : 'Copy'}
-      onClick={onClick}
-    >
-      {copied ? <Check className="h-4 w-4 text-signal" /> : <Clipboard className="h-4 w-4" />}
-    </Button>
   );
 }
 

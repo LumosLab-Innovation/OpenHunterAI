@@ -77,7 +77,7 @@ Orchestrator builds a deterministic plan from package, target type, surface flag
 ```text
 ZAP = passive/baseline DAST signal
 Nuclei = curated known-pattern/exposure/misconfig signal
-OpenHack = scenario-first hunter workflow + schema
+Built-in passive surface adapter = native safe HTTP/header observations; OpenHack is a workflow/schema reference, not an executable worker
 Strix = attacker-mindset reasoning + controlled validation planning
 ```
 

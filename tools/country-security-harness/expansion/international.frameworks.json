@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "country_security_framework_batch_v1",
+  "reviewedOn": "2026-10-08",
+  "frameworks": [
+    {
+      "id": "int-owasp-asvs",
+      "countryCode": "ZZ",
+      "countryName": "International frameworks (not a country)",
+      "jurisdictionType": "international",
+      "label": "OWASP Application Security Verification Standard",
+      "version": "5.0.0; v5.0.0_release; pinned 2026-10-08",
+      "kind": "control_baseline",
+      "ordinalLevels": true,
+      "currency": "reviewed_reference",
+      "applicability": "Application security verification in a declared scope. Native ASVS verification targets; not national impact levels, organizational maturity, compliance or automatic scan permission.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "level-1",
+          "label": "ASVS Level 1",
+          "summary": "Native cumulative application verification target; 37 curated requirements only, not all Level 1 requirements."
+        },
+        {
+          "id": "level-2",
+          "label": "ASVS Level 2",
+          "summary": "Native cumulative application verification target; 37 curated requirements only, not all Level 2 requirements."
+        },
+        {
+          "id": "level-3",
+          "label": "ASVS Level 3",
+          "summary": "Native cumulative application verification target; 37 curated requirements only, not all Level 3 requirements."
+        }
+      ],
+      "controlIds": [
+        "application_security",
+        "identity_access",
+        "secure_configuration",
+        "incident_response",
+        "data_protection",
+        "network_protection",
+        "backup_recovery",
+        "supplier_security",
+        "logging_monitoring"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "owasp-asvs-500",
+          "title": "OWASP ASVS 5.0.0 pinned official release JSON",
+          "url": "https://raw.githubusercontent.com/OWASP/ASVS/5cf9b032440be53ce345ab3c130fda46ba1ce7a2/5.0/docs_en/OWASP_Application_Security_Verification_Standard_5.0.0_en.json",
+          "locator": "v5.0.0_release; commit 5cf9b032440be53ce345ab3c130fda46ba1ce7a2; selected native requirement IDs"
+        }
+      ],
+      "limitations": [
+        "37 selected requirements out of 345; the remaining native IDs stay unmapped in web-assurance.mjs. The two modules have different curated denominators.",
+        "Application verification levels are international assessment targets, not country security grades. No national jurisdiction is inferred.",
+        "All selected application requirements require manual review; no scan-only certification is emitted. Feature exclusions require independent review.",
+        "Adapted from OWASP ASVS 5.0.0 under CC BY-SA 4.0. Attribution and modification details are in research/THIRD-PARTY-NOTICES.md."
+      ]
+    },
+    {
+      "id": "int-iso-27001",
+      "countryCode": "ZZ",
+      "countryName": "International frameworks (not a country)",
+      "jurisdictionType": "international",
+      "label": "ISO/IEC 27001 information security management system",
+      "version": "ISO/IEC 27001:2022 plus Amendment 1:2024; metadata only",
+      "kind": "control_baseline",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "An organization chooses an ISMS scope and follows the licensed standard. International ISMS requirements and certification process; no invented security level ladder.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "ISMS review target (not a security grade)",
+          "summary": "Placeholder for a licensed scoped requirements review; no curated full-text clause pack."
+        }
+      ],
+      "controlIds": [
+        "risk_management",
+        "assurance_review",
+        "data_protection"
+      ],
+      "mappingCoverage": "overview_only",
+      "sources": [
+        {
+          "id": "iso-27001",
+          "title": "ISO official publication metadata",
+          "url": "https://www.iso.org/standard/27001",
+          "locator": "Edition 3 published 2022-10; full text not reviewed"
+        },
+        {
+          "id": "iso-27001-amd",
+          "title": "ISO official amendment metadata",
+          "url": "https://www.iso.org/standard/88435.html",
+          "locator": "Amendment 1:2024; full text not incorporated"
+        }
+      ],
+      "limitations": [
+        "Licensed full text has not been reviewed or reproduced. No Annex A controls or exact clause predicates are inferred from the sales overview.",
+        "An ISO certificate or a national implementation requires a competent assessment; this harness cannot issue either."
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # WORKER_SPEC.md - OpenHunterAI
 
-> Workers are internal integrations, not public packages.
+> Workers are internal integrations, not scan profiles or products.
 
 ---
 
@@ -12,7 +12,8 @@ Every worker input must include:
 {
   "scanId": "scan_123",
   "projectId": "proj_123",
-  "scanMode": "free_hunter|ai_blackhat_mindset_check",
+  "profile": "quick|standard|deep",
+  "targetUrl": "https://authorized.example/app",
   "targetType": "static_content_website|interactive_web_app|api_service|ai_llm_application",
   "authScope": "none|one_account|two_accounts",
   "testIntensityMode": "safe_discovery|controlled_attack_simulation|aggressive_staging",
@@ -24,13 +25,13 @@ Every worker input must include:
 }
 ```
 
-No worker receives a legacy authenticated package/mode. Authenticated behavior is controlled by `authScope`.
+Workers receive the exact requested seed URL and an immutable scope snapshot. Authenticated behavior is controlled by `authScope`.
 
 ---
 
 # 2. Report Worker
 
-`report-worker` is the canonical report generator. It writes sanitized `report_v1` draft sections, validates LLM ranking recommendations against existing findings/candidates, finalizes immutable report versions, and never stores raw evidence or export files.
+`report-worker` is the canonical report generator. It writes sanitized `report_v2` draft sections, validates LLM ranking recommendations against existing findings/candidates, finalizes immutable report versions, and never stores raw evidence or export files.
 
 ---
 
@@ -48,6 +49,47 @@ error_code = TOOL_UNAVAILABLE
 coverage_gap = true
 ```
 
+Canonical sanitized worker output:
+
+```json
+{
+  "runId": "event_123",
+  "status": "succeeded|partial|failed|skipped",
+  "signals": [],
+  "findingCandidates": [],
+  "evidenceRefs": [],
+  "coverage": {
+    "surfacesAttempted": [],
+    "surfacesCompleted": [],
+    "surfacesSkipped": [],
+    "gaps": []
+  },
+  "limitations": [],
+  "retryable": false,
+  "runtimeProvenance": {
+    "upstreamId": "nuclei",
+    "upstreamRef": "v3.4.10",
+    "adapterVersion": "openhunter-nuclei-adapter/v1"
+  }
+}
+```
+
+`done|skipped|failed` remains a legacy `state` field during migration. New
+consumers use `status`. Callback persistence is idempotent by `runId`.
+
+Workers never author a validated finding. A worker may only return signals and
+candidates. The findings service writes a separate triage decision:
+
+```text
+candidate | rejected | needs_more_evidence | validated
+```
+
+High/Critical promotion requires sanitized demonstrated impact,
+counterevidence, and replayable baseline plus exploit evidence references.
+The current deterministic decision checks the metadata contract and leaves even complete worker claims at `needs_more_evidence`; it does not
+yet fetch and replay the referenced exchanges. Independent replay is an M0
+release gate, not a capability to assume from the decision state alone.
+
 ---
 
 # 3. Roles
@@ -59,8 +101,9 @@ ZAP Proxy
 Nuclei
   Curated known-pattern / exposure / misconfig signal layer. Internal templates only.
 
-OpenHack
-  Scenario-first hunter workflow + schema layer. Produces candidate/warning/hardening/coverage_gap/finding.
+Built-in passive surface hunter (legacy DB enum: openhack_hunter)
+  Native safe HTTP/header observation only. OpenHack is a workflow/schema
+  reference and is not an executable runtime dependency.
 
 Strix
   Attacker-mindset reasoning + controlled validation planning. Not an uncontrolled runner.
@@ -70,7 +113,7 @@ Strix
 
 # 4. Target Type Matrix
 
-| Target Type | Browser | ZAP | Nuclei | OpenHack | Strix |
+| Target Type | Browser | ZAP | Nuclei | Built-in passive surface | Strix |
 |---|---|---|---|---|---|
 | static_content_website | light | passive mini | exposure/config mini | content exposure + hardening | only if candidate |
 | interactive_web_app | medium/deep | passive/baseline | standard-safe | API/session/auth/admin-like | hypothesis + validation reasoning |
@@ -81,20 +124,9 @@ Skipped hunters must include a reason.
 
 ---
 
-# 5. Free Hunter Gate
+# 5. Resource and evidence gate
 
-Free Hunter uses the same plan model but has quota:
-
-```text
-max_returned_findings = 1
-max_monitored_findings = 1
-max_retests = 1
-cooldown_days = 7
-```
-
-If a valuable finding is promoted, remaining expensive hypothesis/validation steps stop. If none is found in budget, report coverage, hardening, and limitations.
-
-Free Hunter must not create fake low-severity findings just to populate a report.
+Quick, Standard and Deep have bounded resource/safety budgets, not a finding or retest quota. A budget stop is reported as a limitation. If no candidate is independently validated, the report explains coverage, hardening, and the next verification step; workers never create filler findings.
 
 ---
 

@@ -46,7 +46,7 @@ func TestPostFindingsError(t *testing.T) {
 	defer srv.Close()
 
 	c := New(srv.URL, "")
-	err := c.PostFindings(context.Background(), "scan_1", "Z", []worker.Signal{{Kind: "exposure", Title: "x"}})
+	err := c.PostFindings(context.Background(), "run_1", "scan_1", "Z", []worker.Signal{{Kind: "exposure", Title: "x"}})
 	if err == nil {
 		t.Error("expected error on 500 response")
 	}

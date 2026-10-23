@@ -1,4 +1,3 @@
-import { publishEvent } from '@openhunter/event-core';
 import { getPrisma } from '@x-hunter/db';
 import { GuardrailError } from '@x-hunter/shared';
 import type { StatusChangeBody } from './findings.dto.js';
@@ -40,24 +39,11 @@ export class FindingsService {
   async requestRetest(id: string, orgId: string) {
     const finding = await this.prisma.finding.findFirst({
       where: { id, project: { organizationId: orgId } },
-      include: { scanJob: true, retestRuns: true },
+      select: { retestScenario: true },
     });
     if (!finding) throw new GuardrailError('INVALID_INPUT', 'Finding not found');
     if (!finding.retestScenario) throw new GuardrailError('INVALID_INPUT', 'Finding has no retest scenario');
-    if (finding.scanJob.mode === 'free_hunter' && finding.retestRuns.length >= 1) {
-      throw new GuardrailError('PACKAGE_DOES_NOT_PERMIT_ACTION', 'Free Hunter includes one manual retest for the monitored finding');
-    }
-    const retestRun = await this.prisma.retestRun.create({
-      data: {
-        findingId: finding.id,
-        scanJobId: finding.scanJobId,
-        kind: finding.severity === 'critical' || finding.severity === 'high' ? 'ai_assisted' : 'manual',
-        scopeSnapshot: finding.scanJob.scopeSnapshot ?? {},
-        scenarioRef: finding.retestScenario,
-      },
-    });
-    await publishEvent('retest.requested', buildRetestRequestedPayload(retestRun.id, finding));
-    return retestRun;
+    throw new GuardrailError('RETEST_UNSUPPORTED', 'Finding-scoped replay is not implemented; no retest was run or counted.');
   }
 }
 
@@ -69,7 +55,8 @@ export function buildRetestRequestedPayload(retestRunId: string, finding: {
   scanJob: { id: string; projectId: string; scopeSnapshot: unknown };
 }) {
   const scope = (finding.scanJob.scopeSnapshot ?? {}) as {
-    scanMode?: unknown;
+    targetUrl?: unknown;
+    profile?: unknown;
     targetType?: unknown;
     authScope?: unknown;
     testIntensityMode?: unknown;
@@ -84,7 +71,8 @@ export function buildRetestRequestedPayload(retestRunId: string, finding: {
     findingId: finding.id,
     scanId: finding.scanJob.id,
     projectId: finding.scanJob.projectId,
-    scanMode: typeof scope.scanMode === 'string' ? scope.scanMode : '',
+    profile: typeof scope.profile === 'string' ? scope.profile : '',
+    targetUrl: typeof scope.targetUrl === 'string' ? scope.targetUrl : '',
     targetType: typeof scope.targetType === 'string' ? scope.targetType : '',
     authScope: typeof scope.authScope === 'string' ? scope.authScope : '',
     testIntensityMode: typeof scope.testIntensityMode === 'string' ? scope.testIntensityMode : '',

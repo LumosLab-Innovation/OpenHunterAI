@@ -78,4 +78,12 @@ describe('assertInScope', () => {
       if (isGuardrailError(e)) expect(e.code).toBe('OUT_OF_SCOPE_PATH');
     }
   });
+
+  it('accepts a pasted page URL and descendants without admitting the host root', () => {
+    const pageScope = { ...scope, allowedPaths: ['/vi/trang-chu/'] };
+    expect(() => assertInScope('https://example.com/vi/trang-chu/', pageScope)).not.toThrow();
+    expect(() => assertInScope('https://example.com/vi/trang-chu/section', pageScope)).not.toThrow();
+    expect(() => assertInScope('https://example.com/', pageScope)).toThrow();
+    expect(() => assertInScope('https://example.com/vi/trang-chu-other', pageScope)).toThrow();
+  });
 });

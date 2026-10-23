@@ -5,19 +5,15 @@ import { AppShell } from './components/AppShell';
 import { ThemeProvider } from './lib/theme';
 import { AuthProvider, useAuth } from './lib/auth';
 import { FindingDetailPage, FindingsPage } from './pages/Findings';
-import { HomePage } from './pages/Home';
-import { LoginPage, RegisterPage } from './pages/Auth';
+import { DashboardPage } from './pages/Dashboard';
 import { ProjectDetailPage, ProjectsPage } from './pages/Projects';
 import { ReportDetailPage, ReportsPage } from './pages/Reports';
 import { ScanDetailPage, ScansPage } from './pages/Scans';
 import './styles.css';
 
-function RequireAuth({ children }: { children: React.ReactNode }) {
+function RequireLocalEngine({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-
-  if (loading) return null;
-  if (!user) return <Navigate to="/login" replace />;
-  return <>{children}</>;
+  return !loading && user ? <>{children}</> : null;
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -27,17 +23,16 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <BrowserRouter>
           <AppShell>
             <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/projects" element={<RequireAuth><ProjectsPage /></RequireAuth>} />
-              <Route path="/projects/:id" element={<RequireAuth><ProjectDetailPage /></RequireAuth>} />
-              <Route path="/scans" element={<RequireAuth><ScansPage /></RequireAuth>} />
-              <Route path="/scans/:id" element={<RequireAuth><ScanDetailPage /></RequireAuth>} />
-              <Route path="/reports" element={<RequireAuth><ReportsPage /></RequireAuth>} />
-              <Route path="/reports/:id" element={<RequireAuth><ReportDetailPage /></RequireAuth>} />
-              <Route path="/findings" element={<RequireAuth><FindingsPage /></RequireAuth>} />
-              <Route path="/findings/:id" element={<RequireAuth><FindingDetailPage /></RequireAuth>} />
+              <Route path="/" element={<RequireLocalEngine><DashboardPage /></RequireLocalEngine>} />
+              <Route path="/dashboard" element={<Navigate to="/" replace />} />
+              <Route path="/projects" element={<RequireLocalEngine><ProjectsPage /></RequireLocalEngine>} />
+              <Route path="/projects/:id" element={<RequireLocalEngine><ProjectDetailPage /></RequireLocalEngine>} />
+              <Route path="/scans" element={<RequireLocalEngine><ScansPage /></RequireLocalEngine>} />
+              <Route path="/scans/:id" element={<RequireLocalEngine><ScanDetailPage /></RequireLocalEngine>} />
+              <Route path="/reports" element={<RequireLocalEngine><ReportsPage /></RequireLocalEngine>} />
+              <Route path="/reports/:id" element={<RequireLocalEngine><ReportDetailPage /></RequireLocalEngine>} />
+              <Route path="/findings" element={<RequireLocalEngine><FindingsPage /></RequireLocalEngine>} />
+              <Route path="/findings/:id" element={<RequireLocalEngine><FindingDetailPage /></RequireLocalEngine>} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </AppShell>

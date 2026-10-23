@@ -22,6 +22,17 @@ const (
 	StateFailed  State = "failed"
 )
 
+// Status is the canonical terminal status exposed across worker boundaries.
+// State is retained on the wire during the v1 migration for older consumers.
+type Status string
+
+const (
+	StatusSucceeded Status = "succeeded"
+	StatusPartial   Status = "partial"
+	StatusFailed    Status = "failed"
+	StatusSkipped   Status = "skipped"
+)
+
 // Stable error codes shared across workers.
 const (
 	CodeToolUnavailable = "TOOL_UNAVAILABLE"
@@ -33,39 +44,65 @@ const (
 // Result is the sanitized output of a worker run. It never contains raw
 // evidence; signal detail is summarized and referenced, not embedded.
 type Result struct {
-	ScanID      string         `json:"scanId"`
-	ProjectID   string         `json:"projectId"`
-	WorkerType  string         `json:"workerType"`
-	State       State          `json:"state"`
-	ErrorCode   string         `json:"errorCode,omitempty"`
-	ErrorMsg    string         `json:"errorMsg,omitempty"`
-	CoverageGap bool           `json:"coverageGap"`
-	Summary     string         `json:"summary,omitempty"`
-	Signals     []Signal       `json:"signals,omitempty"`
-	StartedAt   string         `json:"startedAt"`
-	FinishedAt  string         `json:"finishedAt"`
-	Meta        map[string]any `json:"meta,omitempty"`
+	RunID             string            `json:"runId"`
+	ScanID            string            `json:"scanId"`
+	ProjectID         string            `json:"projectId"`
+	WorkerType        string            `json:"workerType"`
+	State             State             `json:"state"`
+	Status            Status            `json:"status"`
+	ErrorCode         string            `json:"errorCode,omitempty"`
+	ErrorMsg          string            `json:"errorMsg,omitempty"`
+	CoverageGap       bool              `json:"coverageGap"`
+	Coverage          Coverage          `json:"coverage"`
+	Limitations       []string          `json:"limitations,omitempty"`
+	Retryable         bool              `json:"retryable"`
+	Summary           string            `json:"summary,omitempty"`
+	Signals           []Signal          `json:"signals,omitempty"`
+	FindingCandidates []Signal          `json:"findingCandidates,omitempty"`
+	EvidenceRefs      []string          `json:"evidenceRefs,omitempty"`
+	RuntimeProvenance RuntimeProvenance `json:"runtimeProvenance"`
+	StartedAt         string            `json:"startedAt"`
+	FinishedAt        string            `json:"finishedAt"`
+	Meta              map[string]any    `json:"meta,omitempty"`
 }
 
 // Signal is a single sanitized observation produced by a worker/adapter.
 type Signal struct {
-	Kind            string   `json:"kind"`
-	Title           string   `json:"title"`
-	Severity        string   `json:"severity,omitempty"`
-	Confidence      string   `json:"confidence,omitempty"`
-	Asset           string   `json:"asset,omitempty"`
-	Description     string   `json:"description,omitempty"`
-	EvidenceRefs    []string `json:"evidenceRefs,omitempty"`
-	EvidenceClass   string   `json:"evidenceClass,omitempty"`
-	ValidationState string   `json:"validationState,omitempty"`
+	Kind               string   `json:"kind"`
+	Title              string   `json:"title"`
+	Severity           string   `json:"severity,omitempty"`
+	Confidence         string   `json:"confidence,omitempty"`
+	Asset              string   `json:"asset,omitempty"`
+	Description        string   `json:"description,omitempty"`
+	EvidenceRefs       []string `json:"evidenceRefs,omitempty"`
+	Counterevidence    string   `json:"counterevidence,omitempty"`
+	DemonstratedImpact string   `json:"demonstratedImpact,omitempty"`
+	EvidenceClass      string   `json:"evidenceClass,omitempty"`
+	ValidationState    string   `json:"validationState,omitempty"`
+}
+
+type Coverage struct {
+	SurfacesAttempted []string `json:"surfacesAttempted,omitempty"`
+	SurfacesCompleted []string `json:"surfacesCompleted,omitempty"`
+	SurfacesSkipped   []string `json:"surfacesSkipped,omitempty"`
+	Gaps              []string `json:"gaps,omitempty"`
+}
+
+type RuntimeProvenance struct {
+	UpstreamID        string   `json:"upstreamId"`
+	UpstreamRef       string   `json:"upstreamRef"`
+	AdapterVersion    string   `json:"adapterVersion"`
+	PlaybookRevisions []string `json:"playbookRevisions,omitempty"`
 }
 
 // Skipped builds a skipped result (tool unavailable etc.) with a coverage gap.
 func Skipped(in events.WorkerRunPayload, code, msg string) Result {
 	now := time.Now().UTC().Format(time.RFC3339)
 	return Result{
-		ScanID: in.ScanID, ProjectID: in.ProjectID, WorkerType: in.WorkerType,
-		State: StateSkipped, ErrorCode: code, ErrorMsg: msg, CoverageGap: true,
+		RunID: in.RunID, ScanID: in.ScanID, ProjectID: in.ProjectID, WorkerType: in.WorkerType,
+		State: StateSkipped, Status: StatusSkipped, ErrorCode: code, ErrorMsg: msg, CoverageGap: true,
+		Coverage:    Coverage{SurfacesSkipped: []string{in.WorkerType}, Gaps: []string{code}},
+		Limitations: []string{msg}, Retryable: retryableCode(code),
 		StartedAt: now, FinishedAt: now,
 	}
 }
@@ -74,8 +111,10 @@ func Skipped(in events.WorkerRunPayload, code, msg string) Result {
 func Failed(in events.WorkerRunPayload, code, msg string) Result {
 	now := time.Now().UTC().Format(time.RFC3339)
 	return Result{
-		ScanID: in.ScanID, ProjectID: in.ProjectID, WorkerType: in.WorkerType,
-		State: StateFailed, ErrorCode: code, ErrorMsg: msg, CoverageGap: true,
+		RunID: in.RunID, ScanID: in.ScanID, ProjectID: in.ProjectID, WorkerType: in.WorkerType,
+		State: StateFailed, Status: StatusFailed, ErrorCode: code, ErrorMsg: msg, CoverageGap: true,
+		Coverage:    Coverage{SurfacesAttempted: []string{in.WorkerType}, Gaps: []string{code}},
+		Limitations: []string{msg}, Retryable: retryableCode(code),
 		StartedAt: now, FinishedAt: now,
 	}
 }
@@ -89,8 +128,8 @@ func ValidateInput(in events.WorkerRunPayload) error {
 	if in.ProjectID == "" {
 		missing = append(missing, "projectId")
 	}
-	if in.ScanMode == "" {
-		missing = append(missing, "scanMode")
+	if in.Profile != "quick" && in.Profile != "standard" && in.Profile != "deep" {
+		missing = append(missing, "profile")
 	}
 	if in.TargetType == "" {
 		missing = append(missing, "targetType")
@@ -140,6 +179,7 @@ func Run(ctx context.Context, in events.WorkerRunPayload, opts Options, fn RunFu
 
 	select {
 	case res := <-done:
+		res = normalizeResult(in, res)
 		if res.StartedAt == "" {
 			res.StartedAt = started.Format(time.RFC3339)
 		}
@@ -153,5 +193,78 @@ func Run(ctx context.Context, in events.WorkerRunPayload, opts Options, fn RunFu
 		res := Failed(in, CodeTimeout, "worker exceeded its time budget")
 		res.StartedAt = started.Format(time.RFC3339)
 		return res
+	}
+}
+
+func normalizeResult(in events.WorkerRunPayload, res Result) Result {
+	if res.RunID == "" {
+		res.RunID = in.RunID
+	}
+	if res.ScanID == "" {
+		res.ScanID = in.ScanID
+	}
+	if res.ProjectID == "" {
+		res.ProjectID = in.ProjectID
+	}
+	if res.WorkerType == "" {
+		res.WorkerType = in.WorkerType
+	}
+	if res.RuntimeProvenance.UpstreamID == "" {
+		res.RuntimeProvenance = RuntimeProvenance{
+			UpstreamID: "openhunter_core", UpstreamRef: "native",
+			AdapterVersion: "openhunter-worker/v1",
+		}
+	}
+	if res.Status == "" {
+		switch res.State {
+		case StateSkipped:
+			res.Status = StatusSkipped
+		case StateFailed:
+			res.Status = StatusFailed
+		default:
+			if res.CoverageGap {
+				res.Status = StatusPartial
+			} else {
+				res.Status = StatusSucceeded
+			}
+		}
+	}
+	if len(res.Coverage.SurfacesAttempted) == 0 && res.Status != StatusSkipped {
+		res.Coverage.SurfacesAttempted = []string{in.WorkerType}
+	}
+	if len(res.Coverage.SurfacesCompleted) == 0 && res.Status == StatusSucceeded {
+		res.Coverage.SurfacesCompleted = []string{in.WorkerType}
+	}
+	if len(res.FindingCandidates) == 0 {
+		for _, s := range res.Signals {
+			if s.EvidenceClass == "candidate" || s.ValidationState == "candidate" || s.ValidationState == "validated_finding" {
+				res.FindingCandidates = append(res.FindingCandidates, s)
+			}
+		}
+	}
+	if len(res.EvidenceRefs) == 0 {
+		seen := make(map[string]struct{})
+		for _, s := range res.Signals {
+			for _, ref := range s.EvidenceRefs {
+				if ref == "" {
+					continue
+				}
+				if _, exists := seen[ref]; exists {
+					continue
+				}
+				seen[ref] = struct{}{}
+				res.EvidenceRefs = append(res.EvidenceRefs, ref)
+			}
+		}
+	}
+	return res
+}
+
+func retryableCode(code string) bool {
+	switch code {
+	case CodeTimeout, CodeToolUnavailable, CodeAdapterError, "TOOL_RUNTIME_ERROR", "TOOL_OUTPUT_UNREADABLE", "TOOL_OUTPUT_AMBIGUOUS", "TARGET_UNREACHABLE":
+		return true
+	default:
+		return false
 	}
 }

@@ -1,6 +1,6 @@
 /**
  * Per-scan budget tracker. Stays in-process; callers wire a tracker per
- * (scanId, packageTier). See LLM_PROVIDER_SPEC.md §7.
+ * (scanId, profile). See LLM_PROVIDER_SPEC.md §7.
  *
  * The gateway calls `reserve` before each LLM call. If the budget is exhausted,
  * reserve throws GuardrailError('BUDGET_EXCEEDED'). The caller can check

@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import {
   Crosshair,
+  LayoutDashboard,
   FileText,
   FolderKanban,
   Menu,
@@ -14,18 +15,18 @@ import { cn } from '../lib/cn';
 import { useTheme } from '../lib/theme';
 import { useAuth } from '../lib/auth';
 import { Button } from './ui/Button';
-import { ButtonLink } from './ui/ButtonLink';
 
 const NAV = [
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/projects', label: 'Projects', icon: FolderKanban },
   { to: '/scans', label: 'Scans', icon: Radar },
   { to: '/findings', label: 'Findings', icon: Crosshair },
   { to: '/reports', label: 'Reports', icon: FileText },
 ];
 
-function BrandMark({ className }: { className?: string }) {
+function BrandMark({ className, to = '/' }: { className?: string; to?: string }) {
   return (
-    <Link to="/" className={cn('group flex items-center gap-2', className)}>
+    <Link to={to} className={cn('group flex items-center gap-2', className)}>
       <span className="relative flex h-7 w-7 items-center justify-center rounded border border-signal/50 bg-signal/10">
         <Radar className="h-4 w-4 text-signal transition-transform duration-500 group-hover:rotate-90" />
       </span>
@@ -45,94 +46,42 @@ function ThemeToggle() {
   );
 }
 
-function UserMenu() {
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
-  if (!user) return null;
-  const initial = (user.displayName ?? user.email ?? '?').charAt(0).toUpperCase();
-  return (
-    <div className="grid w-full min-w-0 gap-3">
-      <div className="flex min-w-0 items-center gap-3">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-hairline-strong bg-surface-raised text-xs font-700 text-signal">
-          {initial}
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-xs font-medium text-ink" title={user.displayName ?? user.email}>
-            {user.displayName ?? user.email}
-          </p>
-          {user.orgName && (
-            <p className="text-data truncate text-[11px] text-ink-faint" title={user.orgName}>
-              {user.orgName}
-            </p>
-          )}
-        </div>
-      </div>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="w-full justify-start"
-        onClick={() => {
-          void signOut().then(() => navigate('/login', { replace: true }));
-        }}
-      >
-        Sign out
-      </Button>
-    </div>
-  );
-}
-
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Signed-out / marketing chrome: minimal centered topbar.
+  if (loading) return <div className="min-h-screen bg-canvas" aria-label="Connecting to local engine" />;
+
   if (!user) {
     return (
-      <div className="min-h-screen">
-        <header className="sticky top-0 z-40 border-b border-hairline bg-canvas/80 backdrop-blur">
-          <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-            <BrandMark />
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              {!loading && (
-                <>
-                  <ButtonLink to="/login" variant="ghost" size="sm">
-                    Sign in
-                  </ButtonLink>
-                  <ButtonLink to="/register" variant="primary" size="sm">
-                    Create workspace
-                  </ButtonLink>
-                </>
-              )}
-            </div>
-          </div>
-        </header>
-        <main>{children}</main>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-5 text-center">
+        <BrandMark />
+        <h1 className="font-display text-xl font-700 text-ink">Local engine unavailable</h1>
+        <p className="max-w-md text-sm text-ink-muted">Start the self-hosted services on this computer, then refresh the dashboard.</p>
+        <Button onClick={() => window.location.reload()}>Retry connection</Button>
       </div>
     );
   }
 
-  // Signed-in chrome: sidebar + content.
+  // Local dashboard chrome: sidebar + content.
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[240px_1fr]">
       {/* Desktop sidebar */}
       <aside className="hidden border-r border-hairline bg-surface lg:flex lg:flex-col">
         <div className="flex h-16 items-center border-b border-hairline px-5">
-          <BrandMark />
+          <BrandMark to="/dashboard" />
         </div>
         <nav className="flex flex-1 flex-col gap-1 p-3">
           {NAV.map(({ to, label, icon: Icon }) => (
             <SidebarLink key={to} to={to} label={label} Icon={Icon} />
           ))}
         </nav>
-        <div className="border-t border-hairline p-3">
-          <UserMenu />
-        </div>
+        <p className="border-t border-hairline p-5 text-data text-[11px] text-ink-faint">Local self-hosted engine</p>
       </aside>
 
       {/* Mobile header */}
       <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-hairline bg-canvas/80 px-5 backdrop-blur lg:hidden">
-        <BrandMark />
+        <BrandMark to="/dashboard" />
         <div className="flex items-center gap-1">
           <ThemeToggle />
           <Button
@@ -159,9 +108,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 onClick={() => setMobileOpen(false)}
               />
             ))}
-            <div className="mt-4 border-t border-hairline pt-4">
-              <UserMenu />
-            </div>
+            <p className="mt-4 border-t border-hairline pt-4 text-data text-xs text-ink-faint">Local self-hosted engine</p>
           </nav>
         </div>
       )}

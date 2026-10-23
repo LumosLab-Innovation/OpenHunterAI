@@ -4,13 +4,12 @@
 
 ---
 
-# 1. No Verified Authorization, No Scan
+# 1. No Explicit Authorization, No Scan
 
 Do not create scan/retest jobs if:
 
 ```text
-domain is not verified
-verification expired
+user has not explicitly confirmed authority for the declared public hosts
 scan authorization is missing/expired
 target is outside allowed_hosts/allowed_paths
 target is excluded
@@ -18,11 +17,16 @@ target is private/local/metadata IP
 redirect leaves scope
 ```
 
+Each `allowedHosts` entry authorizes that hostname only. A parent domain does
+not implicitly authorize its subdomains; declare each subdomain separately.
+DNS ownership proof is not a self-host prerequisite, but this does not relax
+request-time private-IP and redirect checks.
+
 ---
 
 # 2. Governed Attacker-Mindset
 
-OpenHunterAI keeps black-hat mindset reasoning but governed execution. Every action is constrained by verified scope, Target Type, Surface Flags, Test Intensity Mode, auth_scope, package quota, policy gates, approval gates, rate limits, and data-handling policy.
+OpenHunterAI keeps attacker-mindset reasoning but governed execution. Every action is constrained by declared authorized scope, Target Type, Surface Flags, Test Intensity Mode, auth_scope, profile resource ceiling, policy gates, approval gates, rate limits, and data-handling policy.
 
 Forbidden always:
 
@@ -37,10 +41,12 @@ destructive wipe
 DoS
 raw secret exfiltration
 raw credential/cookie/token/HAR/request/response persistence
-abuse instructions outside verified scope
+abuse instructions outside authorized scope
 ```
 
 Aggressive Staging is staging/dev/test only and still follows all forbidden-action rules.
+
+A lab campaign is a separate declaration from a public website scan. It may record subnet, web entry, time window, test accounts, budget, approval, snapshot, and rollback. Those fields do not authorize pivot, persistence, or destructive actions. Deep does not inherit them. No lab executor is enabled until isolation and restore have been demonstrated for a one-time lab.
 
 ---
 
@@ -49,7 +55,8 @@ Aggressive Staging is staging/dev/test only and still follows all forbidden-acti
 Authorization must store:
 
 ```text
-scanMode
+profile: quick | standard | deep
+targetUrl, including its path
 authScope
 targetType
 testIntensityMode
@@ -57,6 +64,7 @@ surfaceFlags
 allowedHosts
 allowedPaths
 excludedPaths
+risk/authority confirmation stored with accepting user and consent text
 risk acceptance if aggressive_staging
 ```
 
@@ -136,7 +144,7 @@ ZAP is passive/baseline only by default. Nuclei uses internal curated safe templ
 Do not release if:
 
 ```text
-unverified domains can scan
+targets outside explicitly authorized public-host scope can scan
 private/local/metadata targets can scan
 redirect outside scope is followed
 raw secrets/evidence appear in logs/prompts/reports/storage

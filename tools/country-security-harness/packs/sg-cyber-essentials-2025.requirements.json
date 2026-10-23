@@ -1,0 +1,534 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "sg-cyber-essentials-2025.curated",
+  "frameworkId": "sg-cyber-essentials-2025",
+  "version": "Second edition, April 2025 (scheme documents listed updated April 2026); curated-2026-10-08",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "sg-cyber-essentials-2025.source",
+      "title": "CSA Cyber Essentials mark, second edition",
+      "url": "https://isomer-user-content.by.gov.sg/36/47c6066b-71a7-449f-82e0-e8cf10ee126f/cyber-essentials-v202504.pdf",
+      "locator": "Sections 3.11 and 4; Annex A, classical cybersecurity column"
+    }
+  ],
+  "limitations": [
+    "Curated partial clause coverage only. The baseline is an assessment target, never a national security grade or a certification decision.",
+    "A shall requirement is mandatory within the selected certification scheme, not a general Singapore legal duty. Recommendations retain should strength; examples do not become numeric obligations."
+  ],
+  "requirements": [
+    {
+      "id": "sg-cyber-essentials-2025.training",
+      "label": "Provide staff cyber and data-protection training",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.1.4(a)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "sg-cyber-essentials-2025.training",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.hygiene-guidelines",
+      "label": "Document staff cyber hygiene guidance",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.1.4(b)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "sg-cyber-essentials-2025.hygiene-guidelines",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.asset-inventory",
+      "label": "Maintain hardware/software inventory and network diagrams",
+      "controlId": "system_classification",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.2.4(a)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "sg-cyber-essentials-2025.asset-inventory",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.asset-onboarding",
+      "label": "Approve onboarding of hardware and software",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.2.4(h)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "sg-cyber-essentials-2025.asset-onboarding",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.asset-approval-date",
+      "label": "Record asset authorisation dates",
+      "controlId": "system_classification",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.2.4(i)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "sg-cyber-essentials-2025.asset-approval-date",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.sanitise-disposal",
+      "label": "Sanitise critical/confidential data before hardware disposal",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.2.4(k)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "sg-cyber-essentials-2025.hardware_disposal_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "sg-cyber-essentials-2025.sanitise-disposal",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.data-inventory",
+      "label": "Inventory business-critical data and retention",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.3.4(a)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "sg-cyber-essentials-2025.data-inventory",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.data-protection",
+      "label": "Define business-critical data protection process",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.3.4(c)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review risk-specific protection; substantive personal-data cases require encryption at rest and in transit."
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Review risk-specific protection; substantive personal-data cases require encryption at rest and in transit."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.malware-protection",
+      "label": "Protect classical endpoints against malware",
+      "controlId": "malware_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.4.4(a)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "sg-cyber-essentials-2025.malware-protection",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.malware-scan",
+      "label": "Scan files automatically on access",
+      "controlId": "malware_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.4.4(b)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "sg-cyber-essentials-2025.malware-scan",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.firewall",
+      "label": "Configure firewalls for scoped network/endpoints",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.4.4(e)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "sg-cyber-essentials-2025.firewall",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.account-inventory",
+      "label": "Maintain inventory of user and service accounts",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.5.4(a)-(b)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "sg-cyber-essentials-2025.account-inventory",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.access-approval",
+      "label": "Approve grants and revocations after personnel changes",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.5.4(c)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "sg-cyber-essentials-2025.access-approval",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.least-privilege",
+      "label": "Limit access to job requirements",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.5.4(d)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "sg-cyber-essentials-2025.least-privilege",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.admin-separation",
+      "label": "Approve admin accounts and separate daily activities",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.5.4(f)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "sg-cyber-essentials-2025.admin-separation",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.admin-mfa",
+      "label": "Use MFA for qualifying administrative access",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.5.4(o)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "sg-cyber-essentials-2025.qualifying_admin_access_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review important systems, sensitive/business-critical databases and databases storing substantial amounts of personal data. OT compensating measures require separate review."
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Review important systems, sensitive/business-critical databases and databases storing substantial amounts of personal data. OT compensating measures require separate review."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.unused-services",
+      "label": "Disable or remove unused services and applications",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.6.4(c)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "sg-cyber-essentials-2025.unused-services",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.audit-logs",
+      "label": "Enable audit logs for relevant attack events",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.6.4(g)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "sg-cyber-essentials-2025.audit-logs",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.security-updates",
+      "label": "Prioritise critical and important trusted-source updates",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.7.4(a)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "As-soon-as-feasible wording is not converted into a fabricated patch deadline."
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. As-soon-as-feasible wording is not converted into a fabricated patch deadline."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.critical-backups",
+      "label": "Back up business-critical data and systems",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.8.4(a)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "sg-cyber-essentials-2025.critical-backups",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.incident-plan",
+      "label": "Maintain a current basic incident response plan",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.9.4(a)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "sg-cyber-essentials-2025.incident-plan",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "sg-cyber-essentials-2025.annual-training",
+      "label": "Refresh awareness at least annually",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "sg-cyber-essentials-2025.source",
+      "locator": "Annex A, A.1.4(e)",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Annual training is a recommendation in this scheme, not an unconditional legal deadline."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Annual training is a recommendation in this scheme, not an unconditional legal deadline."
+    }
+  ]
+}

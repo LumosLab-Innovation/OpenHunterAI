@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "country_security_clause_evidence_v1",
+  "dataOrigin": "synthetic_fixture",
+  "assessmentId": "fixture-vn-system-levels",
+  "packId": "vn-n331-2026-curated",
+  "packVersion": "NĐ 331/2026/NĐ-CP; curated clauses 2026-10-08.1",
+  "packSha256": "144c9491ffc66249f00f329531870f6e94464a0beb7351f08d4a8b7ba8f18845",
+  "levelId": "level-3",
+  "applicabilityConfirmed": true,
+  "context": [
+    {
+      "factId": "vn.scope.outsourced_dc_cloud",
+      "value": true
+    },
+    {
+      "factId": "vn.incident.detected",
+      "value": true
+    },
+    {
+      "factId": "vn.incident.serious",
+      "value": true
+    }
+  ],
+  "observations": [
+    {
+      "factId": "vn.cloud.logical_storage_isolation",
+      "value": false,
+      "kind": "configuration",
+      "evidenceRefs": [
+        "proof:fixture-observation-0"
+      ],
+      "observedAt": "2026-10-01",
+      "expiresAt": "2026-11-01"
+    },
+    {
+      "factId": "vn.incident.cause_scope_remediation_report_delay_hours",
+      "value": 64,
+      "kind": "configuration",
+      "evidenceRefs": [
+        "proof:fixture-observation-1"
+      ],
+      "observedAt": "2026-10-01",
+      "expiresAt": "2026-11-01"
+    },
+    {
+      "factId": "vn.incident.initial_serious_notification_delay_hours",
+      "value": 25,
+      "kind": "configuration",
+      "evidenceRefs": [
+        "proof:fixture-observation-2"
+      ],
+      "observedAt": "2026-10-01",
+      "expiresAt": "2026-11-01"
+    }
+  ]
+}

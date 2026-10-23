@@ -2,7 +2,7 @@
  * LLM Gateway — the single entry point for any LLM call in the system.
  *
  * Responsibilities per LLM_PROVIDER_SPEC.md:
- *   1. Enforce package's allowed use cases.
+ *   1. Enforce per-run resource ceilings independently of commercial tiers.
  *   2. Run Prompt Sanitizer.
  *   3. Apply budget tracker.
  *   4. Resolve alias → provider + model.
@@ -10,9 +10,9 @@
  *   6. Emit structured log per call (no raw prompt).
  */
 
-import { createLogger, GuardrailError, type Logger } from '@x-hunter/shared';
+import { createLogger, type Logger } from '@x-hunter/shared';
 import { BudgetTracker, estimateTokens } from './budget.js';
-import { aliasFor, budgetFor, PACKAGE_BUDGETS, routeFor } from './config.js';
+import { aliasFor, budgetFor, PROFILE_BUDGETS, routeFor } from './config.js';
 import { sanitizePrompt } from './sanitizer.js';
 import type {
   LLMProvider,
@@ -50,15 +50,7 @@ export class LLMGateway {
   }
 
   async generate(req: LLMRequest): Promise<LLMResponse> {
-    // 1. Use-case must be allowed for this package.
-    const budget = budgetFor(req.packageTier);
-    if (!budget.allowedUseCases.includes(req.useCase)) {
-      throw new GuardrailError(
-        'PACKAGE_DOES_NOT_PERMIT_ACTION',
-        `Use case ${req.useCase} not allowed for package ${req.packageTier}`,
-        { useCase: req.useCase, package: req.packageTier },
-      );
-    }
+    const budget = budgetFor(req.profile);
 
     // 2. Sanitize.
     const sanitized = sanitizePrompt(req);
@@ -163,4 +155,4 @@ export class LLMGateway {
   }
 }
 
-export { PACKAGE_BUDGETS };
+export { PROFILE_BUDGETS };

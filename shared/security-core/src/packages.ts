@@ -1,11 +1,4 @@
-export const COMMERCIAL_PACKAGES = [
-  'free_hunter',
-  'ai_blackhat_mindset_check',
-  'monitor_workspace',
-  'enterprise_payg',
-] as const;
-
-export const SCAN_MODES = ['free_hunter', 'ai_blackhat_mindset_check'] as const;
+export const SCAN_PROFILES = ['quick', 'standard', 'deep'] as const;
 
 export const AUTH_SCOPES = ['none', 'one_account', 'two_accounts'] as const;
 
@@ -33,9 +26,7 @@ export const SURFACE_FLAG_KEYS = [
   'has_chatbot_or_rag_or_tool_calling',
 ] as const;
 
-export type CommercialPackage = (typeof COMMERCIAL_PACKAGES)[number];
-export type PackageTier = CommercialPackage;
-export type ScanMode = (typeof SCAN_MODES)[number];
+export type ScanProfile = (typeof SCAN_PROFILES)[number];
 export type AuthScope = (typeof AUTH_SCOPES)[number];
 export type TargetType = (typeof TARGET_TYPES)[number];
 export type TestIntensityMode = (typeof TEST_INTENSITY_MODES)[number];
@@ -53,16 +44,10 @@ export const DEFAULT_SURFACE_FLAGS: SurfaceFlags = {
   has_chatbot_or_rag_or_tool_calling: false,
 };
 
-export const PACKAGE_LABELS: Record<CommercialPackage, string> = {
-  free_hunter: 'Free Hunter',
-  ai_blackhat_mindset_check: 'AI Black-hat Mindset Check',
-  monitor_workspace: 'Monitor Workspace',
-  enterprise_payg: 'Enterprise / PAYG',
-};
-
-export const SCAN_MODE_LABELS: Record<ScanMode, string> = {
-  free_hunter: 'Free Hunter',
-  ai_blackhat_mindset_check: 'AI Black-hat Mindset Check',
+export const SCAN_PROFILE_LABELS: Record<ScanProfile, string> = {
+  quick: 'Quick',
+  standard: 'Standard',
+  deep: 'Deep',
 };
 
 export const TARGET_TYPE_LABELS: Record<TargetType, string> = {
@@ -78,14 +63,16 @@ export const TEST_INTENSITY_LABELS: Record<TestIntensityMode, string> = {
   aggressive_staging: 'Aggressive Staging',
 };
 
-export const SCAN_PACKAGES = SCAN_MODES;
-export const SCAN_PACKAGE_LABELS = SCAN_MODE_LABELS;
+export function profileToIntensity(profile: ScanProfile): TestIntensityMode {
+  if (profile === 'quick') return 'safe_discovery';
+  if (profile === 'deep') return 'aggressive_staging';
+  return 'controlled_attack_simulation';
+}
 
-export function packageAllowsScanMode(tier: CommercialPackage, mode: ScanMode): boolean {
-  if (tier === 'free_hunter') return mode === 'free_hunter';
-  if (tier === 'ai_blackhat_mindset_check') return mode === 'ai_blackhat_mindset_check';
-  if (tier === 'enterprise_payg') return true;
-  return false;
+export function intensityToProfile(intensity: TestIntensityMode): ScanProfile {
+  if (intensity === 'safe_discovery') return 'quick';
+  if (intensity === 'aggressive_staging') return 'deep';
+  return 'standard';
 }
 
 export function authScopeRequiresAccounts(value: AuthScope): number {

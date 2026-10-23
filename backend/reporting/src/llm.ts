@@ -1,25 +1,11 @@
-import { LLMGateway } from '@x-hunter/llm-gateway';
-import type { PackageTier } from '@x-hunter/shared';
-import { sanitizeText } from '@x-hunter/shared';
+import { createBridgeClient, runModuleReasoning, type CodingCliBridge } from '@x-hunter/llm-gateway';
+import type { LlmCallAudit, LlmRouteSnapshot, ScanProfile } from '@x-hunter/shared';
+import { isLlmRouteSnapshot, sanitizeText } from '@x-hunter/shared';
 
 /**
- * Single LLMGateway for the reporting service. Used for report_generation and
- * fix_prompt use cases via aliases only (LLM_PROVIDER_SPEC.md §1-§3). The LLM
- * augments the deterministic report; it never overrides policy or invents
- * findings (PRODUCTION_READINESS.md §5).
+ * Fix prompts go through the scan's LLM route snapshot and the host bridge.
+ * There is no alias or API-key fallback. Output stays recommendation-only.
  */
-let _gateway: LLMGateway | null = null;
-
-export function getGateway(): LLMGateway {
-  if (!_gateway) {
-    _gateway = new LLMGateway({ retryAttempts: Number(process.env.LLM_RETRY_ATTEMPTS || 1) });
-  }
-  return _gateway;
-}
-
-export function setGateway(gateway: LLMGateway): void {
-  _gateway = gateway;
-}
 
 const FIX_SYSTEM_PROMPT =
   'You are a secure-coding assistant. Given a sanitized security finding, write a concise, ' +
@@ -29,7 +15,7 @@ export interface FixPromptInput {
   projectId: string;
   scanId: string;
   findingId: string;
-  packageTier: PackageTier;
+  profile: ScanProfile;
   title: string;
   category: string;
   affectedAsset: string;
@@ -41,15 +27,30 @@ export interface FixPromptInput {
  * fallback string when the LLM is unavailable or errors, so report finalization
  * never blocks on the LLM. Output is sanitized before return.
  */
-export async function generateFixPrompt(gateway: LLMGateway, input: FixPromptInput): Promise<{ text: string; fallback: boolean }> {
+export function bridgeFromEnv(): CodingCliBridge | null {
+  const baseUrl = process.env.OPENHUNTER_LLM_BRIDGE_URL;
+  const token = process.env.OPENHUNTER_LLM_BRIDGE_TOKEN;
+  if (!baseUrl || !token) return null;
+  return createBridgeClient({ baseUrl, token });
+}
+
+export function snapshotFromPlan(plan: unknown): LlmRouteSnapshot | null {
+  const snapshot = plan && typeof plan === 'object' ? (plan as { llmRouteSnapshot?: unknown }).llmRouteSnapshot : null;
+  return isLlmRouteSnapshot(snapshot) ? snapshot : null;
+}
+
+export async function generateFixPrompt(
+  input: FixPromptInput & { snapshot: LlmRouteSnapshot | null; bridge: CodingCliBridge | null },
+): Promise<{ text: string; fallback: boolean; audits: LlmCallAudit[]; coverageGap?: string }> {
   const fallback = `Review ${input.affectedAsset} for ${input.category}. Apply input validation, output encoding, and access control as appropriate, then run the finding's retest scenario to confirm the issue no longer reproduces.`;
+  if (!input.snapshot) {
+    return { text: fallback, fallback: true, audits: [], coverageGap: 'llm:fix_prompt:SNAPSHOT_MISSING' };
+  }
   try {
-    const res = await gateway.generate({
+    const res = await runModuleReasoning({
+      snapshot: input.snapshot,
       useCase: 'fix_prompt',
-      projectId: input.projectId,
-      scanId: input.scanId,
-      findingId: input.findingId,
-      packageTier: input.packageTier,
+      bridge: input.bridge,
       systemPrompt: FIX_SYSTEM_PROMPT,
       userPrompt: JSON.stringify({
         title: input.title,
@@ -58,11 +59,11 @@ export async function generateFixPrompt(gateway: LLMGateway, input: FixPromptInp
         description: input.description,
       }),
     });
-    if (res.error || !res.outputText.trim()) {
-      return { text: fallback, fallback: true };
+    if (res.coverageGap || !res.outputText.trim()) {
+      return { text: fallback, fallback: true, audits: res.audits, ...(res.coverageGap ? { coverageGap: res.coverageGap } : {}) };
     }
-    return { text: sanitizeText(res.outputText.trim()), fallback: false };
+    return { text: sanitizeText(res.outputText.trim()), fallback: false, audits: res.audits };
   } catch {
-    return { text: fallback, fallback: true };
+    return { text: fallback, fallback: true, audits: [] };
   }
 }

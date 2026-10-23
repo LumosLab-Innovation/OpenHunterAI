@@ -9,11 +9,11 @@ RUN cd ../../shared/db && pnpm install --prod=false && pnpm run generate
 RUN pnpm install --prod=false
 RUN pnpm run build
 
-FROM node:22-slim
+FROM node:22-bookworm
 WORKDIR /app/backend/findings
 ENV NODE_ENV=production
-RUN apt-get update -y && apt-get install -y --no-install-recommends openssl ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+# The full Debian Node base already contains libssl3 and CA roots needed by
+# Prisma. Avoid a second apt index fetch in the self-host build path.
 RUN npm install -g tsx@4.19.2
 COPY --from=build /app /app
 EXPOSE 4300

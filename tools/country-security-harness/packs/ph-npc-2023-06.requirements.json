@@ -1,0 +1,452 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "ph-npc-2023-06.curated",
+  "frameworkId": "ph-npc-2023-06",
+  "version": "1 December 2023; effective 30 March 2024; curated-2026-10-08",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "ph-npc-2023-06.source",
+      "title": "NPC Circular No. 2023-06, signed official circular",
+      "url": "https://privacy.gov.ph/wp-content/uploads/2024/03/NPC-Circular-Repeal-16-01-Signed.pdf",
+      "locator": "Sections 1, 4–18 and 23–27"
+    }
+  ],
+  "limitations": [
+    "Curated partial clause coverage only. The baseline is an assessment target, never a national security grade or a certification decision.",
+    "Replaces NPC Circular 16-01. Registration thresholds, sector duties and breach reporting under other issuances require separate review; undefined high-volume criteria are not replaced with invented numbers."
+  ],
+  "requirements": [
+    {
+      "id": "ph-npc-2023-06.dpo",
+      "label": "Designate/register DPO according to applicable NPC rules",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ph-npc-2023-06.source",
+      "locator": "Section 4(A)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review registration duties under applicable DPA/IRR and NPC issuances."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Review registration duties under applicable DPA/IRR and NPC issuances."
+    },
+    {
+      "id": "ph-npc-2023-06.systems-registration",
+      "label": "Register processing systems where applicable rules require",
+      "controlId": "system_classification",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ph-npc-2023-06.source",
+      "locator": "Section 4(B)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Registration applicability is determined by separate NPC provisions, not imposed unconditionally."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Registration applicability is determined by separate NPC provisions, not imposed unconditionally."
+    },
+    {
+      "id": "ph-npc-2023-06.processing-inventory",
+      "label": "Inventory processing systems and activities",
+      "controlId": "system_classification",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ph-npc-2023-06.source",
+      "locator": "Section 4(C)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "ph-npc-2023-06.processing-inventory",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "ph-npc-2023-06.pia",
+      "label": "Conduct and update privacy impact assessments",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ph-npc-2023-06.source",
+      "locator": "Section 4(D)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "ph-npc-2023-06.pia",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "ph-npc-2023-06.privacy-programme",
+      "label": "Establish a privacy management programme",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ph-npc-2023-06.source",
+      "locator": "Section 4(E)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "ph-npc-2023-06.privacy-programme",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "ph-npc-2023-06.staff-training",
+      "label": "Train personnel periodically on privacy and protection",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ph-npc-2023-06.source",
+      "locator": "Section 4(F)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "ph-npc-2023-06.staff-training",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "ph-npc-2023-06.pia-controls",
+      "label": "Address PIA risks through a control framework",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ph-npc-2023-06.source",
+      "locator": "Section 6",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "ph-npc-2023-06.pia-controls",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "ph-npc-2023-06.privacy-default",
+      "label": "Consider privacy by design; enable privacy by default",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ph-npc-2023-06.source",
+      "locator": "Section 7",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "ph-npc-2023-06.privacy-default",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "ph-npc-2023-06.unlawful-functions",
+      "label": "Deactivate processing functions without lawful basis",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ph-npc-2023-06.source",
+      "locator": "Section 7 last paragraph",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Compatibility and lawful basis need contextual review."
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Compatibility and lawful basis need contextual review."
+    },
+    {
+      "id": "ph-npc-2023-06.storage-provider",
+      "label": "Ensure storage processor protection and demonstrable compliance",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ph-npc-2023-06.source",
+      "locator": "Section 10",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ph-npc-2023-06.storage_processor_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ph-npc-2023-06.storage-provider",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "ph-npc-2023-06.password-policy",
+      "label": "Issue and enforce a password policy",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ph-npc-2023-06.source",
+      "locator": "Section 11 paragraph 2",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "ph-npc-2023-06.password-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "ph-npc-2023-06.authorised-software",
+      "label": "Access databases through authorised software only",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ph-npc-2023-06.source",
+      "locator": "Section 12",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "ph-npc-2023-06.authorised-software",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "ph-npc-2023-06.access-policy",
+      "label": "Restrict personal-data access on need-to-know basis",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ph-npc-2023-06.source",
+      "locator": "Section 13 paragraphs 1–2",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "ph-npc-2023-06.access-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "ph-npc-2023-06.processor-contract",
+      "label": "Contractually govern processor access to personal data",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ph-npc-2023-06.source",
+      "locator": "Section 14",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ph-npc-2023-06.processor_access_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ph-npc-2023-06.processor-contract",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "ph-npc-2023-06.acceptable-use",
+      "label": "Explain acceptable-use policy and obtain signed agreement",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ph-npc-2023-06.source",
+      "locator": "Section 15",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "ph-npc-2023-06.acceptable-use",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "ph-npc-2023-06.online-authentication",
+      "label": "Review strong online access authentication and management",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ph-npc-2023-06.source",
+      "locator": "Section 16",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ph-npc-2023-06.qualifying_online_access_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Sensitive/privileged or high-volume scope needs review. MFA and secure encrypted links are examples, not an invented blanket MFA mandate."
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Sensitive/privileged or high-volume scope needs review. MFA and secure encrypted links are examples, not an invented blanket MFA mandate."
+    },
+    {
+      "id": "ph-npc-2023-06.known-devices",
+      "label": "Permit only known devices meeting security standards",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ph-npc-2023-06.source",
+      "locator": "Section 17",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "ph-npc-2023-06.known-devices",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "ph-npc-2023-06.mobile-loss",
+      "label": "Enable remote disconnection/deletion and loss notification",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ph-npc-2023-06.source",
+      "locator": "Section 18",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ph-npc-2023-06.pic_owned_mobile_devices",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ph-npc-2023-06.mobile-loss",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    }
+  ]
+}

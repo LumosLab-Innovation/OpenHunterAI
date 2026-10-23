@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1590" viewBox="0 0 1200 1590" role="img" aria-labelledby="title description">
+  <title id="title">OpenHunterAI interactive CLI wireframe</title>
+  <desc id="description">Four terminal UI states: launch, review authorization, live scan, and report with manual retest.</desc>
+  <style>
+    text { font-family: Consolas, 'Cascadia Code', monospace; font-size: 16px; fill: #dce6e9; }
+    .canvas { fill: #e9eff0; }
+    .terminal { fill: #10161d; stroke: #30434d; stroke-width: 2; }
+    .chrome { fill: #19232c; }
+    .panel { fill: #151f27; stroke: #344852; stroke-width: 1.3; }
+    .field { fill: #0d141a; stroke: #38bdc8; stroke-width: 1.5; }
+    .teal { fill: #55e1cb; }
+    .blue { fill: #62a3fa; }
+    .soft { fill: #a3b8bd; }
+    .dim { fill: #768e95; }
+    .warn { fill: #e5ba78; }
+    .heading { font-family: Inter, Arial, sans-serif; font-size: 22px; font-weight: 750; fill: #1a2b32; }
+    .caption { font-family: Inter, Arial, sans-serif; font-size: 14px; fill: #536b72; }
+    .brand { font-size: 25px; font-weight: 800; letter-spacing: 1px; }
+    .large { font-size: 20px; font-weight: 700; }
+    .small { font-size: 14px; }
+    .rule { stroke: #344750; stroke-width: 1.3; }
+  </style>
+  <rect class="canvas" width="1200" height="1590"/>
+  <text x="40" y="45" class="heading">OpenHunterAI · Interactive CLI/TUI</text>
+  <text x="40" y="69" class="caption">Layout contract: persistent command input + truthful run state. Sample data only; not a validated scan.</text>
+
+  <!-- 01 launch -->
+  <text x="40" y="104" class="caption">01  LAUNCH · one-time mascot splash; compact header after the first action</text>
+  <rect x="40" y="118" width="1120" height="305" rx="12" class="terminal"/>
+  <path d="M52 118h1096a12 12 0 0 1 12 12v29H40v-29a12 12 0 0 1 12-12z" class="chrome"/>
+  <circle cx="65" cy="139" r="5" fill="#e58080"/><circle cx="83" cy="139" r="5" fill="#e5ba78"/><circle cx="101" cy="139" r="5" fill="#55c6ae"/>
+  <text x="122" y="145" class="small soft">openhunterai</text>
+  <circle cx="1007" cy="139" r="4.5" fill="#4dd4a9"/>
+  <text x="1020" y="145" class="small soft">engine ready</text>
+  <path d="M93 291L124 196Q158 167 193 196L228 291Z" fill="#1b2a40" stroke="#4273bc" stroke-width="3"/>
+  <path d="M122 245L144 252L162 243M179 243L196 252L216 245" fill="none" stroke="#55e1cb" stroke-width="6" stroke-linecap="round"/>
+  <text x="265" y="207" class="brand blue">OPENHUNTERAI</text>
+  <text x="265" y="234" class="small teal">AI ATTACKER-MINDSET PENTEST</text>
+  <text x="265" y="281" class="large">What would you like to test?</text>
+  <text x="265" y="310" class="soft">Start scan   ·   Open dashboard   ·   Recent runs   ·   Doctor</text>
+  <rect x="65" y="347" width="1070" height="51" rx="7" class="field"/>
+  <text x="83" y="379" class="teal">›</text>
+  <text x="111" y="379">Paste a public HTTPS URL, or type /help</text>
+  <text x="66" y="413" class="small dim">Enter: select  ·  /: commands  ·  ↑: recent input  ·  no login required</text>
+
+  <!-- 02 review -->
+  <text x="40" y="462" class="caption">02  REVIEW · show exact scope and capability before any scan request</text>
+  <rect x="40" y="476" width="1120" height="305" rx="12" class="terminal"/>
+  <path d="M52 476h1096a12 12 0 0 1 12 12v29H40v-29a12 12 0 0 1 12-12z" class="chrome"/>
+  <text x="65" y="503" class="small blue">OPENHUNTERAI</text>
+  <text x="853" y="503" class="small soft">New scan  ·  engine ready</text>
+  <text x="65" y="555" class="large">Review this scan</text>
+  <text x="65" y="594" class="soft">Target</text><text x="270" y="594">https://example.com/app</text>
+  <text x="65" y="624" class="soft">Scope</text><text x="270" y="624" class="teal">/app and descendants</text><text x="715" y="624" class="small dim">[change: entire host]</text>
+  <text x="65" y="654" class="soft">Profile</text><text x="270" y="654">Standard pentest</text><text x="715" y="654" class="small dim">[Quick] [Deep staging]</text>
+  <text x="65" y="684" class="soft">Readiness</text><text x="270" y="684" class="teal">Browser ✓  Nuclei ✓  ZAP ✓</text>
+  <text x="65" y="714" class="soft">Coverage note</text><text x="270" y="714" class="warn">IDOR needs two test accounts; configure or accept gap.</text>
+  <line x1="65" y1="730" x2="1135" y2="730" class="rule"/>
+  <text x="65" y="756" class="small">[ ] I am authorized to test example.com/app and descendants.</text>
+  <text x="909" y="756" class="small teal">[Start scan →]</text>
+
+  <!-- 03 live -->
+  <text x="40" y="820" class="caption">03  LIVE RUN · actual events, candidates separate from findings, command input stays available</text>
+  <rect x="40" y="834" width="1120" height="350" rx="12" class="terminal"/>
+  <path d="M52 834h1096a12 12 0 0 1 12 12v29H40v-29a12 12 0 0 1 12-12z" class="chrome"/>
+  <text x="65" y="861" class="small blue">OPENHUNTERAI</text>
+  <text x="840" y="861" class="small soft">run 7fd2…  ·  connected</text>
+  <text x="65" y="904" class="large">example.com/app</text>
+  <text x="814" y="904" class="small teal">STANDARD · RUNNING</text>
+  <text x="65" y="941" class="small teal">✓ Discover</text><text x="330" y="941" class="small teal">✓ Test</text>
+  <text x="596" y="941" class="small blue">● Validate</text><text x="881" y="941" class="small dim">○ Report</text>
+  <line x1="65" y1="959" x2="1135" y2="959" class="rule"/>
+  <text x="65" y="989" class="small soft">14:02:11</text><text x="172" y="989">Browser mapped 8 in-scope routes</text>
+  <text x="65" y="1018" class="small soft">14:02:29</text><text x="172" y="1018">Nuclei completed curated checks</text>
+  <text x="65" y="1047" class="small soft">14:03:08</text><text x="172" y="1047" class="blue">1 candidate · independent replay pending</text>
+  <text x="65" y="1076" class="small soft">14:03:09</text><text x="172" y="1076" class="warn">Gap: IDOR skipped · second account missing</text>
+  <text x="65" y="1110" class="small teal">0 validated findings so far</text>
+  <rect x="65" y="1128" width="1070" height="43" rx="7" class="field"/>
+  <text x="83" y="1156" class="teal">›</text><text x="112" y="1156" class="soft">/status   /coverage   /cancel   /dashboard</text>
+
+  <!-- 04 report -->
+  <text x="40" y="1222" class="caption">04  REPORT · stay in CLI to inspect evidence, export, or retest</text>
+  <rect x="40" y="1236" width="1120" height="325" rx="12" class="terminal"/>
+  <path d="M52 1236h1096a12 12 0 0 1 12 12v29H40v-29a12 12 0 0 1 12-12z" class="chrome"/>
+  <text x="65" y="1263" class="small blue">OPENHUNTERAI</text>
+  <text x="858" y="1263" class="small soft">report 4af3…  ·  final</text>
+  <text x="65" y="1307" class="large">1 independently validated finding</text>
+  <text x="750" y="1307" class="small warn">Coverage partial · 1 gap</text>
+  <line x1="65" y1="1326" x2="1135" y2="1326" class="rule"/>
+  <text x="65" y="1360" class="teal">› 01</text><text x="150" y="1360">High · Reflected XSS · /search</text>
+  <text x="150" y="1387" class="small soft">Impact observed · baseline + probe + independent replay</text>
+  <text x="65" y="1427" class="small warn">Coverage gap: IDOR not tested — add a second account and rerun.</text>
+  <text x="65" y="1457" class="small soft">Select a finding → evidence / fix / manual retest (after fix)</text>
+  <rect x="65" y="1480" width="1070" height="49" rx="7" class="field"/>
+  <text x="83" y="1511" class="teal">›</text><text x="112" y="1511" class="soft">/report   /export   /retest 01   /new   /dashboard</text>
+  <text x="40" y="1583" class="caption">At narrow widths: single column; non-TTY and --json: plain deterministic output, no ANSI or interactive redraw.</text>
+</svg>

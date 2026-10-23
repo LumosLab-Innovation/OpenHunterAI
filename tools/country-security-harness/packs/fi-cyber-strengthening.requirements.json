@@ -1,0 +1,506 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "fi-cyber-strengthening-curated",
+  "frameworkId": "fi-cyber-strengthening",
+  "version": "Web guidance originating in early 2022; reviewed 2026-10-08",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "fi-primary",
+      "title": "NCSC-FI strengthening cyber security",
+      "url": "https://kyberturvallisuuskeskus.fi/en/instructions-and-guides/instructions-and-guides-organisations-and-companies/strengthening-cyber-security-finnish-organisations-instructions-management-and-experts",
+      "locator": "Sections 1–3.10"
+    }
+  ],
+  "limitations": [
+    "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+    "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+  ],
+  "requirements": [
+    {
+      "id": "fi.critical-inventory",
+      "label": "Identify critical processes and supporting assets",
+      "controlId": "system_classification",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fi-primary",
+      "locator": "Section 2",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Identify critical processes and supporting assets"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "fi.recovery-plan",
+      "label": "Document and practise prioritised recovery",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fi-primary",
+      "locator": "Section 2",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Document and practise prioritised recovery"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "fi.public-login-protection",
+      "label": "Use MFA or block public login exposure",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fi-primary",
+      "locator": "Section 3.1",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "fi.internet_login_paths_exist",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "enum",
+        "factId": "fi.public-login-protection",
+        "allowedValues": [
+          "mfa",
+          "public_internet_access_blocked"
+        ]
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Source offers blocking internet access when MFA cannot be used. Review all own and partner-hosted login paths; the allowed enum encodes that alternative."
+    },
+    {
+      "id": "fi.central-critical-update-age",
+      "label": "Deploy central endpoint critical updates within a week",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fi-primary",
+      "locator": "Section 3.2",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "fi.centrally_managed_endpoints",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "fi.central-critical-update-age",
+        "max": 7,
+        "unit": "days"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Elapsed release-to-deployment age, in days, for critical updates on centrally managed endpoints. No universal deadline is invented for other assets."
+    },
+    {
+      "id": "fi.vulnerability-monitor",
+      "label": "Monitor relevant vulnerability notices",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fi-primary",
+      "locator": "Section 3.2",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Monitor relevant vulnerability notices"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "fi.inbound-firewall",
+      "label": "Allow only needed inbound traffic",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fi-primary",
+      "locator": "Section 3.3",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "fi.inbound-firewall",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "fi.outbound-firewall",
+      "label": "Allow only needed outbound traffic",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fi-primary",
+      "locator": "Section 3.3",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "fi.outbound-firewall",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "fi.internet-protocols",
+      "label": "Exclude unsafe unencrypted internet protocols",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fi-primary",
+      "locator": "Section 3.3",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "fi.internet-protocols",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "fi.endpoint-firewall",
+      "label": "Enable restrictive endpoint firewalls",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fi-primary",
+      "locator": "Section 3.3",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "fi.endpoint-firewall",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "fi.malware-coverage",
+      "label": "Maintain malware protection across devices and servers",
+      "controlId": "malware_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fi-primary",
+      "locator": "Section 3.4",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "fi.malware-coverage",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "fi.malware-operation",
+      "label": "Regularly review protection operation",
+      "controlId": "malware_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fi-primary",
+      "locator": "Section 3.4",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Regularly review protection operation"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "fi.file-inspection",
+      "label": "Inspect incoming and outgoing files and interfaces",
+      "controlId": "malware_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fi-primary",
+      "locator": "Section 3.4",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "fi.file-inspection",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "fi.dos-preparedness",
+      "label": "Plan assistance and continuity for exposed critical services",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fi-primary",
+      "locator": "Section 3.5",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Plan assistance and continuity for exposed critical services"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "fi.cloud-security",
+      "label": "Configure cloud security and information handling",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fi-primary",
+      "locator": "Section 3.6",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "fi.cloud_services_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Configure cloud security and information handling"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "fi.remote-inventory",
+      "label": "Document and review remote access needs",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fi-primary",
+      "locator": "Section 3.7",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "fi.remote_connections_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Document and review remote access needs"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "fi.remote-remove",
+      "label": "Close unnecessary remote access accounts",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fi-primary",
+      "locator": "Section 3.7",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "fi.remote_connections_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "fi.remote-remove",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "fi.remote-logging",
+      "label": "Maintain accessible remote connection logs",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fi-primary",
+      "locator": "Section 3.7",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "fi.remote_connections_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "fi.remote-logging",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "fi.backup-321",
+      "label": "Apply the 3-2-1 backup arrangement",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fi-primary",
+      "locator": "Section 3.8",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Apply the 3-2-1 backup arrangement"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Review at least three data copies on at least two media/device types with at least one off-site copy. Minimum counts need manual review under this predicate contract."
+    },
+    {
+      "id": "fi.backup-restore",
+      "label": "Regularly test restoring data and settings",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fi-primary",
+      "locator": "Section 3.8",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Regularly test restoring data and settings"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "fi.exposure-review",
+      "label": "Compare actual internet exposure with inventory",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fi-primary",
+      "locator": "Section 3.9",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Compare actual internet exposure with inventory"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    }
+  ]
+}

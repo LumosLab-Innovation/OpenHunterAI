@@ -22,6 +22,31 @@ type Scope struct {
 	ExcludedPaths []string
 }
 
+// InitialURL chooses a seed inside the declared path scope. Workers must still
+// call CheckURL before making a request; this only prevents a path-limited scan
+// from starting at the out-of-scope host root.
+func InitialURL(host string, allowedPaths []string) string {
+	base := "https://" + host
+	if len(allowedPaths) == 0 || allowedPaths[0] == "" {
+		return base
+	}
+	path := allowedPaths[0]
+	if !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
+	return base + path
+}
+
+// SeedURL preserves the exact user-requested URL, including its path, when
+// present in a scan_request_v2 snapshot. The worker still checks scope before
+// requesting it. Historical scans fall back to their declared path.
+func SeedURL(targetURL, host string, allowedPaths []string) string {
+	if targetURL != "" {
+		return targetURL
+	}
+	return InitialURL(host, allowedPaths)
+}
+
 // Violation describes why a URL was rejected. error_code is stable so it can be
 // surfaced as a coverage gap / audit reason without leaking target detail.
 type Violation struct {
@@ -90,19 +115,12 @@ func IsBlockedHost(host string) bool {
 	return false
 }
 
-// hostMatches reports whether host equals or is a subdomain of an allowed host.
+// hostMatches requires an exact declared hostname. Authorizing an apex must
+// never silently authorize every subdomain managed by other parties.
 func hostMatches(host, allowed string) bool {
 	host = strings.ToLower(strings.TrimSuffix(host, "."))
 	allowed = strings.ToLower(strings.TrimSuffix(allowed, "."))
-	if allowed == "" {
-		return false
-	}
-	if host == allowed {
-		return true
-	}
-	// Allow exact subdomains only (foo.example.com matches example.com),
-	// never suffix tricks (notexample.com must not match example.com).
-	return strings.HasSuffix(host, "."+allowed)
+	return allowed != "" && host == allowed
 }
 
 // HostInScope reports whether host is covered by the allowedHosts list.

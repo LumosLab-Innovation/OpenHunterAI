@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+import { readFile } from 'node:fs/promises';
+import { scoreAssessment } from '../eval/assessment-benchmark.mjs';
+
 /**
  * Gated staging acceptance runner.
  *
@@ -18,6 +21,7 @@ const headers = {
   'content-type': 'application/json',
   cookie,
 };
+const groundTruth = JSON.parse(await readFile(new URL('../eval/canary-ground-truth.json', import.meta.url), 'utf8'));
 
 const scanBody = (authorizationId) => JSON.stringify({ authorizationId, acceptanceProfile: 'canary_e2e' });
 
@@ -25,6 +29,7 @@ await runAcceptance('AI Black-hat Mindset Check', aiAuthorizationId);
 await runAcceptance('Free Hunter', freeAuthorizationId);
 
 async function runAcceptance(label, authorizationId) {
+  const benchmarkStartedAt = Date.now();
   console.log(`\n== ${label}: preflight ==`);
   const preflight = await post(`/v1/projects/${projectId}/scans/preflight`, scanBody(authorizationId));
   console.log(JSON.stringify(preflight.preflight, null, 2));
@@ -56,6 +61,18 @@ async function runAcceptance(label, authorizationId) {
   if (state !== 'completed') {
     throw new Error(`${label} terminal state was ${state}`);
   }
+  const reportId = final.scan?.reports?.find((report) => report.state === 'final')?.id;
+  if (!reportId) throw new Error(`${label} completed without a final report`);
+  const reportResponse = await get(`/v1/reports/${reportId}`);
+  const content = reportResponse.report?.snapshot?.content;
+  if (content?.formatVersion !== 'report_v2') throw new Error(`${label} did not produce report_v2`);
+  const budgetUsed = final.scan?.budgetUsed ?? {};
+  const benchmark = scoreAssessment(content, groundTruth, {
+    elapsedMs: Date.now() - benchmarkStartedAt,
+    costUsd: budgetUsed.costUsd ?? budgetUsed.estimatedCostUsd,
+  });
+  console.log(`${label} benchmark=${JSON.stringify(benchmark.metrics)}`);
+  if (!benchmark.passed) throw new Error(`${label} benchmark failed: ${benchmark.failures.join('; ')}`);
 }
 
 async function get(path) {

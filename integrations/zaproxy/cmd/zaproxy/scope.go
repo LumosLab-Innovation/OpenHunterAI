@@ -51,7 +51,7 @@ func hostInScope(host string, allowed []string) bool {
 	host = strings.ToLower(strings.TrimSuffix(host, "."))
 	for _, a := range allowed {
 		a = strings.ToLower(strings.TrimSuffix(a, "."))
-		if a != "" && (host == a || strings.HasSuffix(host, "."+a)) {
+		if a != "" && host == a {
 			return true
 		}
 	}

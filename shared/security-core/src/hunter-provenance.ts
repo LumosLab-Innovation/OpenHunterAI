@@ -16,6 +16,7 @@ export const UPSTREAM_IDS = [
   'zap',
   'nuclei',
   'claude_bughunter',
+  'rea',
 ] as const;
 export type UpstreamId = (typeof UPSTREAM_IDS)[number];
 
@@ -70,6 +71,14 @@ export function validateHunterProvenance(p: HunterProvenance): string[] {
   }
   if (p.source.importedBy !== 'manual_claude_code_run') {
     problems.push('importedBy must be "manual_claude_code_run" (no auto sync)');
+  }
+  if (p.source.upstreamId !== 'openhunter_core') {
+    const ref = p.source.upstreamRef?.trim().toLowerCase();
+    if (!ref) {
+      problems.push('external upstream provenance requires an exact upstreamRef');
+    } else if (['main', 'master', 'stable', 'latest', 'vendored-snapshot'].includes(ref) || ref.endsWith(':stable') || ref.endsWith(':latest')) {
+      problems.push(`upstreamRef "${p.source.upstreamRef}" is mutable; use an exact commit, tag, or digest`);
+    }
   }
 
   // ZAP and Nuclei are signal layers, not business-logic hunters. They cannot be the

@@ -1,0 +1,1194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openhunter.local/contracts/country-security-world.schema.json",
+  "title": "Worldwide research directory, identity joins, framework batches and coverage inventory",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/directory"
+    },
+    {
+      "$ref": "#/$defs/identifiers"
+    },
+    {
+      "$ref": "#/$defs/report"
+    },
+    {
+      "$ref": "#/$defs/jurisdictionCoverage"
+    },
+    {
+      "$ref": "#/$defs/batch"
+    }
+  ],
+  "$defs": {
+    "directory": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "country_security_global_directory_v1"
+        },
+        "reviewedOn": {
+          "type": "string",
+          "format": "date"
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "title",
+            "url",
+            "locator"
+          ],
+          "properties": {
+            "id": {
+              "const": "un-m49"
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "url": {
+              "const": "https://unstats.un.org/unsd/methodology/M49"
+            },
+            "locator": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "m49Code": {
+                "type": "string",
+                "pattern": "^\\d{3}$"
+              },
+              "isoAlpha3": {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              }
+            },
+            "required": [
+              "name",
+              "m49Code",
+              "isoAlpha3"
+            ]
+          },
+          "maxItems": 300,
+          "minItems": 1
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          },
+          "maxItems": 20,
+          "minItems": 1
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "reviewedOn",
+        "source",
+        "entries",
+        "limitations"
+      ]
+    },
+    "identifiers": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "country_security_jurisdiction_identifiers_v1"
+        },
+        "reviewedOn": {
+          "type": "string",
+          "format": "date"
+        },
+        "method": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "countryCode": {
+                "type": "string",
+                "pattern": "^[A-Z]{2}$"
+              },
+              "isoAlpha3": {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              }
+            },
+            "required": [
+              "countryCode",
+              "isoAlpha3"
+            ]
+          },
+          "maxItems": 300,
+          "minItems": 1
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          },
+          "maxItems": 20,
+          "minItems": 1
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "reviewedOn",
+        "method",
+        "entries",
+        "limitations"
+      ]
+    },
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "country_security_world_coverage_v1"
+        },
+        "reviewedOn": {
+          "type": "string",
+          "format": "date"
+        },
+        "catalogVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "conclusion": {
+          "const": "inventory_only"
+        },
+        "formalLevelDetermination": {
+          "const": false
+        },
+        "counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "directoryCountryOrAreaCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "catalogedCountryOrAreaCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "countriesOrAreasWithClausePacks": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "countriesOrAreasWithReferenceOnly": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "catalogedSupranationalGroups": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "catalogedInternationalGroups": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "frameworkCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "clausePackCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "curatedRequirementCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "unreviewedDirectoryEntryCount": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "directoryCountryOrAreaCount",
+            "catalogedCountryOrAreaCount",
+            "countriesOrAreasWithClausePacks",
+            "countriesOrAreasWithReferenceOnly",
+            "catalogedSupranationalGroups",
+            "catalogedInternationalGroups",
+            "frameworkCount",
+            "clausePackCount",
+            "curatedRequirementCount",
+            "unreviewedDirectoryEntryCount"
+          ]
+        },
+        "jurisdictions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "countryCode": {
+                "type": "string",
+                "pattern": "^[A-Z]{2}$"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "jurisdictionType": {
+                "enum": [
+                  "country_or_area",
+                  "supranational",
+                  "international"
+                ]
+              },
+              "isoAlpha3": {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              },
+              "m49Code": {
+                "type": "string",
+                "pattern": "^\\d{3}$"
+              },
+              "depth": {
+                "enum": [
+                  "curated_clauses",
+                  "framework_reference_only"
+                ]
+              },
+              "frameworkCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "clausePackCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "curatedRequirementCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "gaps": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Z_]+$"
+                },
+                "maxItems": 100,
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "frameworks": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "frameworkId": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9._-]{0,63}$"
+                    },
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4000
+                    },
+                    "version": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4000
+                    },
+                    "kind": {
+                      "enum": [
+                        "impact_classification",
+                        "maturity",
+                        "governance_tier",
+                        "certification_assurance",
+                        "preparedness_certification",
+                        "implementation_approach",
+                        "self_declaration",
+                        "control_baseline",
+                        "regulatory_requirements"
+                      ]
+                    },
+                    "currency": {
+                      "enum": [
+                        "reviewed_reference",
+                        "requires_review"
+                      ]
+                    },
+                    "applicability": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4000
+                    },
+                    "levels": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "levelId": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9._-]{0,63}$"
+                          },
+                          "label": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 4000
+                          },
+                          "curatedRequirementCount": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": [
+                          "levelId",
+                          "label",
+                          "curatedRequirementCount"
+                        ]
+                      },
+                      "maxItems": 100,
+                      "minItems": 1
+                    },
+                    "depth": {
+                      "enum": [
+                        "curated_clauses",
+                        "framework_reference_only"
+                      ]
+                    },
+                    "packId": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9._-]{0,63}$"
+                    },
+                    "packVersion": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400
+                    },
+                    "curatedRequirementCount": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "sources": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "id",
+                          "title",
+                          "url",
+                          "locator"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9._-]{0,63}$"
+                          },
+                          "title": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "url": {
+                            "type": "string",
+                            "format": "uri",
+                            "pattern": "^https://"
+                          },
+                          "locator": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      },
+                      "maxItems": 50
+                    },
+                    "limitations": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4000
+                      },
+                      "maxItems": 100,
+                      "minItems": 1
+                    },
+                    "packSources": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "id",
+                          "title",
+                          "url",
+                          "locator"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9._-]{0,63}$"
+                          },
+                          "title": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "url": {
+                            "type": "string",
+                            "format": "uri",
+                            "pattern": "^https://"
+                          },
+                          "locator": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "frameworkId",
+                    "label",
+                    "version",
+                    "kind",
+                    "currency",
+                    "applicability",
+                    "levels",
+                    "depth",
+                    "curatedRequirementCount",
+                    "sources",
+                    "limitations"
+                  ],
+                  "dependentRequired": {
+                    "packId": [
+                      "packVersion",
+                      "packSources"
+                    ],
+                    "packVersion": [
+                      "packId",
+                      "packSources"
+                    ],
+                    "packSources": [
+                      "packId",
+                      "packVersion"
+                    ]
+                  }
+                },
+                "maxItems": 200,
+                "minItems": 1
+              }
+            },
+            "required": [
+              "countryCode",
+              "name",
+              "jurisdictionType",
+              "depth",
+              "frameworkCount",
+              "clausePackCount",
+              "curatedRequirementCount",
+              "gaps",
+              "frameworks"
+            ]
+          },
+          "maxItems": 300
+        },
+        "unreviewedDirectoryEntries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "m49Code": {
+                "type": "string",
+                "pattern": "^\\d{3}$"
+              },
+              "isoAlpha3": {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              },
+              "depth": {
+                "const": "research_pending"
+              },
+              "gaps": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Z_]+$"
+                },
+                "maxItems": 100,
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "name",
+              "m49Code",
+              "isoAlpha3",
+              "depth",
+              "gaps"
+            ]
+          },
+          "maxItems": 300
+        },
+        "directorySource": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "title",
+            "url",
+            "locator"
+          ],
+          "properties": {
+            "id": {
+              "const": "un-m49"
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "url": {
+              "const": "https://unstats.un.org/unsd/methodology/M49"
+            },
+            "locator": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          },
+          "maxItems": 100,
+          "minItems": 1
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "reviewedOn",
+        "catalogVersion",
+        "conclusion",
+        "formalLevelDetermination",
+        "counts",
+        "directorySource",
+        "limitations"
+      ]
+    },
+    "jurisdictionCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "country_security_jurisdiction_coverage_v1"
+        },
+        "reviewedOn": {
+          "type": "string",
+          "format": "date"
+        },
+        "conclusion": {
+          "const": "inventory_only"
+        },
+        "jurisdiction": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "countryCode": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{2}$"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4000
+                },
+                "jurisdictionType": {
+                  "enum": [
+                    "country_or_area",
+                    "supranational",
+                    "international"
+                  ]
+                },
+                "isoAlpha3": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{3}$"
+                },
+                "m49Code": {
+                  "type": "string",
+                  "pattern": "^\\d{3}$"
+                },
+                "depth": {
+                  "enum": [
+                    "curated_clauses",
+                    "framework_reference_only"
+                  ]
+                },
+                "frameworkCount": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "clausePackCount": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "curatedRequirementCount": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "gaps": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Z_]+$"
+                  },
+                  "maxItems": 100,
+                  "minItems": 1,
+                  "uniqueItems": true
+                },
+                "frameworks": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "frameworkId": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9._-]{0,63}$"
+                      },
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4000
+                      },
+                      "version": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4000
+                      },
+                      "kind": {
+                        "enum": [
+                          "impact_classification",
+                          "maturity",
+                          "governance_tier",
+                          "certification_assurance",
+                          "preparedness_certification",
+                          "implementation_approach",
+                          "self_declaration",
+                          "control_baseline",
+                          "regulatory_requirements"
+                        ]
+                      },
+                      "currency": {
+                        "enum": [
+                          "reviewed_reference",
+                          "requires_review"
+                        ]
+                      },
+                      "applicability": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4000
+                      },
+                      "levels": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "levelId": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9._-]{0,63}$"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4000
+                            },
+                            "curatedRequirementCount": {
+                              "type": "integer",
+                              "minimum": 0
+                            }
+                          },
+                          "required": [
+                            "levelId",
+                            "label",
+                            "curatedRequirementCount"
+                          ]
+                        },
+                        "maxItems": 100,
+                        "minItems": 1
+                      },
+                      "depth": {
+                        "enum": [
+                          "curated_clauses",
+                          "framework_reference_only"
+                        ]
+                      },
+                      "packId": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9._-]{0,63}$"
+                      },
+                      "packVersion": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "curatedRequirementCount": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "sources": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "id",
+                            "title",
+                            "url",
+                            "locator"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9._-]{0,63}$"
+                            },
+                            "title": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "url": {
+                              "type": "string",
+                              "format": "uri",
+                              "pattern": "^https://"
+                            },
+                            "locator": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        },
+                        "maxItems": 50
+                      },
+                      "limitations": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4000
+                        },
+                        "maxItems": 100,
+                        "minItems": 1
+                      },
+                      "packSources": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "id",
+                            "title",
+                            "url",
+                            "locator"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9._-]{0,63}$"
+                            },
+                            "title": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "url": {
+                              "type": "string",
+                              "format": "uri",
+                              "pattern": "^https://"
+                            },
+                            "locator": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "required": [
+                      "frameworkId",
+                      "label",
+                      "version",
+                      "kind",
+                      "currency",
+                      "applicability",
+                      "levels",
+                      "depth",
+                      "curatedRequirementCount",
+                      "sources",
+                      "limitations"
+                    ],
+                    "dependentRequired": {
+                      "packId": [
+                        "packVersion",
+                        "packSources"
+                      ],
+                      "packVersion": [
+                        "packId",
+                        "packSources"
+                      ],
+                      "packSources": [
+                        "packId",
+                        "packVersion"
+                      ]
+                    }
+                  },
+                  "maxItems": 200,
+                  "minItems": 1
+                }
+              },
+              "required": [
+                "countryCode",
+                "name",
+                "jurisdictionType",
+                "depth",
+                "frameworkCount",
+                "clausePackCount",
+                "curatedRequirementCount",
+                "gaps",
+                "frameworks"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 300
+                },
+                "m49Code": {
+                  "type": "string",
+                  "pattern": "^\\d{3}$"
+                },
+                "isoAlpha3": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{3}$"
+                },
+                "depth": {
+                  "const": "research_pending"
+                },
+                "gaps": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Z_]+$"
+                  },
+                  "maxItems": 100,
+                  "minItems": 1,
+                  "uniqueItems": true
+                }
+              },
+              "required": [
+                "name",
+                "m49Code",
+                "isoAlpha3",
+                "depth",
+                "gaps"
+              ]
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "reviewedOn",
+        "conclusion",
+        "jurisdiction"
+      ]
+    },
+    "batch": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "country_security_framework_batch_v1"
+        },
+        "reviewedOn": {
+          "type": "string",
+          "format": "date"
+        },
+        "frameworks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "countryCode",
+              "countryName",
+              "label",
+              "version",
+              "kind",
+              "ordinalLevels",
+              "currency",
+              "applicability",
+              "levelSelection",
+              "levels",
+              "controlIds",
+              "mappingCoverage",
+              "sources",
+              "limitations"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9._-]{0,63}$"
+              },
+              "countryCode": {
+                "type": "string",
+                "pattern": "^[A-Z]{2}$"
+              },
+              "countryName": {
+                "type": "string",
+                "minLength": 1
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "version": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "enum": [
+                  "impact_classification",
+                  "maturity",
+                  "governance_tier",
+                  "certification_assurance",
+                  "preparedness_certification",
+                  "implementation_approach",
+                  "self_declaration",
+                  "control_baseline",
+                  "regulatory_requirements"
+                ]
+              },
+              "ordinalLevels": {
+                "type": "boolean"
+              },
+              "currency": {
+                "enum": [
+                  "reviewed_reference",
+                  "requires_review"
+                ]
+              },
+              "applicability": {
+                "type": "string",
+                "minLength": 1
+              },
+              "levelSelection": {
+                "enum": [
+                  "owner_or_authority",
+                  "assessment_target"
+                ]
+              },
+              "levels": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "label",
+                    "summary"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9._-]{0,63}$"
+                    },
+                    "label": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "summary": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+              "controlIds": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9._-]{0,63}$"
+                }
+              },
+              "mappingCoverage": {
+                "enum": [
+                  "partial",
+                  "overview_only"
+                ]
+              },
+              "sources": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "title",
+                    "url",
+                    "locator"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9._-]{0,63}$"
+                    },
+                    "title": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "url": {
+                      "type": "string",
+                      "format": "uri",
+                      "pattern": "^https://"
+                    },
+                    "locator": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+              "limitations": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "jurisdictionType": {
+                "enum": [
+                  "country_or_area",
+                  "supranational",
+                  "international"
+                ]
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "countryCode": {
+                      "const": "EU"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "jurisdictionType"
+                  ],
+                  "properties": {
+                    "jurisdictionType": {
+                      "const": "supranational"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "countryCode": {
+                      "const": "ZZ"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "jurisdictionType"
+                  ],
+                  "properties": {
+                    "jurisdictionType": {
+                      "const": "international"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "countryCode": {
+                      "not": {
+                        "enum": [
+                          "EU",
+                          "ZZ"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "jurisdictionType": {
+                      "const": "country_or_area"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "maxItems": 200,
+          "minItems": 1
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "reviewedOn",
+        "frameworks"
+      ]
+    }
+  }
+}

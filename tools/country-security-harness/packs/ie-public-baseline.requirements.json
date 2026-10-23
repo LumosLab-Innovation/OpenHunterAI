@@ -1,0 +1,674 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "ie-public-baseline-curated",
+  "frameworkId": "ie-public-baseline",
+  "version": "Revision 1, 2022",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "ie-primary",
+      "title": "NCSC Cyber Security Baseline Standards",
+      "url": "https://www.ncsc.gov.ie/pdfs/Cyber_Security_Baseline_Standards_Rev_1_2022_Final.pdf",
+      "locator": "Identify, Protect, Detect, Respond, Recover; normative left-column clauses"
+    }
+  ],
+  "limitations": [
+    "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+    "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+  ],
+  "requirements": [
+    {
+      "id": "ie.responsibility",
+      "label": "Assign an accountable cybersecurity contact",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "1.1.1, printed p.5",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Assign an accountable cybersecurity contact"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ie.security-policies",
+      "label": "Manage ICT security policies and processes",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "1.2.1, printed p.5",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Manage ICT security policies and processes"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ie.risk-process",
+      "label": "Maintain an ICT risk management process",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "1.3.1, printed p.5",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Maintain an ICT risk management process"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ie.critical-categorisation",
+      "label": "Categorise systems essential to operations",
+      "controlId": "system_classification",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "1.5.1, printed p.7",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Categorise systems essential to operations"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ie.physical-policy",
+      "label": "Maintain physical and environmental access policy",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "1.6.1, printed p.7",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ie.physical-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ie.supplier-register",
+      "label": "Maintain a third-party supplier register",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "1.6.2, printed p.7",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        },
+        {
+          "factId": "ie.third_parties_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ie.supplier-register",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ie.supplier-obligations",
+      "label": "Inform third parties of cybersecurity obligations",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "1.6.3, printed p.7",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        },
+        {
+          "factId": "ie.third_parties_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Inform third parties of cybersecurity obligations"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ie.essential-dependencies",
+      "label": "Record operational services and dependencies",
+      "controlId": "system_classification",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "1.7.1, printed p.8",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Record operational services and dependencies"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ie.joiner-mover-leaver",
+      "label": "Maintain joiner, mover and leaver policy",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "1.9 (source numbering), printed p.9",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ie.joiner-mover-leaver",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ie.third-party-expiry",
+      "label": "Limit third-party access to approved role duration",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "1.9.2, printed p.10",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        },
+        {
+          "factId": "ie.third_parties_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Limit third-party access to approved role duration"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ie.known-authorized-users",
+      "label": "Limit access to known individually referenced subjects",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "2.1.1, printed p.11",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ie.known-authorized-users",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ie.least-privilege-duties",
+      "label": "Apply least privilege and separation of duties",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "2.1.1, printed p.11",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Apply least privilege and separation of duties"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ie.access-policy",
+      "label": "Maintain access control policy",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "2.1.2, printed p.11",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ie.access-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Normative left column uses SHOULD. Guidance notes elsewhere do not change this clause to mandatory."
+    },
+    {
+      "id": "ie.identify-before-access",
+      "label": "Identify users before access",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "2.2.1, printed p.12",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ie.identify-before-access",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ie.authenticate-before-access",
+      "label": "Authenticate users according to sensitivity",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "2.2.2, printed p.13",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Authenticate users according to sensitivity"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ie.assets-current",
+      "label": "Maintain hardware and software asset registers",
+      "controlId": "system_classification",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "2.3.1, printed p.13",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ie.assets-current",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ie.patch-or-mitigate",
+      "label": "Patch assets or approve and apply risk-based mitigations",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "2.3.2, printed p.14",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "enum",
+        "factId": "ie.patch-or-mitigate",
+        "allowedValues": [
+          "patched",
+          "assessed_approved_applied_mitigation"
+        ]
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "The left-column requirement explicitly allows documented approved mitigation when updating is impossible; no universal numeric patch age is inferred."
+    },
+    {
+      "id": "ie.ip-ranges",
+      "label": "Document internal and external IP ranges",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "2.6.2, printed p.17",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ie.ip-ranges",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ie.outsourcing-responsibilities",
+      "label": "Document supplier security responsibilities",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "2.6.5, printed p.17",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        },
+        {
+          "factId": "ie.outsourced_digital_services",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Document supplier security responsibilities"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ie.incident-logs",
+      "label": "Enable logs useful for incident response",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "2.7.2, printed p.18",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ie.incident-logs",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ie.log-backups",
+      "label": "Retain log and audit backups for organisational needs",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "2.7.3, printed pp.18–19",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Retain log and audit backups for organisational needs"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ie.log-master-preserved",
+      "label": "Analyse copies while preserving original logs",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "2.7.4, printed p.19",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ie.log-master-preserved",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ie.endpoint-register",
+      "label": "Maintain a current endpoint inventory",
+      "controlId": "system_classification",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ie-primary",
+      "locator": "2.8.1, printed p.19",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ie.public_service_body_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ie.endpoint-register",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    }
+  ]
+}

@@ -13,8 +13,8 @@ type ScopeSnapshot struct {
 	ExcludedPaths             []string `json:"excludedPaths"`
 	TestAccountPermission     bool     `json:"testAccountPermission"`
 	SensitiveActionPermission bool     `json:"sensitiveActionPermission"`
-	PackageTier               string   `json:"packageTier"`
-	ScanMode                  string   `json:"scanMode"`
+	Profile                   string   `json:"profile"`
+	TargetURL                 string   `json:"targetUrl"`
 	AuthScope                 string   `json:"authScope"`
 	TargetType                string   `json:"targetType"`
 	TestIntensityMode         string   `json:"testIntensityMode"`
@@ -24,20 +24,20 @@ type ScopeSnapshot struct {
 	CapturedAt                string   `json:"capturedAt"`
 }
 
-type ReportContentV1 struct {
+type ReportContentV2 struct {
 	FormatVersion           string                 `json:"formatVersion"`
 	ReportType              string                 `json:"reportType"`
-	PackageTier             string                 `json:"packageTier"`
-	ScanMode                string                 `json:"scanMode"`
+	Profile                 string                 `json:"profile"`
 	TargetType              string                 `json:"targetType"`
 	AuthScope               string                 `json:"authScope"`
 	TestIntensityMode       string                 `json:"testIntensityMode"`
 	SurfaceFlags            map[string]bool        `json:"surfaceFlags"`
 	OwnerSummary            map[string]string      `json:"ownerSummary"`
 	Findings                []map[string]any       `json:"findings"`
+	HistoricalFindings      []map[string]any       `json:"historicalFindings,omitempty"`
 	DeveloperFixPack        []map[string]any       `json:"developerFixPack"`
 	Coverage                map[string]any         `json:"coverage"`
 	HardeningRecommendations []string              `json:"hardeningRecommendations"`
-	RetestAndMonitor        map[string]any         `json:"retestAndMonitor"`
+	Retest                  map[string]any         `json:"retest"`
 	GeneratedAt             string                 `json:"generatedAt"`
 }

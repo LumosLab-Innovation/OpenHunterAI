@@ -1,0 +1,390 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "za-popia-security-selected-clauses",
+  "frameworkId": "za-popia-security",
+  "version": "2026-10-08.1",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "za-popia-security-source",
+      "title": "POPIA — Security safeguards — official reference",
+      "url": "https://www.gov.za/sites/default/files/gcis_document/201409/3706726-11act4of2013popi.pdf",
+      "locator": "Chapter 3 Condition 7: sections 19–22; official Gazette PDF"
+    }
+  ],
+  "limitations": [
+    "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+    "2025 amended regulations and any approved sector code are outside this partial map. Applicable exceptions and regulator/law-enforcement restrictions require manual review."
+  ],
+  "requirements": [
+    {
+      "id": "za-reasonable-security",
+      "label": "Maintain integrity/confidentiality safeguards",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "za-popia-security-source",
+      "locator": "s 19(1);PDFp 17/printedp 32",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "za-reasonable-security",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "za-foreseeable-risks",
+      "label": "Identify internal and external risks",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "za-popia-security-source",
+      "locator": "s 19(2)(a);PDFp 17",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "za-foreseeable-risks",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "za-risk-safeguards",
+      "label": "Maintain safeguards against identified risks",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "za-popia-security-source",
+      "locator": "s 19(2)(b);PDFp 17",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "za-risk-safeguards",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "za-effective-review",
+      "label": "Verify safeguard implementation regularly",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "za-popia-security-source",
+      "locator": "s 19(2)(c);PDFp 17",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "za-effective-review",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "za-update-safeguards",
+      "label": "Update controls for risks/deficiencies",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "za-popia-security-source",
+      "locator": "s 19(2)(d);PDFp 17",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "za-update-safeguards",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "za-industry-practices",
+      "label": "Review applicable security practices",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "za-popia-security-source",
+      "locator": "s 19(3);PDFp 17",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Applicable general security practices and specific industry/professional rules."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "za-authorized-processing",
+      "label": "Process data only with party authorization",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "za-popia-security-source",
+      "locator": "s 20(a);PDFp 18",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "acts-as-operator",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "za-authorized-processing",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "za-operator-confidentiality",
+      "label": "Preserve operator data confidentiality",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "za-popia-security-source",
+      "locator": "s 20(b);PDFp 18",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "acts-as-operator",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "za-operator-confidentiality",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "za-operator-contract",
+      "label": "Bind operator safeguards in written contract",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "za-popia-security-source",
+      "locator": "s 21(1);PDFp 18",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "uses-operator",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "za-operator-contract",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "za-operator-notice",
+      "label": "Report suspected unauthorized access immediately",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "za-popia-security-source",
+      "locator": "s 21(2);PDFp 18",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "acts-as-operator",
+          "equals": true
+        },
+        {
+          "factId": "suspected-compromise",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Immediate notice by operator to responsible party, based on reasonable grounds of unauthorized access/acquisition."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "za-regulator-notice",
+      "label": "Notify regulator of security compromise",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "za-popia-security-source",
+      "locator": "s 22(1)(a),(2);PDFp 18",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "responsible-party",
+          "equals": true
+        },
+        {
+          "factId": "suspected-compromise",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Notice as soon as reasonably possible; review discovery, law-enforcement needs and restoration measures. No invented fixed-hour deadline."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "za-subject-notice",
+      "label": "Review required security notice to subjects",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "za-popia-security-source",
+      "locator": "s 22(1)(b),(3)–(5);PDFp 18",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "responsible-party",
+          "equals": true
+        },
+        {
+          "factId": "suspected-compromise",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review identified subjects, permissible delay, written channels and protective content. No automatic exemption is assumed."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://openhunterai.local/schemas/country-security-artifacts-v1",
+  "title": "Offline country security artifact verification",
+  "description": "A separately configured public-key trust store verifies signed enum-only summaries. Byte integrity and validator attestation do not establish actual network replay or certification. Artifact files are capped at 64 KiB; manifest/trust input files at 1 MiB.",
+  "oneOf": [
+    { "$ref": "#/definitions/bundle" },
+    { "$ref": "#/definitions/trustStore" },
+    { "$ref": "#/definitions/artifact" },
+    { "$ref": "#/definitions/verification" }
+  ],
+  "definitions": {
+    "safeId": {
+      "type": "string", "maxLength": 64,
+      "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*(?:^|[._:-])(?:token|password|secret|credential|bearer)(?:$|[._:-]))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$"
+    },
+    "date": { "type": "string", "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "origin": { "enum": ["synthetic_fixture", "operator_supplied"] },
+    "role": { "enum": ["baseline", "probe", "impact", "replay", "negative"] },
+    "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "outcome": { "enum": ["detected", "clear", "inconclusive"] },
+    "assertion": { "enum": ["baseline_recorded", "probe_recorded", "impact_observed", "replay_attested", "negative_control_observed"] },
+    "gap": {
+      "enum": ["ARTIFACT_PATH_UNSAFE", "ARTIFACT_TOO_LARGE", "ARTIFACT_UNREADABLE", "ARTIFACT_HASH_MISMATCH", "ARTIFACT_JSON_INVALID", "ARTIFACT_SCHEMA_INVALID", "ARTIFACT_BINDING_MISMATCH", "NON_INDEPENDENT_VALIDATOR", "VALIDATOR_UNTRUSTED", "TRUST_ORIGIN_MISMATCH", "VALIDATOR_KEY_REVOKED", "VALIDATOR_KEY_EXPIRED", "ARTIFACT_FROM_FUTURE", "ARTIFACT_EXPIRED", "ARTIFACT_SIGNATURE_INVALID", "ARTIFACT_VERIFICATION_FAILED"]
+    },
+    "bundle": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "dataOrigin", "assessmentId", "runId", "frameworkId", "levelId", "producerId", "benchmarkManifestSHA256", "benchmarkRunSHA256", "artifacts"],
+      "properties": {
+        "schemaVersion": { "const": "country_security_artifact_bundle_v1" },
+        "dataOrigin": { "$ref": "#/definitions/origin" },
+        "assessmentId": { "$ref": "#/definitions/safeId" }, "runId": { "$ref": "#/definitions/safeId" },
+        "frameworkId": { "$ref": "#/definitions/safeId" }, "levelId": { "$ref": "#/definitions/safeId" },
+        "producerId": { "$ref": "#/definitions/safeId" },
+        "benchmarkManifestSHA256": { "$ref": "#/definitions/digest" }, "benchmarkRunSHA256": { "$ref": "#/definitions/digest" },
+        "artifacts": {
+          "type": "array", "minItems": 1, "maxItems": 512,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["artifactId", "file", "sha256", "caseId", "role"],
+            "properties": {
+              "artifactId": { "$ref": "#/definitions/safeId" },
+              "file": { "type": "string", "maxLength": 69, "pattern": "^[a-z][a-z0-9._-]{0,63}\\.json$", "description": "Must equal artifactId + .json; no path or URL." },
+              "sha256": { "$ref": "#/definitions/digest" }, "caseId": { "$ref": "#/definitions/safeId" },
+              "role": { "$ref": "#/definitions/role" }
+            }
+          }
+        }
+      }
+    },
+    "trustStore": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "dataOrigin", "keys"],
+      "properties": {
+        "schemaVersion": { "const": "country_security_validator_trust_v1" },
+        "dataOrigin": { "$ref": "#/definitions/origin" },
+        "keys": {
+          "type": "array", "minItems": 1, "maxItems": 128,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["keyId", "validatorId", "dataOrigin", "status", "validFrom", "validUntil", "publicKeySpki"],
+            "properties": {
+              "keyId": { "$ref": "#/definitions/safeId" }, "validatorId": { "$ref": "#/definitions/safeId" },
+              "dataOrigin": { "$ref": "#/definitions/origin" }, "status": { "enum": ["active", "revoked"] },
+              "validFrom": { "$ref": "#/definitions/date" }, "validUntil": { "$ref": "#/definitions/date" },
+              "publicKeySpki": { "type": "string", "pattern": "^[A-Za-z0-9+/]{59}=$", "description": "Ed25519 public key in canonical DER SPKI base64; independently supplied by the operator, not embedded in submitted artifacts." }
+            }
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object", "additionalProperties": false,
+      "required": ["sanitized", "assertionCode", "outcome", "comparison", "evidenceType"],
+      "properties": {
+        "sanitized": { "const": true }, "assertionCode": { "$ref": "#/definitions/assertion" },
+        "outcome": { "$ref": "#/definitions/outcome" }, "comparison": { "enum": ["changed", "unchanged", "not_compared"] },
+        "evidenceType": { "enum": ["http_status_comparison", "browser_marker_comparison", "ownership_comparison", "header_configuration", "document_review", "manual_observation"] }
+      }
+    },
+    "artifact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "dataOrigin", "artifactId", "assessmentId", "runId", "frameworkId", "levelId", "producerId", "validatorId", "keyId", "caseId", "role", "observedAt", "expiresAt", "benchmarkManifestSHA256", "benchmarkRunSHA256", "summary", "signatureAlgorithm", "signature"],
+      "properties": {
+        "schemaVersion": { "const": "country_security_artifact_v1" }, "dataOrigin": { "$ref": "#/definitions/origin" },
+        "artifactId": { "$ref": "#/definitions/safeId" }, "assessmentId": { "$ref": "#/definitions/safeId" },
+        "runId": { "$ref": "#/definitions/safeId" }, "frameworkId": { "$ref": "#/definitions/safeId" },
+        "levelId": { "$ref": "#/definitions/safeId" }, "producerId": { "$ref": "#/definitions/safeId" },
+        "validatorId": { "$ref": "#/definitions/safeId" }, "keyId": { "$ref": "#/definitions/safeId" },
+        "caseId": { "$ref": "#/definitions/safeId" }, "role": { "$ref": "#/definitions/role" },
+        "observedAt": { "$ref": "#/definitions/date" }, "expiresAt": { "$ref": "#/definitions/date" },
+        "benchmarkManifestSHA256": { "$ref": "#/definitions/digest" }, "benchmarkRunSHA256": { "$ref": "#/definitions/digest" },
+        "summary": { "$ref": "#/definitions/summary" }, "signatureAlgorithm": { "const": "Ed25519" },
+        "signature": { "type": "string", "pattern": "^[A-Za-z0-9+/]{86}==$", "description": "Signature over the fixed domain prefix plus sorted UTF-8 JSON excluding this field." }
+      },
+      "allOf": [
+        { "if": { "properties": { "role": { "const": "baseline" } } }, "then": { "properties": { "summary": { "properties": { "assertionCode": { "const": "baseline_recorded" } } } } } },
+        { "if": { "properties": { "role": { "const": "probe" } } }, "then": { "properties": { "summary": { "properties": { "assertionCode": { "const": "probe_recorded" } } } } } },
+        { "if": { "properties": { "role": { "const": "impact" } } }, "then": { "properties": { "summary": { "properties": { "assertionCode": { "const": "impact_observed" } } } } } },
+        { "if": { "properties": { "role": { "const": "replay" } } }, "then": { "properties": { "summary": { "properties": { "assertionCode": { "const": "replay_attested" } } } } } },
+        { "if": { "properties": { "role": { "const": "negative" } } }, "then": { "properties": { "summary": { "properties": { "assertionCode": { "const": "negative_control_observed" } } } } } }
+      ]
+    },
+    "verification": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "dataOrigin", "assessmentId", "runId", "frameworkId", "levelId", "benchmarkManifestSHA256", "benchmarkRunSHA256", "asOf", "artifactCount", "artifactIntegrityVerified", "validatorAttestationVerified", "replayVerified", "engineEfficacyVerified", "conclusion", "verificationScope", "artifacts", "coverageGaps"],
+      "properties": {
+        "schemaVersion": { "const": "country_security_artifact_verification_v1" }, "dataOrigin": { "$ref": "#/definitions/origin" },
+        "assessmentId": { "$ref": "#/definitions/safeId" }, "runId": { "$ref": "#/definitions/safeId" },
+        "frameworkId": { "$ref": "#/definitions/safeId" }, "levelId": { "$ref": "#/definitions/safeId" },
+        "benchmarkManifestSHA256": { "$ref": "#/definitions/digest" }, "benchmarkRunSHA256": { "$ref": "#/definitions/digest" },
+        "asOf": { "$ref": "#/definitions/date" }, "artifactCount": { "type": "integer", "minimum": 1, "maximum": 512 },
+        "artifactIntegrityVerified": { "type": "boolean" }, "validatorAttestationVerified": { "type": "boolean" },
+        "replayVerified": { "const": false }, "engineEfficacyVerified": { "const": false },
+        "conclusion": { "const": "not_determined" }, "verificationScope": { "const": "local_bytes_and_configured_validator_attestations" },
+        "artifacts": {
+          "type": "array", "minItems": 1, "maxItems": 512,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["artifactId", "caseId", "role", "sha256", "artifactIntegrityVerified", "validatorAttestationVerified", "gaps"],
+            "properties": {
+              "artifactId": { "$ref": "#/definitions/safeId" }, "caseId": { "$ref": "#/definitions/safeId" },
+              "role": { "$ref": "#/definitions/role" }, "artifactIntegrityVerified": { "type": "boolean" },
+              "sha256": { "$ref": "#/definitions/digest" },
+              "validatorAttestationVerified": { "type": "boolean" },
+              "gaps": { "type": "array", "maxItems": 1, "items": { "$ref": "#/definitions/gap" } },
+              "validatorId": { "$ref": "#/definitions/safeId" }, "keyId": { "$ref": "#/definitions/safeId" },
+              "keyFingerprintSha256": { "$ref": "#/definitions/digest" },
+              "assertedOutcome": { "$ref": "#/definitions/outcome" }
+            }
+          }
+        },
+        "coverageGaps": {
+          "type": "array", "maxItems": 512,
+          "items": { "type": "object", "additionalProperties": false, "required": ["artifactId", "code"],
+            "properties": { "artifactId": { "$ref": "#/definitions/safeId" }, "code": { "$ref": "#/definitions/gap" } } }
+        }
+      }
+    }
+  }
+}

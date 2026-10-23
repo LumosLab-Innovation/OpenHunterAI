@@ -38,21 +38,21 @@ SECURITY_GUARDRAILS.md
 V1 chỉ làm:
 
 ```text
-Authorized external web/app security testing cho domain đã xác minh.
+Authorized external web/app security testing cho public host do người dùng khai báo quyền kiểm thử. DNS/domain ownership verification không bắt buộc trong self-host.
 ```
 
 Cụ thể:
 
 ```text
-- Domain verification.
+- Explicit scan authorization và xác nhận quyền kiểm thử cho từng host.
 - Scope authorization.
 - User-selected Target Type, Surface Flags, Test Intensity Mode.
-- Deterministic Scan Plan from package tier, target type, surface flags, auth scope, intensity, verified scope, policy gates, approval gates, and quota.
+- Deterministic Scan Plan from Quick/Standard/Deep profile, target type, surface flags, auth scope, intensity, declared scope, policy gates, approval gates, and resource budget.
 - Optional test account.
 - Browser Inspector bằng Playwright/CDP.
 - ZAP passive/baseline signal.
 - Nuclei curated safe templates.
-- OpenHack-style Free Hunter workflow.
+- Built-in passive surface hunter; OpenHack methodology is a workflow reference, not the runtime.
 - Strix attacker-mindset reasoning.
 - Human-readable report.
 - AI/dev-readable report.
@@ -113,8 +113,7 @@ Không tự implement.
 Không được tạo scan job nếu:
 
 ```text
-- Domain chưa verified.
-- Verification đã expired.
+- Chưa có xác nhận quyền kiểm thử đối với scope đã khai báo.
 - User chưa tạo scan authorization.
 - Target nằm ngoài allowed_hosts.
 - URL redirect ra ngoài scope.
@@ -236,22 +235,11 @@ Và kèm:
 
 ---
 
-# 7. Quy tắc Free Hunter
+# 7. Scan profile và report
 
-Free Hunter không phải bản yếu và không phải pentest đầy đủ.
+CLI và dashboard phải dùng cùng `scan_request_v2` và `report_v2`. Standard là mặc định. Quick/Standard/Deep chỉ điều chỉnh cường độ và giới hạn tài nguyên/an toàn, không giới hạn số finding hay quyền dùng LLM. Không có package tier, paid workspace, finding cap, retest quota hay cooldown.
 
-Free dùng cùng Target Type, Surface Flags và Test Intensity Mode model như paid nếu user đủ điều kiện và chấp nhận rủi ro, nhưng bị giới hạn:
-
-```text
-- max_returned_findings = 1
-- max_monitored_findings = 1
-- max_retests = 1
-- cooldown_days = 7
-```
-
-Free phải dừng sau first valuable finding. Nếu không có valuable finding trong budget, trả coverage report + hardening + limitations.
-
-Free không được mở full paid finding board/retest workspace. Free chỉ có limited finding view cho 1 monitored finding.
+Worker chỉ tạo signal/candidate. Chỉ decision xác minh độc lập mới được đưa vào finding; trước #14, metadata-only triage phải là `needs_more_evidence`. Worker lỗi hoặc budget hết phải thành coverage gap/limitation. Report lịch sử có claim chưa replay phải là `legacy_unverified`.
 
 ---
 
@@ -262,7 +250,7 @@ Mỗi feature quan trọng phải có test phù hợp.
 Bắt buộc có test cho:
 
 ```text
-- Domain verification.
+- Scan authorization và xác nhận quyền kiểm thử.
 - Scope validation.
 - Private/local IP blocking.
 - Redirect out-of-scope blocking.
@@ -279,7 +267,7 @@ Không merge code nếu:
 - Test quan trọng fail.
 - Security guardrail bị bypass.
 - Có raw secret trong logs/report.
-- Scan được domain chưa verify.
+- Scan được host ngoài phạm vi đã khai báo hoặc không có xác nhận quyền kiểm thử.
 ```
 
 ---
@@ -383,7 +371,7 @@ Khi implement tính năng dùng LLM, phải kiểm tra:
 
 ### Issue tracker
 
-Issues live in this repo's GitHub Issues (`ViCore-Technology/OpenHunterAI`), managed via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+Issues live in this repo's GitHub Issues (`LumosLab-Innovation/OpenHunterAI`), managed via the `gh` CLI. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

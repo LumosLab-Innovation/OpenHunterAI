@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "country_security_clause_evidence_v1",
+  "dataOrigin": "synthetic_fixture",
+  "assessmentId": "fixture-gb-cyber-essentials",
+  "packId": "gb-cyber-essentials-v33",
+  "packVersion": "Technical requirements v3.3, April 2026",
+  "packSha256": "6c85e4ad1d528766c0dcc61ab74ecd2902a2441409b98f2126a4794ecc273307",
+  "levelId": "essentials-plus",
+  "applicabilityConfirmed": true,
+  "context": [
+    {
+      "factId": "qualifying_security_updates_present",
+      "value": true
+    },
+    {
+      "factId": "cloud_services_used",
+      "value": true
+    }
+  ],
+  "observations": [
+    {
+      "factId": "qualifying_security_update_max_delay_days",
+      "value": 14,
+      "kind": "configuration",
+      "evidenceRefs": [
+        "proof:fixture-observation-0"
+      ],
+      "observedAt": "2026-10-01",
+      "expiresAt": "2026-11-01"
+    },
+    {
+      "factId": "cloud_service_authentication_mfa_complete",
+      "value": false,
+      "kind": "configuration",
+      "evidenceRefs": [
+        "proof:fixture-observation-1"
+      ],
+      "observedAt": "2026-10-01",
+      "expiresAt": "2026-11-01"
+    }
+  ]
+}

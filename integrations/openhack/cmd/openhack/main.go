@@ -20,12 +20,20 @@ import (
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
-		writeJSON(w, map[string]any{"ok": true, "service": "openhack-adapter", "runtime_available": true})
+		writeJSON(w, map[string]any{"ok": true, "service": "builtin-passive-surface", "runtime_available": true})
 	})
 	mux.HandleFunc("/run", runHandler)
-	mux.HandleFunc("/retest", runHandler) // worker retest reuses the same hunter
+	mux.HandleFunc("/retest", retestHandler)
 	srv := &http.Server{Addr: ":" + env("PORT", "6120"), Handler: mux, ReadHeaderTimeout: 10 * time.Second}
 	_ = srv.ListenAndServe()
+}
+
+func retestHandler(w http.ResponseWriter, _ *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+	writeJSON(w, map[string]any{
+		"code": "RETEST_UNSUPPORTED", "tool": "builtin-passive-surface",
+		"message": "passive surface checks cannot replay a finding-scoped retest scenario",
+	})
 }
 
 type runRequest struct {
@@ -47,8 +55,9 @@ type signal struct {
 }
 
 type runResponse struct {
-	Signals []signal `json:"signals"`
-	Summary string   `json:"summary"`
+	Signals           []signal       `json:"signals"`
+	Summary           string         `json:"summary"`
+	RuntimeProvenance map[string]any `json:"runtimeProvenance"`
 }
 
 func runHandler(w http.ResponseWriter, r *http.Request) {
@@ -64,17 +73,31 @@ func runHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	signals := huntSurface(r.Context(), req.Target)
+	signals, err := huntSurface(r.Context(), req.Target)
+	if err != nil {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		writeJSON(w, map[string]any{
+			"code":    "TARGET_UNREACHABLE",
+			"tool":    "builtin-passive-surface",
+			"message": "passive surface request failed; coverage is incomplete",
+		})
+		return
+	}
 	writeJSON(w, runResponse{
 		Signals: signals,
-		Summary: fmt.Sprintf("OpenHack passive surface hunt produced %d signal(s).", len(signals)),
+		Summary: fmt.Sprintf("Built-in passive surface hunt produced %d signal(s).", len(signals)),
+		RuntimeProvenance: map[string]any{
+			"upstreamId": "openhunter_core", "upstreamRef": "native",
+			"adapterVersion":    "builtin-passive-surface/v1",
+			"playbookRevisions": []string{"openhack-workflow-reference:e43e4cb2bf8d"},
+		},
 	})
 }
 
 // huntSurface fetches the target once and inspects response headers for common
 // security-hygiene gaps. Single GET, no following redirects out of scope, hard
 // timeout. This is intentionally conservative (scope v1, safe signal only).
-func huntSurface(ctx context.Context, target string) []signal {
+func huntSurface(ctx context.Context, target string) ([]signal, error) {
 	runCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
@@ -86,16 +109,12 @@ func huntSurface(ctx context.Context, target string) []signal {
 	}
 	req, err := http.NewRequestWithContext(runCtx, http.MethodGet, target, nil)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	req.Header.Set("user-agent", "OpenHunter-OpenHack/1.0 (+authorized-scan)")
+	req.Header.Set("user-agent", "OpenHunter-Passive-Surface/1.0 (+authorized-scan)")
 	resp, err := client.Do(req)
 	if err != nil {
-		return []signal{{
-			Kind: "reachability", Title: "Target not reachable for surface hunt",
-			Severity: "info", Confidence: "low", Asset: sanitizeText(target),
-			Description: sanitizeText("GET request failed: " + err.Error()),
-		}}
+		return nil, err
 	}
 	defer resp.Body.Close()
 
@@ -137,7 +156,7 @@ func huntSurface(ctx context.Context, target string) []signal {
 		add("information_exposure", "X-Powered-By disclosed", "info",
 			sanitizeText("Technology stack revealed: "+powered))
 	}
-	return signals
+	return signals, nil
 }
 
 func writeJSON(w http.ResponseWriter, body any) {

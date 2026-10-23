@@ -1,0 +1,422 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "rw-data-security-selected-clauses",
+  "frameworkId": "rw-data-security",
+  "version": "2026-10-08.1",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "rw-data-security-source",
+      "title": "Law 058/2021 — Security and breach duties — official reference",
+      "url": "https://dpo.gov.rw/fileadmin/DPO/Law_relating_to_the_protection_of_personal_data_and_privacy.pdf",
+      "locator": "Articles 38,40–41,43–45,47; English columns PDF pp 53–65"
+    }
+  ],
+  "limitations": [
+    "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+    "Article 47 security is distinct from Article 48 cross-border transfer. No complete law assessment or automatic determination of high-risk processing is provided."
+  ],
+  "requirements": [
+    {
+      "id": "rw-security-safeguards",
+      "label": "Maintain reasonable technical safeguards",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "rw-data-security-source",
+      "locator": "Art 47 para 1;PDFp 64",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "rw-security-safeguards",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "rw-foreseeable-risks",
+      "label": "Identify risks and maintain protection",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "rw-data-security-source",
+      "locator": "Art 47 point 1;PDFp 65",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "rw-foreseeable-risks",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "rw-effective-review",
+      "label": "Verify safeguards regularly",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "rw-data-security-source",
+      "locator": "Art 47 point 2;PDFp 65",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "rw-effective-review",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "rw-update-security",
+      "label": "Update controls for new risks",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "rw-data-security-source",
+      "locator": "Art 47 point 3;PDFp 65",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "rw-update-security",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "rw-controller-notification",
+      "label": "Notify supervisory authority within 48 hours",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "rw-data-security-source",
+      "locator": "Art 43 para 1;PDFp 59",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "processing-role",
+          "equals": "controller"
+        },
+        {
+          "factId": "personal-data-breach",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "rw-authority-notification-elapsed",
+        "max": 48,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "rw-processor-notification",
+      "label": "Notify controller within 48 hours",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "rw-data-security-source",
+      "locator": "Art 43 para 2;PDFp 60",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "processing-role",
+          "equals": "processor"
+        },
+        {
+          "factId": "personal-data-breach",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "rw-controller-notification-elapsed",
+        "max": 48,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "rw-detailed-report",
+      "label": "Review subsequent 72 hour breach report",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "rw-data-security-source",
+      "locator": "Art 44 para 1;PDFp 60",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "processing-role",
+          "equals": "controller"
+        },
+        {
+          "factId": "personal-data-breach",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review report submission deadline and event/awareness binding under Article 44; first notification remains separately required."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "rw-report-nature",
+      "label": "Describe breach nature and affected categories",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "rw-data-security-source",
+      "locator": "Art 44(1);PDFp 60",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "processing-role",
+          "equals": "controller"
+        },
+        {
+          "factId": "personal-data-breach",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "rw-report-nature",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "rw-report-contact",
+      "label": "Provide breach contact point",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "rw-data-security-source",
+      "locator": "Art 44(2);PDFp 60",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "processing-role",
+          "equals": "controller"
+        },
+        {
+          "factId": "personal-data-breach",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "rw-report-contact",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "rw-report-mitigation",
+      "label": "Describe response and mitigation",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "rw-data-security-source",
+      "locator": "Art 44(3);PDFpp 60–61",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "processing-role",
+          "equals": "controller"
+        },
+        {
+          "factId": "personal-data-breach",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "rw-report-mitigation",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "rw-report-consequences",
+      "label": "Record breach consequences/corrective actions",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "rw-data-security-source",
+      "locator": "Art 44(4);PDFp 61",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "processing-role",
+          "equals": "controller"
+        },
+        {
+          "factId": "personal-data-breach",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "rw-report-consequences",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "rw-subject-notice",
+      "label": "Review high-risk subject communication",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "rw-data-security-source",
+      "locator": "Art 45;PDFpp 61–62",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "processing-role",
+          "equals": "controller"
+        },
+        {
+          "factId": "personal-data-breach",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Assess high risk, communication channel and statutory exceptions; no automated risk or exemption determination."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    }
+  ]
+}

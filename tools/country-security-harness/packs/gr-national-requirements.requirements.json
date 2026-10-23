@@ -1,0 +1,580 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "gr-national-requirements-curated",
+  "frameworkId": "gr-national-requirements",
+  "version": "Joint Ministerial Decision 1689/2025; Gazette B 2186/2025-05-06",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "gr-primary",
+      "title": "KYA 1689/2025 national requirements",
+      "url": "https://cyber.gov.gr/wp-content/uploads/2025/05/20250202186.pdf",
+      "locator": "Articles 3–11 and subsequent technical requirements"
+    }
+  ],
+  "limitations": [
+    "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+    "Operator-supplied facts and evidence metadata do not constitute independent control verification.",
+    "The May 2025 requirements were read directly; later public-sector implementation provisions and current entity-specific timing are not fully mapped."
+  ],
+  "requirements": [
+    {
+      "id": "gr.risk-framework",
+      "label": "Align cybersecurity risk management with organisational strategy",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gr-primary",
+      "locator": "Article 5(1)(α)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "gr.regulated_entity_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Align cybersecurity risk management with organisational strategy"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "gr.risk-assessment",
+      "label": "Periodically identify, analyse and evaluate cyber risks",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gr-primary",
+      "locator": "Article 5(1)(β)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "gr.regulated_entity_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Periodically identify, analyse and evaluate cyber risks"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "gr.risk-treatment",
+      "label": "Implement and oversee risk treatment",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gr-primary",
+      "locator": "Article 5(1)(γ)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "gr.regulated_entity_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Implement and oversee risk treatment"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "gr.risk-reviews",
+      "label": "Review risks after incidents and major changes",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gr-primary",
+      "locator": "Article 5(1)(δ)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "gr.regulated_entity_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review risks after incidents and major changes"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "gr.essential-threat-intelligence",
+      "label": "Use specialist threat intelligence and comprehensive vulnerability assessment",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gr-primary",
+      "locator": "Article 5(2)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "gr.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "gr.entity_class",
+          "equals": "essential"
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Use specialist threat intelligence and comprehensive vulnerability assessment"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "gr.general-policy",
+      "label": "Maintain board-approved general security policy",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gr-primary",
+      "locator": "Article 6(α)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "gr.regulated_entity_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gr.general-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "gr.access-policy",
+      "label": "Maintain approved access policy",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gr-primary",
+      "locator": "Article 6(β)(βα)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "gr.regulated_entity_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gr.access-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "gr.asset-policy",
+      "label": "Maintain approved asset management policy",
+      "controlId": "system_classification",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gr-primary",
+      "locator": "Article 6(β)(ββ)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "gr.regulated_entity_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gr.asset-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "gr.removable-policy",
+      "label": "Maintain approved removable-media policy",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gr-primary",
+      "locator": "Article 6(β)(βδ)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "gr.regulated_entity_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gr.removable-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "gr.incident-policy",
+      "label": "Maintain approved incident response policy",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gr-primary",
+      "locator": "Article 6(β)(βε)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "gr.regulated_entity_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gr.incident-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "gr.supply-policy",
+      "label": "Maintain approved supply-chain policy",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gr-primary",
+      "locator": "Article 6(β)(βστ)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "gr.regulated_entity_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gr.supply-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "gr.network-policy",
+      "label": "Maintain approved network security policy",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gr-primary",
+      "locator": "Article 6(β)(βζ)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "gr.regulated_entity_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gr.network-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "gr.backup-policy",
+      "label": "Maintain approved backup policy",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gr-primary",
+      "locator": "Article 6(β)(βθ)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "gr.regulated_entity_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gr.backup-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "gr.crypto-policy",
+      "label": "Maintain approved data and communications cryptography policy",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gr-primary",
+      "locator": "Article 6(β)(βι)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "gr.regulated_entity_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gr.crypto-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "gr.security-officer-reporting",
+      "label": "Security officer reports directly to management",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gr-primary",
+      "locator": "Article 7(β)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "gr.regulated_entity_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Security officer reports directly to management"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "gr.essential-independent-audit",
+      "label": "Conduct periodic independent security audits",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gr-primary",
+      "locator": "Article 8(α–β)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "gr.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "gr.entity_class",
+          "equals": "essential"
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Conduct periodic independent security audits"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Essential-only duty; internal or external auditors must be impartial. No numerical audit interval is invented."
+    },
+    {
+      "id": "gr.compliance-reporting",
+      "label": "Report compliance monitoring to management",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gr-primary",
+      "locator": "Article 9(α)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "gr.regulated_entity_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Report compliance monitoring to management"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "gr.staff-screening",
+      "label": "Screen candidate personnel suitability",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gr-primary",
+      "locator": "Article 10(1)(α)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "gr.regulated_entity_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Screen candidate personnel suitability"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "gr.asset-owners",
+      "label": "Maintain current inventory including cloud and OT with owners",
+      "controlId": "system_classification",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gr-primary",
+      "locator": "Article 11(α)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "gr.regulated_entity_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Maintain current inventory including cloud and OT with owners"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "gr.asset-classification",
+      "label": "Classify data and assets by CIA requirements",
+      "controlId": "system_classification",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gr-primary",
+      "locator": "Article 11(β)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "gr.regulated_entity_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Classify data and assets by CIA requirements"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    }
+  ]
+}

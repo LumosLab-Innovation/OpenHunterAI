@@ -1,0 +1,593 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "pl-kri-curated",
+  "frameworkId": "pl-kri",
+  "version": "Regulation of 21 May 2024; Dz.U.2024 poz.773",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "pl-primary",
+      "title": "KRI regulation",
+      "url": "https://eli.gov.pl/api/acts/DU/2024/773/text.html",
+      "locator": "§§19–20"
+    },
+    {
+      "id": "pl-status",
+      "title": "ELI official regulation status",
+      "url": "https://eli.gov.pl/eli/DU/2024/773",
+      "locator": "Publication, entry into force and repeal metadata"
+    }
+  ],
+  "limitations": [
+    "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+    "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+  ],
+  "requirements": [
+    {
+      "id": "pl.isms",
+      "label": "Maintain an information security management system",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pl-primary",
+      "locator": "§19(1)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "pl.public_task_entity_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Maintain an information security management system"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "pl.policies-current",
+      "label": "Update internal security rules",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pl-primary",
+      "locator": "§19(2)(1)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "pl.public_task_entity_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pl.policies-current",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "pl.asset-register",
+      "label": "Keep hardware and software inventory current",
+      "controlId": "system_classification",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pl-primary",
+      "locator": "§19(2)(2)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "pl.public_task_entity_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pl.asset-register",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "pl.risk-review",
+      "label": "Periodically assess and treat CIA risks",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pl-primary",
+      "locator": "§19(2)(3)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "pl.public_task_entity_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Periodically assess and treat CIA risks"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "pl.rights-task-scoped",
+      "label": "Limit rights to assigned duties",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pl-primary",
+      "locator": "§19(2)(4)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "pl.public_task_entity_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pl.rights-task-scoped",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "pl.rights-change",
+      "label": "Adjust rights promptly when duties change",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pl-primary",
+      "locator": "§19(2)(5)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "pl.public_task_entity_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pl.rights-change",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "pl.staff-training",
+      "label": "Train information-processing personnel",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pl-primary",
+      "locator": "§19(2)(6)(a–c)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "pl.public_task_entity_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Train information-processing personnel"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "pl.access-monitoring",
+      "label": "Monitor information access",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pl-primary",
+      "locator": "§19(2)(7)(a)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "pl.public_task_entity_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pl.access-monitoring",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "pl.unauthorized-detection",
+      "label": "Detect unauthorized processing actions",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pl-primary",
+      "locator": "§19(2)(7)(b)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "pl.public_task_entity_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pl.unauthorized-detection",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "pl.access-prevention",
+      "label": "Prevent unauthorized OS, service and application access",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pl-primary",
+      "locator": "§19(2)(7)(c)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "pl.public_task_entity_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pl.access-prevention",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "pl.remote-rules",
+      "label": "Define secure mobile and remote working rules",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pl-primary",
+      "locator": "§19(2)(8)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "pl.public_task_entity_in_scope",
+          "equals": true
+        },
+        {
+          "factId": "pl.remote_or_mobile_processing",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pl.remote-rules",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "pl.supplier-contracts",
+      "label": "Include security requirements in service contracts",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pl-primary",
+      "locator": "§19(2)(10)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "pl.public_task_entity_in_scope",
+          "equals": true
+        },
+        {
+          "factId": "pl.third_party_service_contracts",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Include security requirements in service contracts"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "pl.software-updates",
+      "label": "Maintain software updates",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pl-primary",
+      "locator": "§19(2)(12)(a)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "pl.public_task_entity_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pl.software-updates",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "pl.crypto-appropriate",
+      "label": "Apply cryptography appropriate to threats and law",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pl-primary",
+      "locator": "§19(2)(12)(d)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "pl.public_task_entity_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Apply cryptography appropriate to threats and law"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "pl.vulnerability-response",
+      "label": "Address unpublished vulnerabilities promptly",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pl-primary",
+      "locator": "§19(2)(12)(g)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "pl.public_task_entity_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Address unpublished vulnerabilities promptly"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "pl.incident-channel",
+      "label": "Report incidents through predefined channels",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pl-primary",
+      "locator": "§19(2)(13)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "pl.public_task_entity_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Report incidents through predefined channels"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "pl.internal-audit-age",
+      "label": "Internal security audit interval at most one calendar year",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pl-primary",
+      "locator": "§19(2)(14)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "pl.public_task_entity_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "pl.internal-audit-age",
+        "max": 12,
+        "unit": "months"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator supplies an interval assessed in calendar months; retain internal audit records. Do not convert a calendar year to a fixed day count."
+    },
+    {
+      "id": "pl.admin-logging",
+      "label": "Record administrative access",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pl-primary",
+      "locator": "§20(2)(1)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "pl.public_task_entity_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pl.admin-logging",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "pl.config-logging",
+      "label": "Record security configuration access",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pl-primary",
+      "locator": "§20(2)(2)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "pl.public_task_entity_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pl.config-logging",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "pl.log-retention",
+      "label": "Retain logs for two years absent another legal period",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pl-primary",
+      "locator": "§20(4)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "pl.public_task_entity_in_scope",
+          "equals": true
+        },
+        {
+          "factId": "pl.separate_log_retention_rule",
+          "equals": false
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Retain logs for two years absent another legal period"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Two calendar years from recording is a minimum. Manual review avoids encoding a minimum with the engine maximum-only numeric predicate."
+    }
+  ]
+}

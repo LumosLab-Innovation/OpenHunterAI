@@ -30,7 +30,7 @@ func TestKVInitIsIdempotent(t *testing.T) {
 	ctx := context.Background()
 	scan := "scan_init_" + time.Now().Format("150405.000")
 
-	p := ScanProgress{ScanID: scan, ProjectID: "proj", Mode: "free_hunter", Expected: 3}
+	p := ScanProgress{ScanID: scan, ProjectID: "proj", Profile: "quick", Expected: 3}
 	if err := kv.InitScan(ctx, p); err != nil {
 		t.Fatalf("init: %v", err)
 	}

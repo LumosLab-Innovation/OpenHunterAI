@@ -10,3 +10,7 @@ third_party_research
 infra/docker-compose
 ops
 docs
+_worktrees
+output
+.playwright-cli
+output-playwright-*.png

@@ -13,7 +13,7 @@ func validInput() events.WorkerRunPayload {
 	return events.WorkerRunPayload{
 		ScanID:       "scan_1",
 		ProjectID:    "proj_1",
-		ScanMode:     "free_hunter",
+		Profile:      "quick",
 		TargetType:   "interactive_web_app",
 		AllowedHosts: []string{"example.com"},
 		WorkerType:   "Z",
@@ -72,9 +72,29 @@ func TestRunSuccessFillsTimestamps(t *testing.T) {
 	}
 }
 
+func TestRunAggregatesEvidenceReferences(t *testing.T) {
+	res := Run(context.Background(), validInput(), Options{Timeout: time.Second},
+		func(context.Context, events.WorkerRunPayload) Result {
+			return Result{State: StateDone, Signals: []Signal{
+				{EvidenceRefs: []string{"http_exchange:baseline:a", "http_exchange:exploit:b"}},
+				{EvidenceRefs: []string{"http_exchange:baseline:a"}},
+			}}
+		})
+	if len(res.EvidenceRefs) != 2 {
+		t.Fatalf("expected two unique evidence refs, got %#v", res.EvidenceRefs)
+	}
+}
+
 func TestSkippedHelper(t *testing.T) {
 	res := Skipped(validInput(), CodeToolUnavailable, "zap down")
 	if res.State != StateSkipped || !res.CoverageGap || res.ErrorCode != CodeToolUnavailable {
 		t.Errorf("unexpected skipped result: %+v", res)
+	}
+}
+
+func TestFailedProbeIsRetryableCoverageGap(t *testing.T) {
+	res := Skipped(validInput(), "TARGET_UNREACHABLE", "target request failed")
+	if !res.CoverageGap || !res.Retryable || res.Status != StatusSkipped {
+		t.Errorf("failed probe must remain retryable unknown coverage: %+v", res)
 	}
 }

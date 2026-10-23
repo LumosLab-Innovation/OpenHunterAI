@@ -6,11 +6,10 @@
 
 # 1. Canonical Contract
 
-- [ ] Docs and code use public packages: `Free Hunter`, `AI Black-hat Mindset Check`, `Monitor Workspace`, `Enterprise / PAYG`.
-- [ ] Legacy authenticated package/mode is removed; authenticated behavior is `authScope`.
-- [ ] Free Hunter quotas are enforced: one returned finding, one monitored finding, one retest, 7-day cooldown.
+- [ ] CLI/dashboard/API use one `scan_request_v2` contract with Quick, Standard and Deep profiles.
+- [ ] Billing/entitlement schema and all finding/retest/cooldown quotas are absent from runtime.
 - [ ] Target Type + Surface Flags + Test Intensity Mode drive deterministic Scan Plan.
-- [ ] `report_v1` structured JSON is the canonical report contract.
+- [ ] `report_v2` structured JSON is the canonical report contract; legacy claims are `legacy_unverified`.
 - [ ] No profiler worker.
 - [ ] No external artifact storage in core v1 docs/env/code path.
 
@@ -18,24 +17,32 @@
 
 # 2. Security Blockers
 
-- [ ] Domain verification required before scan authorization.
+- [ ] Scan authorization requires explicit authority confirmation and a public-host scope; DNS proof is optional in self-host.
 - [ ] Private/local/metadata target blocking is tested.
 - [ ] Redirect out of scope is blocked and audited.
 - [ ] Aggressive Staging requires staging/dev/test risk acceptance.
 - [ ] Raw password/token/cookie/API key/HAR/request/response never appears in DB, logs, prompts, reports, or storage.
 - [ ] Sensitive actions require User Approval Gate.
 - [ ] Production path cannot return mock scan results.
+- [ ] Review/remediate frontend lockfile advisories before release. On 2026-09-20,
+  `npm audit --omit=dev` reported 4 high and 4 moderate entries (including
+  build-tool packages listed as dependencies); impact on shipped static assets
+  has not been established.
 
 ---
 
 # 3. Workers And Integrations
 
-- [ ] Per-family images exist for web, API, orchestrator, browser, ZAP, Nuclei, OpenHack, Strix, report, retest.
+- [ ] Per-family images exist for web, API, orchestrator, browser, ZAP, Nuclei, built-in passive surface, Strix, report, retest.
 - [ ] Integration adapter images expose health checks and stable ports.
-- [ ] ZAP is pinned/restricted and passive/baseline by default.
-- [ ] Nuclei image uses pinned binary + internal curated templates only.
+- [x] ZAP is pinned/restricted and passive/baseline by default.
+- [x] Nuclei image uses pinned binary + internal curated templates only.
 - [ ] Playwright/browser worker has isolation, low concurrency, hard timeout, egress/scope guardrails.
-- [ ] Tool unavailable becomes skipped/coverage gap, not fake success.
+- [x] Tool unavailable becomes skipped/coverage gap, not fake success.
+- [x] Worker callbacks are idempotent by run id for steps, candidates, and activity events.
+- [x] Worker claims require a separate independent triage decision before promotion.
+- [ ] Independent replay verifies that referenced baseline/exploit exchanges exist and still demonstrate impact. Until this exists, metadata-only triage records `needs_more_evidence` and does not promote worker candidates.
+- [ ] The compose Local E2E canary passes report and retest gates on a Docker-capable host.
 
 ---
 

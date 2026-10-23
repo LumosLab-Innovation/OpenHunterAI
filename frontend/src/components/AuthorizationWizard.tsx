@@ -3,7 +3,6 @@ import { ArrowLeft, ArrowRight, ShieldAlert } from 'lucide-react';
 import {
   AUTH_SCOPE_OPTIONS,
   INTENSITY_OPTIONS,
-  SCAN_MODE_OPTIONS,
   SURFACE_FLAGS,
   TARGET_TYPE_OPTIONS,
 } from '../lib/product';
@@ -14,7 +13,6 @@ import { Field, Input, Checkbox } from './ui/Field';
 import { ErrorState } from './ui/States';
 
 export interface AuthorizationPayload {
-  scanMode: string;
   targetType: string;
   testIntensityMode: string;
   authScope: string;
@@ -23,29 +21,30 @@ export interface AuthorizationPayload {
   allowedHosts: string[];
   allowedPaths: string[];
   excludedPaths: string[];
+  authorityConfirmed: true;
   consentText: string;
 }
 
-const STEPS = ['Mode', 'Target', 'Surface', 'Intensity', 'Review'] as const;
+const STEPS = ['Target', 'Surface', 'Intensity', 'Review'] as const;
 
 interface WizardState {
-  scanMode: string;
   targetType: string;
   testIntensityMode: string;
   authScope: string;
   allowedHosts: string;
   surfaceFlags: Record<string, boolean>;
   riskAccepted: boolean;
+  authorityConfirmed: boolean;
 }
 
 const INITIAL: WizardState = {
-  scanMode: 'free_hunter',
   targetType: 'interactive_web_app',
-  testIntensityMode: 'safe_discovery',
+  testIntensityMode: 'controlled_attack_simulation',
   authScope: 'none',
   allowedHosts: '',
   surfaceFlags: Object.fromEntries(SURFACE_FLAGS.map(([k]) => [k, false])),
   riskAccepted: false,
+  authorityConfirmed: false,
 };
 
 /** Radio-card option used across wizard steps. */
@@ -79,22 +78,17 @@ function OptionCard({
 
 export function AuthorizationWizard({
   projectId,
-  verifiedHosts = [],
   testAccountCount = 0,
   onCreated,
   onCancel,
 }: {
   projectId: string;
-  verifiedHosts?: string[];
   testAccountCount?: number;
   onCreated: () => void;
   onCancel: () => void;
 }) {
   const [step, setStep] = useState(0);
-  const [s, setS] = useState<WizardState>({
-    ...INITIAL,
-    allowedHosts: verifiedHosts.join(', '),
-  });
+  const [s, setS] = useState<WizardState>(INITIAL);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -109,23 +103,24 @@ export function AuthorizationWizard({
   const hasAllowedHosts = allowedHosts.length > 0;
   const requiredTestAccounts = s.authScope === 'two_accounts' ? 2 : s.authScope === 'one_account' ? 1 : 0;
   const hasRequiredTestAccounts = testAccountCount >= requiredTestAccounts;
-  const canSubmit = hasAllowedHosts && hasRequiredTestAccounts && (!isAggressive || s.riskAccepted);
+  const canSubmit = hasAllowedHosts && hasRequiredTestAccounts && s.authorityConfirmed && (!isAggressive || s.riskAccepted);
 
   async function submit() {
     if (!canSubmit) {
       setError(
-        hasAllowedHosts
-          ? hasRequiredTestAccounts
-            ? 'Accept the staging risk statement before authorizing this scan.'
-            : `Auth scope ${s.authScope} requires ${requiredTestAccounts} saved test account(s).`
-          : 'Verify at least one domain before authorizing a scan.',
+        !hasAllowedHosts
+          ? 'Enter at least one public host before authorizing a scan.'
+          : !hasRequiredTestAccounts
+            ? `Auth scope ${s.authScope} requires ${requiredTestAccounts} saved test account(s).`
+            : !s.authorityConfirmed
+              ? 'Confirm your authority to test the declared hosts.'
+              : 'Accept the staging risk statement before authorizing this scan.',
       );
       return;
     }
     setSubmitting(true);
     setError(null);
     const payload: AuthorizationPayload = {
-      scanMode: s.scanMode,
       targetType: s.targetType,
       testIntensityMode: s.testIntensityMode,
       authScope: s.authScope,
@@ -134,7 +129,8 @@ export function AuthorizationWizard({
       allowedHosts,
       allowedPaths: [],
       excludedPaths: [],
-      consentText: `Authorized scan for ${allowedHosts.join(', ')}`,
+      authorityConfirmed: true,
+      consentText: `I confirm I am authorized to test ${allowedHosts.join(', ')} within the declared scope.`,
     };
     const res = await apiFetch(`/v1/projects/${projectId}/authorizations`, {
       method: 'POST',
@@ -172,19 +168,6 @@ export function AuthorizationWizard({
       <div className="min-h-[200px]">
         {step === 0 && (
           <div className="grid gap-3 sm:grid-cols-2">
-            {SCAN_MODE_OPTIONS.map((o) => (
-              <OptionCard
-                key={o.value}
-                active={s.scanMode === o.value}
-                label={o.label}
-                onClick={() => set('scanMode', o.value)}
-              />
-            ))}
-          </div>
-        )}
-
-        {step === 1 && (
-          <div className="grid gap-3 sm:grid-cols-2">
             {TARGET_TYPE_OPTIONS.map((o) => (
               <OptionCard
                 key={o.value}
@@ -197,29 +180,19 @@ export function AuthorizationWizard({
           </div>
         )}
 
-        {step === 2 && (
+        {step === 1 && (
           <div className="grid gap-5">
             <Field
               label="Allowed hosts"
-              hint={
-                verifiedHosts.length > 0
-                  ? 'Only verified hosts can be authorized. Add or verify more domains above to expand scope.'
-                  : 'No verified domains yet. Go back to Domains, publish the TXT record, then check DNS.'
-              }
+              hint="Enter public hostnames you are authorized to test, separated by commas. Private, local, and metadata hosts are blocked."
               required
             >
               <Input
                 value={s.allowedHosts}
                 onChange={(e) => set('allowedHosts', e.target.value)}
-                placeholder={verifiedHosts.length > 0 ? verifiedHosts.join(', ') : 'Verify a domain first'}
-                disabled={verifiedHosts.length === 0}
+                placeholder="staging.example.com"
               />
             </Field>
-            {verifiedHosts.length === 0 && (
-              <div className="rounded border border-medium/40 bg-medium/10 px-3 py-2 text-sm text-medium">
-                DNS ownership is still pending. Add the TXT record under Cloudflare DNS Records, then click Check DNS before creating authorization.
-              </div>
-            )}
             <div className="grid gap-2">
               <span className="text-xs font-medium uppercase tracking-wider text-ink-muted">
                 Surface flags
@@ -244,7 +217,7 @@ export function AuthorizationWizard({
           </div>
         )}
 
-        {step === 3 && (
+        {step === 2 && (
           <div className="grid gap-5">
             <div className="grid gap-3">
               {INTENSITY_OPTIONS.map((o) => (
@@ -295,11 +268,11 @@ export function AuthorizationWizard({
           </div>
         )}
 
-        {step === 4 && (
+        {step === 3 && (
           <div className="grid gap-3">
             {!hasAllowedHosts && (
               <div className="rounded border border-medium/40 bg-medium/10 px-3 py-2 text-sm text-medium">
-                You cannot authorize a scan yet because no verified host is in scope.
+                Enter at least one public host in scope before authorizing a scan.
               </div>
             )}
             {!hasRequiredTestAccounts && (
@@ -308,13 +281,12 @@ export function AuthorizationWizard({
               </div>
             )}
             <dl className="grid gap-3 rounded-lg border border-hairline bg-surface-raised p-5 text-sm">
-              <ReviewRow label="Scan mode" value={s.scanMode} />
               <ReviewRow label="Target type" value={s.targetType} />
               <ReviewRow label="Intensity" value={s.testIntensityMode} />
               <ReviewRow label="Auth scope" value={s.authScope} />
               <ReviewRow
                 label="Allowed hosts"
-                value={s.allowedHosts || 'Verify a domain first'}
+                value={s.allowedHosts || 'Enter a public host'}
               />
               <ReviewRow
                 label="Surface flags"
@@ -326,6 +298,10 @@ export function AuthorizationWizard({
                 }
               />
             </dl>
+            <label className="flex items-start gap-3 rounded-lg border border-hairline bg-surface-raised p-4 text-sm text-ink">
+              <Checkbox checked={s.authorityConfirmed} onChange={(e) => set('authorityConfirmed', e.target.checked)} className="mt-0.5" />
+              <span>I confirm I have authority to test these hosts within this scope. I understand the scan may generate traffic and alerts.</span>
+            </label>
           </div>
         )}
       </div>

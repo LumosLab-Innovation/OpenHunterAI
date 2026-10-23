@@ -53,7 +53,7 @@ func main() {
 			Durable:    "orchestrator-worker-completed",
 			Subject:    events.SubjectWorkerCompleted,
 			MaxDeliver: 5,
-			AckWait:    30 * time.Second,
+			AckWait:    3 * time.Minute,
 			Logger:     log,
 		}, func(ctx context.Context, e *events.Envelope) error {
 			return handleCompleted(ctx, kv, rep, state, e, log)
@@ -94,7 +94,7 @@ func onScanCreated(ctx context.Context, b *bus.Bus, kv *bus.KV, state *callback.
 	if err := kv.InitScan(ctx, bus.ScanProgress{
 		ScanID:    sc.ScanID,
 		ProjectID: sc.ProjectID,
-		Mode:      sc.Scope.ScanMode,
+		Profile:   sc.Scope.Profile,
 		Expected:  len(eligible),
 	}); err != nil {
 		log.Error("init_scan_progress_failed", "scan_id", sc.ScanID, "err", err.Error())

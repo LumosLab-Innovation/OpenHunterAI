@@ -1,231 +1,35 @@
-# ARCHITECTURE.md - OpenHunterAI
+# OpenHunterAI architecture
 
-> V1 architecture for an **Authorized Attacker-Mindset Security Workspace**. Only verified public web/app targets are in scope.
-
----
-
-# 1. High-Level Flow
+The dashboard, CLI, and future coding-agent skill share one `scan_request_v2` → `report_v2` pipeline:
 
 ```text
-web dashboard
-→ public API
-→ Postgres + NATS/queue
-→ scan orchestrator
-→ deterministic Scan Plan
-→ worker families / integration adapters
-→ LLM Gateway
-→ sanitized findings/reports in Postgres
-→ manual retest / Monitor Workspace
+Client → public API/preflight → immutable authorization + scope snapshot
+       → deterministic scan plan → Postgres + NATS → orchestrator
+       → browser/ZAP/Nuclei/built-in passive/Strix workers
+       → sanitized candidates → independent triage → findings
+       → report builder → immutable report_v2 + live UI events
 ```
 
-Core v1 stores sanitized reports/findings in Postgres. External artifact storage is not a core v1 dependency. HTML/PDF exports are rendered on demand from sanitized report JSON and are not stored as files.
+Self-host local mode creates an internal operator automatically and exposes the unauthenticated API only through a loopback-published port. Project IDs group scans and support audit. Billing, entitlement, payment, subscription, and credit state are not runtime concepts.
 
-Reports use `report_v1` structured JSON snapshots in Postgres. Draft report sections stream to the UI through SSE while a scan runs.
+## Request and plan
 
----
+The canonical request carries a public HTTPS URL (path included), profile `quick | standard | deep`, explicit authority confirmation, optional exact-host/path scope, exclusions, target type, auth scope, and surface hints. If a URL has a path, its subtree is the default scope. Both client preflight and creation call the same scan service; project-scoped routes are compatibility adapters. Changing profile or scope requires fresh user confirmation.
 
-# 2. Product Model In Architecture
+Profile maps to existing intensity: Quick → `safe_discovery`, Standard → `controlled_attack_simulation`, Deep → `aggressive_staging`. The plan deterministically selects workers and hunter families plus resource ceilings. An LLM can rank or explain sanitized observations but cannot expand scope, select unapproved workers, create findings, or override validation. Preflight probes each planned runtime; missing Standard workers require acknowledged gaps while mandatory Deep prerequisites block creation.
 
-Public packages:
+## Worker lifecycle and coverage
 
-```text
-free_hunter
-ai_blackhat_mindset_check
-monitor_workspace
-enterprise_payg
-```
+`scan.created` includes a frozen scope snapshot and plan. The orchestrator fans out one scoped `WorkerRunPayload` per planned worker. Workers receive the exact seed URL and recheck host/path, DNS/IP and redirects before requests. `WorkerRunResult` carries `status`, signals/candidates, evidence references, attempted/completed/skipped surfaces, gaps, limitations, retryability and exact runtime provenance. Callback writes are idempotent by run ID; failed, skipped, partial and missing steps are not treated as successful coverage.
 
-Scan modes:
+The findings service records one triage decision per candidate. A worker's severity, confidence or `validated_finding` claim is not independent proof. Until #14 implements artifact verification/replay, the metadata gate leaves worker claims at `needs_more_evidence`. The report builder finalizes only after worker and triage states are terminal; only independent validated decisions may enter `findings`.
 
-```text
-free_hunter
-ai_blackhat_mindset_check
-```
+## Persistence and reports
 
-Auth Scope is stored as:
+Postgres stores project, authorization, scan, step, candidate, triage, finding, draft and final report records. Reports are structured sanitized `report_v2` JSON; HTML/Markdown exports render from that snapshot on demand. Historical reports are migrated to `report_v2` with prior claims retained as `legacy_unverified`, never silently promoted. Sanitized finding/evidence IDs are stable across migration. Raw credentials, cookies, tokens, HAR and sensitive HTTP bodies are not stored or sent to models.
 
-```text
-none
-one_account
-two_accounts
-```
+NATS carries scan/worker/retest events, not the canonical evidence store. Browser and scanner integrations are internal implementation details. The DB enum `openhack_hunter` remains for compatibility, while UI/manifest calls that worker the built-in passive surface hunter; it is not OpenHack runtime.
 
-Authenticated Scope is a scope/mode inside AI Black-hat Mindset Check or Enterprise / PAYG, not a public package.
+## Operational gates
 
----
-
-# 3. Scan Plan Builder
-
-The orchestrator builds a deterministic Scan Plan from:
-
-```text
-packageTier
-scanMode
-targetType
-surfaceFlags
-authScope
-testIntensityMode
-allowedHosts/paths
-policy gates
-budget/quota
-```
-
-Output:
-
-```text
-enabledWorkers
-enabledHunters
-skippedHunters with reason
-allowedValidationLevel
-budgets
-requiresApprovalForSensitiveActions
-notes / coverage expectations
-```
-
-There is no profiler worker. LLM does not select Target Type or worker set.
-
----
-
-# 4. Worker / Integration Runtime Boundary
-
-Workers and adapters are internal. Public package names are never worker names.
-
-```text
-browser-worker
-zap-worker
-nuclei-worker
-openhack-worker
-strix-worker
-report-worker
-retest-worker
-```
-
-Integration runtimes are packaged behind adapter ports:
-
-```text
-core/orchestrator
-→ adapter health/execution API
-→ packaged runtime image
-→ sanitized signal output
-```
-
-Core does not import or know tool internals. Tool unavailable becomes skipped/coverage_gap, never fake success.
-
----
-
-# 5. Target Type Matrix
-
-| Target Type | Browser | ZAP | Nuclei | OpenHack | Strix |
-|---|---|---|---|---|---|
-| static_content_website | light | passive mini | exposure/config mini | content exposure + hardening | candidate only |
-| interactive_web_app | medium/deep | passive/baseline | standard-safe | API/session/auth/admin-like | hypothesis + validation reasoning |
-| api_service | docs/UI only | API passive/spec if available | API exposure/templates | API surface/auth/data | API abuse/data exposure reasoning |
-| ai_llm_application | chat-focused | hygiene only | exposure only | prompt/RAG/tool-call hunters | prompt/RAG/tool-call reasoning |
-
----
-
-# 6. Test Intensity
-
-```text
-safe_discovery
-  observe, passive/baseline, hypothesis, little/no validation
-
-controlled_attack_simulation
-  controlled validation in scope, benign PoC where allowed, default paid mode
-
-aggressive_staging
-  staging/dev/test only, more hypothesis/validation attempts, explicit risk acceptance
-```
-
-Aggressive Staging is still blocked from malware, persistence, stealth/evasion, credential stuffing/bruteforce, destructive wipe, raw secret exfiltration, and out-of-scope scan.
-
----
-
-# 7. Data Stores
-
-Postgres:
-
-```text
-users
-organizations
-projects
-domains
-domain_verifications
-scan_authorizations
-test_accounts
-scan_jobs
-scan_steps
-finding_candidates
-findings
-reports
-report_draft_sections
-retest_runs
-approval_requests
-approval_decisions
-credit_ledger
-audit_logs
-```
-
-NATS/queue:
-
-```text
-job events
-scan step coordination
-worker progress
-rate-limit / retry coordination
-```
-
-No raw evidence persistence in DB, logs, reports, prompts, or storage.
-
----
-
-# 8. LLM Gateway
-
-Business logic calls aliases only:
-
-```text
-low_reasoning_model
-high_reasoning_model
-```
-
-Provider/model mapping is config behind the LLM Gateway. No business logic hardcodes OpenAI, Claude, Anthropic, DeepSeek, or model ids.
-
----
-
-# 9. Deployment Target
-
-First production target: Docker/Compose host with tagged images and rollback.
-
-Core images:
-
-```text
-openhunter/web:<git-sha>
-openhunter/public-api:<git-sha>
-openhunter/orchestrator:<git-sha>
-openhunter/browser-worker:<git-sha>
-openhunter/zap-worker:<git-sha>
-openhunter/nuclei-worker:<git-sha>
-openhunter/openhack-worker:<git-sha>
-openhunter/strix-worker:<git-sha>
-openhunter/report-worker:<git-sha>
-openhunter/retest-worker:<git-sha>
-```
-
-Integration adapter images:
-
-```text
-openhunter/zaproxy-adapter:<git-sha>
-openhunter/nuclei-adapter:<git-sha>
-openhunter/openhack-adapter:<git-sha>
-openhunter/strix-adapter:<git-sha>
-```
-
-Infra services:
-
-```text
-postgres
-nats/queue
-reverse-proxy
-observability/log shipper
-zap daemon if used separately
-```
+Docker Compose self-host defaults to loopback-published UI/API/DB/NATS ports. Commercial schema removal requires a checked full backup and successful restore into a temporary DB before `prisma migrate deploy`. A completed scan with zero findings and any worker gap is inconclusive, not “clean.” Full positive/negative pentest efficacy requires #14 replay and #22 ground-truth benchmark.

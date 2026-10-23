@@ -11,8 +11,8 @@ export interface ScopeSnapshot {
   excludedPaths: string[];
   testAccountPermission: boolean;
   sensitiveActionPermission: boolean;
-  packageTier: 'free_hunter' | 'ai_blackhat_mindset_check' | 'monitor_workspace' | 'enterprise_payg';
-  scanMode: 'free_hunter' | 'ai_blackhat_mindset_check';
+  profile: 'quick' | 'standard' | 'deep';
+  targetUrl: string;
   authScope: 'none' | 'one_account' | 'two_accounts';
   targetType: 'static_content_website' | 'interactive_web_app' | 'api_service' | 'ai_llm_application';
   testIntensityMode: 'safe_discovery' | 'controlled_attack_simulation' | 'aggressive_staging';
@@ -31,11 +31,10 @@ export interface ScopeSnapshot {
   capturedAt: string;
 }
 
-export interface ReportContentV1 {
-  formatVersion: 'report_v1';
+export interface ReportContentV2 {
+  formatVersion: 'report_v2';
   reportType: 'finding_report' | 'coverage_only';
-  packageTier: 'free_hunter' | 'ai_blackhat_mindset_check' | 'monitor_workspace' | 'enterprise_payg';
-  scanMode: 'free_hunter' | 'ai_blackhat_mindset_check';
+  profile: 'quick' | 'standard' | 'deep';
   targetType: 'static_content_website' | 'interactive_web_app' | 'api_service' | 'ai_llm_application';
   authScope: 'none' | 'one_account' | 'two_accounts';
   testIntensityMode: 'safe_discovery' | 'controlled_attack_simulation' | 'aggressive_staging';
@@ -48,10 +47,11 @@ export interface ReportContentV1 {
     businessImpact: string;
     recommendedNextAction: string;
   };
-  findings: unknown[];
+  findings: Array<{ id: string; validationStatus: 'validated'; [key: string]: unknown }>;
+  historicalFindings?: Array<{ id: string; validationStatus: 'legacy_unverified'; [key: string]: unknown }>;
   developerFixPack: unknown[];
   coverage: Record<string, unknown>;
   hardeningRecommendations: string[];
-  retestAndMonitor: Record<string, unknown>;
+  retest: { eligibleFindings: string[]; manualRetestActions: string[] };
   generatedAt: string;
 }

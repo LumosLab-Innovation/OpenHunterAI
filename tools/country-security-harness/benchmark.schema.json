@@ -1,0 +1,521 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openhunterai.local/schemas/country-security-benchmark-v1.json",
+  "title": "OpenHunterAI offline country benchmark metadata contracts",
+  "description": "Paired synthetic ground truth and declared outcomes. Passing validates metadata thresholds only; referenced artifacts, validator independence, replay and engine efficacy are not verified. Pair integrity and category/control/catalog mapping require semantic validation by benchmark.mjs.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/manifest"
+    },
+    {
+      "$ref": "#/$defs/run"
+    },
+    {
+      "$ref": "#/$defs/score"
+    }
+  ],
+  "$defs": {
+    "safeId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+      "allOf": [
+        {
+          "$ref": "#/$defs/safeReference"
+        }
+      ]
+    },
+    "artifactRef": {
+      "type": "string",
+      "pattern": "^artifact:(baseline|probe|impact|replay|negative):[a-z][a-z0-9_-]{0,79}$",
+      "allOf": [
+        {
+          "$ref": "#/$defs/safeReference"
+        }
+      ]
+    },
+    "thresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "minRecall",
+        "maxFalsePositiveRate",
+        "minEvidenceCompleteness",
+        "minExecutionCoverage"
+      ],
+      "properties": {
+        "minRecall": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "maxFalsePositiveRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "minEvidenceCompleteness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "minExecutionCoverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "pairId",
+        "category",
+        "controlId",
+        "expected"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "pairId": {
+          "$ref": "#/$defs/safeId"
+        },
+        "category": {
+          "enum": [
+            "xss",
+            "sqli",
+            "idor"
+          ]
+        },
+        "controlId": {
+          "enum": [
+            "application_security",
+            "identity_access"
+          ]
+        },
+        "expected": {
+          "enum": [
+            "detected",
+            "clear"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "category": {
+                "const": "idor"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "controlId": {
+                "const": "identity_access"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "controlId": {
+                "const": "application_security"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "dataOrigin",
+        "cases",
+        "thresholds"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "country_security_benchmark_manifest_v1"
+        },
+        "dataOrigin": {
+          "const": "synthetic_fixture"
+        },
+        "cases": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 2000,
+          "items": {
+            "$ref": "#/$defs/case"
+          },
+          "allOf": [
+            {
+              "contains": {
+                "properties": {
+                  "category": {
+                    "const": "xss"
+                  }
+                }
+              },
+              "minContains": 2
+            },
+            {
+              "contains": {
+                "properties": {
+                  "category": {
+                    "const": "sqli"
+                  }
+                }
+              },
+              "minContains": 2
+            },
+            {
+              "contains": {
+                "properties": {
+                  "category": {
+                    "const": "idor"
+                  }
+                }
+              },
+              "minContains": 2
+            }
+          ]
+        },
+        "thresholds": {
+          "$ref": "#/$defs/thresholds"
+        }
+      }
+    },
+    "declaredGap": {
+      "enum": [
+        "EXECUTION_UNAVAILABLE",
+        "BUDGET_EXHAUSTED",
+        "VALIDATOR_UNAVAILABLE",
+        "ARTIFACT_UNAVAILABLE",
+        "SCOPE_NOT_EXECUTED"
+      ]
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "caseId",
+        "outcome"
+      ],
+      "properties": {
+        "caseId": {
+          "$ref": "#/$defs/safeId"
+        },
+        "outcome": {
+          "enum": [
+            "detected",
+            "clear",
+            "inconclusive",
+            "skipped"
+          ]
+        },
+        "validatorId": {
+          "$ref": "#/$defs/safeId"
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "maxItems": 25,
+          "items": {
+            "$ref": "#/$defs/artifactRef"
+          },
+          "description": "Declared sanitized references only. Artifact IDs must be distinct within a case and across decisive cases. Reuse or missing roles reduces the score; this schema does not fetch or replay references."
+        }
+      }
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "dataOrigin",
+        "frameworkId",
+        "levelId",
+        "producerId",
+        "results",
+        "coverageGaps"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "country_security_benchmark_run_v1"
+        },
+        "dataOrigin": {
+          "enum": [
+            "synthetic_fixture",
+            "operator_supplied"
+          ]
+        },
+        "frameworkId": {
+          "$ref": "#/$defs/safeId"
+        },
+        "levelId": {
+          "$ref": "#/$defs/safeId"
+        },
+        "producerId": {
+          "$ref": "#/$defs/safeId"
+        },
+        "results": {
+          "type": "array",
+          "maxItems": 2000,
+          "items": {
+            "$ref": "#/$defs/result"
+          }
+        },
+        "coverageGaps": {
+          "type": "array",
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/declaredGap"
+          }
+        }
+      }
+    },
+    "count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "ratio": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cases",
+        "positives",
+        "negatives",
+        "truePositives",
+        "falsePositives",
+        "trueNegatives",
+        "evidenceComplete",
+        "executionsComplete",
+        "missing",
+        "skipped",
+        "inconclusive",
+        "falseNegatives",
+        "recall",
+        "falsePositiveRate",
+        "evidenceCompleteness",
+        "executionCoverage",
+        "gates"
+      ],
+      "properties": {
+        "cases": {
+          "$ref": "#/$defs/count"
+        },
+        "positives": {
+          "$ref": "#/$defs/count"
+        },
+        "negatives": {
+          "$ref": "#/$defs/count"
+        },
+        "truePositives": {
+          "$ref": "#/$defs/count"
+        },
+        "falsePositives": {
+          "$ref": "#/$defs/count"
+        },
+        "trueNegatives": {
+          "$ref": "#/$defs/count"
+        },
+        "evidenceComplete": {
+          "$ref": "#/$defs/count"
+        },
+        "executionsComplete": {
+          "$ref": "#/$defs/count"
+        },
+        "missing": {
+          "$ref": "#/$defs/count"
+        },
+        "skipped": {
+          "$ref": "#/$defs/count"
+        },
+        "inconclusive": {
+          "$ref": "#/$defs/count"
+        },
+        "falseNegatives": {
+          "$ref": "#/$defs/count"
+        },
+        "recall": {
+          "$ref": "#/$defs/ratio"
+        },
+        "falsePositiveRate": {
+          "$ref": "#/$defs/ratio"
+        },
+        "evidenceCompleteness": {
+          "$ref": "#/$defs/ratio"
+        },
+        "executionCoverage": {
+          "$ref": "#/$defs/ratio"
+        },
+        "gates": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "recall",
+            "falsePositiveRate",
+            "evidenceCompleteness",
+            "executionCoverage"
+          ],
+          "properties": {
+            "recall": {
+              "type": "boolean"
+            },
+            "falsePositiveRate": {
+              "type": "boolean"
+            },
+            "evidenceCompleteness": {
+              "type": "boolean"
+            },
+            "executionCoverage": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "score": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "dataOrigin",
+        "groundTruthOrigin",
+        "frameworkId",
+        "levelId",
+        "gateScope",
+        "metadataGatePassed",
+        "assessmentConclusion",
+        "replayVerified",
+        "engineEfficacyVerified",
+        "evidenceVerification",
+        "thresholds",
+        "metrics",
+        "coverageGaps",
+        "gateFailures"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "country_security_benchmark_score_v1"
+        },
+        "dataOrigin": {
+          "enum": [
+            "synthetic_fixture",
+            "operator_supplied"
+          ]
+        },
+        "groundTruthOrigin": {
+          "const": "synthetic_fixture"
+        },
+        "frameworkId": {
+          "$ref": "#/$defs/safeId"
+        },
+        "levelId": {
+          "$ref": "#/$defs/safeId"
+        },
+        "gateScope": {
+          "const": "declared_benchmark_metadata"
+        },
+        "metadataGatePassed": {
+          "type": "boolean"
+        },
+        "assessmentConclusion": {
+          "const": "not_determined"
+        },
+        "replayVerified": {
+          "const": false
+        },
+        "engineEfficacyVerified": {
+          "const": false
+        },
+        "evidenceVerification": {
+          "const": "reference_syntax_and_declared_validator_only"
+        },
+        "thresholds": {
+          "$ref": "#/$defs/thresholds"
+        },
+        "metrics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "overall",
+            "byCategory"
+          ],
+          "properties": {
+            "overall": {
+              "$ref": "#/$defs/metrics"
+            },
+            "byCategory": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "xss",
+                "sqli",
+                "idor"
+              ],
+              "properties": {
+                "xss": {
+                  "$ref": "#/$defs/metrics"
+                },
+                "sqli": {
+                  "$ref": "#/$defs/metrics"
+                },
+                "idor": {
+                  "$ref": "#/$defs/metrics"
+                }
+              }
+            }
+          }
+        },
+        "coverageGaps": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "EXECUTION_UNAVAILABLE",
+              "BUDGET_EXHAUSTED",
+              "VALIDATOR_UNAVAILABLE",
+              "ARTIFACT_UNAVAILABLE",
+              "SCOPE_NOT_EXECUTED",
+              "MISSING_CASE_RESULTS",
+              "SKIPPED_CASE_RESULTS",
+              "INCONCLUSIVE_CASE_RESULTS",
+              "INCOMPLETE_EVIDENCE_METADATA",
+              "NON_INDEPENDENT_VALIDATOR",
+              "REUSED_CASE_EVIDENCE_METADATA"
+            ]
+          }
+        },
+        "gateFailures": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "RECALL_BELOW_THRESHOLD",
+              "FALSE_POSITIVE_RATE_ABOVE_THRESHOLD",
+              "EVIDENCE_COMPLETENESS_BELOW_THRESHOLD",
+              "EXECUTION_COVERAGE_BELOW_THRESHOLD",
+              "COVERAGE_GAPS_PRESENT"
+            ]
+          }
+        }
+      }
+    },
+    "safeReference": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^(?!(?:https?|file|ftp|s3|gs|data|javascript|wss?):)(?![a-z]:)(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*(?:^|[._:-])(?:token|password|secret|credential|bearer)(?:$|[._:-]))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._:-]{0,127}$",
+      "description": "Opaque non-sensitive artifact ID, including colon-delimited http_exchange references; never a URL, path, email or token."
+    }
+  }
+}

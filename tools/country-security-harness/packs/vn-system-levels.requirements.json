@@ -1,0 +1,2626 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "vn-n331-2026-curated",
+  "frameworkId": "vn-system-levels",
+  "version": "NĐ 331/2026/NĐ-CP; curated clauses 2026-10-08.1",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "vn-decree-331",
+      "title": "Nghị định 331/2026/NĐ-CP – Công báo, toàn văn và phụ lục",
+      "url": "https://congbao.chinhphu.vn/van-ban/nghi-dinh-so-331-2026-nd-cp-470334.htm",
+      "locator": "Điều 2, 4–10, 18, 21–24, 28–31, 33, 35–39; Phụ lục Mẫu 01–08; hiệu lực 19/08/2026"
+    },
+    {
+      "id": "vn-law-116",
+      "title": "Luật An ninh mạng 116/2025/QH15 – Công báo",
+      "url": "https://congbao.chinhphu.vn/van-ban/luat-so-116-2025-qh15-468678/61574.htm",
+      "locator": "Điều 8, 44–45; hiệu lực 01/07/2026; cần đối chiếu sửa đổi và chuyển tiếp"
+    },
+    {
+      "id": "vn-tcvn-14423-2026",
+      "title": "TCVN 14423:2026 – danh mục chính thức VSQI",
+      "url": "https://tieuchuan.vsqi.gov.vn/tieuchuan/view?sohieu=TCVN+14423%3A2026",
+      "locator": "Tình trạng A; phạm vi theo cấp độ; thay TCVN 14423:2025 và TCVN 11930:2017; QĐ 3243/QĐ-BKHCN 24/07/2026; chưa tiếp cận toàn văn"
+    },
+    {
+      "id": "vn-tt12-history",
+      "title": "Thông tư 12/2022/TT-BTTTT – lịch sử trên CSDL quốc gia",
+      "url": "https://vbpl.moj.gov.vn/bothongtin/Pages/vbpq-lichsu.aspx?ItemID=155415",
+      "locator": "Hướng dẫn lịch sử NĐ 85/2016; hiệu lực 01/10/2022; cần đối chiếu phạm vi chuyển tiếp và hướng dẫn mới"
+    },
+    {
+      "id": "vn-architecture-1875",
+      "title": "Quyết định 1875/QĐ-TTg – Khung kiến trúc an ninh mạng quốc gia",
+      "url": "https://xaydungchinhsach.chinhphu.vn/khung-kien-truc-an-ninh-mang-quoc-gia-119260930150219682.htm",
+      "locator": "Ban hành 30/09/2026; toàn văn và 3 phụ lục; chưa đưa các yêu cầu của quyết định vào pack"
+    }
+  ],
+  "limitations": [
+    "Chỉ là tập điều khoản được tuyển chọn, không phải checklist đầy đủ, chứng nhận pháp lý hay thứ hạng an ninh quốc gia. ControlId là nhóm chủ đề OpenHunter, không phải số điều của văn bản.",
+    "Phải xác nhận phạm vi Điều 2, chế độ chuyên ngành/quân sự/cơ yếu, cấp độ và tình trạng chuyển tiếp trước khi đánh giá. Điều kiện chưa có bằng chứng không được mặc định là false.",
+    "Chưa tiếp cận toàn văn TCVN 14423:2026; chưa mã hóa các tiểu mục kỹ thuật theo cấp độ, ngưỡng xác thực, lưu nhật ký, vá lỗi hay quản trị tài khoản. Không sử dụng bản 2017/2025 đã bị thay thế làm yêu cầu hiện hành.",
+    "Các boolean/number chỉ là khai báo có tham chiếu. Harness không đọc toàn văn tài liệu, xác minh chữ ký, kiểm tra tư cách cơ quan đánh giá hay quan sát cấu hình trực tiếp.",
+    "Ngày làm việc, thời hạn theo tháng, nghĩa vụ báo cáo ngay, thẩm quyền phê duyệt và điều kiện nghiêm trọng được giữ ở manual vì cần xác minh bối cảnh và cách tính pháp lý.",
+    "Điều 30 khoản 9 dùng điều kiện cấp độ 5 hoặc hệ thống quan trọng quốc gia. Hai nhánh được liệt kê riêng, không tự suy ra yêu cầu cấp độ cao từ cấp độ thấp.",
+    "Chưa tích hợp đầy đủ quy định Bộ Công an về đánh giá rủi ro/giám sát/ứng cứu, tiêu chuẩn ngành, quy định dữ liệu cá nhân và Khung kiến trúc an ninh mạng quốc gia 1875/QĐ-TTg.",
+    "Một report_v2 hoặc scan không có finding không chứng minh đáp ứng hồ sơ, rủi ro, tổ chức, kiến trúc, phân tách vật lý, báo cáo sự cố hay các nghĩa vụ khác."
+  ],
+  "requirements": [
+    {
+      "id": "vn-n331-single-owner",
+      "label": "Hồ sơ xác định một chủ quản cho hệ thống",
+      "controlId": "system_classification",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 8 khoản 1 điểm a",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.governance.single_owner_documented",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-boundary",
+      "label": "Rà soát phạm vi dựa trên nghiệp vụ, dữ liệu, phụ thuộc và ảnh hưởng sự cố",
+      "controlId": "system_classification",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 7 khoản 2 điểm a, b; Điều 8 khoản 3",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Đối chiếu ranh giới thực tế, luồng dữ liệu, phụ thuộc vận hành và rủi ro lan truyền; kiểm tra việc tách/gộp hệ thống không làm giảm cấp độ một cách hình thức."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-highest-level",
+      "label": "Rà soát tất cả tiêu chí và cấp độ cao nhất phù hợp",
+      "controlId": "system_classification",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 8 khoản 2; Điều 11–16",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Người có trách nhiệm đối chiếu dữ liệu, loại hình, tác động và tiêu chí chi tiết Điều 11–16; chọn cấp độ cao nhất áp dụng. Số finding không xác định cấp độ."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-owner-delegation",
+      "label": "Ủy quyền chủ quản bằng văn bản có phạm vi, trách nhiệm và thời hạn",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 4 khoản 3",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.owner_delegated",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.governance.delegation_scope_duties_term_documented",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-lead-operator",
+      "label": "Chỉ định đơn vị vận hành chủ trì khi có nhiều đơn vị",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 5 khoản 2",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.multiple_operators",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.governance.lead_operator_designated",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-outsourcing-contract",
+      "label": "Hợp đồng quy định quản trị dữ liệu, kiểm soát truy cập và trách nhiệm an ninh",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 5 khoản 3 điểm a",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.it_service_outsourced",
+          "equals": true
+        },
+        {
+          "factId": "vn.scope.service_provider_identified",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.supplier.data_access_security_responsibilities_documented",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-expired-service",
+      "label": "Duy trì hoặc chuyển giao vận hành khi hết thời hạn dịch vụ",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 5 khoản 3 điểm b",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.it_service_outsourced",
+          "equals": true
+        },
+        {
+          "factId": "vn.scope.service_expired_system_continues",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.supplier.expired_service_continuity_agreement",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-risk-trigger-first",
+      "label": "Đánh giá rủi ro: Xác định cấp độ lần đầu",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 10 khoản 2 điểm a",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.context.first_classification",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.risk.assessed_for_first_classification",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Áp dụng khi có sự kiện tương ứng; bằng chứng phải liên hệ với sự kiện đang được rà soát. Điều 10 không ấn định số giờ hoặc chu kỳ cố định cho yêu cầu này."
+    },
+    {
+      "id": "vn-n331-risk-trigger-change",
+      "label": "Đánh giá rủi ro: Thay đổi chức năng, phạm vi, người dùng, dữ liệu hoặc công nghệ",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 10 khoản 2 điểm b",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.context.function_scope_data_technology_changed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.risk.assessed_for_system_change",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Áp dụng khi có sự kiện tương ứng; bằng chứng phải liên hệ với sự kiện đang được rà soát. Điều 10 không ấn định số giờ hoặc chu kỳ cố định cho yêu cầu này."
+    },
+    {
+      "id": "vn-n331-risk-trigger-connection",
+      "label": "Đánh giá rủi ro: Mở rộng, tích hợp, liên thông hoặc chia sẻ dữ liệu",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 10 khoản 2 điểm c",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.context.scale_integration_data_sharing_changed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.risk.assessed_for_connection_change",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Áp dụng khi có sự kiện tương ứng; bằng chứng phải liên hệ với sự kiện đang được rà soát. Điều 10 không ấn định số giờ hoặc chu kỳ cố định cho yêu cầu này."
+    },
+    {
+      "id": "vn-n331-risk-trigger-incident",
+      "label": "Đánh giá rủi ro: Sự cố nghiêm trọng hoặc nguy cơ tác động cao",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 10 khoản 2 điểm d",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.context.serious_incident_or_high_impact_risk",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.risk.assessed_for_incident_or_high_risk",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Áp dụng khi có sự kiện tương ứng; bằng chứng phải liên hệ với sự kiện đang được rà soát. Điều 10 không ấn định số giờ hoặc chu kỳ cố định cho yêu cầu này."
+    },
+    {
+      "id": "vn-n331-risk-trigger-request",
+      "label": "Đánh giá rủi ro: Yêu cầu đánh giá của cơ quan có thẩm quyền",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 10 khoản 2 điểm đ",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.context.risk_assessment_authority_request",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.risk.assessed_for_authority_request",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Áp dụng khi có sự kiện tương ứng; bằng chứng phải liên hệ với sự kiện đang được rà soát. Điều 10 không ấn định số giờ hoặc chu kỳ cố định cho yêu cầu này."
+    },
+    {
+      "id": "vn-n331-risk-content-assets",
+      "label": "Hồ sơ đánh giá rủi ro: Tài sản, chức năng trọng yếu, vai trò và phân loại mức quan trọng",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 10 khoản 3 điểm a",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.risk.assets_roles_criticality_assessed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-risk-content-information",
+      "label": "Hồ sơ đánh giá rủi ro: Các loại thông tin xử lý, lưu trữ và truyền đưa",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 10 khoản 3 điểm b",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.risk.information_types_assessed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-risk-content-threats",
+      "label": "Hồ sơ đánh giá rủi ro: Đe dọa, điểm yếu, lỗ hổng và khả năng khai thác",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 10 khoản 3 điểm c",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.risk.threats_weaknesses_exploitability_assessed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-risk-content-impact",
+      "label": "Hồ sơ đánh giá rủi ro: Khả năng xảy ra và tác động đến các đối tượng được pháp luật bảo vệ",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 10 khoản 3 điểm d",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.risk.likelihood_and_consequences_assessed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-risk-content-capability",
+      "label": "Hồ sơ đánh giá rủi ro: Năng lực phòng ngừa, phát hiện, ứng phó và khắc phục",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 10 khoản 3 điểm đ",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.risk.prevent_detect_respond_recover_assessed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-risk-content-mitigation",
+      "label": "Hồ sơ đánh giá rủi ro: Kế hoạch và triển khai biện pháp giảm thiểu rủi ro",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 10 khoản 3 điểm e",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.risk.mitigation_plan_and_implementation",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-risk-content-communication",
+      "label": "Hồ sơ đánh giá rủi ro: Truyền thông rủi ro và báo cáo đến cơ quan có thẩm quyền",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 10 khoản 3 điểm g",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.risk.communication_and_authority_reporting",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-risk-records",
+      "label": "Lưu giữ hồ sơ đánh giá rủi ro và khả năng cung cấp theo yêu cầu",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 10 khoản 6",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.risk.records_retained_and_available",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-risk-level-up",
+      "label": "Đề xuất cấp độ cao hơn khi kết quả rủi ro vượt cấp độ hiện tại",
+      "controlId": "system_classification",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 10 khoản 5",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.risk.exceeds_assigned_level",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.classification.higher_level_proposal_submitted",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Khai báo việc đề xuất, không suy ra cấp độ mới đã được phê duyệt. Xác định mức rủi ro cao hơn cần đánh giá của người có trách nhiệm."
+    },
+    {
+      "id": "vn-n331-dossier-overview",
+      "label": "Hồ sơ đề xuất có tài liệu tổng quan hệ thống",
+      "controlId": "system_classification",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 21 khoản 1; Điều 22 khoản 3",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.dossier.system_overview_present",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-dossier-design",
+      "label": "Hồ sơ có tài liệu thiết kế đúng giai đoạn triển khai",
+      "controlId": "system_classification",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 21 khoản 2 điểm a, b",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Đối chiếu thiết kế sơ bộ hoặc tương đương cho xây mới/nâng cấp/mở rộng; thiết kế thi công được phê duyệt hoặc tương đương cho hệ thống đang vận hành."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-dossier-level-rationale",
+      "label": "Hồ sơ giải thích tiêu chí và căn cứ đề xuất cấp độ",
+      "controlId": "system_classification",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 21 khoản 3; Điều 22 khoản 4",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.dossier.level_criteria_rationale_present",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-dossier-security-plan",
+      "label": "Hồ sơ có phương án an ninh mạng theo cấp độ đề xuất",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 21 khoản 4",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.dossier.level_security_plan_present",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-dossier-professional-opinion",
+      "label": "Hồ sơ cấp độ 4/5 có ý kiến đơn vị chuyên trách an ninh mạng",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 21 khoản 5",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.dossier.specialist_opinion_present",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-dossier-architecture",
+      "label": "Hồ sơ mô tả kiến trúc, thiết bị, ứng dụng, vùng mạng và quy hoạch địa chỉ",
+      "controlId": "network_protection",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 22 khoản 3 điểm d",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.dossier.architecture_inventory_network_plan_complete",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "independent_review"
+      ],
+      "interpretationNotes": "Bằng chứng tham chiếu đến tài liệu được quản lý. Không đưa địa chỉ nội bộ, sơ đồ nhạy cảm hay dữ liệu liên hệ vào JSON harness."
+    },
+    {
+      "id": "vn-n331-detailed-risk-dependencies",
+      "label": "Đánh giá chi tiết cấp độ 4/5: Nhận diện hệ thống liên quan, kết nối và phụ thuộc quan trọng",
+      "controlId": "risk_management",
+      "levels": [
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 22 khoản 5 điểm a",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.dossier.connected_critical_dependencies_assessed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-detailed-risk-attack-impact",
+      "label": "Đánh giá chi tiết cấp độ 4/5: Phân tích nguy cơ tấn công và mức ảnh hưởng",
+      "controlId": "risk_management",
+      "levels": [
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 22 khoản 5 điểm b",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.dossier.attack_threats_and_impact_assessed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-detailed-risk-consequences",
+      "label": "Đánh giá chi tiết cấp độ 4/5: Phạm vi tác động công cộng, xã hội, quốc gia và gián đoạn",
+      "controlId": "risk_management",
+      "levels": [
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 22 khoản 5 điểm c",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.dossier.public_social_national_consequences_assessed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-24-7-rationale",
+      "label": "Thuyết minh yêu cầu 24/7 và không ngừng ngoài kế hoạch",
+      "controlId": "backup_recovery",
+      "levels": [
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 22 khoản 5 điểm d; Điều 14 khoản 2",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.article14_2_continuous_service",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.dossier.continuous_service_requirement_explained",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Điều kiện là thuộc loại hệ thống tại Điều 14 khoản 2; không áp đặt yêu cầu 24/7 cho mọi hệ thống cấp độ 4 hoặc 5."
+    },
+    {
+      "id": "vn-n331-control-implementation-plan",
+      "label": "Phương án nêu cách triển khai từng yêu cầu quản lý và kỹ thuật",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 22 khoản 6",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.dossier.each_management_technical_requirement_addressed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-approval-level12",
+      "label": "Rà soát đúng thẩm quyền thẩm định và phê duyệt",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-1",
+        "level-2"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 18 khoản 1",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Kiểm tra thẩm định và phê duyệt bởi đơn vị chuyên trách, cùng báo cáo gửi chủ quản."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-approval-level3",
+      "label": "Rà soát đúng thẩm quyền thẩm định và phê duyệt",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 18 khoản 2; Điều 20 khoản 4",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Kiểm tra đơn vị chuyên trách thẩm định và chủ quản phê duyệt; nếu được xác định là hệ thống quan trọng về an ninh quốc gia, đối chiếu quy trình tương ứng theo Điều 20 khoản 4."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-approval-level4",
+      "label": "Rà soát đúng thẩm quyền thẩm định và phê duyệt",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-4"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 18 khoản 3 điểm a–d; Điều 20 khoản 4",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Kiểm tra cơ quan thẩm định theo phạm vi dân sự/quân sự/cơ yếu và chủ quản phê duyệt; hệ thống quan trọng về an ninh quốc gia áp dụng quy trình tương ứng Điều 20 khoản 4."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-approval-level5",
+      "label": "Rà soát đúng thẩm quyền thẩm định và phê duyệt",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-5"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 18 khoản 3 điểm a–đ",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Kiểm tra cơ quan thẩm định theo thẩm quyền, quyết định danh mục cấp độ 5 của Thủ tướng và chủ quản phê duyệt phương án an ninh mạng."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-appraisal-conflict",
+      "label": "Bố trí thẩm định khi đơn vị chuyên trách đồng thời vận hành",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 18 khoản 4",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.specialist_unit_also_operator",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Đối chiếu việc chủ quản giao đơn vị trực thuộc đủ năng lực thẩm định hoặc thành lập hội đồng thẩm định độc lập; không coi việc tự vận hành rồi tự thẩm định là đầy đủ."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-invalid-dossier-response",
+      "label": "Rà soát hạn phản hồi hồ sơ chưa hợp lệ",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 23 khoản 2",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.context.dossier_received_invalid",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Đối chiếu mốc cơ quan nhận hồ sơ và phản hồi/hướng dẫn bổ sung: tối đa 5 ngày làm việc. Dùng lịch làm việc pháp lý, không đổi thành 5 ngày lịch."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Đây là thời hạn thực hiện thủ tục của cơ quan/đơn vị xử lý; chậm phản hồi không tự chứng minh chủ quản vi phạm."
+    },
+    {
+      "id": "vn-n331-level3-appraisal-time",
+      "label": "Rà soát hạn thẩm định cấp độ 3",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 23 khoản 3 điểm a",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.context.valid_complete_dossier_received",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Đối chiếu tối đa 15 ngày làm việc kể từ khi nhận đủ hồ sơ hợp lệ; kiểm tra biên nhận và lịch làm việc áp dụng."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Không dùng ngày lịch. Điều 23 khoản 3 không đặt hạn thẩm định tương tự cho cấp độ 1/2."
+    },
+    {
+      "id": "vn-n331-level45-appraisal-time",
+      "label": "Rà soát hạn thẩm định cấp độ 4/5",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 23 khoản 3 điểm b",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.context.valid_complete_dossier_received",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Đối chiếu tối đa 25 ngày làm việc kể từ khi nhận đủ hồ sơ hợp lệ; kiểm tra biên nhận và lịch làm việc áp dụng."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-approval-time",
+      "label": "Rà soát hạn xử lý hồ sơ phê duyệt",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 24 khoản 2",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.context.valid_complete_approval_dossier_received",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Đối chiếu tối đa 7 ngày làm việc kể từ khi nhận đủ hồ sơ hợp lệ; kiểm tra đúng cơ quan xử lý và mốc nhận."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-preoperation-readiness",
+      "label": "Đánh giá điều kiện an ninh trước khi vận hành",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 28 khoản 3 điểm a, b",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.context.before_operation",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.assurance.preoperation_readiness_assessed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Nội dung gồm chính sách/quy trình, tổ chức/nhân sự, quản lý/kỹ thuật, giám sát/ứng phó/khắc phục và pháp luật liên quan; một scan web không bao phủ đánh giá này."
+    },
+    {
+      "id": "vn-n331-change-readiness",
+      "label": "Đánh giá lại điều kiện khi có thay đổi lớn",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 28 khoản 3 điểm b",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.context.major_function_scale_technology_risk_change",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.assurance.major_change_readiness_assessed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-authority-readiness",
+      "label": "Đánh giá điều kiện theo yêu cầu cơ quan có thẩm quyền",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 28 khoản 3 điểm b",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.context.readiness_authority_request",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.assurance.requested_readiness_assessed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-plan-design",
+      "label": "Phương án an ninh mạng: Bảo vệ trong thiết kế và xây dựng",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 29 khoản 2 điểm a",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.plan.design_build_security",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-plan-operation",
+      "label": "Phương án an ninh mạng: Bảo vệ trong quá trình vận hành",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 29 khoản 2 điểm b",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.plan.operation_security",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-plan-assessment",
+      "label": "Phương án an ninh mạng: Kiểm tra và đánh giá an ninh mạng",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 29 khoản 2 điểm c",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.plan.security_assessment",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-plan-risk",
+      "label": "Phương án an ninh mạng: Quản lý rủi ro an ninh mạng",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 29 khoản 2 điểm d",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.plan.risk_management",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-plan-monitoring",
+      "label": "Phương án an ninh mạng: Giám sát an ninh mạng",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 29 khoản 2 điểm đ",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.plan.security_monitoring",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-plan-recovery",
+      "label": "Phương án an ninh mạng: Dự phòng, ứng phó sự cố và khôi phục sau thảm họa",
+      "controlId": "backup_recovery",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 29 khoản 2 điểm e",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.plan.contingency_incident_disaster_recovery",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-plan-retirement",
+      "label": "Phương án an ninh mạng: Kết thúc vận hành, thanh lý và hủy bỏ",
+      "controlId": "data_protection",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 29 khoản 2 điểm g",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.plan.retirement_disposal",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-current-baseline",
+      "label": "Rà soát tiêu chuẩn quốc gia và các quy chuẩn áp dụng",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 29 khoản 1; Điều 30 khoản 1; Điều 28 khoản 4",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Lập crosswalk từ toàn văn tiêu chuẩn quốc gia An ninh mạng – Hệ thống thông tin – Yêu cầu cơ bản và quy định ngành áp dụng đến từng yêu cầu đã triển khai. TCVN 14423:2026 hiện là nguồn cần bổ sung toàn văn; pack này chưa mã hóa các tiểu mục của tiêu chuẩn."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "VSQI công bố TCVN 14423:2026 thay thế TCVN 14423:2025 và TCVN 11930:2017. Chưa đọc toàn văn 114 trang; không suy ra các ngưỡng mật khẩu, MFA, nhật ký hoặc cập nhật từ bản cũ."
+    },
+    {
+      "id": "vn-n331-sharing-considered",
+      "label": "Phương án xem xét dùng chung bảo vệ và tài nguyên ở cấp độ 1/2/3",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 30 khoản 5 điểm a",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.design.shared_protection_resources_considered",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Yêu cầu là xem xét khả năng dùng chung để tránh trùng lặp/lãng phí; không buộc mọi hệ thống phải thực sự dùng chung hạ tầng hoặc sản phẩm."
+    },
+    {
+      "id": "vn-n331-availability-containment",
+      "label": "Thiết kế cấp độ 4/5 có tính sẵn sàng, phân tách và hạn chế ảnh hưởng dây chuyền",
+      "controlId": "network_protection",
+      "levels": [
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 30 khoản 5 điểm b",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.design.availability_separation_failure_containment",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Rà soát thiết kế và đánh giá ảnh hưởng khi một thành phần mất an ninh mạng; điều khoản này không tự đặt RTO/RPO hay yêu cầu mọi hệ thống 24/7."
+    },
+    {
+      "id": "vn-n331-plan-before-operation",
+      "label": "Triển khai đầy đủ phương án phê duyệt trước khi vận hành hệ thống mới/nâng cấp",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 30 khoản 6",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.new_upgraded_or_expanded",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.assurance.approved_plan_complete_before_operation",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-policy-before-dossier",
+      "label": "Quy chế an ninh được phê duyệt và ban hành trước hồ sơ cấp độ",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 30 khoản 7",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.policy.approved_issued_before_level_dossier",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Đối chiếu nội dung quản lý theo cấp độ và thứ tự ngày ban hành/phê duyệt. Chỉ có file quy chế không chứng minh đúng thứ tự."
+    },
+    {
+      "id": "vn-n331-cloud-l34-systems",
+      "label": "Thuê DC/cloud cấp độ 3/4: Hệ thống tách biệt lô-gic và có kiểm soát truy cập liên hệ thống",
+      "controlId": "network_protection",
+      "levels": [
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 30 khoản 8 điểm a",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.outsourced_dc_cloud",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.cloud.logical_system_isolation_with_access_control",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Chỉ áp dụng khi thuê dịch vụ công nghệ thông tin tại trung tâm dữ liệu hoặc điện toán đám mây. Nếu hệ thống quan trọng về an ninh quốc gia, phải rà soát thêm yêu cầu khoản 9."
+    },
+    {
+      "id": "vn-n331-cloud-l34-zones",
+      "label": "Thuê DC/cloud cấp độ 3/4: Các vùng mạng tách biệt lô-gic và có kiểm soát truy cập liên vùng",
+      "controlId": "network_protection",
+      "levels": [
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 30 khoản 8 điểm b",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.outsourced_dc_cloud",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.cloud.logical_zone_isolation_with_access_control",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Chỉ áp dụng khi thuê dịch vụ công nghệ thông tin tại trung tâm dữ liệu hoặc điện toán đám mây. Nếu hệ thống quan trọng về an ninh quốc gia, phải rà soát thêm yêu cầu khoản 9."
+    },
+    {
+      "id": "vn-n331-cloud-l34-storage",
+      "label": "Thuê DC/cloud cấp độ 3/4: Phân vùng lưu trữ độc lập về lô-gic",
+      "controlId": "data_protection",
+      "levels": [
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 30 khoản 8 điểm c",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.outsourced_dc_cloud",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.cloud.logical_storage_isolation",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Chỉ áp dụng khi thuê dịch vụ công nghệ thông tin tại trung tâm dữ liệu hoặc điện toán đám mây. Nếu hệ thống quan trọng về an ninh quốc gia, phải rà soát thêm yêu cầu khoản 9."
+    },
+    {
+      "id": "vn-n331-cloud-l5-systems",
+      "label": "Thuê DC/cloud cấp độ 5: Tách hệ thống về vật lý và kiểm soát truy cập giữa các hệ thống",
+      "controlId": "network_protection",
+      "levels": [
+        "level-5"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 30 khoản 9 điểm a",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.outsourced_dc_cloud",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.cloud.physical_system_isolation_with_access_control",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Khoản 9 áp dụng cho cấp độ 5 HOẶC hệ thống quan trọng về an ninh quốc gia khi thuê DC/cloud. Bằng chứng phải phản ánh thiết kế và triển khai; tách lô-gic không tự chứng minh tách vật lý."
+    },
+    {
+      "id": "vn-n331-cloud-critical-systems",
+      "label": "Thuê DC/cloud thuộc diện quan trọng quốc gia: Tách hệ thống về vật lý và kiểm soát truy cập giữa các hệ thống",
+      "controlId": "network_protection",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 30 khoản 9 điểm a",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.outsourced_dc_cloud",
+          "equals": true
+        },
+        {
+          "factId": "vn.scope.national_critical",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.cloud.physical_system_isolation_with_access_control",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Khoản 9 áp dụng cho cấp độ 5 HOẶC hệ thống quan trọng về an ninh quốc gia khi thuê DC/cloud. Bằng chứng phải phản ánh thiết kế và triển khai; tách lô-gic không tự chứng minh tách vật lý. Liệt kê cấp độ 1–4 để biểu diễn nhánh điều kiện quan trọng quốc gia, không khẳng định các cấp độ thấp thường có trạng thái này."
+    },
+    {
+      "id": "vn-n331-cloud-l5-zones",
+      "label": "Thuê DC/cloud cấp độ 5: Tách vùng mạng về lô-gic và kiểm soát truy cập giữa các vùng",
+      "controlId": "network_protection",
+      "levels": [
+        "level-5"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 30 khoản 9 điểm b",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.outsourced_dc_cloud",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.cloud.logical_zone_isolation_with_access_control",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Khoản 9 áp dụng cho cấp độ 5 HOẶC hệ thống quan trọng về an ninh quốc gia khi thuê DC/cloud. Bằng chứng phải phản ánh thiết kế và triển khai; tách lô-gic không tự chứng minh tách vật lý."
+    },
+    {
+      "id": "vn-n331-cloud-critical-zones",
+      "label": "Thuê DC/cloud thuộc diện quan trọng quốc gia: Tách vùng mạng về lô-gic và kiểm soát truy cập giữa các vùng",
+      "controlId": "network_protection",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 30 khoản 9 điểm b",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.outsourced_dc_cloud",
+          "equals": true
+        },
+        {
+          "factId": "vn.scope.national_critical",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.cloud.logical_zone_isolation_with_access_control",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Khoản 9 áp dụng cho cấp độ 5 HOẶC hệ thống quan trọng về an ninh quốc gia khi thuê DC/cloud. Bằng chứng phải phản ánh thiết kế và triển khai; tách lô-gic không tự chứng minh tách vật lý. Liệt kê cấp độ 1–4 để biểu diễn nhánh điều kiện quan trọng quốc gia, không khẳng định các cấp độ thấp thường có trạng thái này."
+    },
+    {
+      "id": "vn-n331-cloud-l5-storage",
+      "label": "Thuê DC/cloud cấp độ 5: Phân vùng lưu trữ độc lập về vật lý",
+      "controlId": "data_protection",
+      "levels": [
+        "level-5"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 30 khoản 9 điểm c",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.outsourced_dc_cloud",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.cloud.physical_storage_isolation",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Khoản 9 áp dụng cho cấp độ 5 HOẶC hệ thống quan trọng về an ninh quốc gia khi thuê DC/cloud. Bằng chứng phải phản ánh thiết kế và triển khai; tách lô-gic không tự chứng minh tách vật lý."
+    },
+    {
+      "id": "vn-n331-cloud-critical-storage",
+      "label": "Thuê DC/cloud thuộc diện quan trọng quốc gia: Phân vùng lưu trữ độc lập về vật lý",
+      "controlId": "data_protection",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 30 khoản 9 điểm c",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.outsourced_dc_cloud",
+          "equals": true
+        },
+        {
+          "factId": "vn.scope.national_critical",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.cloud.physical_storage_isolation",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Khoản 9 áp dụng cho cấp độ 5 HOẶC hệ thống quan trọng về an ninh quốc gia khi thuê DC/cloud. Bằng chứng phải phản ánh thiết kế và triển khai; tách lô-gic không tự chứng minh tách vật lý. Liệt kê cấp độ 1–4 để biểu diễn nhánh điều kiện quan trọng quốc gia, không khẳng định các cấp độ thấp thường có trạng thái này."
+    },
+    {
+      "id": "vn-n331-cloud-l5-core-network",
+      "label": "Thuê DC/cloud cấp độ 5: Thiết bị mạng chính được phân tách độc lập về vật lý",
+      "controlId": "network_protection",
+      "levels": [
+        "level-5"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 30 khoản 9 điểm d",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.outsourced_dc_cloud",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.cloud.physical_core_network_isolation",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Khoản 9 áp dụng cho cấp độ 5 HOẶC hệ thống quan trọng về an ninh quốc gia khi thuê DC/cloud. Bằng chứng phải phản ánh thiết kế và triển khai; tách lô-gic không tự chứng minh tách vật lý."
+    },
+    {
+      "id": "vn-n331-cloud-critical-core-network",
+      "label": "Thuê DC/cloud thuộc diện quan trọng quốc gia: Thiết bị mạng chính được phân tách độc lập về vật lý",
+      "controlId": "network_protection",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 30 khoản 9 điểm d",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.outsourced_dc_cloud",
+          "equals": true
+        },
+        {
+          "factId": "vn.scope.national_critical",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.cloud.physical_core_network_isolation",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Khoản 9 áp dụng cho cấp độ 5 HOẶC hệ thống quan trọng về an ninh quốc gia khi thuê DC/cloud. Bằng chứng phải phản ánh thiết kế và triển khai; tách lô-gic không tự chứng minh tách vật lý. Liệt kê cấp độ 1–4 để biểu diễn nhánh điều kiện quan trọng quốc gia, không khẳng định các cấp độ thấp thường có trạng thái này."
+    },
+    {
+      "id": "vn-n331-cloud-l5-shared-security",
+      "label": "Thuê DC/cloud cấp độ 5: Giải pháp bảo vệ dùng chung giới hạn ở giám sát/cảnh báo/lớp biên",
+      "controlId": "identity_access",
+      "levels": [
+        "level-5"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 30 khoản 9 điểm đ",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.outsourced_dc_cloud",
+          "equals": true
+        },
+        {
+          "factId": "vn.scope.shared_security_solution",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.cloud.shared_security_no_internal_access_control",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Khoản 9 áp dụng cho cấp độ 5 HOẶC hệ thống quan trọng về an ninh quốc gia khi thuê DC/cloud. Bằng chứng phải phản ánh thiết kế và triển khai; tách lô-gic không tự chứng minh tách vật lý. Không được tạo khả năng truy cập, điều khiển hay can thiệp trực tiếp dữ liệu, tài nguyên và hoạt động nội bộ."
+    },
+    {
+      "id": "vn-n331-cloud-critical-shared-security",
+      "label": "Thuê DC/cloud thuộc diện quan trọng quốc gia: Giải pháp bảo vệ dùng chung giới hạn ở giám sát/cảnh báo/lớp biên",
+      "controlId": "identity_access",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 30 khoản 9 điểm đ",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.outsourced_dc_cloud",
+          "equals": true
+        },
+        {
+          "factId": "vn.scope.shared_security_solution",
+          "equals": true
+        },
+        {
+          "factId": "vn.scope.national_critical",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.cloud.shared_security_no_internal_access_control",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Khoản 9 áp dụng cho cấp độ 5 HOẶC hệ thống quan trọng về an ninh quốc gia khi thuê DC/cloud. Bằng chứng phải phản ánh thiết kế và triển khai; tách lô-gic không tự chứng minh tách vật lý. Liệt kê cấp độ 1–4 để biểu diễn nhánh điều kiện quan trọng quốc gia, không khẳng định các cấp độ thấp thường có trạng thái này."
+    },
+    {
+      "id": "vn-n331-specialist-staff",
+      "label": "Bố trí bộ phận hoặc nhân sự an ninh phù hợp cấp độ",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 31 khoản 1 điểm b",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.governance.level_appropriate_security_staff_assigned",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Ánh xạ vào quản trị rủi ro vì controlAreas của profile chưa có chủ đề nhân sự riêng; không đặt ngưỡng số người từ điều khoản này."
+    },
+    {
+      "id": "vn-n331-internal-review-independent",
+      "label": "Tự đánh giá nội bộ độc lập với đơn vị trực tiếp vận hành",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 31 khoản 2 điểm c, đoạn về tự đánh giá nội bộ",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.context.internal_self_assessment",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.assurance.internal_review_independent_and_method_compliant",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Bao gồm độc lập tổ chức và tuân thủ biểu mẫu/tiêu chí/phương pháp do cơ quan có thẩm quyền ban hành; thuê một LLM khác không chứng minh tính độc lập này."
+    },
+    {
+      "id": "vn-n331-level5-specialist-review",
+      "label": "Đánh giá cấp độ 5 bởi tổ chức chuyên môn theo đúng tư cách",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-5"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 31 khoản 2 điểm c, đoạn về tổ chức chuyên môn",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Đối chiếu tổ chức đánh giá được cấp phép, tổ chức sự nghiệp nhà nước có chức năng phù hợp hoặc tổ chức chuyên môn được cấp có thẩm quyền chỉ định; rà soát hồ sơ nhiệm vụ và kết quả."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-critical-specialist-review",
+      "label": "Đánh giá hệ thống quan trọng quốc gia bởi tổ chức chuyên môn",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 31 khoản 2 điểm c, đoạn về tổ chức chuyên môn",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.national_critical",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Đối chiếu tư cách tổ chức chuyên môn theo Điều 31 khoản 2 điểm c; việc tự đánh giá của đơn vị vận hành không thay thế hồ sơ đánh giá bắt buộc."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-triggered-specialist-review",
+      "label": "Rà soát các trường hợp phải đánh giá chuyên môn khác",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 31 khoản 2 điểm c, đoạn về tổ chức chuyên môn",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Đối chiếu sự cố nghiêm trọng/nguy cơ cao, thay đổi lớn chức năng/phạm vi/kiến trúc/công nghệ, dấu hiệu tự đánh giá thiếu trung thực/đầy đủ/chính xác, yêu cầu cơ quan có thẩm quyền hoặc đánh giá do chủ quản tổ chức. Xác định tổ chức có tư cách phù hợp."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-incident-report-72h",
+      "label": "Báo cáo nguyên nhân, phạm vi và khắc phục sự cố trong 72 giờ",
+      "controlId": "incident_response",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 31 khoản 2 điểm d, đoạn thứ nhất",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.incident.detected",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "vn.incident.cause_scope_remediation_report_delay_hours",
+        "max": 72,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Đo từ phát hiện đến báo cáo cơ quan chuyên trách đúng thẩm quyền. Sự cố phức tạp cho phép báo cáo sơ bộ thông tin và biện pháp khắc phục rồi cập nhật/kết thúc; không buộc điều tra phải hoàn thành trong 72 giờ. Giá trị giờ chỉ là khai báo có tham chiếu."
+    },
+    {
+      "id": "vn-n331-serious-incident-24h",
+      "label": "Thông báo ban đầu sự cố nghiêm trọng trong 24 giờ",
+      "controlId": "incident_response",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 31 khoản 2 điểm d, đoạn thứ hai",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.incident.serious",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "vn.incident.initial_serious_notification_delay_hours",
+        "max": 24,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Tính từ phát hiện sự cố nghiêm trọng đến thông báo ban đầu. Nếu có điều kiện báo cáo ngay, phải đối chiếu thêm yêu cầu đoạn thứ ba."
+    },
+    {
+      "id": "vn-n331-incident-immediate",
+      "label": "Báo cáo ngay sự cố có dấu hiệu tác động quốc gia/xã hội hoặc gián đoạn nghiêm trọng",
+      "controlId": "incident_response",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 31 khoản 2 điểm d, đoạn thứ ba",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.incident.immediate_reporting_trigger",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Đối chiếu dấu hiệu xâm phạm an ninh quốc gia, trật tự/an toàn xã hội hoặc gián đoạn nghiêm trọng; kiểm tra báo cáo ngay khi phát hiện và cơ quan nhận đúng thẩm quyền. Không quy đổi 'ngay' thành ngưỡng giờ tự đặt."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-complex-incident-updates",
+      "label": "Sự cố phức tạp có báo cáo sơ bộ, cập nhật và kết thúc",
+      "controlId": "incident_response",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 31 khoản 2 điểm d, đoạn thứ nhất",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.incident.complex",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Đối chiếu báo cáo sơ bộ và biện pháp khắc phục, báo cáo cập nhật, báo cáo kết thúc sau hoàn thành điều tra/khắc phục/đánh giá tác động; đánh giá theo giai đoạn thực tế để không đòi báo cáo kết thúc khi sự cố còn đang xử lý."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-awareness-drills",
+      "label": "Rà soát đào tạo, nhận thức và diễn tập",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 31 khoản 3",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Đối chiếu kế hoạch và bằng chứng bồi dưỡng kỹ năng, phổ biến nhận thức, diễn tập nội bộ và tham gia diễn tập do Bộ Công an tổ chức phù hợp phạm vi; điều khoản không đặt một số lần cố định mỗi năm."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Chủ đề nhân sự được đặt trong quản trị rủi ro của profile. Không dùng chứng nhận khóa học của một cá nhân làm bằng chứng cho toàn tổ chức."
+    },
+    {
+      "id": "vn-n331-continuous-monitoring",
+      "label": "Giám sát an ninh thường xuyên trong vận hành",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 28 khoản 5 điểm a",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.monitoring.continuous_security_monitoring_operated",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Không tự suy ra thời gian lưu nhật ký hoặc sản phẩm bắt buộc. Hồ sơ giám sát phải phù hợp cấp độ và mức rủi ro."
+    },
+    {
+      "id": "vn-n331-control-effectiveness",
+      "label": "Định kỳ đánh giá hiệu quả bảo vệ và báo cáo điều chỉnh",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 33 khoản 3; Điều 28 khoản 5 điểm a, b",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.assurance.periodic_effectiveness_review_and_owner_report",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Điều khoản không nêu một chu kỳ số tháng áp dụng cho mọi cấp độ; đối chiếu chu kỳ theo tiêu chuẩn/hướng dẫn và rủi ro thực tế."
+    },
+    {
+      "id": "vn-n331-remediate-weaknesses",
+      "label": "Phối hợp xử lý điểm yếu, lỗ hổng và nguy cơ đã phát hiện",
+      "controlId": "patch_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 33 khoản 4; Điều 28 khoản 5 điểm c",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.context.weaknesses_or_vulnerabilities_identified",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.remediation.identified_weaknesses_processed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Có kế hoạch hoặc scan finding không chứng minh đã khắc phục; khai báo phải dựa trên hồ sơ xử lý và kết quả kiểm tra. Không đặt thời hạn vá giả định từ Nghị định."
+    },
+    {
+      "id": "vn-n331-national-monitoring-cooperation",
+      "label": "Phối hợp thiết lập kết nối giám sát theo hướng dẫn của lực lượng chuyên trách",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 33 khoản 5",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.military",
+          "equals": false
+        },
+        {
+          "factId": "vn.scope.government_cipher",
+          "equals": false
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Đối chiếu hướng dẫn áp dụng và việc phối hợp kết nối/đấu nối/truyền dữ liệu đáp ứng điều kiện phục vụ giám sát; chỉ nhận tham chiếu đã làm sạch, không nhận dữ liệu giám sát thô."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Hệ thống quân sự và cơ yếu thuộc Ban Cơ yếu Chính phủ được loại trừ tại khoản này. Hướng dẫn kỹ thuật và Khung kiến trúc quốc gia cần đối chiếu riêng; không mặc định một sản phẩm hoặc cổng mạng."
+    },
+    {
+      "id": "vn-n331-annual-report-window",
+      "label": "Báo cáo năm sử dụng kỳ số liệu 15/12 năm trước đến 14/12 năm báo cáo",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 35 khoản 3",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.context.annual_reporting_period_due",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Đối chiếu năm báo cáo và ngày bắt đầu/kết thúc kỳ dữ liệu đúng 15/12 năm trước–14/12 năm báo cáo; không dùng ngày chạy scan làm kỳ báo cáo."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-annual-report-owner",
+      "label": "Đơn vị chuyên trách/vận hành gửi báo cáo chủ quản trước 20/12",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 35 khoản 4 điểm a",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.context.annual_reporting_period_due",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Đối chiếu biên nhận báo cáo trong năm tương ứng: phải gửi trước ngày 20/12, không diễn giải thành đến hết ngày 20/12. Kiểm tra đúng bên có nghĩa vụ và bên nhận."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-annual-report-authority",
+      "label": "Chủ quản gửi báo cáo Bộ Công an trước 25/12",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 35 khoản 4 điểm b",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.context.annual_reporting_period_due",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Đối chiếu biên nhận gửi Bộ Công an: phải gửi trước ngày 25/12 năm báo cáo; xác minh phạm vi thẩm quyền và quy định chuyên ngành/ngoại lệ áp dụng."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Kiểm tra chỉ đối chiếu khai báo có bằng chứng tham chiếu; không xác nhận nội dung tài liệu hay sự tuân thủ pháp luật."
+    },
+    {
+      "id": "vn-n331-annual-report-control-status",
+      "label": "Báo cáo nêu trạng thái từng tiêu chí và lộ trình hoàn thiện",
+      "controlId": "risk_management",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 36 khoản 5, 9, 10",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.context.annual_reporting_period_due",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "vn.reporting.per_criterion_status_and_completion_roadmap",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Phải phân biệt đầy đủ/một phần/chưa triển khai và yêu cầu chưa đáp ứng; không chuyển số finding hoặc tỷ lệ checklist thành kết luận toàn hệ thống."
+    },
+    {
+      "id": "vn-n331-early-project-approval",
+      "label": "Khuyến khích phê duyệt hồ sơ cấp độ trước các bước phê duyệt đầu tư/thuê",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 37",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "vn.scope.new_upgraded_or_expanded",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Đối chiếu thời điểm phê duyệt hồ sơ cấp độ so với báo cáo kinh tế-kỹ thuật, thiết kế cơ sở, kế hoạch thuê hoặc đề cương/dự toán tương ứng; đánh dấu đây là khuyến khích."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Không coi chưa làm theo khuyến khích là không đáp ứng nghĩa vụ bắt buộc. Thời điểm triển khai đầy đủ trước vận hành tại Điều 30 khoản 6 vẫn cần kiểm tra."
+    },
+    {
+      "id": "vn-n331-construction-transition",
+      "label": "Rà soát mốc chuyển tiếp dự án đang đầu tư/xây dựng trước 01/07/2026",
+      "controlId": "system_classification",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4",
+        "level-5"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "vn-decree-331",
+      "locator": "Điều 39 khoản 1",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "vn.scope.investment_construction_before_2026_07_01",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Đối chiếu tình trạng trước 01/07/2026: hoàn thành thẩm định/phê duyệt theo Nghị định 85/2016 trong 6 tháng từ hiệu lực Luật 116/2025; đáp ứng điều kiện/tiêu chuẩn/biện pháp tương ứng Nghị định 331 trong 12 tháng. Xác minh cách tính thời hạn pháp lý và tiến độ tại ngày đánh giá."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Chưa đến hạn không tự là failed. Không tự cộng 180/365 ngày thay cho 6/12 tháng. Hệ thống đã được phê duyệt trước đó cần đối chiếu thêm Điều 45 Luật 116/2025."
+    }
+  ]
+}

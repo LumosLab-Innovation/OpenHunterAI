@@ -1,0 +1,194 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://openhunterai.local/schemas/country-security-evidence-v1",
+  "title": "Country security evidence metadata v1",
+  "description": "Structured operator metadata only; no artifacts, raw requests, secrets or free-form evidence bodies. This does not establish formal classification or certification.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "dataOrigin",
+    "assessmentId",
+    "countryCode",
+    "frameworkId",
+    "levelId",
+    "applicabilityConfirmed",
+    "observations"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "country_security_evidence_v1"
+    },
+    "dataOrigin": {
+      "enum": [
+        "synthetic_fixture",
+        "operator_supplied"
+      ]
+    },
+    "assessmentId": {
+      "$ref": "#/definitions/safeId",
+      "allOf": [
+        {
+          "$ref": "#/definitions/safeReference"
+        }
+      ]
+    },
+    "countryCode": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$"
+    },
+    "frameworkId": {
+      "$ref": "#/definitions/safeId"
+    },
+    "levelId": {
+      "$ref": "#/definitions/safeId"
+    },
+    "applicabilityConfirmed": {
+      "type": "boolean",
+      "description": "Operator assertion only; does not substitute for legal or authority review."
+    },
+    "observations": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "$ref": "#/definitions/observation"
+      }
+    }
+  },
+  "definitions": {
+    "safeId": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+      "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "safeReference": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^(?!(?:https?|file|ftp|s3|gs|data|javascript|wss?):)(?![a-z]:)(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*(?:^|[._:-])(?:token|password|secret|credential|bearer)(?:$|[._:-]))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._:-]{0,127}$",
+      "description": "Opaque non-sensitive artifact ID, including colon-delimited http_exchange references; never a URL, path, email or token."
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "controlId",
+        "status"
+      ],
+      "properties": {
+        "controlId": {
+          "$ref": "#/definitions/safeId"
+        },
+        "status": {
+          "enum": [
+            "reported_satisfied",
+            "reported_failed",
+            "not_assessed",
+            "not_applicable"
+          ]
+        },
+        "kind": {
+          "enum": [
+            "configuration",
+            "policy_document",
+            "independent_review",
+            "scan_metadata"
+          ]
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/safeReference"
+          }
+        },
+        "observedAt": {
+          "$ref": "#/definitions/date"
+        },
+        "expiresAt": {
+          "$ref": "#/definitions/date"
+        },
+        "reasonCode": {
+          "enum": [
+            "outside_declared_system",
+            "missing_prerequisite",
+            "manual_review_required"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "reported_satisfied",
+                  "reported_failed"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "kind",
+              "evidenceRefs",
+              "observedAt",
+              "expiresAt"
+            ],
+            "properties": {
+              "evidenceRefs": {
+                "minItems": 1
+              }
+            }
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "kind"
+                  ]
+                },
+                {
+                  "required": [
+                    "evidenceRefs"
+                  ]
+                },
+                {
+                  "required": [
+                    "observedAt"
+                  ]
+                },
+                {
+                  "required": [
+                    "expiresAt"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "not_applicable"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "reasonCode"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

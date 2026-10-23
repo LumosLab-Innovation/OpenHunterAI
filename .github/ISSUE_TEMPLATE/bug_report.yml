@@ -1,0 +1,34 @@
+name: Bug report
+description: Report a reproducible, non-sensitive defect in OpenHunterAI.
+title: "[Bug]: "
+labels: [needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include target data, credentials, tokens, cookies, HAR, raw traffic, or exploit payloads. Use private security reporting for vulnerabilities.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Explain the observed behavior and the expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Safe reproduction
+      description: List minimal, sanitized steps that reproduce the issue.
+      placeholder: "1. Start local stack\n2. ..."
+    validations:
+      required: true
+  - type: input
+    id: revision
+    attributes:
+      label: Revision
+      description: Commit SHA, release tag, or local branch.
+  - type: textarea
+    id: context
+    attributes:
+      label: Environment and sanitized logs
+      description: OS, browser, runtime versions, and sanitized errors only.

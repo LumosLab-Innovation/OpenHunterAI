@@ -1,0 +1,21 @@
+id: openhunter-missing-hsts
+
+info:
+  name: Strict-Transport-Security Header Not Set
+  author: openhunterai
+  severity: info
+  description: Safe passive-style check for a missing HSTS response header.
+  tags: openhunter,safe,headers
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/"
+    redirects: false
+    max-redirects: 0
+    matchers:
+      - type: word
+        part: header
+        words:
+          - "Strict-Transport-Security"
+        negative: true

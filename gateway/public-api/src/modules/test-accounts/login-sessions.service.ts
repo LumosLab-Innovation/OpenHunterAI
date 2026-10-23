@@ -38,8 +38,8 @@ export class LoginSessionsService {
       select: { id: true, projectId: true, loginUrl: true },
     });
     if (!account) throw new GuardrailError('INVALID_INPUT', 'Test account not found');
-    const verifiedHosts = await this.verifiedHosts(projectId, orgId);
-    const loginUrl = validateLoginUrlInVerifiedScope(account.loginUrl, verifiedHosts);
+    const authorizedHosts = await this.authorizedHosts(projectId, orgId);
+    const loginUrl = validateLoginUrlInAuthorizedScope(account.loginUrl, authorizedHosts);
     await this.cancelPendingInteractiveSessions(account.id, orgId);
     const expiresAt = new Date(Date.now() + INTERACTIVE_SESSION_TTL_MS);
 
@@ -56,7 +56,7 @@ export class LoginSessionsService {
       select: publicSessionSelect,
     });
 
-    await createRuntimeSession(session.id, loginUrl.href, verifiedHosts);
+    await createRuntimeSession(session.id, loginUrl.href, authorizedHosts);
     const streamUrl = publicLoginSessionStreamUrl(session.id);
     await (this.prisma as any).browserSessionState.update({
       where: { id: session.id },
@@ -77,9 +77,9 @@ export class LoginSessionsService {
     if (session.status === 'cancelled') throw new GuardrailError('INVALID_INPUT', 'Login session was cancelled');
     if (session.expiresAt.getTime() <= Date.now()) throw new GuardrailError('INVALID_INPUT', 'Login session expired');
 
-    const verifiedHosts = await this.verifiedHosts(session.projectId, orgId);
+    const authorizedHosts = await this.authorizedHosts(session.projectId, orgId);
     const runtimeState = await readRuntimeStorageState(sessionId, body);
-    const finalUrl = validateLoginUrlInVerifiedScope(runtimeState.finalUrl ?? body.finalUrl ?? session.loginUrl, verifiedHosts);
+    const finalUrl = validateLoginUrlInAuthorizedScope(runtimeState.finalUrl ?? body.finalUrl ?? session.loginUrl, authorizedHosts);
     const storageState = sanitizeBrowserStorageState(runtimeState.storageState);
     const storageStateCipher = encryptString(JSON.stringify(storageState)).ciphertext;
     const expiresAt = new Date(Date.now() + SAVED_SESSION_TTL_MS);
@@ -193,22 +193,18 @@ export class LoginSessionsService {
     }
   }
 
-  private async verifiedHosts(projectId: string, orgId: string): Promise<string[]> {
-    const domains = await this.prisma.domain.findMany({
+  private async authorizedHosts(projectId: string, orgId: string): Promise<string[]> {
+    const authorizations = await this.prisma.scanAuthorization.findMany({
       where: {
         projectId,
         project: { organizationId: orgId },
-        verifications: {
-          some: {
-            status: 'verified',
-            OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-          },
-        },
+        OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
       },
-      select: { hostname: true },
+      select: { allowedHosts: true },
     });
-    if (domains.length === 0) throw new GuardrailError('DOMAIN_NOT_VERIFIED', 'Project has no verified domain');
-    return domains.map((domain) => domain.hostname);
+    const hosts = [...new Set(authorizations.flatMap((row) => Array.isArray(row.allowedHosts) ? row.allowedHosts.filter((host): host is string => typeof host === 'string') : []))];
+    if (hosts.length === 0) throw new GuardrailError('NO_SCAN_AUTHORIZATION', 'Project has no active authorized host');
+    return hosts;
   }
 }
 
@@ -252,15 +248,15 @@ export interface SanitizedBrowserStorageState {
   }>;
 }
 
-export function validateLoginUrlInVerifiedScope(rawUrl: string, verifiedHosts: string[]): URL {
+export function validateLoginUrlInAuthorizedScope(rawUrl: string, authorizedHosts: string[]): URL {
   const normalized = normalizeUrl(rawUrl).url;
   assertInScope(normalized.href, {
-    allowedHosts: verifiedHosts,
+    allowedHosts: authorizedHosts,
     allowedPaths: [],
     excludedPaths: [],
     testAccountPermission: true,
     sensitiveActionPermission: false,
-    scanMode: 'free_hunter',
+    profile: 'quick',
     authScope: 'one_account',
     targetType: 'interactive_web_app',
     testIntensityMode: 'safe_discovery',

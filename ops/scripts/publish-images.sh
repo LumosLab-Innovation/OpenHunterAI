@@ -6,7 +6,7 @@ tag="${IMAGE_TAG:-${2:-latest}}"
 push_images="${PUSH:-0}"
 
 nuclei_upstream="${NUCLEI_UPSTREAM_IMAGE:-projectdiscovery/nuclei:v3.4.10}"
-zap_upstream="${ZAP_UPSTREAM_IMAGE:-ghcr.io/zaproxy/zaproxy:stable}"
+zap_upstream="${ZAP_UPSTREAM_IMAGE:-ghcr.io/zaproxy/zaproxy:2.17.0}"
 
 build_adapter() {
   local name="$1"

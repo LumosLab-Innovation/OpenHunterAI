@@ -1,10 +1,13 @@
 import express from 'express';
 import helmet from 'helmet';
 import { createRequire } from 'node:module';
-import { sanitizeReportContent, sanitizeText } from '@x-hunter/shared';
-import { getGateway } from './llm.js';
+import { intensityToProfile, sanitizeReportContent, sanitizeText } from '@x-hunter/shared';
 import { routeFor } from '@x-hunter/llm-gateway';
+import { bridgeFromEnv, snapshotFromPlan, storeLlmAudits } from './snapshot-llm.js';
+import { summarizeSignals } from './signal-summary.js';
 import { selectPromotionCandidates, triageCandidates, type CandidateSummary, type PromotionCandidate } from './triage.js';
+import { evaluateIndependentDecision } from './validation.js';
+import { reasonWithCodex } from './strix-reasoning.js';
 
 const app = express();
 const port = Number(process.env.FINDINGS_PORT || 4300);
@@ -48,7 +51,83 @@ app.use('/internal', (req, res, next) => {
 app.get('/internal/findings', asyncRoute(async (req, res) => {
   const scanJobId = req.query.scanId as string | undefined;
   const where = scanJobId ? { scanJobId } : {};
-  res.json({ findings: await prisma.finding.findMany({ where, orderBy: { createdAt: 'desc' }, take: 100 }) });
+  res.json({ findings: await prisma.finding.findMany({ where, orderBy: { createdAt: 'desc' } }) });
+}));
+
+// S can use the locked Codex completion lane for reasoning. This health check
+// never presents the third-party Strix runtime as installed or validated.
+app.get('/internal/strix-reasoning/health', asyncRoute(async (_req, res) => {
+  const base = process.env.OPENHUNTER_LLM_BRIDGE_URL;
+  const token = process.env.OPENHUNTER_LLM_BRIDGE_TOKEN;
+  if (!base || !token) {
+    res.status(503).json({ ok: false, reason: 'BRIDGE_UNAVAILABLE' });
+    return;
+  }
+  try {
+    const response = await fetch(`${base.replace(/\/+$/, '')}/capabilities`, {
+      headers: { authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(5_000),
+    });
+    const body = await response.json() as { completion?: { codex?: { state?: string } } };
+    const ok = response.ok && body.completion?.codex?.state === 'locked';
+    res.status(ok ? 200 : 503).json({ ok, reason: ok ? undefined : 'CODEX_COMPLETION_UNAVAILABLE' });
+  } catch {
+    res.status(503).json({ ok: false, reason: 'BRIDGE_UNAVAILABLE' });
+  }
+}));
+
+app.post('/internal/scans/:scanId/strix-reason', asyncRoute(async (req, res) => {
+  const scanId = req.params.scanId!;
+  const scan = await prisma.scanJob.findUnique({ where: { id: scanId } });
+  if (!scan || scan.state !== 'running') {
+    res.status(404).json({ error: { code: 'SCAN_NOT_RUNNING' } });
+    return;
+  }
+  const scope = scan.scopeSnapshot as { targetUrl?: unknown };
+  const target = scope?.targetUrl;
+  if (typeof target !== 'string' || target !== req.body?.target) {
+    res.status(400).json({ error: { code: 'SCOPE_MISMATCH' } });
+    return;
+  }
+  const plan = scan.scanPlan as { enabledHunters?: unknown; budgets?: { maxLLMCalls?: number } } | null;
+  const snapshot = snapshotFromPlan(plan);
+  if (!snapshot) {
+    res.status(503).json({ error: { code: 'LLM_ROUTE_SNAPSHOT_MISSING' } });
+    return;
+  }
+  const used = Array.isArray((scan.budgetUsed as any)?.llmAudits) ? (scan.budgetUsed as any).llmAudits.length : 0;
+  if (used + 4 > (plan?.budgets?.maxLLMCalls ?? 0)) {
+    res.status(503).json({ error: { code: 'LLM_BUDGET_EXCEEDED' } });
+    return;
+  }
+  const hunterIds = Array.isArray(plan?.enabledHunters) ? plan.enabledHunters.filter((id): id is string => typeof id === 'string') : [];
+  const result = await reasonWithCodex({
+    snapshot,
+    bridge: bridgeFromEnv(),
+    target,
+    targetType: scan.targetType,
+    profile: intensityToProfile(scan.testIntensityMode),
+    authScope: scan.authScope,
+    hunterIds,
+  });
+  await storeLlmAudits(prisma, scanId, result.audits, result.gaps.filter((gap) => gap.startsWith('llm:')));
+  if (result.signals.length === 0) {
+    res.status(503).json({ error: { code: 'CODEX_REASONING_UNAVAILABLE' } });
+    return;
+  }
+  res.json({
+    signals: result.signals,
+    status: 'partial',
+    summary: 'Codex prioritized Strix-style review hypotheses. No Strix runtime or validation probe ran.',
+    coverage: { surfacesSkipped: ['strix_runtime_validation'], gaps: result.gaps },
+    limitations: ['Reasoning only: no Strix runtime, sandbox, or active validation was executed.'],
+    runtimeProvenance: {
+      upstreamId: 'openhunter_core',
+      upstreamRef: 'codex-guided-reasoning-v1',
+      adapterVersion: 'openhunter-strix-adapter/v1',
+      playbookRevisions: ['strix-methodology-v1.6.2'],
+    },
+  });
 }));
 
 /**
@@ -76,13 +155,19 @@ app.post('/internal/scans/:scanId/triage', asyncRoute(async (req, res) => {
     affectedAsset: c.affectedAsset,
   }));
 
-  const recommendation = await triageCandidates(getGateway(), {
+  const snapshot = snapshotFromPlan(scan.scanPlan);
+  const bridge = bridgeFromEnv();
+  const recommendation = await triageCandidates({
+    snapshot,
+    bridge,
     projectId: scan.projectId,
     scanId,
-    packageTier: scan.project.packageTier,
+    profile: intensityToProfile(scan.testIntensityMode),
     candidates,
   });
-  res.json({ recommendation });
+  const gaps = recommendation.coverageGap ? [recommendation.coverageGap] : [];
+  await storeLlmAudits(prisma, scanId, recommendation.audits, gaps);
+  res.json({ recommendation, llmAudits: recommendation.audits, coverageGaps: gaps });
 }));
 
 app.post('/internal/scans/:scanId/promote', asyncRoute(async (req, res) => {
@@ -105,8 +190,10 @@ app.listen(port, '0.0.0.0', () => console.log(`findings listening on ${port}`));
 function llmHealth() {
   const low = routeFor('low_reasoning_model');
   const high = routeFor('high_reasoning_model');
+  const configured = (provider: string) => Boolean(process.env[`${provider.toUpperCase()}_API_KEY`]);
+  const ready = (route: ReturnType<typeof routeFor>) => configured(route.primary.provider) || Boolean(route.fallback && configured(route.fallback.provider));
   return {
-    ok: Boolean(process.env.OPENAI_API_KEY && process.env.DEEPSEEK_API_KEY),
+    ok: ready(low) && ready(high),
     service: 'findings',
     aliases: {
       low_reasoning_model: low,
@@ -115,6 +202,7 @@ function llmHealth() {
     providers: {
       openai: { configured: Boolean(process.env.OPENAI_API_KEY) },
       deepseek: { configured: Boolean(process.env.DEEPSEEK_API_KEY) },
+      claude: { configured: Boolean(process.env.CLAUDE_API_KEY) },
     },
   };
 }
@@ -122,7 +210,7 @@ function llmHealth() {
 async function promoteScanCandidates(scanId: string) {
   const scan = await prisma.scanJob.findUnique({
     where: { id: scanId },
-    include: { project: true, findings: true },
+    include: { project: true, findings: true, steps: true },
   });
   if (!scan) return null;
   if (scan.state === 'cancelled') {
@@ -138,6 +226,34 @@ async function promoteScanCandidates(scanId: string) {
     where: { scanJobId: scanId, promotedToId: null },
     orderBy: { createdAt: 'asc' },
   });
+  const decisions = new Map<string, any>();
+  for (const row of rows) {
+    const existing = await (prisma as any).triageDecision.findUnique({ where: { candidateId: row.id } });
+    if (existing?.state === 'validated' && existing.validator === 'independent_policy_v1') {
+      decisions.set(row.id, existing);
+      continue;
+    }
+    const decision = evaluateIndependentDecision({ severity: row.severity, evidence: row.evidence });
+    const saved = await (prisma as any).triageDecision.upsert({
+      where: { candidateId: row.id },
+      create: {
+        candidateId: row.id,
+        state: decision.state,
+        rationale: sanitizeText(decision.rationale),
+        counterevidence: decision.counterevidence ? sanitizeText(decision.counterevidence) : null,
+        validator: decision.validator,
+        evidenceRefs: decision.evidenceRefs,
+      },
+      update: {
+        state: decision.state,
+        rationale: sanitizeText(decision.rationale),
+        counterevidence: decision.counterevidence ? sanitizeText(decision.counterevidence) : null,
+        validator: decision.validator,
+        evidenceRefs: decision.evidenceRefs,
+      },
+    });
+    decisions.set(row.id, saved);
+  }
   const candidates: PromotionCandidate[] = rows.map((c: any) => ({
     id: c.id,
     title: c.title,
@@ -146,23 +262,23 @@ async function promoteScanCandidates(scanId: string) {
     category: c.category,
     affectedAsset: c.affectedAsset,
     evidence: c.evidence,
+    decision: decisions.get(c.id),
   }));
 
-  const recommendation = await triageCandidates(getGateway(), {
+  const snapshot = snapshotFromPlan(scan.scanPlan);
+  const bridge = bridgeFromEnv();
+  const summary = await summarizeSignals({ snapshot, bridge, scan, candidateCount: rows.length });
+  const recommendation = await triageCandidates({
+    snapshot,
+    bridge,
     projectId: scan.projectId,
     scanId,
-    packageTier: scan.project.packageTier,
+    profile: intensityToProfile(scan.testIntensityMode),
     candidates,
   });
-  const planBudgets = ((scan.scanPlan as any)?.budgets ?? {}) as { maxReturnedFindings?: number };
-  const remainingQuota =
-    scan.mode === 'free_hunter'
-      ? Math.max(0, 1 - scan.findings.length)
-      : Math.max(0, (planBudgets.maxReturnedFindings ?? 50) - scan.findings.length);
-  const selected = selectPromotionCandidates(candidates, recommendation, {
-    scanMode: scan.mode,
-    maxFindings: remainingQuota,
-  }).slice(0, remainingQuota);
+  const gaps = [summary.coverageGap, recommendation.coverageGap].filter((gap): gap is string => Boolean(gap));
+  await storeLlmAudits(prisma, scanId, [...summary.audits, ...recommendation.audits], gaps);
+  const selected = selectPromotionCandidates(candidates, recommendation);
 
   const promoted = await prisma.$transaction(async (tx: any) => {
     const guard = await tx.scanJob.updateMany({
@@ -176,7 +292,9 @@ async function promoteScanCandidates(scanId: string) {
       if (!current || current.promotedToId) continue;
       const evidence = sanitizeReportContent(current.evidence ?? {});
       const evidenceDescription =
-        typeof (evidence as any)?.description === 'string'
+        typeof (evidence as any)?.demonstratedImpact === 'string'
+          ? sanitizeText((evidence as any).demonstratedImpact)
+          : typeof (evidence as any)?.description === 'string'
           ? sanitizeText((evidence as any).description)
           : `Sanitized evidence from ${current.source}.`;
       const finding = await tx.finding.create({
@@ -210,5 +328,5 @@ async function promoteScanCandidates(scanId: string) {
     return created;
   });
 
-  return { recommendation, promoted };
+  return { recommendation, promoted, signalSummary: summary.text, llmAudits: [...summary.audits, ...recommendation.audits], coverageGaps: gaps };
 }

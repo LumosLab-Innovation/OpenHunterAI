@@ -7,21 +7,9 @@
  * LLM_PROVIDER_SPEC.md §2 + §3 and SECURITY_GUARDRAILS.md §12.
  */
 
-import type { PackageTier } from '@x-hunter/shared';
+import type { LlmUseCase, ScanProfile } from '@x-hunter/shared';
 
-export type LLMUseCase =
-  | 'signal_summary'
-  | 'candidate_dedupe'
-  | 'suspicious_surface_ranking'
-  | 'first_valuable_finding'
-  | 'attacker_hypothesis'
-  | 'validation_plan'
-  | 'access_control_reasoning'
-  | 'api_reasoning'
-  | 'llm_app_reasoning'
-  | 'report_generation'
-  | 'fix_prompt'
-  | 'retest_reasoning';
+export type LLMUseCase = LlmUseCase;
 
 export type ProviderName = 'openai' | 'claude' | 'deepseek';
 
@@ -30,7 +18,7 @@ export interface LLMRequest {
   projectId: string;
   scanId?: string;
   findingId?: string;
-  packageTier: PackageTier;
+  profile: ScanProfile;
   systemPrompt: string;
   userPrompt: string;
   compactContext?: Record<string, unknown>;
@@ -82,14 +70,12 @@ export interface LLMProvider {
   isConfigured(): boolean;
 }
 
-/** Per-package, per-call budget. See LLM_PROVIDER_SPEC.md §7. */
+/** Per-run resource ceiling. It is never a commercial entitlement. */
 export interface LLMBudget {
   maxLLMCallsPerScan: number;
   maxInputTokensPerCall: number;
   maxOutputTokensPerCall: number;
   defaultTimeoutMs: number;
-  /** Use cases the package may invoke. Empty array = none allowed. */
-  allowedUseCases: LLMUseCase[];
 }
 
 /** Routed provider chain for one alias. */

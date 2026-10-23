@@ -12,7 +12,6 @@ interface AuthContextValue {
   user: SessionUser | null;
   loading: boolean;
   refresh: () => Promise<void>;
-  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -25,12 +24,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const res = await apiFetch<{ user: SessionUser }>('/v1/auth/me');
     setUser(res.ok ? res.data.user : null);
     setLoading(false);
-  }, []);
-
-  const signOut = useCallback(async () => {
-    const res = await apiFetch('/v1/auth/signout', { method: 'POST' });
-    if (!res.ok) throw new Error(res.error.message ?? `Sign out failed (${res.status})`);
-    setUser(null);
   }, []);
 
   useEffect(() => {
@@ -50,7 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [refresh]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, refresh, signOut }}>
+    <AuthContext.Provider value={{ user, loading, refresh }}>
       {children}
     </AuthContext.Provider>
   );

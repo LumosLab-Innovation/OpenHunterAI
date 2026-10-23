@@ -13,7 +13,7 @@ export class ProjectsRepository {
 
   create(orgId: string, body: CreateProjectBody) {
     return this.prisma.project.create({
-      data: { organizationId: orgId, name: body.name, packageTier: body.packageTier },
+      data: { organizationId: orgId, name: body.name },
     });
   }
 

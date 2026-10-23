@@ -29,7 +29,7 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.22"
+          go-version: "1.26"
 
       - name: Install TypeScript services
         run: make install
@@ -45,3 +45,28 @@ jobs:
 
       - name: Build Go services
         run: make go-build
+
+  strix-runtime-contract:
+    name: pinned Strix runtime contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build pinned Strix adapter/runtime image
+        run: docker build -f integrations/strix/runtime/Dockerfile -t openhunter/strix-contract .
+
+      - name: Check packaged CLI and adapter health
+        run: |
+          test "$(docker run --rm --entrypoint strix openhunter/strix-contract --version)" = "strix 1.6.2"
+          docker run --detach --name strix-contract -p 127.0.0.1:6130:6130 openhunter/strix-contract
+          trap 'docker stop strix-contract' EXIT
+          for attempt in $(seq 1 20); do
+            response=$(curl --silent --write-out '%{http_code}' http://127.0.0.1:6130/health || true)
+            if [[ "$response" == *'"runtime_available":true'* && "$response" == *'"runtime_configured":false'* && "$response" == *'503' ]]; then
+              exit 0
+            fi
+            sleep 1
+          done
+          docker logs strix-contract
+          exit 1

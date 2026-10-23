@@ -12,7 +12,7 @@
   "sources": [
     {
       "id": "openhunter_core",
-      "url": "https://github.com/ViCore-Technology/OpenHunterAI",
+      "url": "https://github.com/LumosLab-Innovation/OpenHunterAI",
       "ref": "this-repo",
       "role": "Native OpenHunterAI hunters, scan plan, and product logic.",
       "importMode": "native",
@@ -26,16 +26,12 @@
     {
       "id": "openhack",
       "url": "https://github.com/hadriansecurity/openhack",
-      "ref": "vendored-snapshot",
+      "ref": "e43e4cb2bf8d8810467b987f798304af23dbcdc1",
       "license": "see third_party_research/openhack/LICENSE",
       "role": "Scenario-first workflow, hunter schema, triage/review methodology.",
       "importMode": "reference_only",
       "currentVendorState": "curated_subset_in_third_party_research",
-      "vendoredPaths": [
-        "third_party_research/openhack/agents",
-        "third_party_research/openhack/config",
-        "third_party_research/openhack/templates"
-      ],
+      "vendoredPaths": ["third_party_research/openhack/agents", "third_party_research/openhack/config", "third_party_research/openhack/templates"],
       "isRuntimeDependency": false,
       "canVendorFull": false,
       "canSubmodule": false,
@@ -45,7 +41,10 @@
     {
       "id": "strix",
       "url": "https://github.com/usestrix/strix",
-      "ref": "vendored-snapshot",
+      "ref": "cc23eeb65de1bae88ec81dfdae4a9597a6aba1d3",
+      "runtimeRef": "v1.6.2",
+      "reviewedUpstreamHead": "355a8bb43743ce769e5ff3f72461c07127f3c45c",
+      "sandboxRuntimeRef": "ghcr.io/usestrix/strix-sandbox:1.3.0",
       "license": "see third_party_research/strix/LICENSE (Apache-2.0)",
       "role": "Attacker-mindset reasoning, controlled validation planning, runtime adapter (strix CLI behind integrations/strix adapter).",
       "importMode": "reasoning_guide",
@@ -60,7 +59,7 @@
     {
       "id": "zap",
       "url": "https://github.com/zaproxy/zaproxy",
-      "ref": "ghcr.io/zaproxy/zaproxy:stable",
+      "ref": "ghcr.io/zaproxy/zaproxy:2.17.0",
       "role": "Passive/baseline DAST signal layer.",
       "importMode": "runtime_adapter",
       "currentVendorState": "adapter_runtime_only",
@@ -88,7 +87,7 @@
     {
       "id": "claude_bughunter",
       "url": "https://github.com/elementalsouls/Claude-BugHunter",
-      "ref": "main",
+      "ref": "c4c925a21c51e5e5e2e8afa96287ba43fb28cccd",
       "license": "MIT (Copyright (c) 2026 Sachin Sharma)",
       "role": "Reference playbook / skill / validation gate / evidence hygiene / report pattern source. Used only to enrich OpenHack workflow and Strix reasoning guides.",
       "importMode": "reference_only",
@@ -133,6 +132,26 @@
         "hunt-cicd",
         "offensive-osint"
       ]
+    },
+    {
+      "id": "rea",
+      "url": "https://github.com/morluto/rea",
+      "ref": "27dc42d10249f0410904a75c0997842eb03b931c",
+      "runtimeRef": "rea-agents@6.7.0",
+      "reviewedUpstreamHead": "3e7e102a518b9112a2a8aa0590ae6f6951fd0635",
+      "reviewedOn": "2026-10-24",
+      "reviewedBy": "manual_codex_run",
+      "license": "MIT; third-party tools retain their own licenses",
+      "role": "Optional pinned local static JavaScript artifact analysis, exposed through openhunterai rea; separate from public website scans.",
+      "importMode": "runtime_adapter",
+      "currentVendorState": "adapter_runtime_only",
+      "vendoredPaths": [],
+      "isRuntimeDependency": true,
+      "optional": true,
+      "canVendorFull": false,
+      "canSubmodule": false,
+      "allowedUse": ["authorized_local_web_artifact_analysis", "bounded_sanitized_summary", "manual_provenance_review"],
+      "forbiddenUse": ["target_code_execution", "unrestricted_mcp_registration", "automatic_finding_promotion", "out_of_scope_scan", "private_network_scan", "full_repo_vendoring", "automatic_upstream_sync"]
     }
   ]
 }

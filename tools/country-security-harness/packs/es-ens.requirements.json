@@ -1,0 +1,728 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "es-ens-curated",
+  "frameworkId": "es-ens",
+  "version": "Real Decreto 311/2022; BOE consolidation last updated 2024-11-06",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "es-primary",
+      "title": "ENS Royal Decree",
+      "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2022-7191",
+      "locator": "Articles 2,31; Annexes I–II"
+    }
+  ],
+  "limitations": [
+    "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+    "Operator-supplied facts and evidence metadata do not constitute independent control verification.",
+    "Category-specific reinforcements are explicit. Dimension-dependent reinforcement tables are not inferred from whole-system category; backup availability-grade refinements and Article 31 audit derogations require separate review."
+  ],
+  "requirements": [
+    {
+      "id": "es.security-roles",
+      "label": "Document security duties and appointment procedures",
+      "controlId": "risk_management",
+      "levels": [
+        "basica",
+        "media",
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII org.1.3",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Document security duties and appointment procedures"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.use-rules",
+      "label": "Document permitted and prohibited use",
+      "controlId": "secure_configuration",
+      "levels": [
+        "basica",
+        "media",
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII org.2.1",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "es.use-rules",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.incident-reporting",
+      "label": "Document anomaly identification and reporting",
+      "controlId": "incident_response",
+      "levels": [
+        "basica",
+        "media",
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII org.3.3",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "es.incident-reporting",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.production-authorization",
+      "label": "Authorize application entry into production",
+      "controlId": "application_security",
+      "levels": [
+        "basica",
+        "media",
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII org.4.3",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Authorize application entry into production"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.risk-baseline",
+      "label": "Identify assets, threats, safeguards and residual risk",
+      "controlId": "risk_management",
+      "levels": [
+        "basica",
+        "media",
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII op.pl.1.1–1.4",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Identify assets, threats, safeguards and residual risk"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.risk-semiformal",
+      "label": "Use semiformal risk analysis for MEDIA",
+      "controlId": "risk_management",
+      "levels": [
+        "media"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII op.pl.1.r1.1–r 1.4; application MEDIA",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Use semiformal risk analysis for MEDIA"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.risk-formal",
+      "label": "Use formal mathematically grounded analysis for ALTA",
+      "controlId": "risk_management",
+      "levels": [
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII op.pl.1.r2.1–r 2.4; application ALTA",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Use formal mathematically grounded analysis for ALTA"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.named-subjects",
+      "label": "Assign unique accountable subject identifiers",
+      "controlId": "identity_access",
+      "levels": [
+        "basica",
+        "media",
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII op.acc.1.3",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "es.named-subjects",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.revoke-accounts",
+      "label": "Disable identifiers when access ends",
+      "controlId": "identity_access",
+      "levels": [
+        "basica",
+        "media",
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII op.acc.1.4(b)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "es.revoke-accounts",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.default-deny",
+      "label": "Deny rights without explicit authorization",
+      "controlId": "identity_access",
+      "levels": [
+        "basica",
+        "media",
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII op.acc.4.1",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "es.default-deny",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.least-privilege",
+      "label": "Grant only necessary privileges",
+      "controlId": "identity_access",
+      "levels": [
+        "basica",
+        "media",
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII op.acc.4.2",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "es.least-privilege",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.asset-register",
+      "label": "Maintain current inventory with asset owners",
+      "controlId": "system_classification",
+      "levels": [
+        "basica",
+        "media",
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII op.exp.1.1",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "es.asset-register",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.crypto-lifecycle",
+      "label": "Protect cryptographic keys through their lifecycle",
+      "controlId": "data_protection",
+      "levels": [
+        "basica",
+        "media",
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII op.exp.10.1",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "es.cryptographic_keys_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Protect cryptographic keys through their lifecycle"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.supplier-sla",
+      "label": "Agree minimum service and provider responsibilities",
+      "controlId": "supplier_security",
+      "levels": [
+        "media",
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII op.ext.1.1; application MEDIA/ALTA",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "es.external_resources_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Agree minimum service and provider responsibilities"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.supplier-service-monitoring",
+      "label": "Monitor contractual service compliance",
+      "controlId": "supplier_security",
+      "levels": [
+        "media",
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII op.ext.2.1; application MEDIA/ALTA",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "es.external_resources_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Monitor contractual service compliance"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.supply-impact",
+      "label": "Assess and contain supply-chain incident impact",
+      "controlId": "supplier_security",
+      "levels": [
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII op.ext.3.1–3.3; application ALTA",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "es.external_resources_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Assess and contain supply-chain incident impact"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.web-auth-bypass",
+      "label": "Prevent alternate paths around web authentication",
+      "controlId": "application_security",
+      "levels": [
+        "basica",
+        "media",
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII mp.s.2.1(a–c)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "es.web_access_control_required",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Prevent alternate paths around web authentication"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.web-injection",
+      "label": "Prevent code injection into web services",
+      "controlId": "application_security",
+      "levels": [
+        "basica",
+        "media",
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII mp.s.2.1(d)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "es.web_services_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Prevent code injection into web services"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.web-privilege",
+      "label": "Prevent web privilege escalation",
+      "controlId": "application_security",
+      "levels": [
+        "basica",
+        "media",
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII mp.s.2.2",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "es.web_services_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Prevent web privilege escalation"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.web-xss",
+      "label": "Prevent cross-site scripting",
+      "controlId": "application_security",
+      "levels": [
+        "basica",
+        "media",
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII mp.s.2.3",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "es.web_services_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Prevent cross-site scripting"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.web-audit-alternative",
+      "label": "Select black-box or white-box application audit route",
+      "controlId": "assurance_review",
+      "levels": [
+        "basica",
+        "media"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII mp.s.2; BÁSICA/MEDIA: R 1 or R 2",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "es.web_services_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Select black-box or white-box application audit route"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Black-box audit is continuous during development and before production underR 1, or white-box development audit underR 2. Neither a generic scan nor one boolean is a substitute for reviewing this alternative."
+    },
+    {
+      "id": "es.web-whitebox-high",
+      "label": "Apply white-box audits and remedy findings",
+      "controlId": "assurance_review",
+      "levels": [
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII mp.s.2.r2.1–r 2.3; ALTA",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "es.web_services_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Apply white-box audits and remedy findings"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "es.web-cache-high",
+      "label": "Prevent proxy and cache manipulation",
+      "controlId": "application_security",
+      "levels": [
+        "alta"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "es-primary",
+      "locator": "AnnexII mp.s.2.r3.1; ALTA",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "es.ens_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "es.web_services_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Prevent proxy and cache manipulation"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    }
+  ]
+}

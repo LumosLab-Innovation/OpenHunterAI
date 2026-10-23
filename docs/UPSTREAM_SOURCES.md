@@ -40,6 +40,7 @@ Any deviation from a default requires explicit owner confirmation and must be re
 
 ### O — OpenHack
 - **URL:** https://github.com/hadriansecurity/openhack
+- **Pinned reference:** `e43e4cb2bf8d8810467b987f798304af23dbcdc1`
 - **Role:** scenario-first workflow, hunter schema, triage/review methodology.
 - **Import mode:** `reference_only`
 - **Vendor state:** `curated_subset_in_third_party_research`
@@ -48,7 +49,7 @@ Any deviation from a default requires explicit owner confirmation and must be re
 - **Forbidden:** runtime worker, direct execution, opening new scope.
 
 ### Z — ZAP Proxy
-- **URL:** https://github.com/zaproxy/zaproxy — runtime image `ghcr.io/zaproxy/zaproxy:stable`
+- **URL:** https://github.com/zaproxy/zaproxy — runtime image `ghcr.io/zaproxy/zaproxy:2.17.0`
 - **Docs:** https://www.zaproxy.org/docs/docker/baseline-scan/
 - **Role:** passive/baseline DAST signal layer.
 - **Import mode:** `runtime_adapter` (via `integrations/zaproxy`)
@@ -58,6 +59,8 @@ Any deviation from a default requires explicit owner confirmation and must be re
 
 ### S — Strix
 - **URL:** https://github.com/usestrix/strix
+- **Reference snapshot:** `cc23eeb65de1bae88ec81dfdae4a9597a6aba1d3`
+- **Pinned runtime:** CLI `v1.6.2`, sandbox `ghcr.io/usestrix/strix-sandbox:1.3.0`; newer commits are reviewed individually, never auto-synced.
 - **Role:** attacker-mindset reasoning, controlled validation planning; runtime via the `strix` CLI behind `integrations/strix`.
 - **Import mode:** `reasoning_guide` (skills) + `runtime_adapter` (CLI)
 - **Vendor state:** `curated_subset_in_third_party_research`
@@ -76,6 +79,7 @@ Any deviation from a default requires explicit owner confirmation and must be re
 
 ### Claude-BugHunter
 - **URL:** https://github.com/elementalsouls/Claude-BugHunter
+- **Last reviewed head:** `c4c925a21c51e5e5e2e8afa96287ba43fb28cccd`; every imported playbook item records its own exact commit.
 - **License:** MIT
 - **Role:** reference playbook / skill / validation gate / evidence hygiene / report pattern source.
 - **Import mode:** `reference_only`
@@ -94,3 +98,18 @@ Any deviation from a default requires explicit owner confirmation and must be re
 ## 4. Provenance
 
 Every hunter/playbook/guide enriched from an upstream source must carry provenance metadata. See `shared/security-core/src/hunter-provenance.ts`. Provenance `hunterId`s must map to hunters that the deterministic Scan Plan (`shared/security-core/src/scan-plan.ts`) can actually emit.
+
+## REA — optional local artifact adapter
+
+Owner-authorized integration, manually reviewed with Codex on 2026-10-24.
+Runtime `rea-agents@6.7.0`, commit
+`27dc42d10249f0410904a75c0997842eb03b931c`, source
+[morluto/rea](https://github.com/morluto/rea). MIT; third-party terms remain.
+No source is vendored and no new scan worker or scan profile is selected.
+
+`openhunterai rea` exposes only bounded, static analysis of an authorized
+local JavaScript web-artifact directory. The separately installed runtime
+returns raw Evidence only to an allowlisted local summary adapter. It never
+creates validated findings or invokes target code/native/device/runtime
+capture. Full MCP registration, automatic updates and implicit network
+testing are not enabled. See [the integration contract](REA_INTEGRATION.md).

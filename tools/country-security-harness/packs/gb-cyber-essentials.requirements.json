@@ -1,0 +1,1078 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "gb-cyber-essentials-v33",
+  "frameworkId": "gb-cyber-essentials",
+  "version": "Technical requirements v3.3, April 2026",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "ncsc-ce-v33",
+      "title": "NCSC Cyber Essentials Requirements for IT Infrastructure v3.3",
+      "url": "https://www.ncsc.gov.uk/files/cyber-essentials-requirements-for-it-infrastructure-v3-3.pdf",
+      "locator": "Sections C/D and E.1–E.5, printed pp. 5–24"
+    },
+    {
+      "id": "ncsc-ce-overview",
+      "title": "NCSC Cyber Essentials overview and certification comparison",
+      "url": "https://www.ncsc.gov.uk/cyberessentials/overview",
+      "locator": "Choose your certification level; How do they compare"
+    },
+    {
+      "id": "ncsc-ce-resources",
+      "title": "NCSC Cyber Essentials current technical requirements",
+      "url": "https://www.ncsc.gov.uk/cyberessentials/resources",
+      "locator": "Requirements: v3.3 effective from 27 April 2026"
+    }
+  ],
+  "limitations": [
+    "This is a partial extraction of requirements and recommendations, not a licensed assessment or certification decision.",
+    "The two native certification levels share the five technical control requirements. Cyber Essentials Plus adds independent technical testing; it does not assign a different severity classification.",
+    "Scope and the cloud shared-responsibility model require contextual review. Cloud services cannot simply be excluded from the assessment scope.",
+    "Operator facts and artifact references are unverified declarations; the pack does not inspect endpoint configuration, authenticate to cloud accounts or replay attacks.",
+    "Backup, configurable device-unlock throttle and SHOULD-worded password-protection guidance do not count as mandatory controls. The explicit MUST for an MFA password factor is represented separately.",
+    "Bespoke/custom web application components have a separate scope caveat in section D(vii). A missing XSS/SQLi finding cannot establish that these organisational controls pass."
+  ],
+  "requirements": [
+    {
+      "id": "gb.firewall.coverage",
+      "label": "Firewall coverage of scoped devices",
+      "controlId": "network_protection",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.1 Firewalls, Requirements, printed p. 13",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "in_scope_devices_firewall_protected",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration"
+      ],
+      "interpretationNotes": "Assess the complete in-scope population from sanitized operator evidence; a website observation alone does not establish this control."
+    },
+    {
+      "id": "gb.firewall.default-admin",
+      "label": "Remediate firewall default administration",
+      "controlId": "network_protection",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.1 Firewalls, Requirements, first bullet, printed p. 14",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "firewall_default_admin_credentials_remediated",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Accept a strong unique replacement password OR fully disabled remote administration. Review every in-scope firewall; never collect the password itself."
+    },
+    {
+      "id": "gb.firewall.admin-internet",
+      "label": "Block unnecessary internet administration",
+      "controlId": "network_protection",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.1 Firewalls, Requirements, second bullet, printed p. 14",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "firewall_internet_admin_business_need",
+          "equals": false
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "firewall_internet_admin_access_blocked",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration"
+      ],
+      "interpretationNotes": "Assess the complete in-scope population from sanitized operator evidence; a website observation alone does not establish this control."
+    },
+    {
+      "id": "gb.firewall.admin-exception",
+      "label": "Review internet administration exception",
+      "controlId": "network_protection",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.1 Firewalls, Requirements, second bullet and exceptions, printed p. 14",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "firewall_internet_admin_business_need",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "documented_firewall_internet_admin_business_need"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "A contextual reviewer must assess the claimed business need, approved exposed interface and applicable security controls. The engine must not infer an exception from an open port."
+    },
+    {
+      "id": "gb.firewall.admin-controls",
+      "label": "Protect justified internet administration",
+      "controlId": "network_protection",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.1 Firewalls, Requirements, second bullet alternatives, printed p. 14",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "firewall_internet_admin_business_need",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "enum",
+        "factId": "firewall_internet_admin_protection_profile",
+        "allowedValues": [
+          "mfa",
+          "trusted_ip_allowlist_with_managed_password"
+        ]
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "The IP alternative requires a small trusted address range plus properly managed password authentication. A bare allowlist or password alone does not match this profile."
+    },
+    {
+      "id": "gb.firewall.default-inbound",
+      "label": "Deny unsolicited unauthenticated inbound traffic",
+      "controlId": "network_protection",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.1 Firewalls, Requirements, third bullet, printed p. 14",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "firewall_unauthenticated_inbound_default_deny",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration"
+      ],
+      "interpretationNotes": "Assess the complete in-scope population from sanitized operator evidence; a website observation alone does not establish this control."
+    },
+    {
+      "id": "gb.firewall.approved-rules",
+      "label": "Approve and document inbound rules",
+      "controlId": "network_protection",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.1 Firewalls, Requirements, fourth bullet, printed p. 14",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "inbound_firewall_rules_authorised_and_documented",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "The ruleset must be reconciled to authorised approvals and recorded business reasons. Possessing a ruleset export alone does not establish approval."
+    },
+    {
+      "id": "gb.firewall.unused-rules",
+      "label": "Remove obsolete firewall rules",
+      "controlId": "network_protection",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.1 Firewalls, Requirements, fifth bullet, printed p. 14",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "unnecessary_firewall_rules_disabled_or_removed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete in-scope population from sanitized operator evidence; a website observation alone does not establish this control."
+    },
+    {
+      "id": "gb.firewall.untrusted-networks",
+      "label": "Software firewall on untrusted networks",
+      "controlId": "network_protection",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.1 Firewalls, Requirements, final paragraph, printed p. 14",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "devices_use_untrusted_networks",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "untrusted_network_devices_software_firewall_enabled",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration"
+      ],
+      "interpretationNotes": "Assess the complete in-scope population from sanitized operator evidence; a website observation alone does not establish this control."
+    },
+    {
+      "id": "gb.configuration.unused-accounts",
+      "label": "Disable unnecessary device accounts",
+      "controlId": "secure_configuration",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.2 Secure Configuration, Requirements, first bullet, printed p. 15",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "unnecessary_device_accounts_disabled_or_removed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete in-scope population from sanitized operator evidence; a website observation alone does not establish this control."
+    },
+    {
+      "id": "gb.configuration.default-passwords",
+      "label": "Replace guessable default account passwords",
+      "controlId": "secure_configuration",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.2 Secure Configuration, Requirements, second bullet, printed p. 15",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "default_or_guessable_account_passwords_replaced",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Persist only the reviewer outcome and masked metadata. Raw passwords are outside this harness contract."
+    },
+    {
+      "id": "gb.configuration.unused-software",
+      "label": "Remove unnecessary device software",
+      "controlId": "secure_configuration",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.2 Secure Configuration, Requirements, third bullet, printed p. 15",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "unnecessary_software_and_services_disabled_or_removed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete in-scope population from sanitized operator evidence; a website observation alone does not establish this control."
+    },
+    {
+      "id": "gb.configuration.autorun",
+      "label": "Block unauthorised automatic file execution",
+      "controlId": "secure_configuration",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.2 Secure Configuration, Requirements, fourth bullet, printed p. 15",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "unauthorised_file_autorun_disabled",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration"
+      ],
+      "interpretationNotes": "Assess the complete in-scope population from sanitized operator evidence; a website observation alone does not establish this control."
+    },
+    {
+      "id": "gb.configuration.authenticate",
+      "label": "Authenticate before organisational access",
+      "controlId": "secure_configuration",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.2 Secure Configuration, Requirements, fifth bullet, printed p. 15",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "users_authenticated_before_organisational_access",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete in-scope population from sanitized operator evidence; a website observation alone does not establish this control."
+    },
+    {
+      "id": "gb.configuration.unlock-length",
+      "label": "Device-only unlock credential length",
+      "controlId": "secure_configuration",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.2 Secure Configuration, Device unlocking credentials, printed p. 16",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "device_unlock_only_password_or_pin_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "device_unlock_only_password_or_pin_at_least_six_chars",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "This six-character rule applies only to passwords/PINs used solely for local unlocking. Credentials also used for authentication require the full User Access Control rules; biometrics are a separate option."
+    },
+    {
+      "id": "gb.configuration.unlock-protection",
+      "label": "Protect physical device unlocking",
+      "controlId": "secure_configuration",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.2 Secure Configuration, Device unlocking credentials, printed p. 16",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "physical_device_unlock_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "device_unlock_bruteforce_protection_enabled",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration"
+      ],
+      "interpretationNotes": "Protect the chosen method against guessing. When the vendor exposes no configurable throttling/lockout, its default setting is the stated fallback; require contextual review of that limitation."
+    },
+    {
+      "id": "gb.configuration.unlock-throttle",
+      "label": "Recommended unlock throttle threshold",
+      "controlId": "secure_configuration",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.2 Secure Configuration, Device unlocking credentials, throttling alternative, printed p. 16",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "device_unlock_throttle_configurable",
+          "equals": true
+        },
+        {
+          "factId": "device_unlock_throttle_selected",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "device_unlock_max_guesses_per_five_minutes",
+        "max": 10,
+        "unit": "count"
+      },
+      "evidenceKinds": [
+        "configuration"
+      ],
+      "interpretationNotes": "The source introduces this configurable alternative with should. Do not turn this recommendation into a compulsory product gate or perform brute-force attempts."
+    },
+    {
+      "id": "gb.patch.licensed",
+      "label": "Licensed in-scope software",
+      "controlId": "patch_management",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.3 Security Update Management, Requirements, first bullet, printed p. 17",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "in_scope_software_licensed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete in-scope population from sanitized operator evidence; a website observation alone does not establish this control."
+    },
+    {
+      "id": "gb.patch.supported",
+      "label": "Supported in-scope software",
+      "controlId": "patch_management",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.3 Security Update Management, Requirements, first and second bullets, printed p. 17",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "in_scope_software_vendor_supported",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Unsupported software must be removed or excluded using a segregated subset that prevents all internet traffic. Scope isolation needs review; an unsupported component still in the assessed population fails."
+    },
+    {
+      "id": "gb.patch.automatic",
+      "label": "Enable available automatic updates",
+      "controlId": "patch_management",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.3 Security Update Management, Requirements, third bullet, printed p. 17",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "automatic_updates_available",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "available_automatic_updates_enabled",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration"
+      ],
+      "interpretationNotes": "Assess the complete in-scope population from sanitized operator evidence; a website observation alone does not establish this control."
+    },
+    {
+      "id": "gb.patch.qualifying-deadline",
+      "label": "Qualifying security update delay",
+      "controlId": "patch_management",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.3 Security Update Management, Requirements, fourth bullet and severity criteria, printed pp. 17–18",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "qualifying_security_updates_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "qualifying_security_update_max_delay_days",
+        "max": 14,
+        "unit": "days"
+      },
+      "evidenceKinds": [
+        "scan_metadata",
+        "independent_review"
+      ],
+      "interpretationNotes": "Qualifying means vendor critical/high risk, CVSS v3 base score >=7, OR absent vendor severity details. Measure from release to verified deployment; a bundle qualifies if any included issue qualifies. This is not a universal deadline for all updates."
+    },
+    {
+      "id": "gb.accounts.creation",
+      "label": "Approve account creation",
+      "controlId": "identity_access",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.4 User Access Control, Requirements, first bullet, printed p. 19",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "user_account_creation_approved",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete in-scope population from sanitized operator evidence; a website observation alone does not establish this control."
+    },
+    {
+      "id": "gb.accounts.unique",
+      "label": "Unique user authentication credentials",
+      "controlId": "identity_access",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.4 User Access Control, Requirements, second bullet, printed p. 19",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "users_authenticate_with_unique_credentials",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Include organisation-owned third-party support accounts within the declared account population. Reviewer evidence must establish uniqueness without exposing credential values."
+    },
+    {
+      "id": "gb.accounts.retired",
+      "label": "Disable unneeded user accounts",
+      "controlId": "identity_access",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.4 User Access Control, Requirements, third bullet, printed pp. 19–20",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "unneeded_user_accounts_disabled_or_removed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "The source leaves the inactivity period to the organisation. Do not invent a universal 30/45/90-day Cyber Essentials inactivity deadline."
+    },
+    {
+      "id": "gb.mfa.cloud",
+      "label": "Mandatory cloud-service MFA",
+      "controlId": "identity_access",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.4 User Access Control, Requirements, MFA bullet, printed p. 20",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "cloud_services_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "cloud_service_authentication_mfa_complete",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Authentication to in-scope cloud services requires MFA without a where-available exception. The complete service/account population and permitted fallbacks require review."
+    },
+    {
+      "id": "gb.mfa.available",
+      "label": "MFA on other supported authentication",
+      "controlId": "identity_access",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.4 User Access Control, Requirements, MFA bullet, printed p. 20",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "noncloud_mfa_available",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "available_noncloud_mfa_enabled",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "This availability qualifier concerns other authentication; it must not weaken the separate mandatory cloud-service MFA rule."
+    },
+    {
+      "id": "gb.admin.separate",
+      "label": "Separate administrative accounts",
+      "controlId": "identity_access",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.4 User Access Control, Requirements, separate administrative accounts bullet, printed p. 20",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "administrative_accounts_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "admin_accounts_separate_and_admin_only",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess both account separation and restricted usage; ordinary email/browsing with the administrative account does not satisfy this fact."
+    },
+    {
+      "id": "gb.admin.privilege-removal",
+      "label": "Remove obsolete special privileges",
+      "controlId": "identity_access",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.4 User Access Control, Requirements, final bullet, printed p. 20",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "unneeded_special_access_privileges_disabled_or_removed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete in-scope population from sanitized operator evidence; a website observation alone does not establish this control."
+    },
+    {
+      "id": "gb.password.protection",
+      "label": "Password guessing protection alternative",
+      "controlId": "identity_access",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.4 User Access Control, Password-based authentication, guessing protection, printed p. 21",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "password_authentication_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "enum",
+        "factId": "password_guessing_protection_profile",
+        "allowedValues": [
+          "mfa",
+          "progressive_throttling",
+          "lockout"
+        ]
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Interpret profiles as complete alternatives across every applicable path: MFA with a password factor of at least eight characters and no maximum cap; increasing attempt delays with no more than ten guesses in five minutes; or lockout after at most ten unsuccessful attempts. The source uses should for the password-protection subsection within E.4; this pack records the published control expectation, without deciding certification. Enum names are internal summaries, not native NCSC policy identifiers."
+    },
+    {
+      "id": "gb.password.quality",
+      "label": "Password quality alternative",
+      "controlId": "identity_access",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.4 User Access Control, MFA password element and Password-based authentication quality alternatives, printed pp. 21–22",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "password_authentication_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "enum",
+        "factId": "password_quality_protection_profile",
+        "allowedValues": [
+          "mfa",
+          "minimum_12_no_maximum",
+          "minimum_8_denylist_no_maximum"
+        ]
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Interpret each profile as a complete alternative: MFA with a password factor of at least eight characters and no maximum cap; at least twelve characters without a maximum cap; or at least eight characters, no maximum cap and automatic common-password blocking. The source uses should for the password-protection subsection within E.4; this pack records the published control expectation, without deciding certification. Evaluate all applicable systems, never infer from one login form."
+    },
+    {
+      "id": "gb.mfa.password-factor",
+      "label": "Minimum length and uncapped MFA password factor",
+      "controlId": "identity_access",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.4 User Access Control, Multi-factor authentication, explicit password-element requirement, printed p. 21",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "mfa_with_password_factor_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "mfa_password_minimum_eight_and_no_maximum_cap",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "This clause uses must and applies to every password-bearing MFA path. Confirm at least eight characters and no maximum-length restriction from effective configuration and reviewer evidence. Passwordless MFA does not create a password-factor population. Store no password values."
+    },
+    {
+      "id": "gb.malware.active",
+      "label": "Active malware protection option",
+      "controlId": "malware_protection",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.5 Malware protection, Requirements, printed pp. 23–24",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "all_in_scope_devices_active_malware_protection",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Every scoped device needs a permitted active mechanism. Windows/macOS may use anti-malware; signed application allowlisting is the other stated option. Do not treat a generic scanner result as endpoint coverage."
+    },
+    {
+      "id": "gb.malware.vendor-updates",
+      "label": "Update selected anti-malware",
+      "controlId": "malware_protection",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.5 Malware protection, Anti-malware software, first bullet, printed p. 24",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "antimalware_option_selected",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "antimalware_updates_follow_vendor_recommendations",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete in-scope population from sanitized operator evidence; a website observation alone does not establish this control."
+    },
+    {
+      "id": "gb.malware.execution",
+      "label": "Prevent malicious code execution",
+      "controlId": "malware_protection",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.5 Malware protection, Anti-malware software, second and third bullets, printed p. 24",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "antimalware_option_selected",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "antimalware_malicious_execution_prevention_enabled",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration"
+      ],
+      "interpretationNotes": "Assess the complete in-scope population from sanitized operator evidence; a website observation alone does not establish this control."
+    },
+    {
+      "id": "gb.malware.websites",
+      "label": "Block known malicious websites",
+      "controlId": "malware_protection",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.5 Malware protection, Anti-malware software, fourth bullet, printed p. 24",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "antimalware_option_selected",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "antimalware_malicious_website_connections_blocked",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration"
+      ],
+      "interpretationNotes": "Assess the complete in-scope population from sanitized operator evidence; a website observation alone does not establish this control."
+    },
+    {
+      "id": "gb.allowlist.signed",
+      "label": "Allow approved signed applications only",
+      "controlId": "malware_protection",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.5 Malware protection, Application allow listing, introduction and second bullet, printed p. 24",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "application_allowlisting_option_selected",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "application_allowlist_approved_signatures_only",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Review the enforced application list and user installation permissions; unsigned applications and invalid signatures must not be accepted."
+    },
+    {
+      "id": "gb.allowlist.approval",
+      "label": "Approve applications before deployment",
+      "controlId": "malware_protection",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "E.5 Malware protection, Application allow listing, first bullet, printed p. 24",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "application_allowlisting_option_selected",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "allowlisted_applications_approved_before_deployment",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete in-scope population from sanitized operator evidence; a website observation alone does not establish this control."
+    },
+    {
+      "id": "gb.plus.independent-audit",
+      "label": "Independent Cyber Essentials Plus testing",
+      "controlId": "assurance_review",
+      "levels": [
+        "essentials-plus"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ncsc-ce-overview",
+      "locator": "Choose your certification level / How do they compare: Cyber Essentials Plus technical audit",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "cyber_essentials_plus_independent_technical_audit"
+      },
+      "evidenceKinds": [
+        "independent_review"
+      ],
+      "interpretationNotes": "An appointed certification assessor must establish that the five controls operate in practice within the agreed scope. An internal metadata score, self-declaration or successful website scan is insufficient. This pack never awards certification."
+    },
+    {
+      "id": "gb.backups.recommendation",
+      "label": "Review recommended backup arrangements",
+      "controlId": "assurance_review",
+      "levels": [
+        "essentials",
+        "essentials-plus"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "ncsc-ce-v33",
+      "locator": "C. Backing up your data, printed pp. 5–6",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "appropriate_organisation_backup_arrangements"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Backups are explicitly outside the five mandatory technical requirements. This recommendation must not decide mandatory-control conformance."
+    }
+  ]
+}

@@ -1,7 +1,5 @@
 import type {
   AuthScope,
-  PackageTier,
-  ScanMode,
   SurfaceFlags,
   TargetType,
   TestIntensityMode,
@@ -35,8 +33,6 @@ export const HUNTER_IDS = [
 export type HunterId = (typeof HUNTER_IDS)[number];
 
 export interface ScanPlanInput {
-  packageTier: PackageTier;
-  scanMode: ScanMode;
   targetType: TargetType;
   surfaceFlags: SurfaceFlags;
   authScope: AuthScope;
@@ -52,47 +48,32 @@ export interface ScanPlan {
   skippedHunters: Array<{ hunter: HunterId; reason: string }>;
   allowedValidationLevel: ValidationLevel;
   budgets: {
-    maxReturnedFindings: number;
-    maxMonitoredFindings: number;
-    maxRetests: number;
-    cooldownDays: number;
     maxHypotheses: number;
     maxValidationAttempts: number;
+    maxLLMCalls: number;
   };
   requiresApprovalForSensitiveActions: boolean;
   notes: string[];
 }
 
-const FREE_BUDGET = {
-  maxReturnedFindings: 1,
-  maxMonitoredFindings: 1,
-  maxRetests: 1,
-  cooldownDays: 7,
-  maxHypotheses: 3,
-  maxValidationAttempts: 1,
-};
-
-const PAID_BUDGET = {
-  maxReturnedFindings: 50,
-  maxMonitoredFindings: 50,
-  maxRetests: 10,
-  cooldownDays: 0,
+// Resource ceilings protect a self-hosted machine; they are not commercial tiers.
+const STANDARD_BUDGET = {
   maxHypotheses: 20,
   maxValidationAttempts: 8,
+  maxLLMCalls: 24,
 };
 
 export function buildScanPlan(input: ScanPlanInput): ScanPlan {
-  const isFree = input.scanMode === 'free_hunter';
   const isAggressive = input.testIntensityMode === 'aggressive_staging';
-  const budgets = isFree ? FREE_BUDGET : PAID_BUDGET;
+  const budgets = {
+    ...STANDARD_BUDGET,
+    maxLLMCalls: input.testIntensityMode === 'safe_discovery' ? 12 : isAggressive ? 60 : 24,
+  };
   const notes: string[] = [];
   const skippedHunters: Array<{ hunter: HunterId; reason: string }> = [];
   const enabledWorkers: Record<string, WorkerProfile> = {};
   const enabledHunters: HunterId[] = [];
 
-  if (isFree) {
-    notes.push('Free Hunter stops after the first valuable finding and exposes one limited monitored finding.');
-  }
   if (isAggressive) {
     notes.push('Aggressive Staging requires staging/dev/test risk acceptance and still forbids destructive actions.');
   }

@@ -36,6 +36,8 @@ function statusForGuardrail(err: GuardrailError): number {
       return 504;
     case 'TOOL_UNAVAILABLE':
       return 503;
+    case 'RETEST_UNSUPPORTED':
+      return 501;
     default:
       return 422;
   }

@@ -1,5 +1,5 @@
 import type { AliasRoute, LLMBudget, LLMUseCase, ProviderName } from './types.js';
-import type { PackageTier } from '@x-hunter/shared';
+import type { ScanProfile } from '@x-hunter/shared';
 
 export type ModelAlias = 'low_reasoning_model' | 'high_reasoning_model';
 
@@ -53,66 +53,29 @@ export const USE_CASE_TO_ALIAS: Record<LLMUseCase, ModelAlias> = {
   retest_reasoning: 'high_reasoning_model',
 };
 
-export const PACKAGE_BUDGETS: Record<PackageTier, LLMBudget> = {
-  free_hunter: {
-    maxLLMCallsPerScan: 3,
-    maxInputTokensPerCall: 6000,
-    maxOutputTokensPerCall: 1200,
-    defaultTimeoutMs: 30_000,
-    allowedUseCases: [
-      'signal_summary',
-      'candidate_dedupe',
-      'suspicious_surface_ranking',
-      'first_valuable_finding',
-      'report_generation',
-    ],
-  },
-  ai_blackhat_mindset_check: {
-    maxLLMCallsPerScan: 24,
+function ceiling(name: string, fallback: number): number {
+  const value = Number(ENV[name]);
+  return Number.isSafeInteger(value) && value > 0 ? value : fallback;
+}
+
+export const PROFILE_BUDGETS: Record<ScanProfile, LLMBudget> = {
+  quick: {
+    maxLLMCallsPerScan: ceiling('OPENHUNTER_QUICK_LLM_CALLS', 12),
     maxInputTokensPerCall: 22000,
     maxOutputTokensPerCall: 5000,
-    defaultTimeoutMs: 75_000,
-    allowedUseCases: [
-      'signal_summary',
-      'candidate_dedupe',
-      'suspicious_surface_ranking',
-      'first_valuable_finding',
-      'attacker_hypothesis',
-      'validation_plan',
-      'access_control_reasoning',
-      'api_reasoning',
-      'llm_app_reasoning',
-      'report_generation',
-      'fix_prompt',
-      'retest_reasoning',
-    ],
+    defaultTimeoutMs: 75000,
   },
-  monitor_workspace: {
-    maxLLMCallsPerScan: 4,
-    maxInputTokensPerCall: 12000,
-    maxOutputTokensPerCall: 2500,
-    defaultTimeoutMs: 45_000,
-    allowedUseCases: ['report_generation', 'fix_prompt', 'retest_reasoning'],
+  standard: {
+    maxLLMCallsPerScan: ceiling('OPENHUNTER_STANDARD_LLM_CALLS', 24),
+    maxInputTokensPerCall: 22000,
+    maxOutputTokensPerCall: 5000,
+    defaultTimeoutMs: 75000,
   },
-  enterprise_payg: {
-    maxLLMCallsPerScan: 60,
+  deep: {
+    maxLLMCallsPerScan: ceiling('OPENHUNTER_DEEP_LLM_CALLS', 60),
     maxInputTokensPerCall: 30000,
     maxOutputTokensPerCall: 6000,
-    defaultTimeoutMs: 90_000,
-    allowedUseCases: [
-      'signal_summary',
-      'candidate_dedupe',
-      'suspicious_surface_ranking',
-      'first_valuable_finding',
-      'attacker_hypothesis',
-      'validation_plan',
-      'access_control_reasoning',
-      'api_reasoning',
-      'llm_app_reasoning',
-      'report_generation',
-      'fix_prompt',
-      'retest_reasoning',
-    ],
+    defaultTimeoutMs: 90000,
   },
 };
 
@@ -124,8 +87,8 @@ export function routeFor(alias: ModelAlias): AliasRoute {
   return ALIAS_ROUTES[alias];
 }
 
-export function budgetFor(tier: PackageTier): LLMBudget {
-  return PACKAGE_BUDGETS[tier];
+export function budgetFor(profile: ScanProfile): LLMBudget {
+  return PROFILE_BUDGETS[profile];
 }
 
 export type { ProviderName };

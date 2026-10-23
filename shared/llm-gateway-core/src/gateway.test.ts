@@ -37,21 +37,12 @@ describe('LLMGateway', () => {
     gw = new LLMGateway({ providers: { openai, claude, deepseek } });
   });
 
-  it('refuses use cases not allowed by package', async () => {
-    try {
-      await gw.generate({
-        useCase: 'attacker_hypothesis',
-        projectId: 'p1',
-        scanId: 's1',
-        packageTier: 'free_hunter',
-        systemPrompt: 'sys',
-        userPrompt: 'hello',
-      });
-      throw new Error('expected to throw');
-    } catch (e) {
-      expect(isGuardrailError(e)).toBe(true);
-      if (isGuardrailError(e)) expect(e.code).toBe('PACKAGE_DOES_NOT_PERMIT_ACTION');
-    }
+  it('allows declared reasoning use cases without commercial entitlements', async () => {
+    const result = await gw.generate({
+      useCase: 'attacker_hypothesis', projectId: 'p1', scanId: 's1', profile: 'quick',
+      systemPrompt: 'sys', userPrompt: 'hello',
+    });
+    expect(result.error).toBeUndefined();
   });
 
   it('blocks raw secrets in prompt (sanitizer)', async () => {
@@ -60,7 +51,7 @@ describe('LLMGateway', () => {
         useCase: 'signal_summary',
         projectId: 'p1',
         scanId: 's1',
-        packageTier: 'free_hunter',
+        profile: 'quick',
         systemPrompt: 'sys',
         userPrompt: 'token: sk-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
         // Use a key value the sanitizer text-pass can't drop fully:
@@ -84,7 +75,7 @@ describe('LLMGateway', () => {
       useCase: 'signal_summary',
       projectId: 'p1',
       scanId: 's1',
-      packageTier: 'free_hunter',
+      profile: 'quick',
       systemPrompt: 'sys',
       userPrompt: 'hello world',
     });
@@ -99,7 +90,7 @@ describe('LLMGateway', () => {
       useCase: 'signal_summary',
       projectId: 'p1',
       scanId: 's1',
-      packageTier: 'free_hunter',
+      profile: 'quick',
       systemPrompt: 'sys',
       userPrompt: 'hello world',
     });
@@ -115,7 +106,7 @@ describe('LLMGateway', () => {
       useCase: 'signal_summary',
       projectId: 'p1',
       scanId: 's1',
-      packageTier: 'free_hunter',
+      profile: 'quick',
       systemPrompt: 'sys',
       userPrompt: 'hello world',
     });
@@ -131,7 +122,7 @@ describe('LLMGateway', () => {
       useCase: 'signal_summary',
       projectId: 'p1',
       scanId: 's1',
-      packageTier: 'free_hunter',
+      profile: 'quick',
       systemPrompt: 'sys',
       userPrompt: 'hello world',
     });
@@ -140,40 +131,28 @@ describe('LLMGateway', () => {
   });
 
   it('enforces max calls per scan', async () => {
-    // Free Hunter = 3 calls per scan
+    // A self-host Quick scan has a configurable call ceiling.
     const first = await gw.generate({
       useCase: 'signal_summary',
       projectId: 'p1',
       scanId: 's-budget',
-      packageTier: 'free_hunter',
+      profile: 'quick',
       systemPrompt: 'sys',
       userPrompt: 'hi',
     });
     expect(first.error).toBeUndefined();
 
-    await gw.generate({
-      useCase: 'candidate_dedupe',
-      projectId: 'p1',
-      scanId: 's-budget',
-      packageTier: 'free_hunter',
-      systemPrompt: 'sys',
-      userPrompt: 'hi',
-    });
-    await gw.generate({
-      useCase: 'first_valuable_finding',
-      projectId: 'p1',
-      scanId: 's-budget',
-      packageTier: 'free_hunter',
-      systemPrompt: 'sys',
-      userPrompt: 'hi',
-    });
+    for (let index = 1; index < 12; index += 1) {
+      await gw.generate({ useCase: 'candidate_dedupe', projectId: 'p1', scanId: 's-budget',
+        profile: 'quick', systemPrompt: 'sys', userPrompt: 'hi' });
+    }
 
     try {
       await gw.generate({
         useCase: 'signal_summary',
         projectId: 'p1',
         scanId: 's-budget',
-        packageTier: 'free_hunter',
+        profile: 'quick',
         systemPrompt: 'sys',
         userPrompt: 'hi',
       });

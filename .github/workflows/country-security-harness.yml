@@ -1,0 +1,43 @@
+name: Country security harness
+
+on:
+  push:
+    paths:
+      - 'tools/country-security-harness/**'
+      - '.github/workflows/country-security-harness.yml'
+  pull_request:
+    paths:
+      - 'tools/country-security-harness/**'
+      - '.github/workflows/country-security-harness.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  offline-contract:
+    name: Offline contracts (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate reference catalog
+        run: node tools/country-security-harness/harness.mjs validate-catalog
+      - name: Validate curated clause packs
+        run: node tools/country-security-harness/clauses.mjs validate-packs
+      - name: Validate worldwide coverage inventory
+        run: node tools/country-security-harness/world-coverage.mjs summary
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install schema QA dependency
+        run: python -m pip install jsonschema==4.26.0
+      - name: Validate published JSON schemas and all generated native targets
+        run: python tools/country-security-harness/validate-schemas.py
+      - name: Test offline assessment and benchmark contracts
+        run: node --test tools/country-security-harness/harness.test.mjs tools/country-security-harness/benchmark.test.mjs tools/country-security-harness/import-report.test.mjs tools/country-security-harness/catalog.test.mjs tools/country-security-harness/clauses.test.mjs tools/country-security-harness/web-assurance.test.mjs tools/country-security-harness/artifact-verifier.test.mjs tools/country-security-harness/verified-benchmark.test.mjs tools/country-security-harness/world-coverage.test.mjs

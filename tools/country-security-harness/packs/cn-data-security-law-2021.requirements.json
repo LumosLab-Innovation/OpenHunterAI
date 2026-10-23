@@ -1,0 +1,437 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "cn-data-security-law-2021.curated",
+  "frameworkId": "cn-data-security-law-2021",
+  "version": "Adopted 10 June 2021; effective 1 September 2021; curated-2026-10-08",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "cn-data-security-law-2021.source",
+      "title": "PRC Data Security Law, official CAC publication",
+      "url": "https://www.cac.gov.cn/2021-06/11/c_1624994566919140.htm",
+      "locator": "Articles 2, 27–40 and 55"
+    }
+  ],
+  "limitations": [
+    "Curated partial clause coverage only. The baseline is an assessment target, never a national security grade or a certification decision.",
+    "This law pack does not implement GB/T 22239 MLPS technical controls, sector important-data catalogues, PIPL, export measures or later network-data regulations. Chinese text is authoritative; labels are paraphrases."
+  ],
+  "requirements": [
+    {
+      "id": "cn-data-security-law-2021.lifecycle-policy",
+      "label": "Maintain end-to-end data security management",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "cn-data-security-law-2021.source",
+      "locator": "Article 27 paragraph 1",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "cn-data-security-law-2021.lifecycle-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "cn-data-security-law-2021.training",
+      "label": "Provide data-security education and training",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "cn-data-security-law-2021.source",
+      "locator": "Article 27 paragraph 1",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "cn-data-security-law-2021.training",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "cn-data-security-law-2021.technical-measures",
+      "label": "Implement appropriate data-protection technical measures",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "cn-data-security-law-2021.source",
+      "locator": "Article 27 paragraph 1",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Appropriate measures are a contextual legal determination, not demonstrated by a generic web scan."
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Appropriate measures are a contextual legal determination, not demonstrated by a generic web scan."
+    },
+    {
+      "id": "cn-data-security-law-2021.network-mlps",
+      "label": "Review network MLPS duties for online data processing",
+      "controlId": "system_classification",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "cn-data-security-law-2021.source",
+      "locator": "Article 27 paragraph 1",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "cn-data-security-law-2021.network_processing_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "No MLPS level or GB/T technical compliance is inferred from this Act."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. No MLPS level or GB/T technical compliance is inferred from this Act."
+    },
+    {
+      "id": "cn-data-security-law-2021.important-data-roles",
+      "label": "Assign important-data security owner and management unit",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "cn-data-security-law-2021.source",
+      "locator": "Article 27 paragraph 2",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "cn-data-security-law-2021.important_data_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "cn-data-security-law-2021.important-data-roles",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "cn-data-security-law-2021.risk-monitoring",
+      "label": "Monitor data-security risks",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "cn-data-security-law-2021.source",
+      "locator": "Article 29",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "cn-data-security-law-2021.risk-monitoring",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "cn-data-security-law-2021.risk-remediation",
+      "label": "Remediate discovered data defects and vulnerabilities",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "cn-data-security-law-2021.source",
+      "locator": "Article 29",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "cn-data-security-law-2021.data_risks_discovered",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Immediately is retained as contextual review, not an invented number of hours."
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Immediately is retained as contextual review, not an invented number of hours."
+    },
+    {
+      "id": "cn-data-security-law-2021.incident-response",
+      "label": "Respond and notify users/regulators after data incidents",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "cn-data-security-law-2021.source",
+      "locator": "Article 29",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "cn-data-security-law-2021.data_incident_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review notification trigger, timing and implementing rules."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Review notification trigger, timing and implementing rules."
+    },
+    {
+      "id": "cn-data-security-law-2021.important-assessment",
+      "label": "Assess important-data risks and report to authorities",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "cn-data-security-law-2021.source",
+      "locator": "Article 30 paragraph 1",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "cn-data-security-law-2021.important_data_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "cn-data-security-law-2021.important-assessment",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "cn-data-security-law-2021.assessment-content",
+      "label": "Include data categories, quantity, risks and measures",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "cn-data-security-law-2021.source",
+      "locator": "Article 30 paragraph 2",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "cn-data-security-law-2021.important_data_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "cn-data-security-law-2021.assessment-content",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "cn-data-security-law-2021.lawful-collection",
+      "label": "Use lawful and proper means to collect data",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "cn-data-security-law-2021.source",
+      "locator": "Article 32 paragraph 1",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review collection legality; consent is not presumed to be the only legal basis."
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Review collection legality; consent is not presumed to be the only legal basis."
+    },
+    {
+      "id": "cn-data-security-law-2021.transaction-records",
+      "label": "Verify transaction identities/sources and retain records",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "cn-data-security-law-2021.source",
+      "locator": "Article 33",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "cn-data-security-law-2021.data_intermediary_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "cn-data-security-law-2021.transaction-records",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "cn-data-security-law-2021.licensed-service",
+      "label": "Obtain legally required data-service licences",
+      "controlId": "system_classification",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "cn-data-security-law-2021.source",
+      "locator": "Article 34",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "cn-data-security-law-2021.licence_required",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Whether a service requires a licence needs competent legal review."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Whether a service requires a licence needs competent legal review."
+    },
+    {
+      "id": "cn-data-security-law-2021.foreign-request",
+      "label": "Approve foreign judicial/law-enforcement disclosures lawfully",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "cn-data-security-law-2021.source",
+      "locator": "Article 36",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "cn-data-security-law-2021.foreign_request_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review competent-authority approval for data stored in China; no disclosure or network request is performed."
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Review competent-authority approval for data stored in China; no disclosure or network request is performed."
+    },
+    {
+      "id": "cn-data-security-law-2021.government-outsourcing",
+      "label": "Approve and supervise entrusted government-data work",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "cn-data-security-law-2021.source",
+      "locator": "Article 40 first sentence",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "cn-data-security-law-2021.government_outsourcing_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "cn-data-security-law-2021.government-outsourcing",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "cn-data-security-law-2021.government-contractor",
+      "label": "Apply entrusted-data duties and prevent unauthorised retention",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "cn-data-security-law-2021.source",
+      "locator": "Article 40 second sentence",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "cn-data-security-law-2021.government_data_contractor",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review statutory and contractual duties; do not export or expose the government data."
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Review statutory and contractual duties; do not export or expose the government data."
+    }
+  ]
+}

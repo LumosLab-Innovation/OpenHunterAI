@@ -1,0 +1,139 @@
+{
+  "schemaVersion": "country_security_framework_batch_v1",
+  "reviewedOn": "2026-10-08",
+  "frameworks": [
+    {
+      "id": "lk-cbsl-technology-risk",
+      "countryCode": "LK",
+      "countryName": "Sri Lanka",
+      "kind": "regulatory_requirements",
+      "label": "CBSL technology risk management and resilience",
+      "version": "Banking Act Direction16 of2021; consolidated amendments require review",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Licensed commercial and specialised banks, including agents and third-party providers. SOC obligations vary by bank and channel; implementation dates, D-SIB status and later amendments require review.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Regulated-scope assessment target (no national grade)",
+          "summary": "Selected security obligations for the declared regulatory scope; not a national assurance grade."
+        }
+      ],
+      "controlIds": [
+        "risk_management",
+        "assurance_review",
+        "identity_access",
+        "logging_monitoring",
+        "system_classification",
+        "data_protection",
+        "incident_response",
+        "supplier_security",
+        "application_security",
+        "backup_recovery"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "lk-cbsl-technology-risk-source",
+          "title": "CBSL technology risk management and resilience — official full-text reference",
+          "url": "https://www.cbsl.gov.lk/sites/default/files/cbslweb_documents/laws/cdg/Banking_Act_Directions_No_16_of_2021.pdf",
+          "locator": "Selected numbered clauses; reviewed 2026-10-08"
+        }
+      ],
+      "limitations": [
+        "Partial selection of security controls. No certification, legal compliance or national security grade is inferred.",
+        "The reviewed edition is not verified as a fully consolidated current legal instrument; check amendments and sector applicability before operational use.",
+        "All entries require manual evidence review. Exclusions, compensating controls and annual/calendar obligations are not decided by metadata.",
+        "SOC applicability under5.6.1 and encryption alternatives under5.5.1(iv) must be assessed. DLP exceptions, detailed D-SIB requirements and implementation transitions are not fully encoded."
+      ]
+    },
+    {
+      "id": "bd-bb-ict-security",
+      "countryCode": "BD",
+      "countryName": "Bangladesh",
+      "kind": "regulatory_requirements",
+      "label": "Bangladesh Bank ICT security guideline",
+      "version": "Version4.0,2023; subsequent circulars require review",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Banks and financial institutions subject to Bangladesh Bank guidance. The selected technical controls are not a countrywide security grade; later circulars and scope require manual review.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Regulated-scope assessment target (no national grade)",
+          "summary": "Selected security obligations for the declared regulatory scope; not a national assurance grade."
+        }
+      ],
+      "controlIds": [
+        "secure_configuration",
+        "network_protection",
+        "physical_security",
+        "data_protection",
+        "patch_management",
+        "identity_access"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "bd-bb-ict-security-source",
+          "title": "Bangladesh Bank ICT security guideline — official full-text reference",
+          "url": "https://www.bb.org.bd/aboutus/regulationguideline/brpd/jun192023_ictsecurityv4.pdf",
+          "locator": "Selected numbered clauses; reviewed 2026-10-08"
+        }
+      ],
+      "limitations": [
+        "Partial selection of security controls. No certification, legal compliance or national security grade is inferred.",
+        "The reviewed edition is not verified as a fully consolidated current legal instrument; check amendments and sector applicability before operational use.",
+        "All entries require manual evidence review. Exclusions, compensating controls and annual/calendar obligations are not decided by metadata.",
+        "Data-center Tier/Rating1-4 is a facilities classification, not a security level for applications. This pack does not treat it as a country security grade."
+      ]
+    },
+    {
+      "id": "pk-sbp-technology-risk",
+      "countryCode": "PK",
+      "countryName": "Pakistan",
+      "label": "SBP enterprise technology governance and risk management",
+      "version": "BPRD Circular05 of2017; annex and later amendments need full-text review",
+      "kind": "control_baseline",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "SBP financial institutions, including commercial and Islamic banks, DFIs and microfinance banks. A risk-proportionate sector framework, not general national application assurance.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Sector framework review target (no national grade)",
+          "summary": "Framework reference only; full annex clause mapping remains pending."
+        }
+      ],
+      "controlIds": [
+        "risk_management",
+        "identity_access",
+        "incident_response",
+        "assurance_review",
+        "backup_recovery"
+      ],
+      "mappingCoverage": "overview_only",
+      "sources": [
+        {
+          "id": "pk-sbp-circular",
+          "title": "SBP BPRD Circular05 of2017",
+          "url": "https://archive.sbp.org.pk/bprd/2017/C5.htm",
+          "locator": "Official circular; framework adoption and risk-based scope"
+        },
+        {
+          "id": "pk-sbp-operations",
+          "title": "SBP banking supervision — technology governance",
+          "url": "https://www.sbp.org.pk/our-operations/banking-regulation-and-supervision",
+          "locator": "Digital banking and technology governance regime"
+        }
+      ],
+      "limitations": [
+        "Full2017annex could not be read reliably through official redirects. No detailed pack is emitted from circular or overview text.",
+        "Later amendments, actual sector applicability and phased implementation need manual review. No compliance or national grade is asserted."
+      ]
+    }
+  ]
+}

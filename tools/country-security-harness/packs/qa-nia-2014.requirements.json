@@ -1,0 +1,376 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "qa-nia-2014.curated",
+  "frameworkId": "qa-nia-2014",
+  "version": "NIA Policy v2.0, February 2014; curated-2026-10-08",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "qa-nia-2014.source",
+      "title": "Qatar National Information Assurance Policy v2.0",
+      "url": "https://qcert.ncsa.gov.qa/sites/default/files/public/documents/nia_policy__manual_english_v2.0_0.pdf",
+      "locator": "NIA Manual section A; section B policy families and starred baseline controls"
+    }
+  ],
+  "limitations": [
+    "Curated partial clause coverage only. The baseline is an assessment target, never a national security grade or a certification decision.",
+    "This pack explicitly targets the published 2014 manual. NCSA has newer 2025 NISCF audit directives; current certification scope is not inferred from this older PDF. CIA classes and aggregate security levels are not international country ranks."
+  ],
+  "requirements": [
+    {
+      "id": "qa-nia-2014.security-manager",
+      "label": "Appoint an information-security programme owner",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "qa-nia-2014.source",
+      "locator": "NIA Manual section B, Governance Structure IG1 (starred), PDF p18",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "qa-nia-2014.security-manager",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "qa-nia-2014.security-budget",
+      "label": "Allocate security programme staffing and operating budget",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "qa-nia-2014.source",
+      "locator": "NIA Manual section B, IG2 (starred), PDF p18",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "qa-nia-2014.security-budget",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "qa-nia-2014.reporting-line",
+      "label": "Give security manager a risk/internal-audit reporting line",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "qa-nia-2014.source",
+      "locator": "NIA Manual section B, IG3 (starred), PDF p18",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "qa-nia-2014.reporting-line",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "qa-nia-2014.management-support",
+      "label": "Document continuing agency-head security support",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "qa-nia-2014.source",
+      "locator": "NIA Manual section B, IG4 (starred), PDF p18",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "qa-nia-2014.management-support",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "qa-nia-2014.risk-assessment",
+      "label": "Assess risks to medium/high aggregate-security assets",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "qa-nia-2014.source",
+      "locator": "NIA Manual section B, RM1 (starred), PDF p19",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "qa-nia-2014.medium_high_assets_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Confirm classification using IAP-NAT-DCLS; this condition is not a country maturity level."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Confirm classification using IAP-NAT-DCLS; this condition is not a country maturity level."
+    },
+    {
+      "id": "qa-nia-2014.risk-treatment",
+      "label": "Define treatment for identified threats and vulnerabilities",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "qa-nia-2014.source",
+      "locator": "NIA Manual section B, RM2 (starred), PDF p19",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "qa-nia-2014.medium_high_assets_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "qa-nia-2014.risk-treatment",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "qa-nia-2014.change-process",
+      "label": "Follow a documented change management process",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "qa-nia-2014.source",
+      "locator": "NIA Manual section B, CM1 (starred), PDF p21",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "qa-nia-2014.change-process",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "qa-nia-2014.hr-obligations",
+      "label": "Make staff security obligations available in HR manual",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "qa-nia-2014.source",
+      "locator": "NIA Manual section B, PS2 (starred), PDF p22",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "qa-nia-2014.hr-obligations",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "qa-nia-2014.awareness-programme",
+      "label": "Define and fund security awareness programme",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "qa-nia-2014.source",
+      "locator": "NIA Manual section B, SA1 (starred), PDF p22",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "qa-nia-2014.awareness-programme",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "qa-nia-2014.incident-owner",
+      "label": "Appoint incident programme owner and contact",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "qa-nia-2014.source",
+      "locator": "NIA Manual section B, IM1 (starred), PDF p23",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "qa-nia-2014.incident-owner",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "qa-nia-2014.continuity-owner",
+      "label": "Appoint business-continuity programme owner",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "qa-nia-2014.source",
+      "locator": "NIA Manual section B, BC1 (starred), PDF p24",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "qa-nia-2014.continuity-owner",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "qa-nia-2014.continuity-plan",
+      "label": "Prepare critical-process continuity plan with RTO/RPO",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "qa-nia-2014.source",
+      "locator": "NIA Manual section B, BC2 (starred), PDF p24",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "qa-nia-2014.continuity-plan",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "qa-nia-2014.security-monitoring",
+      "label": "Log and monitor information-asset access and changes",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "qa-nia-2014.source",
+      "locator": "NIA Manual section B, SM1 (starred), PDF p25",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "qa-nia-2014.security-monitoring",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "qa-nia-2014.retention-policy",
+      "label": "Document information retention based on applicable duties",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "qa-nia-2014.source",
+      "locator": "NIA Manual section B, DR1 (starred), PDF p26",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "qa-nia-2014.retention-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "qa-nia-2014.retained-data",
+      "label": "Protect retained information and keep it accessible",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "qa-nia-2014.source",
+      "locator": "NIA Manual section B, DR2 (starred), PDF p26",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "qa-nia-2014.retained-data",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "country_security_clause_evidence_v1",
+  "dataOrigin": "synthetic_fixture",
+  "assessmentId": "fixture-au-essential-eight",
+  "packId": "au-essential-eight-2023",
+  "packVersion": "November 2023",
+  "packSha256": "d8dfc9957342ef34477fc1de0c2049c1575c8cd8f08bb106e70e6cf618f534b3",
+  "levelId": "level-3",
+  "applicabilityConfirmed": true,
+  "context": [
+    {
+      "factId": "critical_or_exploited_online_updates_present",
+      "value": true
+    },
+    {
+      "factId": "workforce_online_mfa_used",
+      "value": true
+    }
+  ],
+  "observations": [
+    {
+      "factId": "online_critical_patch_max_delay_hours",
+      "value": 49,
+      "kind": "configuration",
+      "evidenceRefs": [
+        "proof:fixture-observation-0"
+      ],
+      "observedAt": "2026-10-01",
+      "expiresAt": "2026-11-01"
+    },
+    {
+      "factId": "workforce_online_mfa_phishing_resistant",
+      "value": false,
+      "kind": "configuration",
+      "evidenceRefs": [
+        "proof:fixture-observation-1"
+      ],
+      "observedAt": "2026-10-01",
+      "expiresAt": "2026-11-01"
+    }
+  ]
+}

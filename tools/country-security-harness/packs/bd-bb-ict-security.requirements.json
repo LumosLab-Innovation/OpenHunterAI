@@ -1,0 +1,536 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "bd-bb-ict-security-curated",
+  "frameworkId": "bd-bb-ict-security",
+  "version": "Version4.0,2023; subsequent circulars require review",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "bd-bb-ict-security-source",
+      "title": "Bangladesh Bank ICT security guideline — official full-text reference",
+      "url": "https://www.bb.org.bd/aboutus/regulationguideline/brpd/jun192023_ictsecurityv4.pdf",
+      "locator": "Selected numbered clauses; reviewed 2026-10-08"
+    }
+  ],
+  "limitations": [
+    "Partial selection of security controls. No certification, legal compliance or national security grade is inferred.",
+    "The reviewed edition is not verified as a fully consolidated current legal instrument; check amendments and sector applicability before operational use.",
+    "All entries require manual evidence review. Exclusions, compensating controls and annual/calendar obligations are not decided by metadata.",
+    "Data-center Tier/Rating1-4 is a facilities classification, not a security level for applications. This pack does not treat it as a country security grade."
+  ],
+  "requirements": [
+    {
+      "id": "bd.network-default",
+      "label": "Replace default network device credentials",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bd-bb-ict-security-source",
+      "locator": "5.6.1.10",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bd_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against 5.6.1.10"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "bd.switch-ports",
+      "label": "Disable unused access switch ports unless defined otherwise",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bd-bb-ict-security-source",
+      "locator": "5.6.1.11",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bd_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against 5.6.1.11"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "bd.segmentation",
+      "label": "Segregate network services, users and systems",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bd-bb-ict-security-source",
+      "locator": "5.6.2.1",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bd_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against 5.6.2.1"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "bd.device-admission",
+      "label": "Prevent unauthorized devices joining the LAN",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bd-bb-ict-security-source",
+      "locator": "5.6.2.2",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bd_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against 5.6.2.2"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "bd.network-physical",
+      "label": "Protect network equipment against physical access",
+      "controlId": "physical_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bd-bb-ict-security-source",
+      "locator": "5.6.2.3",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bd_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against 5.6.2.3"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "bd.endpoint-sensitive",
+      "label": "Prevent unauthorized retrieval of sensitive endpoint data",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bd-bb-ict-security-source",
+      "locator": "5.10.1",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bd_regulated_scope",
+          "equals": true
+        },
+        {
+          "factId": "sensitive_endpoint_data_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against 5.10.1"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "bd.endpoint-patches",
+      "label": "Update operating systems, endpoints and application security patches",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bd-bb-ict-security-source",
+      "locator": "5.10.2",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bd_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against 5.10.2"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "bd.unsupported-os",
+      "label": "Do not connect unsupported operating systems to internal networks",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bd-bb-ict-security-source",
+      "locator": "5.10.3",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bd_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against 5.10.3"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "bd.endpoint-malware",
+      "label": "Endpoint protection uses current detection definitions",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bd-bb-ict-security-source",
+      "locator": "5.10.4",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bd_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against 5.10.4"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "bd.protection-changes",
+      "label": "Prevent removal or disabling endpoint protection and updates",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bd-bb-ict-security-source",
+      "locator": "5.10.5",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bd_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against 5.10.5"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "bd.patch-priority",
+      "label": "Categorize patches and define deployment timeframes",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bd-bb-ict-security-source",
+      "locator": "5.11.1",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bd_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against 5.11.1"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "bd.patch-testing",
+      "label": "Test security patches before production deployment",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bd-bb-ict-security-source",
+      "locator": "5.11.2",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bd_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against 5.11.2"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "bd.patch-procedure",
+      "label": "Document patch responsibilities, timing and procedures",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bd-bb-ict-security-source",
+      "locator": "5.11.3",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bd_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against 5.11.3"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "bd.patch-exceptions",
+      "label": "Define handling for patch deployment exceptions",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bd-bb-ict-security-source",
+      "locator": "5.11.4",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bd_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against 5.11.4"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "bd.workstation-lock",
+      "label": "Lock unattended workstations or apply policy auto-lock",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bd-bb-ict-security-source",
+      "locator": "5.12.1.2",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bd_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against 5.12.1.2"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "bd.laptop-encryption",
+      "label": "Encrypt confidential and sensitive laptop data",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bd-bb-ict-security-source",
+      "locator": "5.12.1.3",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bd_regulated_scope",
+          "equals": true
+        },
+        {
+          "factId": "sensitive_laptop_data_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against 5.12.1.3"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "bd.usb-control",
+      "label": "Control workstation USB port access",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bd-bb-ict-security-source",
+      "locator": "5.12.1.6",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bd_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against 5.12.1.6"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "bd.software-approval",
+      "label": "Require authorization for user-installed software",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bd-bb-ict-security-source",
+      "locator": "5.12.1.8",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bd_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against 5.12.1.8"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    }
+  ]
+}

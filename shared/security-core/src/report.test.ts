@@ -1,19 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import {
   applyRankRecommendations,
+  deriveWorkerCoverage,
   REPORT_DRAFT_SECTION_KEYS,
   REPORT_FORMAT_VERSION,
   renderReportHtml,
+  renderReportMarkdown,
   sanitizeReportContent,
-  type ReportContentV1,
+  type ReportContentV2,
 } from './report.js';
 import { DEFAULT_SURFACE_FLAGS } from './packages.js';
 
-const baseReport: ReportContentV1 = {
+const baseReport: ReportContentV2 = {
   formatVersion: REPORT_FORMAT_VERSION,
   reportType: 'finding_report',
-  packageTier: 'free_hunter',
-  scanMode: 'free_hunter',
+  profile: 'quick',
   targetType: 'interactive_web_app',
   authScope: 'none',
   testIntensityMode: 'safe_discovery',
@@ -43,6 +44,7 @@ const baseReport: ReportContentV1 = {
       },
       impact: 'Sensitive value exposure.',
       fixSummary: 'Remove secret and rotate.',
+      validationStatus: 'validated',
     },
   ],
   developerFixPack: [],
@@ -55,10 +57,8 @@ const baseReport: ReportContentV1 = {
     limitations: [],
   },
   hardeningRecommendations: [],
-  retestAndMonitor: {
+  retest: {
     eligibleFindings: ['f1'],
-    remainingRetestQuota: 1,
-    cooldownDays: 7,
     manualRetestActions: ['Retest after fix.'],
   },
   generatedAt: '2026-06-07T00:00:00.000Z',
@@ -100,5 +100,80 @@ describe('report contract helpers', () => {
     expect(html).toContain('<!doctype html>');
     expect(html).not.toContain('sk-live-secret-value');
     expect(html).toContain('[REDACTED_TOKEN]');
+  });
+
+  it('does not present planned hunter families as executed coverage', () => {
+    const report: ReportContentV2 = {
+      ...baseReport,
+      coverage: {
+        ...baseReport.coverage,
+        huntersPlanned: ['auth', 'authorization'],
+        huntersRun: [],
+      },
+    };
+    const markdown = renderReportMarkdown(report);
+    expect(markdown).toContain('Hunter families planned: auth, authorization');
+    expect(markdown).toContain('Hunter families with execution evidence: none');
+  });
+
+  it('shows coverage gap codes in Markdown and HTML exports', () => {
+    const report: ReportContentV2 = {
+      ...baseReport,
+      coverage: {
+        ...baseReport.coverage,
+        coverageGaps: ['llm:signal_summary:CLI_QUOTA_EXHAUSTED'],
+      },
+    };
+    expect(renderReportMarkdown(report)).toContain('Coverage gaps: llm:signal_summary:CLI_QUOTA_EXHAUSTED');
+    expect(renderReportHtml(report)).toContain('Coverage gaps:</strong> llm:signal_summary:CLI_QUOTA_EXHAUSTED');
+  });
+
+  it('keeps legacy observations visible but separate from validated findings in exports', () => {
+    const report: ReportContentV2 = {
+      ...baseReport,
+      findings: [],
+      historicalFindings: [{ ...baseReport.findings[0]!, validationStatus: 'legacy_unverified' }],
+    };
+    const markdown = renderReportMarkdown(report);
+    const html = renderReportHtml(report);
+    expect(markdown).toContain('Historical observations (unverified)');
+    expect(markdown).toContain('legacy_unverified; replay required');
+    expect(html).toContain('Historical observations (unverified)');
+    expect(html).toContain('legacy_unverified; replay required');
+  });
+
+  it('turns skipped, failed, and partial workers into coverage gaps', () => {
+    expect(
+      deriveWorkerCoverage([
+        { kind: 'browser_inspector', state: 'succeeded', outputRef: { status: 'succeeded' } },
+        { kind: 'nuclei_signal', state: 'skipped', errorCode: 'TOOL_UNAVAILABLE', outputRef: { coverageGap: true } },
+        { kind: 'strix_core', state: 'succeeded', outputRef: { status: 'partial', limitations: ['budget exhausted'], coverage: { gaps: ['one scenario untested'] } } },
+      ]),
+    ).toEqual({
+      workersRun: ['browser_inspector', 'strix_core'],
+      coverageGaps: ['nuclei_signal:TOOL_UNAVAILABLE', 'one scenario untested', 'strix_core:partial'],
+      limitations: ['budget exhausted'],
+    });
+  });
+
+  it('reads coverage from the persisted sanitized output envelope', () => {
+    expect(deriveWorkerCoverage([{
+      kind: 'strix_core', state: 'succeeded', outputRef: {
+        sanitized: true,
+        value: { status: 'partial', coverageGap: true, coverage: { gaps: ['STRIX_RUNTIME_NOT_EXECUTED'] }, limitations: ['Reasoning only'] },
+      },
+    }])).toEqual({
+      workersRun: ['strix_core'],
+      coverageGaps: ['STRIX_RUNTIME_NOT_EXECUTED', 'strix_core:partial'],
+      limitations: ['Reasoning only'],
+    });
+  });
+
+  it('never reports planned workers without a step as workers run', () => {
+    expect(deriveWorkerCoverage([], ['browser', 'nuclei'])).toEqual({
+      workersRun: [],
+      coverageGaps: ['browser_inspector:not_started', 'nuclei_signal:not_started'],
+      limitations: [],
+    });
   });
 });

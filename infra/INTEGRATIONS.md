@@ -17,7 +17,7 @@ core worker/orchestrator
 Defaults:
 
 ```text
-ZAP_IMAGE=ghcr.io/zaproxy/zaproxy:stable
+ZAP_IMAGE=ghcr.io/zaproxy/zaproxy:2.17.0
 NUCLEI_IMAGE=projectdiscovery/nuclei:v3.4.10
 ZAPROXY_ADAPTER_IMAGE=openhunter/zaproxy-adapter:<tag>
 NUCLEI_ADAPTER_IMAGE=openhunter/nuclei-adapter:<tag>

@@ -9,7 +9,7 @@
     "start": "node dist/server.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "echo 'lint: no rules (reporting)'",
-    "test": "echo 'no tests (reporting)'"
+    "test": "tsx --test src/content.test.ts"
   },
   "dependencies": {
     "@openhunter/event-core": "file:../../shared/event-core",

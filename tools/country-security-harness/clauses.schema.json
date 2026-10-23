@@ -1,0 +1,901 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openhunter.local/contracts/country-security-clauses.schema.json",
+  "title": "Curated clauses, declared evidence and partial assessment",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/pack"
+    },
+    {
+      "$ref": "#/$defs/evidence"
+    },
+    {
+      "$ref": "#/$defs/assessment"
+    }
+  ],
+  "$defs": {
+    "pack": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "packId",
+        "frameworkId",
+        "version",
+        "reviewedOn",
+        "coverage",
+        "sources",
+        "limitations",
+        "requirements"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "country_security_requirement_pack_v1"
+        },
+        "packId": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+          "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+        },
+        "frameworkId": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+          "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400
+        },
+        "reviewedOn": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "coverage": {
+          "const": "partial"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "title",
+              "url",
+              "locator"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+                "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "pattern": "^https://",
+                "maxLength": 2000
+              },
+              "locator": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              }
+            }
+          },
+          "minItems": 1,
+          "maxItems": 50
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "label",
+              "controlId",
+              "levels",
+              "levelBasis",
+              "sourceId",
+              "locator",
+              "normativeStrength",
+              "applicability",
+              "check",
+              "evidenceKinds",
+              "interpretationNotes"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+                "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "controlId": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+                "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+              },
+              "levels": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 64,
+                  "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+                  "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+                },
+                "minItems": 1,
+                "maxItems": 100,
+                "uniqueItems": true
+              },
+              "levelBasis": {
+                "enum": [
+                  "explicit_clause",
+                  "framework_wide",
+                  "cumulative_minimum"
+                ]
+              },
+              "sourceId": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+                "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+              },
+              "locator": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "normativeStrength": {
+                "enum": [
+                  "mandatory",
+                  "recommendation"
+                ]
+              },
+              "applicability": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "factId",
+                    "equals"
+                  ],
+                  "properties": {
+                    "factId": {
+                      "type": "string",
+                      "maxLength": 64,
+                      "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+                      "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+                    },
+                    "equals": {
+                      "oneOf": [
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "string",
+                          "maxLength": 64,
+                          "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+                          "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+                        }
+                      ]
+                    }
+                  }
+                },
+                "minItems": 0,
+                "maxItems": 20
+              },
+              "check": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "type",
+                      "factId",
+                      "expected"
+                    ],
+                    "properties": {
+                      "type": {
+                        "const": "boolean"
+                      },
+                      "factId": {
+                        "type": "string",
+                        "maxLength": 64,
+                        "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+                        "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+                      },
+                      "expected": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "type",
+                      "factId",
+                      "max",
+                      "unit"
+                    ],
+                    "properties": {
+                      "type": {
+                        "const": "number"
+                      },
+                      "factId": {
+                        "type": "string",
+                        "maxLength": 64,
+                        "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+                        "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+                      },
+                      "max": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "unit": {
+                        "enum": [
+                          "days",
+                          "hours",
+                          "months",
+                          "count",
+                          "bits"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "type",
+                      "factId",
+                      "allowedValues"
+                    ],
+                    "properties": {
+                      "type": {
+                        "const": "enum"
+                      },
+                      "factId": {
+                        "type": "string",
+                        "maxLength": 64,
+                        "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+                        "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+                      },
+                      "allowedValues": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "maxLength": 64,
+                          "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+                          "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+                        },
+                        "minItems": 1,
+                        "maxItems": 100,
+                        "uniqueItems": true
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "type",
+                      "reviewTopic"
+                    ],
+                    "properties": {
+                      "type": {
+                        "const": "manual"
+                      },
+                      "reviewTopic": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4000
+                      }
+                    }
+                  }
+                ]
+              },
+              "evidenceKinds": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    "configuration",
+                    "policy_document",
+                    "independent_review",
+                    "scan_metadata"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 4,
+                "uniqueItems": true
+              },
+              "interpretationNotes": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              }
+            }
+          },
+          "minItems": 1,
+          "maxItems": 1000
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "dataOrigin",
+        "assessmentId",
+        "packId",
+        "levelId",
+        "applicabilityConfirmed",
+        "context",
+        "observations",
+        "packVersion",
+        "packSha256"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "country_security_clause_evidence_v1"
+        },
+        "dataOrigin": {
+          "enum": [
+            "synthetic_fixture",
+            "operator_supplied"
+          ]
+        },
+        "assessmentId": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+          "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs.",
+          "allOf": [
+            {
+              "type": "string",
+              "maxLength": 128,
+              "pattern": "^(?!(?:https?|file|ftp|s3|gs|data|javascript|wss?):)(?![a-z]:)(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*(?:^|[._:-])(?:token|password|secret|credential|bearer)(?:$|[._:-]))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._:-]{0,127}$",
+              "description": "Opaque non-sensitive artifact ID, including colon-delimited http_exchange references; never a URL, path, email or token."
+            }
+          ]
+        },
+        "packId": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+          "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+        },
+        "levelId": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+          "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+        },
+        "applicabilityConfirmed": {
+          "type": "boolean"
+        },
+        "context": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "factId",
+              "value"
+            ],
+            "properties": {
+              "factId": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+                "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+              },
+              "value": {
+                "oneOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "string",
+                    "maxLength": 64,
+                    "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+                    "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+                  }
+                ]
+              }
+            }
+          },
+          "minItems": 0,
+          "maxItems": 200
+        },
+        "observations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "factId",
+              "value",
+              "kind",
+              "evidenceRefs",
+              "observedAt",
+              "expiresAt"
+            ],
+            "properties": {
+              "factId": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+                "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+              },
+              "value": {
+                "oneOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "string",
+                    "maxLength": 64,
+                    "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+                    "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+                  }
+                ]
+              },
+              "kind": {
+                "enum": [
+                  "configuration",
+                  "policy_document",
+                  "independent_review",
+                  "scan_metadata"
+                ]
+              },
+              "evidenceRefs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "pattern": "^(?!(?:https?|file|ftp|s3|gs|data|javascript|wss?):)(?![a-z]:)(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*(?:^|[._:-])(?:token|password|secret|credential|bearer)(?:$|[._:-]))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._:-]{0,127}$",
+                  "description": "Opaque non-sensitive artifact ID, including colon-delimited http_exchange references; never a URL, path, email or token."
+                },
+                "minItems": 1,
+                "maxItems": 20,
+                "uniqueItems": true
+              },
+              "observedAt": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+              },
+              "expiresAt": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+              }
+            }
+          },
+          "minItems": 0,
+          "maxItems": 1000
+        },
+        "packVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400
+        },
+        "packSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "dataOrigin",
+        "assessmentId",
+        "asOf",
+        "packId",
+        "packVersion",
+        "frameworkId",
+        "levelId",
+        "applicabilityConfirmed",
+        "conclusion",
+        "formalLevelDetermination",
+        "contentVerified",
+        "independentlyValidated",
+        "coverage",
+        "clauses",
+        "sources",
+        "limitations",
+        "packSha256",
+        "frameworkCurrency",
+        "frameworkKind",
+        "jurisdictionType"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "country_security_clause_assessment_v1"
+        },
+        "dataOrigin": {
+          "enum": [
+            "synthetic_fixture",
+            "operator_supplied"
+          ]
+        },
+        "assessmentId": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+          "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs.",
+          "allOf": [
+            {
+              "type": "string",
+              "maxLength": 128,
+              "pattern": "^(?!(?:https?|file|ftp|s3|gs|data|javascript|wss?):)(?![a-z]:)(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*(?:^|[._:-])(?:token|password|secret|credential|bearer)(?:$|[._:-]))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._:-]{0,127}$",
+              "description": "Opaque non-sensitive artifact ID, including colon-delimited http_exchange references; never a URL, path, email or token."
+            }
+          ]
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "packId": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+          "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+        },
+        "packVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400
+        },
+        "frameworkId": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+          "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+        },
+        "levelId": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+          "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+        },
+        "applicabilityConfirmed": {
+          "type": "boolean"
+        },
+        "conclusion": {
+          "const": "not_determined"
+        },
+        "formalLevelDetermination": {
+          "const": false
+        },
+        "contentVerified": {
+          "const": false
+        },
+        "independentlyValidated": {
+          "const": false
+        },
+        "coverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "selectedRequirementCount",
+            "mandatoryCount",
+            "recommendationCount",
+            "factMatchCount",
+            "factViolationCount",
+            "notAssessedCount",
+            "manualReviewCount",
+            "excludedCount",
+            "unknownApplicabilityCount",
+            "gaps"
+          ],
+          "properties": {
+            "kind": {
+              "const": "partial"
+            },
+            "selectedRequirementCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "mandatoryCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "recommendationCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "factMatchCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "factViolationCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "notAssessedCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "manualReviewCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "excludedCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "unknownApplicabilityCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "gaps": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "code"
+                ],
+                "properties": {
+                  "requirementId": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+                    "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+                  },
+                  "code": {
+                    "enum": [
+                      "EXCLUSION_REQUIRES_REVIEW",
+                      "APPLICABILITY_CONTEXT_MISSING",
+                      "MANUAL_REVIEW_REQUIRED",
+                      "FACT_MISSING",
+                      "EVIDENCE_KIND_UNSUITABLE",
+                      "EVIDENCE_FROM_FUTURE",
+                      "EVIDENCE_EXPIRED",
+                      "DECLARED_FACT_VIOLATES_REQUIREMENT",
+                      "PACK_PARTIAL",
+                      "ARTIFACT_CONTENT_NOT_VERIFIED",
+                      "APPLICABILITY_UNCONFIRMED",
+                      "LEVEL_WITHOUT_CURATED_REQUIREMENTS",
+                      "FRAMEWORK_REVIEW_REQUIRED"
+                    ]
+                  }
+                }
+              },
+              "minItems": 0,
+              "maxItems": 5000
+            }
+          }
+        },
+        "clauses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "requirementId",
+              "label",
+              "controlId",
+              "normativeStrength",
+              "sourceId",
+              "locator",
+              "state",
+              "metadataAccepted",
+              "contentVerified",
+              "gaps"
+            ],
+            "properties": {
+              "requirementId": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+                "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "controlId": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+                "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+              },
+              "normativeStrength": {
+                "enum": [
+                  "mandatory",
+                  "recommendation"
+                ]
+              },
+              "sourceId": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+                "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+              },
+              "locator": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "state": {
+                "enum": [
+                  "not_assessed",
+                  "not_applicable_on_declared_context",
+                  "applicability_unknown",
+                  "manual_review_required",
+                  "matches_declared_fact",
+                  "violates_declared_fact"
+                ]
+              },
+              "metadataAccepted": {
+                "type": "boolean"
+              },
+              "contentVerified": {
+                "const": false
+              },
+              "gaps": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    "EXCLUSION_REQUIRES_REVIEW",
+                    "APPLICABILITY_CONTEXT_MISSING",
+                    "MANUAL_REVIEW_REQUIRED",
+                    "FACT_MISSING",
+                    "EVIDENCE_KIND_UNSUITABLE",
+                    "EVIDENCE_FROM_FUTURE",
+                    "EVIDENCE_EXPIRED",
+                    "DECLARED_FACT_VIOLATES_REQUIREMENT",
+                    "PACK_PARTIAL",
+                    "ARTIFACT_CONTENT_NOT_VERIFIED",
+                    "APPLICABILITY_UNCONFIRMED",
+                    "LEVEL_WITHOUT_CURATED_REQUIREMENTS"
+                  ]
+                },
+                "minItems": 0,
+                "maxItems": 20,
+                "uniqueItems": true
+              },
+              "evidenceRefs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "pattern": "^(?!(?:https?|file|ftp|s3|gs|data|javascript|wss?):)(?![a-z]:)(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*(?:^|[._:-])(?:token|password|secret|credential|bearer)(?:$|[._:-]))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._:-]{0,127}$",
+                  "description": "Opaque non-sensitive artifact ID, including colon-delimited http_exchange references; never a URL, path, email or token."
+                },
+                "minItems": 1,
+                "maxItems": 20,
+                "uniqueItems": true
+              }
+            }
+          },
+          "minItems": 0,
+          "maxItems": 1000
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "title",
+              "url",
+              "locator"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^(?!.*(?:^|[._:-])(?:sk-|gh[pous]_|xox[abpr]-|eyj[a-z0-9_-]{16}|akia[a-z0-9]{16}|asia[a-z0-9]{16}|aiza[a-z0-9_-]{30}))(?!.*[a-f0-9]{32,})[a-z][a-z0-9._-]{0,63}$",
+                "description": "Opaque non-sensitive identifier; no URL, filesystem path, email or token. Use lowercase IDs."
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "pattern": "^https://",
+                "maxLength": 2000
+              },
+              "locator": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              }
+            }
+          },
+          "minItems": 1,
+          "maxItems": 50
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          },
+          "minItems": 1,
+          "maxItems": 105
+        },
+        "packSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "frameworkCurrency": {
+          "enum": [
+            "reviewed_reference",
+            "requires_review"
+          ]
+        },
+        "frameworkKind": {
+          "enum": [
+            "impact_classification",
+            "maturity",
+            "governance_tier",
+            "certification_assurance",
+            "preparedness_certification",
+            "implementation_approach",
+            "self_declaration",
+            "control_baseline",
+            "regulatory_requirements"
+          ]
+        },
+        "jurisdictionType": {
+          "enum": [
+            "country_or_area",
+            "supranational",
+            "international"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openhunter.local/schemas/report-content-v2.schema.json",
+  "title": "OpenHunterAI Report Content v2",
+  "type": "object",
+  "required": ["formatVersion", "reportType", "profile", "targetType", "authScope", "testIntensityMode", "surfaceFlags", "ownerSummary", "findings", "developerFixPack", "coverage", "hardeningRecommendations", "retest", "generatedAt"],
+  "properties": {
+    "formatVersion": { "const": "report_v2" },
+    "reportType": { "enum": ["finding_report", "coverage_only"] },
+    "profile": { "enum": ["quick", "standard", "deep"] },
+    "targetType": { "enum": ["static_content_website", "interactive_web_app", "api_service", "ai_llm_application"] },
+    "authScope": { "enum": ["none", "one_account", "two_accounts"] },
+    "testIntensityMode": { "enum": ["safe_discovery", "controlled_attack_simulation", "aggressive_staging"] },
+    "surfaceFlags": { "type": "object", "additionalProperties": { "type": "boolean" } },
+    "ownerSummary": {
+      "type": "object",
+      "required": ["headline", "riskLevel", "whatWasTested", "topRiskOrOutcome", "businessImpact", "recommendedNextAction"]
+    },
+    "findings": {
+      "type": "array",
+      "items": { "type": "object", "required": ["id", "validationStatus"], "properties": { "id": { "type": "string" }, "validationStatus": { "const": "validated" } } }
+    },
+    "historicalFindings": {
+      "type": "array",
+      "items": { "type": "object", "required": ["id", "validationStatus"], "properties": { "id": { "type": "string" }, "validationStatus": { "const": "legacy_unverified" } } }
+    },
+    "developerFixPack": { "type": "array" },
+    "coverage": { "type": "object", "required": ["coverageGaps", "limitations"] },
+    "hardeningRecommendations": { "type": "array", "items": { "type": "string" } },
+    "retest": { "type": "object", "required": ["eligibleFindings", "manualRetestActions"] },
+    "generatedAt": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": true
+}

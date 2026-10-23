@@ -1,138 +1,20 @@
-# ACCEPTANCE_CRITERIA.md - OpenHunterAI
+# Acceptance criteria
 
-> Conditions for v1 to be considered correct.
+## #13: trustworthy self-host scan contract
 
----
+- Dashboard and `openhunterai` CLI use `POST /v1/scans/preflight` and `POST /v1/scans` with `scan_request_v2`; project-scoped routes adapt into the same service. Standard is the UI default. Quick/Standard/Deep remain labeled as selected; no silent downgrade.
+- A public HTTPS URL with a path defaults to that path and descendants. Explicit host-wide scope must be selected and reconfirmed. Private/local/metadata targets, out-of-scope paths/hosts and redirects are rejected at API and worker boundaries.
+- Preflight reports planned workers and installed/configured/reachable/executable states. If Standard lacks a worker, the gap appears before creation and in `report_v2`, and must be acknowledged. Deep blocks on missing mandatory safety/runtime prerequisites.
+- No commercial tier, scan mode, finding cap, retest quota/cooldown or use-case entitlement influences API, plan, LLM, worker event, DB or report. Resource/rate limits and approval gates still apply. LLM or worker budget exhaustion is a limitation/coverage gap.
+- Worker crash, timeout, malformed output and unavailability never generate findings or clean coverage. Duplicate callback/retry does not duplicate candidate, step, activity event, finding or final report.
+- Only candidates with a separate valid independent decision enter report findings; raw worker claims stay at `needs_more_evidence`. Two independently validated test fixtures appear as two findings. A retest without a real replay executor returns `RETEST_UNSUPPORTED`, with no fake `fixed` state.
+- Backup and restore are verified before dropping commercial tables/columns. Migration preserves project, scan, candidate, finding and report IDs and sanitized evidence, converts historical reports to `report_v2`/`legacy_unverified`, and is tested on a clone before local stack.
+- CLI and dashboard smoke produce the same request/plan/report type on one authorized host. Smoke does not satisfy exploit-recall acceptance.
+- System-wide reasoning routes show the CLI or provider, model, and reasoning level before a scan. The scan stores that copy. A route probe or a dashboard preview is not evidence that a coding CLI completed a prompt, and it is not evidence for XSS, SQLi, or IDOR.
 
-# 1. Product Contract
+## Later release gates
 
-V1 is accepted when:
+- #14 verifies artifact provenance, baseline/exploit replay, demonstrated impact and negative controls; High/Critical require stronger independent evidence. Retest returns fixed/still reproducible/inconclusive with attempt evidence.
+- #22 runs an intentionally vulnerable, isolated target with matched negative controls and reports recall by class, false-positive rate, evidence completeness, coverage, time and cost. A new user can self-host, scan, inspect a real report, fix and retest without touching DB/NATS internals.
 
-```text
-public packages are Free Hunter / AI Black-hat Mindset Check / Monitor Workspace / Enterprise / PAYG
-Authenticated Scope is auth_scope, not a package
-Readiness Report View/Export is export mode, not scan package
-Monitor sub-tiers are not public package names
-Free Hunter is not report-only and not a weak scanner
-```
-
----
-
-# 2. Authorization And Onboard
-
-Scan authorization must require:
-
-```text
-verified domain
-allowed_hosts / allowed_paths / excluded_paths
-scanMode
-authScope
-targetType
-testIntensityMode
-surfaceFlags
-risk acceptance for aggressive_staging
-```
-
-Validation:
-
-```text
-authScope none requires no test account
-authScope one_account requires >= 1 test account
-authScope two_accounts requires >= 2 test accounts
-aggressive_staging requires explicit staging/dev/test acceptance
-```
-
----
-
-# 3. Scan Plan
-
-Scan Plan builder is accepted when:
-
-```text
-each Target Type enables the documented worker/hunter set
-Free quotas are enforced
-Free can use every Target Type and Test Intensity Mode if authorized
-skippedHunters include reason
-LLM does not choose Target Type or worker set
-profiler worker does not exist
-```
-
----
-
-# 4. Free Hunter
-
-Free Hunter is accepted when:
-
-```text
-max_returned_findings = 1
-max_monitored_findings = 1
-max_retests = 1
-cooldown_days = 7
-first valuable finding stops expensive steps
-one limited monitored finding view exists
-one retest quota exists
-no full paid board/retest workspace is opened
-no valuable finding returns coverage/hardening/limitations
-```
-
----
-
-# 5. Worker/Tool Behavior
-
-```text
-ZAP = passive/baseline DAST signal layer
-Nuclei = curated known-pattern/exposure/misconfig templates only
-OpenHack = scenario-first hunter workflow/schema layer
-Strix = attacker-mindset reasoning + controlled validation planning
-```
-
-Workers must fail loudly, never fake success, and never persist raw evidence.
-
----
-
-# 6. LLM Gateway
-
-Accepted when:
-
-```text
-business logic calls only LLM Gateway
-low_reasoning_model and high_reasoning_model resolve from env/config
-provider/model names are not hardcoded in business logic
-prompt sanitizer blocks raw secrets/evidence
-budget/timeout/retry/fallback do not fake output
-```
-
----
-
-# 7. Storage
-
-Accepted when:
-
-```text
-external artifact storage is absent from v1 core docs/env/code path
-sanitized reports/findings are stored in Postgres
-raw credentials/cookies/tokens/HAR/request/response are not stored/logged/reported
-detected secrets store only masked fingerprint/hash/metadata
-report_v1 structured JSON is the canonical report snapshot
-draft sections stream over SSE
-HTML/PDF exports are generated on demand and not persisted as artifacts
-LLM ranking recommendations cannot invent findings or override deterministic policy
-```
-
----
-
-# 8. Not V1
-
-Fail if implementation adds:
-
-```text
-CI/CD retest
-deployment-triggered retest
-GitHub/Jira integration
-cloud/VPS/private network scan
-server agent
-mobile APK audit
-SAST/SCA/secrets scanning
-unrestricted aggressive/offensive mode
-white-hat audit/compliance repositioning
-```
+The PolyForm Noncommercial license and mandatory security guardrails remain in force.

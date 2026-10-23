@@ -30,7 +30,6 @@ interface ReportEnvelope {
   latestOverlay: {
     findingStatuses: Array<{ id: string; status: string; severity: string }>;
     retestStates: Array<{ findingId: string; retestRunId: string; result?: string | null }>;
-    monitor: { maxMonitoredFindings: number; maxRetests: number; cooldownDays: number };
   };
   exports: { formats: string[]; generatedOnDemand: boolean };
 }
@@ -56,6 +55,7 @@ interface ReportContent {
     fixSummary: string;
     sanitizedProof?: { description?: string };
   }>;
+  historicalFindings?: Array<{ id: string; title: string; affectedAsset: string; validationStatus: 'legacy_unverified' }>;
   developerFixPack?: Array<{
     findingId: string;
     rootCauseHypothesis: string;
@@ -66,15 +66,14 @@ interface ReportContent {
   }>;
   coverage?: {
     workersRun?: string[];
+    huntersPlanned?: string[];
     huntersRun?: string[];
     coverageGaps?: string[];
     limitations?: string[];
   };
   hardeningRecommendations?: string[];
-  retestAndMonitor?: {
+  retest?: {
     eligibleFindings?: string[];
-    remainingRetestQuota?: number;
-    cooldownDays?: number;
     manualRetestActions?: string[];
   };
 }
@@ -182,8 +181,8 @@ export function ReportDetailPage() {
         <SkeletonRows rows={5} />
       ) : (
         <div className="grid gap-6">
-          {/* Owner summary + retest */}
-          <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
+          {/* Outcome and next action, without account or usage-tier chrome. */}
+          <div className="grid gap-6">
             <Section title="Owner summary">
               {content.ownerSummary?.riskLevel && (
                 <Badge tone="signal" className="self-start">
@@ -201,27 +200,13 @@ export function ReportDetailPage() {
                 </div>
               )}
             </Section>
-            <Section title="Retest / monitor">
-              <Stat
-                label="Retests left"
-                value={String(
-                  content.retestAndMonitor?.remainingRetestQuota ??
-                    report?.latestOverlay.monitor.maxRetests ??
-                    0,
-                )}
-              />
-              <Stat
-                label="Cooldown"
-                value={`${content.retestAndMonitor?.cooldownDays ?? report?.latestOverlay.monitor.cooldownDays ?? 0} days`}
-              />
-            </Section>
           </div>
 
           {/* Findings */}
           <Section title={`Findings (${findings.length})`}>
             {findings.length === 0 ? (
               <p className="text-sm text-ink-muted">
-                No valuable finding was confirmed within the scan budget.
+                No finding was independently validated. Review coverage gaps before treating this as a clean result.
               </p>
             ) : (
               findings.map((f) => (
@@ -251,6 +236,20 @@ export function ReportDetailPage() {
             )}
           </Section>
 
+          {/* Historical observations remain distinct from independently validated findings. */}
+          {(content.historicalFindings ?? []).length > 0 && (
+            <Section title={`Historical observations (${content.historicalFindings?.length ?? 0})`}>
+              <p className="text-sm text-ink-muted">These earlier reports were not independently replayed. Verify them before treating them as findings.</p>
+              {(content.historicalFindings ?? []).map((finding) => (
+                <article key={finding.id} className="rounded-lg border border-hairline bg-surface-raised p-4">
+                  <h3 className="font-display text-base font-700 text-ink">{finding.title}</h3>
+                  <p className="mt-1 text-data text-xs text-ink-faint">{finding.affectedAsset}</p>
+                  <Badge tone="neutral">legacy_unverified</Badge>
+                </article>
+              ))}
+            </Section>
+          )}
+
           {/* Developer fix pack */}
           {(content.developerFixPack ?? []).length > 0 && (
             <Section title="Developer fix pack">
@@ -274,7 +273,18 @@ export function ReportDetailPage() {
           {/* Coverage */}
           <Section title="Coverage">
             <Stat label="Pipeline" value={(content.coverage?.workersRun ?? []).map(pipelineCode).join(', ') || 'none'} />
-            <Stat label="Hunters" value={(content.coverage?.huntersRun ?? []).join(', ') || 'none'} />
+            <Stat label="Hunter families planned" value={(content.coverage?.huntersPlanned ?? []).join(', ') || 'none'} />
+            <Stat label="Hunter families evidenced" value={(content.coverage?.huntersRun ?? []).join(', ') || 'not measured'} />
+            {(content.coverage?.coverageGaps ?? []).length > 0 && (
+              <div className="grid gap-1 rounded-lg border border-medium/40 bg-medium/10 p-3">
+                <span className="text-xs uppercase tracking-wider text-medium">Coverage gaps</span>
+                <ul className="grid gap-1 text-sm text-ink">
+                  {(content.coverage?.coverageGaps ?? []).map((gap, i) => (
+                    <li key={i}>• {gap}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {(content.coverage?.limitations ?? []).length > 0 && (
               <div className="grid gap-1">
                 <span className="text-xs uppercase tracking-wider text-ink-faint">Limitations</span>
@@ -297,7 +307,7 @@ function pipelineCode(kind: string): string {
   if (matchesAny(normalized, ['browser', joinParts('browser', 'inspector')])) return 'Browser';
   if (matchesAny(normalized, [joinParts('za', 'p'), joinParts('za', 'p_signal'), 'z', 'z_signal'])) return 'Z';
   if (matchesAny(normalized, [joinParts('nu', 'clei'), joinParts('nu', 'clei_signal'), 'n', 'n_signal'])) return 'N';
-  if (matchesAny(normalized, [joinParts('open', 'hack'), joinParts('open', 'hack_hunter'), 'o', 'o_hunter'])) return 'O';
+  if (matchesAny(normalized, [joinParts('open', 'hack'), joinParts('open', 'hack_hunter'), 'o', 'o_hunter', 'passive_surface'])) return 'Passive surface';
   if (matchesAny(normalized, [joinParts('st', 'rix'), joinParts('st', 'rix_core'), 's', 's_core'])) return 'S';
   if (normalized === 'report') return 'RPT';
   if (normalized === 'retest') return 'RT';

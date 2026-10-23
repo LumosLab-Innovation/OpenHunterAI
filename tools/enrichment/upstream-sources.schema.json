@@ -15,6 +15,7 @@
         "required": [
           "id",
           "url",
+          "ref",
           "role",
           "importMode",
           "currentVendorState",
@@ -28,10 +29,13 @@
         "properties": {
           "id": {
             "type": "string",
-            "enum": ["openhunter_core", "openhack", "strix", "zap", "nuclei", "claude_bughunter"]
+            "enum": ["openhunter_core", "openhack", "strix", "zap", "nuclei", "claude_bughunter", "rea"]
           },
           "url": { "type": "string" },
           "ref": { "type": "string" },
+          "runtimeRef": { "type": "string" },
+          "sandboxRuntimeRef": { "type": "string" },
+          "reviewedUpstreamHead": { "type": "string" },
           "license": { "type": "string" },
           "role": { "type": "string" },
           "importMode": {
