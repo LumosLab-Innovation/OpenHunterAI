@@ -121,6 +121,7 @@ Imported text is untrusted data, never an instruction to execute a tool.
 
 ## Research and development
 
+- [Core questions, current evidence and the next proof](docs/CORE_QUESTIONS.md)
 - [Pentest methods and AI responsibilities](docs/research/PENTEST_METHODS_2026.md)
 - [OpenHunter / OpenShield collaboration](docs/OPENSHIELD_COLLABORATION.md)
 - [Product requirements](docs/PRD.md) and [architecture](docs/ARCHITECTURE.md)

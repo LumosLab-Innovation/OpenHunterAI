@@ -2,6 +2,10 @@
 
 OpenHunterAI is one self-hosted, authorized black-box pentest engine. The dashboard, `openhunterai` CLI, and future coding-agent skill are clients of the same scan API and report. The goal is a reproducible, real vulnerability finding with an evidence chain—not a count of agents, hypotheses, or scanner alerts.
 
+Select engineering priorities through the [core questions and evidence audit](CORE_QUESTIONS.md).
+Configured routes, research catalogs and green component tests do not establish
+discovery, independent validation, useful retest or incremental AI value.
+
 ## OpenHunter / OpenShield ownership
 
 OpenHunter owns authorized pentest research, assessment evidence, independent
