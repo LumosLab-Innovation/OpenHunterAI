@@ -18,6 +18,7 @@ import { billingRoutes } from './modules/billing/billing.routes.js';
 import { testAccountRoutes } from './modules/test-accounts/test-accounts.routes.js';
 import { localWorkspaceBoundary, workspaceMode } from './modules/workspace/local-workspace.js';
 import { workspaceRoutes } from './modules/workspace/workspace.routes.js';
+import { orcaRouterRoutes } from './modules/providers/orcarouter.routes.js';
 
 export function createApp() {
   const app = express();
@@ -47,6 +48,7 @@ export function createApp() {
 
   app.use('/health', healthRoutes);
   app.use('/v1/workspace', workspaceRoutes);
+  app.use('/v1/providers/orcarouter', orcaRouterRoutes);
   if (workspaceMode() === 'hosted') app.use('/v1/auth', authRoutes);
   app.use('/v1/projects', projectRoutes);
   app.use('/v1', domainRoutes);

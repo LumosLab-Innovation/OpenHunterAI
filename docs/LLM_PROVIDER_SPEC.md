@@ -45,10 +45,29 @@ settings; model IDs must be valid for your provider account.
 | `LLM_HIGH_REASONING_PROVIDER` / `LLM_HIGH_REASONING_MODEL` | High-reasoning route |
 | `LLM_*_FALLBACK_PROVIDER` / `LLM_*_FALLBACK_MODEL` | Fallback route per alias |
 | `OPENAI_API_KEY` / `DEEPSEEK_API_KEY` | Keys passed into the default local stack |
+| `ORCAROUTER_API_KEY` | Named OrcaRouter Cyber Inference provider key (API key or PKCE-issued) |
 
 The gateway also implements a `claude` adapter using `ANTHROPIC_API_KEY`, but the
 default local Compose file does not pass that key through. A gateway adapter's
 existence is not the same as a supported local setup option.
+
+### OrcaRouter Cyber Inference
+
+`LLM_*_REASONING_PROVIDER=orcarouter` routes an alias through the named
+[OrcaRouter](https://www.orcarouter.ai) Cyber Inference provider
+(`https://api.orcarouter.ai/v1`, OpenAI-compatible, Bearer auth). It is the
+provider for authorized, scoped security work: cyber models for red teams and
+gateway controls for blue teams. The default model is `orcarouter/auto`;
+`orca/orcacyber-ultra-1.0` and `orca/orcacyber-zero-1.5` are recommended for
+workspaces verified for the cyber tier, and `orcarouter/fusion` is the general
+fallback.
+
+Credentials come from either a pasted API key or OAuth 2.0 + PKCE (S256,
+loopback redirect), both configured on **Setup & models**. Model discovery uses
+`GET /v1/models?capability=chat` with the stored key; a small verified fallback
+catalog is used only when discovery fails. A relay `401` is terminal until the
+user reconnects — there is no refresh grant. See
+[ORCAROUTER.md](ORCAROUTER.md).
 
 Local Compose explicitly supplies model values; bare gateway defaults in
 [config.ts](../shared/llm-gateway-core/src/config.ts) differ. Do not rely on those

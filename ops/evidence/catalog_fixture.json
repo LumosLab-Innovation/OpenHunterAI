@@ -1,0 +1,266 @@
+{
+  "_meta": {
+    "source": "https://api.orcarouter.ai/v1/models?capability=chat",
+    "fetched_at": "2026-10-23",
+    "note": "Dedicated UI-evidence slice of the live chat catalog; production discovery fetches the endpoint directly."
+  },
+  "chat": [
+    {
+      "id": "orcarouter/auto",
+      "object": "model",
+      "created": 1778041885,
+      "owned_by": "orcarouter",
+      "supported_endpoint_types": [
+        "openai",
+        "openai-response",
+        "anthropic",
+        "gemini"
+      ]
+    },
+    {
+      "id": "orcarouter/fusion",
+      "object": "model",
+      "created": 0,
+      "owned_by": "orcarouter",
+      "supported_endpoint_types": [
+        "openai",
+        "openai-response",
+        "anthropic",
+        "gemini"
+      ],
+      "context_length": 1000000
+    },
+    {
+      "id": "orcarouter/fusion-flash",
+      "object": "model",
+      "created": 0,
+      "owned_by": "orcarouter",
+      "supported_endpoint_types": [
+        "openai",
+        "openai-response",
+        "anthropic",
+        "gemini"
+      ],
+      "context_length": 262144
+    },
+    {
+      "id": "orca/orcacyber-ultra-1.0",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "Orca",
+      "supported_endpoint_types": [
+        "openai"
+      ],
+      "endpoint_capabilities": [
+        "chat_completions"
+      ],
+      "name": "Orca: OrcaCyber Ultra 1.0",
+      "description": "OrcaCyber Ultra 1.0 is the flagship of the OrcaCyber trillion-parameter cybersecurity model series, built for large-codebase security scanning, vulnerability discovery and exploit-chain analysis, penetration-testing assistance, and malware / log forensics. With a native 1M-token context it ingests an entire repository, audit report or long log stream in one pass for cross-file reasoning, supports deep reasoning mode and structured JSON output, and plugs into automated security pipelines.",
+      "context_length": 1048576,
+      "max_completion_tokens": 131072,
+      "architecture": {
+        "modality": "text->text",
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ]
+      },
+      "top_provider": {
+        "context_length": 1048576,
+        "max_completion_tokens": 131072
+      },
+      "pricing": {
+        "prompt": "0.0000050000",
+        "completion": "0.0000100000",
+        "prompt_per_million": "5.000000",
+        "completion_per_million": "10.000000",
+        "input_cache_read": "0.0000007500"
+      },
+      "supported_parameters": [
+        "max_tokens",
+        "reasoning",
+        "response_format",
+        "stop",
+        "stream",
+        "stream_options",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ]
+    },
+    {
+      "id": "orca/orcacyber-zero-1.5",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "Orca",
+      "supported_endpoint_types": [
+        "openai"
+      ],
+      "endpoint_capabilities": [
+        "chat_completions"
+      ],
+      "name": "Orca: OrcaCyber Zero 1.5",
+      "description": "OrcaCyber Zero 1.5 is a frontier cybersecurity model and the successor to OrcaCyber Zero 1.0, post-trained for security research and authorized security engineering: vulnerability research and reproduction, exploit development, penetration testing, security auditing, and advanced cyber reasoning. It is built for complex, multi-step security workflows, with long-context reasoning, native function calling, and structured outputs.\n\nVendor-reported evaluations: 95.8% on the evaluable CVE-Bench subset, 100% on Cybench (unrestricted agent execution), 76.5% on SWE-bench Pro V2, and 93.9% on HumanEval+.\n\nLike Zero 1.0 it is served through an OpenAI-compatible API and is access-gated to the Security Research tier for trusted security researchers, red teams, and authorized security testing.",
+      "context_length": 1000000,
+      "max_completion_tokens": 128000,
+      "architecture": {
+        "modality": "text->text",
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ]
+      },
+      "top_provider": {
+        "context_length": 1000000,
+        "max_completion_tokens": 128000
+      },
+      "pricing": {
+        "prompt": "0.0000030000",
+        "completion": "0.0000075000",
+        "prompt_per_million": "3.000000",
+        "completion_per_million": "7.500000",
+        "input_cache_read": "0.0000007500"
+      },
+      "supported_parameters": [
+        "logprobs",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "stop",
+        "stream",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_logprobs",
+        "top_p"
+      ]
+    },
+    {
+      "id": "deepseek/deepseek-v4.1-flash",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "DeepSeek",
+      "supported_endpoint_types": [
+        "openai",
+        "openai-response",
+        "anthropic"
+      ],
+      "endpoint_capabilities": [
+        "chat_completions",
+        "openai_responses",
+        "anthropic_messages"
+      ],
+      "name": "DeepSeek: DeepSeek V4.1 Flash",
+      "description": "DeepSeek-V4.1-Flash is the smallest model in DeepSeek's new architecture family, released September 10, 2026, with native multimodal visual understanding \u2014 the production successor to both V4 Flash and the V4 Flash Vision experiment. The new architecture\r\n  targets a higher capability ceiling, faster inference and higher throughput, and DeepSeek reports V4.1 Flash comprehensively surpasses V4 Pro on performance, cost, speed and total task time. It accepts text and images with text output, serves a 1M-token context window with up\r\n  to 384K output tokens, and supports thinking (default, with selectable effort low / high / max) and non-thinking modes across the Chat Completions, Responses and Anthropic-compatible APIs, along with JSON output, tool calls and chat prefix completion; FIM works in non-thinking\r\n  mode only. Model weights are open on Hugging Face (deepseek-ai/DeepSeek-V4.1-Flash).\r\n\r\n  Official benchmarks at release: 90.6 on Terminal-Bench 2.1, 74.2 on DeepSWE v1.1, 65.4 on NL2Repo-Bench, 90.9 on GPQA Diamond, 63.9 on HLE with tools, and strong native-vision agent results (89.6 BabyVision, 78.9 Chartography with tools). Pricing was cut alongside the release:\r\n  $0.15/M input (cache miss), $0.60/M output and $0.003/M on cache hits at off-peak rates, doubling during weekday peak hours (01:00-04:00 and 06:00-10:00 UTC); all other hours including weekends are off-peak.",
+      "context_length": 1048576,
+      "max_completion_tokens": 384000,
+      "architecture": {
+        "modality": "text+image->text",
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "text"
+        ]
+      },
+      "top_provider": {
+        "context_length": 1048576,
+        "max_completion_tokens": 384000
+      },
+      "pricing": {
+        "prompt": "0.0000001500",
+        "completion": "0.0000006000",
+        "prompt_per_million": "0.150000",
+        "completion_per_million": "0.600000",
+        "input_cache_read": "0.0000000030"
+      },
+      "supported_parameters": [
+        "include_reasoning",
+        "logprobs",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "stop",
+        "stream",
+        "stream_options",
+        "temperature",
+        "thinking",
+        "tool_choice",
+        "tools",
+        "top_logprobs",
+        "top_p",
+        "user_id"
+      ]
+    },
+    {
+      "id": "deepseek/deepseek-v4-flash-vision-exp",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "DeepSeek",
+      "supported_endpoint_types": [
+        "openai",
+        "openai-response",
+        "anthropic"
+      ],
+      "endpoint_capabilities": [
+        "chat_completions",
+        "openai_responses",
+        "anthropic_messages"
+      ],
+      "name": "DeepSeek: DeepSeek V4 Flash Vision (Exp)",
+      "description": "Experimental vision-enabled variant of DeepSeek V4 Flash: text + image in, text out, 1M context, 384K max output, thinking and non-thinking modes. Pure-text capability on par with V4 Flash; multimodal agent capability approaching Opus 4.8.",
+      "context_length": 1048576,
+      "max_completion_tokens": 384000,
+      "architecture": {
+        "modality": "text+image->text",
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "text"
+        ]
+      },
+      "top_provider": {
+        "context_length": 1048576,
+        "max_completion_tokens": 384000
+      },
+      "pricing": {
+        "prompt": "0.0000002200",
+        "completion": "0.0000006600",
+        "prompt_per_million": "0.220000",
+        "completion_per_million": "0.660000",
+        "input_cache_read": "0.0000000070"
+      },
+      "supported_parameters": [
+        "include_reasoning",
+        "logprobs",
+        "max_tokens",
+        "reasoning",
+        "response_format",
+        "stop",
+        "stream",
+        "stream_options",
+        "temperature",
+        "thinking",
+        "tool_choice",
+        "tools",
+        "top_logprobs",
+        "top_p",
+        "user_id"
+      ]
+    }
+  ],
+  "image": [],
+  "embedding": []
+}

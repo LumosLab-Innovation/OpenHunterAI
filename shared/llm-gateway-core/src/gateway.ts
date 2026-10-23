@@ -24,6 +24,7 @@ import type {
 import { OpenAIProvider } from './providers/openai.js';
 import { ClaudeProvider } from './providers/claude.js';
 import { DeepSeekProvider } from './providers/deepseek.js';
+import { OrcaRouterProvider } from './providers/orcarouter.js';
 
 export interface LLMGatewayOptions {
   providers?: Partial<Record<ProviderName, LLMProvider>>;
@@ -44,6 +45,7 @@ export class LLMGateway {
       openai: opts.providers?.openai ?? new OpenAIProvider(),
       claude: opts.providers?.claude ?? new ClaudeProvider(),
       deepseek: opts.providers?.deepseek ?? new DeepSeekProvider(),
+      orcarouter: opts.providers?.orcarouter ?? new OrcaRouterProvider(),
     };
     this.logger = opts.logger ?? createLogger({ component: 'llm-gateway' });
     this.retryAttempts = opts.retryAttempts ?? 1;
