@@ -14,6 +14,9 @@ importers:
       '@x-hunter/db':
         specifier: file:../../shared/db
         version: file:../../shared/db
+      '@x-hunter/llm-gateway':
+        specifier: file:../../shared/llm-gateway-core
+        version: file:../../shared/llm-gateway-core
       '@x-hunter/shared':
         specifier: file:../../shared/security-core
         version: file:../../shared/security-core
@@ -593,6 +596,9 @@ packages:
 
   '@x-hunter/db@file:../../shared/db':
     resolution: {directory: ../../shared/db, type: directory}
+
+  '@x-hunter/llm-gateway@file:../../shared/llm-gateway-core':
+    resolution: {directory: ../../shared/llm-gateway-core, type: directory}
 
   '@x-hunter/shared@file:../../shared/security-core':
     resolution: {directory: ../../shared/security-core, type: directory}
@@ -1633,6 +1639,11 @@ snapshots:
       '@prisma/client': 5.22.0
     transitivePeerDependencies:
       - prisma
+
+  '@x-hunter/llm-gateway@file:../../shared/llm-gateway-core':
+    dependencies:
+      '@x-hunter/shared': file:../../shared/security-core
+      zod: 3.25.76
 
   '@x-hunter/shared@file:../../shared/security-core':
     dependencies:

@@ -7,7 +7,9 @@ const ENV = process.env;
 
 function envProvider(name: string, fallback: ProviderName): ProviderName {
   const value = ENV[name] as ProviderName | undefined;
-  return value === 'openai' || value === 'claude' || value === 'deepseek' ? value : fallback;
+  return value === 'openai' || value === 'claude' || value === 'deepseek' || value === 'orcarouter'
+    ? value
+    : fallback;
 }
 
 function envModel(name: string, fallback: string): string {

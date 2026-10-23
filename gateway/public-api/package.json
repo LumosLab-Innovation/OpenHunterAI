@@ -15,6 +15,7 @@
   "dependencies": {
     "@openhunter/event-core": "file:../../shared/event-core",
     "@x-hunter/db": "file:../../shared/db",
+    "@x-hunter/llm-gateway": "file:../../shared/llm-gateway-core",
     "@x-hunter/shared": "file:../../shared/security-core",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",

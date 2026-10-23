@@ -23,7 +23,7 @@ export type LLMUseCase =
   | 'fix_prompt'
   | 'retest_reasoning';
 
-export type ProviderName = 'openai' | 'claude' | 'deepseek';
+export type ProviderName = 'openai' | 'claude' | 'deepseek' | 'orcarouter';
 
 export interface LLMRequest {
   useCase: LLMUseCase;

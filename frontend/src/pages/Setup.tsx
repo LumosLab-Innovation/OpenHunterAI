@@ -1,13 +1,16 @@
+import { useState } from "react";
 import { ArrowUpRight, CheckCircle2, Circle, RefreshCw } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import { PageHeader } from "../components/PageHeader";
 import { CopyCommand } from "../components/CopyCommand";
 import { Button } from "../components/ui/Button";
 import { ErrorState } from "../components/ui/States";
+import { OrcaRouterProviderPanel } from "../components/orcarouter/OrcaRouterProviderPanel";
 import { SKILL_COMMAND } from "./Workspace";
 
 export function SetupPage() {
   const { status, loading, error, refresh } = useAuth();
+  const [reasoningProvider, setReasoningProvider] = useState("orcarouter");
   return (
     <div className="animate-fade-up">
       <PageHeader
@@ -62,10 +65,34 @@ export function SetupPage() {
         <section className="py-8">
           <h2 className="text-base font-semibold">2. Configure AI reasoning</h2>
           <p className="mt-2 text-sm leading-6 text-ink-muted">
-            Edit <code>.env.local</code> in the repository folder. Choose a
-            provider and model for each reasoning role, add your provider key,
-            then restart the stack.
+            Choose a provider for the reasoning routes, add its key, then restart
+            the stack. OrcaRouter is a named provider with two sign-in choices:
+            paste an API key or connect through OAuth 2.0 + PKCE.
           </p>
+          <label className="mt-4 block text-xs font-medium" htmlFor="reasoning-provider">
+            Reasoning provider
+          </label>
+          <select
+            id="reasoning-provider"
+            data-testid="reasoning-provider"
+            className="mt-1 w-full max-w-sm rounded-md border border-hairline bg-canvas px-3 py-2 text-sm"
+            value={reasoningProvider}
+            onChange={(event) => setReasoningProvider(event.target.value)}
+          >
+            <option value="orcarouter">OrcaRouter Cyber Inference</option>
+            <option value="deepseek">DeepSeek</option>
+            <option value="openai">OpenAI</option>
+            <option value="claude">Claude</option>
+          </select>
+          {reasoningProvider === "orcarouter" ? (
+            <OrcaRouterProviderPanel />
+          ) : (
+            <p className="mt-4 rounded-lg border border-hairline px-4 py-3 text-xs leading-5 text-ink-muted">
+              {reasoningProvider} stays configured through the private{" "}
+              <code>.env.local</code> keys and model aliases already used by the
+              gateway. Select OrcaRouter Cyber Inference to configure it here.
+            </p>
+          )}
           <div className="my-5 divide-y divide-hairline rounded-lg border border-hairline px-4">
             {(
               status?.models ?? [

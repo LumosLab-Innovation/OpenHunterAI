@@ -39,10 +39,10 @@ install:
 	for d in $(TS_SERVICES); do (cd $$d && pnpm install); done
 
 typecheck:
-	for d in $(TS_SERVICES); do (cd $$d && pnpm run typecheck); done
+	set -e; for d in $(TS_SERVICES); do (cd $$d && pnpm run typecheck); done
 
 test:
-	for d in $(TS_SERVICES); do (cd $$d && pnpm run test); done
+	set -e; for d in $(TS_SERVICES); do (cd $$d && pnpm run test); done
 
 build:
 	for d in $(TS_SERVICES); do (cd $$d && pnpm run build); done

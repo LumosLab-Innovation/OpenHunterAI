@@ -24,7 +24,8 @@ workspaceRoutes.get(
       const configured = Boolean(
         model &&
           ((provider === "openai" && process.env.OPENAI_API_KEY) ||
-            (provider === "deepseek" && process.env.DEEPSEEK_API_KEY)),
+            (provider === "deepseek" && process.env.DEEPSEEK_API_KEY) ||
+            (provider === "orcarouter" && process.env.ORCAROUTER_API_KEY)),
       );
       return { role: role.toLowerCase(), provider, model, configured };
     });
