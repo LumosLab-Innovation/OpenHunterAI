@@ -46,6 +46,9 @@ client secret and no redirect URI to pre-register.
   loopback. It still uses S256.
 - Closing the page, cancelling, denial, exchange errors, and timeouts all
   release the login lock.
+- A successful Cancel discards a late exchange result; before persistence,
+  expired or superseded attempts cannot save a key. Once saving has begun, cancellation
+  is no longer accepted and the UI refreshes the connection status.
 
 `ORCA_BASE_URL` sets a shared self-hosted base; explicit `ORCA_AUTH_BASE_URL`
 and `ORCA_API_BASE_URL` win over it. Remote origins must be HTTPS; HTTP is

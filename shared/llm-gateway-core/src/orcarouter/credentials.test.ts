@@ -40,7 +40,7 @@ describe('EnvFileCredentialStore', () => {
     expect(contents).toContain('ORCAROUTER_API_KEY=');
     expect(contents).toContain('OPENAI_API_KEY=sk-existing');
     expect(contents).toContain('# comment');
-    expect((await stat(envFile)).mode & 0o777).toBe(0o600);
+    if (process.platform !== 'win32') expect((await stat(envFile)).mode & 0o777).toBe(0o600);
 
     await store.clear();
     expect(await store.read()).toBeUndefined();

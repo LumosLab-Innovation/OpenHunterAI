@@ -64,7 +64,8 @@ const flow = new OrcaRouterPkceFlow({
   appName: 'OpenHunterAI',
   onCredential: async (result) => {
     if (!result.ok) return;
-    await persistCredential(store, result);
+    const persisted = await persistCredential(store, result);
+    if (!persisted.ok) throw new Error(persisted.error.code);
   },
 });
 
@@ -181,7 +182,7 @@ export async function clearApiKey(): Promise<void> {
 }
 
 export async function startPkce(accountId: string, mode: 'loopback' | 'oob') {
-  const view = mode === 'oob' ? flow.startOutOfBand() : await flow.startLoopback();
+  const view = mode === 'oob' ? flow.startOutOfBand(accountId) : await flow.startLoopback(accountId);
   attemptOwners.set(view.id, { accountId });
   return view;
 }

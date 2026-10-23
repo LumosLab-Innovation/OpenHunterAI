@@ -235,9 +235,11 @@ export function OrcaRouterProviderPanel() {
 
   async function onSubmitCode() {
     if (!attempt) return;
+    const myGeneration = generation.current;
     setOauthBusy(true);
     setOauthError(null);
     const res = await submitPkceCode(attempt.id, pastedCode);
+    if (generation.current !== myGeneration) return;
     setOauthBusy(false);
     if (!res.ok) {
       setOauthError(res.error.message ?? 'That code could not be redeemed.');
@@ -255,13 +257,23 @@ export function OrcaRouterProviderPanel() {
 
   async function onCancelLogin() {
     const id = attempt?.id;
-    generation.current += 1;
+    const myGeneration = ++generation.current;
+    if (id) {
+      const res = await cancelPkce(id);
+      if (generation.current !== myGeneration) return;
+      if (!res.ok) {
+        setOauthBusy(false);
+        setOauthError('Sign-in could not be cancelled. Check the connection status.');
+        setAttempt(current => current ? { ...current } : current);
+        void loadStatus();
+        return;
+      }
+    }
     attemptIdRef.current = null;
     setAttempt(null);
     setOauthBusy(false);
     setOauthHint(null);
     setOauthError(null);
-    if (id) await cancelPkce(id);
   }
 
   async function onRefreshCatalog() {

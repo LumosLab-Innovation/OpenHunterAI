@@ -273,6 +273,101 @@ describe('Flow B out-of-band', () => {
   });
 });
 
+describe('cancellation while exchanging a code', () => {
+  it.each([200, 403])('keeps Cancel terminal when a late exchange returns HTTP %s', async status => {
+    let release!: (response: Response) => void;
+    const response = new Promise<Response>(resolve => { release = resolve; });
+    const onCredential = vi.fn();
+    const flow = new OrcaRouterPkceFlow({
+      authBaseUrl: AUTH_BASE,
+      fetchImpl: vi.fn(() => response) as unknown as typeof fetch,
+      onCredential,
+    });
+    const view = flow.startOutOfBand();
+    const completion = flow.submitCode(view.id, FAKE_CODE);
+    expect(flow.cancel(view.id)).toBe(true);
+    release(new Response(JSON.stringify({ key: FAKE_KEY, scope: 'api' }), { status }));
+    expect((await completion).status).toBe('cancelled');
+    expect(onCredential).not.toHaveBeenCalled();
+    expect(view.maskedKey).toBeUndefined();
+  });
+
+  it('does not exchange a code submitted after Cancel', async () => {
+    const fetchImpl = okExchange();
+    const flow = new OrcaRouterPkceFlow({ authBaseUrl: AUTH_BASE, fetchImpl: fetchImpl as unknown as typeof fetch, onCredential: vi.fn() });
+    const view = flow.startOutOfBand();
+    flow.cancel(view.id);
+    expect((await flow.submitCode(view.id, FAKE_CODE)).status).toBe('cancelled');
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it('keeps expiry terminal when the exchange returns late', async () => {
+    vi.useFakeTimers();
+    try {
+      let release!: (response: Response) => void;
+      const response = new Promise<Response>(resolve => { release = resolve; });
+      const onCredential = vi.fn();
+      const flow = new OrcaRouterPkceFlow({ authBaseUrl: AUTH_BASE, fetchImpl: vi.fn(() => response) as unknown as typeof fetch, onCredential });
+      const view = flow.startOutOfBand();
+      const completion = flow.submitCode(view.id, FAKE_CODE);
+      await vi.advanceTimersByTimeAsync(10 * 60 * 1000 + 1);
+      release(new Response(JSON.stringify({ key: FAKE_KEY, scope: 'api' })));
+      expect((await completion).status).toBe('expired');
+      expect(onCredential).not.toHaveBeenCalled();
+    } finally { vi.useRealTimers(); }
+  });
+
+  it('does not let an old exchange overwrite a newer sign-in', async () => {
+    let release!: (response: Response) => void;
+    const response = new Promise<Response>(resolve => { release = resolve; });
+    const fetchImpl = okExchange().mockImplementationOnce(() => response);
+    const onCredential = vi.fn();
+    const flow = new OrcaRouterPkceFlow({ authBaseUrl: AUTH_BASE, fetchImpl: fetchImpl as unknown as typeof fetch, onCredential });
+    const old = flow.startOutOfBand();
+    const completion = flow.submitCode(old.id, FAKE_CODE);
+    const current = flow.startOutOfBand();
+    expect((await flow.submitCode(current.id, FAKE_CODE)).status).toBe('complete');
+    release(new Response(JSON.stringify({ key: FAKE_KEY, scope: 'api' })));
+    expect((await completion).status).toBe('cancelled');
+    expect(onCredential).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not acknowledge Cancel once credential persistence has begun', async () => {
+    let saved!: () => void;
+    const persistence = new Promise<void>(resolve => { saved = resolve; });
+    const onCredential = vi.fn(() => persistence);
+    const flow = new OrcaRouterPkceFlow({ authBaseUrl: AUTH_BASE, fetchImpl: okExchange() as unknown as typeof fetch, onCredential });
+    const view = flow.startOutOfBand();
+    const completion = flow.submitCode(view.id, FAKE_CODE);
+    await vi.waitFor(() => expect(onCredential).toHaveBeenCalledOnce());
+    expect(flow.cancel(view.id)).toBe(false);
+    saved();
+    expect((await completion).status).toBe('complete');
+    expect(flow.cancel(view.id)).toBe(false);
+  });
+
+  it('reports a persistence failure instead of a completed login', async () => {
+    const flow = new OrcaRouterPkceFlow({ authBaseUrl: AUTH_BASE, fetchImpl: okExchange() as unknown as typeof fetch, onCredential: async () => { throw new Error(FAKE_KEY); } });
+    const view = flow.startOutOfBand();
+    const result = await flow.submitCode(view.id, FAKE_CODE);
+    expect(result.status).toBe('error');
+    expect(result.error?.code).toBe('STORE_IO');
+    expect(JSON.stringify(result)).not.toContain(FAKE_KEY);
+  });
+
+  it.each(['loopback', 'oob'])('passes the initiating account through the %s flow', async mode => {
+    const flow = new OrcaRouterPkceFlow({ authBaseUrl: AUTH_BASE, onCredential: vi.fn() });
+    const accountId = 'openhunter_local_operator';
+    const view = mode === 'loopback' ? await flow.startLoopback(accountId) : flow.startOutOfBand(accountId);
+    try {
+      expect(flow.getForAccount(view.id, accountId)).toBe(view);
+      expect(flow.cancelForAccount(view.id, 'someone-else')).toBe(false);
+      expect(flow.cancelForAccount(view.id, accountId)).toBe(true);
+      expect(view.status).toBe('cancelled');
+    } finally { flow.cancel(view.id); }
+  });
+});
+
 describe('adapter parity through the connect seam', () => {
   it('yields the same credential result from API-key and PKCE adapters', () => {
     const api = apiKeyCredential(FAKE_KEY);

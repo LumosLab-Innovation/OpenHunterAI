@@ -45,6 +45,7 @@ interface PkceAttemptInternal {
   timer: NodeJS.Timeout;
   server?: http.Server;
   settled: boolean;
+  committing?: boolean;
 }
 
 export interface PkceFlowOptions {
@@ -209,9 +210,8 @@ export class OrcaRouterPkceFlow {
   }
 
   /** Start Flow A: bind loopback first, then return the authorize URL. */
-  async startLoopback(): Promise<PkceAttemptView> {
+  async startLoopback(accountId = this.opts.accountId ?? 'local'): Promise<PkceAttemptView> {
     const { verifier, challenge, state } = createPkceSecrets();
-    const accountId = this.opts.accountId ?? 'local';
     const generation = (this.generations.get(accountId) ?? 0) + 1;
     this.generations.set(accountId, generation);
     const id = this.opts.idFactory?.() ?? randomBytes(12).toString('base64url');
@@ -261,9 +261,8 @@ export class OrcaRouterPkceFlow {
   }
 
   /** Start Flow B: no listener; the consent screen displays a code. */
-  startOutOfBand(): PkceAttemptView {
+  startOutOfBand(accountId = this.opts.accountId ?? 'local'): PkceAttemptView {
     const { verifier, challenge, state } = createPkceSecrets();
-    const accountId = this.opts.accountId ?? 'local';
     const generation = (this.generations.get(accountId) ?? 0) + 1;
     this.generations.set(accountId, generation);
     const id = this.opts.idFactory?.() ?? randomBytes(12).toString('base64url');
@@ -340,7 +339,8 @@ export class OrcaRouterPkceFlow {
   }
 
   cancel(id: string): boolean {
-    if (!this.attempts.has(id)) return false;
+    const attempt = this.attempts.get(id);
+    if (!attempt || attempt.view.status !== 'pending' || attempt.committing) return false;
     this.finish(id, 'cancelled', {
       code: 'PKCE_CODE_INVALID',
       message: 'OrcaRouter sign-in was cancelled.',
@@ -411,6 +411,11 @@ export class OrcaRouterPkceFlow {
       fetchImpl: this.opts.fetchImpl,
       requestedScope: PKCE_SCOPE,
     });
+    if (attempt.view.status !== 'pending') return;
+    if (this.generations.get(attempt.accountId) !== attempt.generation) {
+      this.cancel(attempt.view.id);
+      return;
+    }
     if (!exchanged.ok) {
       this.finish(attempt.view.id, 'error', { code: exchanged.code, message: exchanged.message });
       return;
@@ -425,7 +430,15 @@ export class OrcaRouterPkceFlow {
       this.finish(attempt.view.id, 'error', credential.error);
       return;
     }
-    await this.opts.onCredential(credential);
+    // Once saving starts, Cancel must not claim that the credential was discarded.
+    attempt.committing = true;
+    clearTimeout(attempt.timer);
+    try {
+      await this.opts.onCredential(credential);
+    } catch {
+      this.finish(attempt.view.id, 'error', { code: 'STORE_IO', message: 'Could not save the OrcaRouter credential. Try connecting again.' });
+      return;
+    }
     // Verifier is discarded with the attempt on the terminal path.
     this.finish(attempt.view.id, 'complete', undefined, credential.maskedKey);
   }
@@ -437,8 +450,9 @@ export class OrcaRouterPkceFlow {
     maskedKey?: string,
   ): void {
     const attempt = this.attempts.get(id);
-    if (!attempt) return;
+    if (!attempt || attempt.view.status !== 'pending') return;
     clearTimeout(attempt.timer);
+    attempt.settled = true;
     attempt.view.status = status;
     if (error) attempt.view.error = error;
     if (maskedKey) attempt.view.maskedKey = maskedKey;
