@@ -3,6 +3,7 @@ import type { Server } from 'node:http';
 import httpProxy from 'http-proxy';
 import { GuardrailError } from '@x-hunter/shared';
 import { readSessionFromCookieHeaderAsync } from '../../middlewares/auth.middleware.js';
+import { isLocalWorkspaceRequest, localWorkspaceUser, workspaceMode } from '../workspace/local-workspace.js';
 import { browserSessionRuntimeBaseUrl, LoginSessionsService } from './login-sessions.service.js';
 
 const proxy = httpProxy.createProxyServer({ changeOrigin: true, ws: true });
@@ -31,7 +32,9 @@ export function attachLoginSessionStreamProxy(server: Server) {
 
     void (async () => {
       try {
-        const user = await readSessionFromCookieHeaderAsync(req.headers.cookie);
+        const local = workspaceMode() === 'local';
+        if (local && !isLocalWorkspaceRequest(req)) { socket.destroy(); return; }
+        const user = local ? await localWorkspaceUser() : await readSessionFromCookieHeaderAsync(req.headers.cookie);
         const baseUrl = browserSessionRuntimeBaseUrl();
         if (!user || !baseUrl) {
           socket.destroy();

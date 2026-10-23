@@ -16,6 +16,7 @@ import { scanRoutes } from './modules/scans/scans.routes.js';
 import { approvalRoutes } from './modules/approvals/approvals.routes.js';
 import { testAccountRoutes } from './modules/test-accounts/test-accounts.routes.js';
 import { llmRoutes } from './modules/llm/llm-routes.routes.js';
+import { orcaRouterRoutes } from './modules/providers/orcarouter.routes.js';
 
 export function createApp() {
   const app = express();
@@ -45,6 +46,7 @@ export function createApp() {
   app.use('/v1/projects', authorizationRoutes);
   app.use('/v1', scanRoutes);
   app.use('/v1', llmRoutes);
+  app.use('/v1/providers/orcarouter', orcaRouterRoutes);
   app.use('/v1', findingRoutes);
   app.use('/v1', approvalRoutes);
   app.use('/v1/reports', reportRoutes);

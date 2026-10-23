@@ -14,3 +14,6 @@ _worktrees
 output
 .playwright-cli
 output-playwright-*.png
+.env.local
+.env.local.*
+**/.env

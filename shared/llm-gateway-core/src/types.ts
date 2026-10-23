@@ -11,7 +11,7 @@ import type { LlmUseCase, ScanProfile } from '@x-hunter/shared';
 
 export type LLMUseCase = LlmUseCase;
 
-export type ProviderName = 'openai' | 'claude' | 'deepseek';
+export type ProviderName = 'openai' | 'claude' | 'deepseek' | 'orcarouter';
 
 export interface LLMRequest {
   useCase: LLMUseCase;

@@ -1,53 +1,21 @@
-# Domain Docs
+# Domain navigation for coding agents
 
-How the engineering skills should consume this repo's domain documentation when exploring the codebase.
+Use the actual monorepo references, in the order required by
+[AGENTS.md](../../AGENTS.md). There is currently no root `CONTEXT.md` or
+`CONTEXT-MAP.md`; do not invent their glossary or example ADRs.
 
-This repo is **single-context**: one `CONTEXT.md` + `docs/adr/` at the repo root serve the whole OpenHunterAI product, even though it is a monorepo (frontend, gateway, backend, workers, integrations, shared).
+| Question | Read |
+| --- | --- |
+| Product vocabulary and limits | [PRD](../PRD.md), [security guardrails](../SECURITY_GUARDRAILS.md) |
+| Service and data ownership | [Architecture](../ARCHITECTURE.md) |
+| Worker names and profiles | [Worker specification](../WORKER_SPEC.md) |
+| Local operation | [Local workspace](../LOCAL_WORKSPACE.md) |
+| Model routing | [LLM specification](../LLM_PROVIDER_SPEC.md) |
+| Historical decisions | [ADRs](../adr/), checking each status before use |
 
-## Before exploring, read these
+Use canonical terms such as scan mode, target type, auth scope, intensity, signal,
+candidate, finding, coverage gap, and manual retest. A plan is not a runtime result;
+a signal is not automatically a finding.
 
-- **`CONTEXT.md`** at the repo root, or
-- **`CONTEXT-MAP.md`** at the repo root if it exists — it points at one `CONTEXT.md` per context. Read each one relevant to the topic.
-- **`docs/adr/`** — read ADRs that touch the area you're about to work in. In multi-context repos, also check `src/<context>/docs/adr/` for context-scoped decisions.
-
-If any of these files don't exist, **proceed silently**. Don't flag their absence; don't suggest creating them upfront. The producer skill (`/grill-with-docs`) creates them lazily when terms or decisions actually get resolved.
-
-## File structure
-
-Single-context repo (this repo):
-
-```
-/
-├── CONTEXT.md
-├── docs/adr/
-│   ├── 0001-event-sourced-orders.md
-│   └── 0002-postgres-for-write-model.md
-└── src/
-```
-
-Multi-context repo (presence of `CONTEXT-MAP.md` at the root):
-
-```
-/
-├── CONTEXT-MAP.md
-├── docs/adr/                          ← system-wide decisions
-└── src/
-    ├── ordering/
-    │   ├── CONTEXT.md
-    │   └── docs/adr/                  ← context-specific decisions
-    └── billing/
-        ├── CONTEXT.md
-        └── docs/adr/
-```
-
-## Use the glossary's vocabulary
-
-When your output names a domain concept (in an issue title, a refactor proposal, a hypothesis, a test name), use the term as defined in `CONTEXT.md`. Don't drift to synonyms the glossary explicitly avoids.
-
-If the concept you need isn't in the glossary yet, that's a signal — either you're inventing language the project doesn't use (reconsider) or there's a real gap (note it for `/grill-with-docs`).
-
-## Flag ADR conflicts
-
-If your output contradicts an existing ADR, surface it explicitly rather than silently overriding:
-
-> _Contradicts ADR-0007 (event-sourced orders) — but worth reopening because…_
+Surface contradictions with a current policy explicitly. Historical proposals
+do not override current guardrails or authorize implementation/deployment.

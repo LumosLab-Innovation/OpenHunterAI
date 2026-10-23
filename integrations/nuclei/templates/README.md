@@ -1,10 +1,18 @@
-# OpenHunterAI Nuclei Templates
+# Nuclei template policy
 
-This directory is the only template bundle that may be copied into the Nuclei runtime image.
+**This directory currently contains no reviewed detection templates.**
+It is a packaging location, not an installed safe-template bundle.
 
-V1 policy:
-- Add only reviewed internal templates.
-- Keep intrusive, destructive, brute-force, credential attack, malware, evasion, and DoS templates out.
-- Do not download or auto-update community templates at runtime.
+Before enabling Nuclei scans:
 
-The Nuclei adapter must report `TOOL_UNAVAILABLE` until a reviewed template bundle and execution policy are wired.
+- Add only reviewed, explicitly allowlisted templates for supported scope/intensity.
+- Exclude destructive, intrusive, brute-force, credential-attack, malware,
+  evasion, and denial-of-service checks.
+- Prevent runtime community-template download/update.
+- Wire the adapter to the actual template path and fail explicitly on an
+  empty/missing bundle or tool execution error.
+- Test both matching and nonmatching controlled fixtures.
+
+Current configuration/failure-handling gaps are documented in
+[integration runtimes](../../../infra/INTEGRATIONS.md#nuclei-blocker).
+Do not treat binary availability or empty output as successful coverage.

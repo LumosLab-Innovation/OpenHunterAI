@@ -20,6 +20,7 @@ const (
 	SubjectWorkerNuclei   = "worker.nuclei.run"
 	SubjectWorkerOpenHack = "worker.openhack.run"
 	SubjectWorkerStrix    = "worker.strix.run"
+	SubjectWorkerRecon    = "worker.recon.run"
 
 	// Fan-in subject: a worker publishes this when its run is complete.
 	SubjectWorkerCompleted = "worker.completed"
