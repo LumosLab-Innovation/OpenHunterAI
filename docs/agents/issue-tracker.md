@@ -1,22 +1,22 @@
-# Issue tracker
+# Issue tracker: GitHub
 
-The only repository in scope is
-[LumosLab-Innovation/OpenHunterAI](https://github.com/LumosLab-Innovation/OpenHunterAI).
-Verify the current Git remote before operating; use explicit `--repo` when unsure.
+Issues and PRDs for this repo live as GitHub issues in `LumosLab-Innovation/OpenHunterAI`. Use the `gh` CLI for all operations.
 
-| Read-only action | Command |
-| --- | --- |
-| Read issue and comments | `gh issue view <number> --repo LumosLab-Innovation/OpenHunterAI --comments` |
-| List open issues | `gh issue list --repo LumosLab-Innovation/OpenHunterAI --state open --json number,title,labels` |
-| Inspect available labels | `gh label list --repo LumosLab-Innovation/OpenHunterAI` |
+## Conventions
 
-Create/comment/edit/close issues only when the user's task authorizes that write.
-“Review”, “diagnose”, and “fetch the ticket” do not authorize publication.
+- **Create an issue**: `gh issue create --title "..." --body "..."`. Use a heredoc for multi-line bodies.
+- **Read an issue**: `gh issue view <number> --comments`, filtering comments by `jq` and also fetching labels.
+- **List issues**: `gh issue list --state open --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'` with appropriate `--label` and `--state` filters.
+- **Comment on an issue**: `gh issue comment <number> --body "..."`
+- **Apply / remove labels**: `gh issue edit <number> --add-label "..."` / `--remove-label "..."`
+- **Close**: `gh issue close <number> --comment "..."`
 
-When publication is requested, use `gh issue create --repo LumosLab-Innovation/OpenHunterAI
---title "..." --body-file <prepared-markdown-file>`. A body file avoids shell-specific
-heredoc/quoting problems on Windows.
+Infer the repo from `git remote -v` — `gh` does this automatically when run inside a clone.
 
-Remove credentials, raw target traffic, and sensitive evidence before posting.
-Use [private disclosure](../../SECURITY.md) for vulnerabilities and
-[triage labels](triage-labels.md) for issue status.
+## When a skill says "publish to the issue tracker"
+
+Create a GitHub issue.
+
+## When a skill says "fetch the relevant ticket"
+
+Run `gh issue view <number> --comments`.

@@ -1,177 +1,141 @@
-<p align="center">
-  <img src="frontend/public/logo.png" width="88" alt="OpenHunterAI">
-</p>
+# OpenHunterAI
 
-<h1 align="center">OpenHunterAI</h1>
+**Authorized pentest research, controlled testing and evidence for web, API and AI applications.**
 
-<p align="center">
-  <strong>Your local AI red team.</strong><br>
-  Attacker-style reasoning for web, API, and LLM application security.
-</p>
+One self-hosted engine, one compact workspace, one `scan_request_v2` → `report_v2`
+pipeline. Enter the public HTTPS target you may test, review the exact scope and
+available workers, inspect evidence, then export the assessment for OpenShieldAI.
 
-<p align="center">
-  <a href="https://github.com/LumosLab-Innovation/OpenHunterAI/actions/workflows/ci.yml"><img src="https://github.com/LumosLab-Innovation/OpenHunterAI/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://github.com/LumosLab-Innovation/OpenHunterAI/releases"><img src="https://img.shields.io/github/v/release/LumosLab-Innovation/OpenHunterAI?include_prereleases&label=preview" alt="Preview release"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-PolyForm%20Noncommercial-64748b" alt="PolyForm Noncommercial license"></a>
-  <a href="https://github.com/LumosLab-Innovation/OpenHunterAI/stargazers"><img src="https://img.shields.io/github/stars/LumosLab-Innovation/OpenHunterAI?style=flat" alt="GitHub stars"></a>
-</p>
+[Project landing](https://lumoslab-innovation.github.io/OpenHunterAI/) ·
+[Documentation](docs/) · [Pentest methods](docs/research/PENTEST_METHODS_2026.md) ·
+[Security policy](SECURITY.md) · [Contributing](CONTRIBUTING.md)
 
-<p align="center">
-  <a href="https://lumoslab-innovation.github.io/OpenHunterAI/">Project website</a> ·
-  <a href="#quick-start">Quick start</a> ·
-  <a href="#coding-agent-skill">Agent skill</a> ·
-  <a href="#assessment-model">Assessment model</a> ·
-  <a href="#architecture">Architecture</a> ·
-  <a href="docs/README.md">Docs</a> ·
-  <a href="#star-history">Star history</a>
-</p>
+## Responsibilities
 
-OpenHunterAI brings scope, scan activity, findings, and remediation into one
-local workspace. Start without an account, connect your model providers, and
-assess **verified public applications you own or are authorized to test**.
-
-The [public landing](https://lumoslab-innovation.github.io/OpenHunterAI/)
-introduces the project; the operational workspace runs locally.
-See [public versus local builds](docs/PUBLIC_SITE.md).
-
-| Capability | What you get |
+| Product | Owns |
 | --- | --- |
-| Local workspace | No signup; projects and scan records in your local database |
-| Explicit scope | Domain verification, deterministic plans, human approval gates |
-| Multiple signal sources | Browser inspection, recon, ZAP, and a Nuclei adapter |
-| AI-assisted investigation | OpenHack/Strix adapter boundaries; bring your own runtimes |
-| Evidence & remediation | Sanitized findings, coverage gaps, fix guidance, manual retest |
-| Portable workflow | A skill for Codex, Claude Code, Gemini CLI, Grok Build, and OMP |
+| **OpenHunterAI** | Authorized assessment, attack-method research, bounded hypotheses/tests, sanitized evidence, independent finding validation and finding-scoped manual retest. |
+| **[OpenShieldAI](https://github.com/LumosLab-Innovation/OpenShieldAI)** | Situation investigation, incident timeline, response/remediation proposals, controlled containment and recovery. |
 
-> **Alpha.** Integration coverage depends on configured runtimes. A healthy
-> workspace or an empty report does not prove a target is secure.
+OpenHunter exports assessment facts and verification criteria. OpenShield maps
+those facts to an enrolled asset and controls its own response workflow. A report
+carries no credentials or action authority. The current collaboration boundary
+is a manually transferred file; OpenShield's importer is not implemented.
+See [the collaboration contract](docs/OPENSHIELD_COLLABORATION.md).
 
-## Assessment model
+The public website introduces the project. The operational workspace runs
+locally; its dashboard and API are separate from the [static landing](docs/PUBLIC_SITE.md).
 
-OpenHunterAI keeps the useful core of the
-[48bf9036 technical requirements](https://github.com/LumosLab-Innovation/OpenHunterAI/blob/48bf9036debf797cef3d24308c3cfa1ec2a20c15/README.md):
-assess externally observable behaviour from an attacker's perspective. Source
-code is not required. Every run stays constrained to a verified public target
-and an approved scope.
+## One-page workflow
 
-```mermaid
-flowchart LR
-  S["1. Lock scope"] --> M["2. Map surface"]
-  M --> B["3. Establish baseline"]
-  B --> H["4. Test bounded hypotheses"]
-  H --> E["5. Gate evidence"]
-  E --> R["6. Report and retest"]
-```
+1. **Target and scope** — public HTTPS URL, path/host scope, Quick / Standard /
+   Deep, explicit testing authority and required risk acceptance.
+2. **Run and evidence** — worker state, coverage gaps, separate candidates and
+   validated findings, sensitive-action approvals and manual retest.
+3. **Report** — immutable assessment, sanitized evidence references, fix guidance,
+   limitations and a downloadable JSON handoff. Configuration and test-account
+   access stay inside collapsed sections on the same page.
 
-| Stage | Output | Control |
-| --- | --- | --- |
-| Scope lock | Verified host, approved paths, scan plan | Authorization before work begins |
-| Surface mapping | Browser and recon signals | Public, in-scope surface only |
-| Baseline | Normal responses and coverage context | Bounded workers and adapter policies |
-| Hypothesis testing | Candidate security signals | No destructive actions; sensitive validation needs approval |
-| Evidence gate | Sanitized, reproducible finding | Separate observed signals from analyst judgement |
-| Report and retest | Fix guidance, limitations, manual confirmation | A human owns impact decisions and closure |
+Standard is the default. Profiles control resource and safety limits; there are
+no paid tiers, finding caps, retest quotas or cooldowns. Missing workers and
+budget exhaustion remain visible coverage gaps. Deep does not expand scope.
 
-OpenAPI/Swagger descriptions, Postman examples, sanitized HTTP captures, and
-dedicated test accounts can help define the agreed test surface. Automated
-import or retention of raw sensitive traffic is not a promised capability.
+## Start locally
 
-## Quick start
+Requires Node.js 22+, Docker Engine/Desktop with Compose v2, and Git.
 
-Requires **Git, Node.js 22+, and Docker with Compose v2**.
-
-```bash
+```sh
 git clone https://github.com/LumosLab-Innovation/OpenHunterAI.git
 cd OpenHunterAI
 node ops/local.mjs start
 ```
 
-Open **[localhost:3001](http://localhost:3001)**. First startup builds the images,
-applies database migrations, and creates a private `.env.local` with generated secrets.
+Open `http://localhost:3001`. The local API and UI are published on loopback;
+local workspace access needs no account. Target authorization is still required.
 
-1. Set provider keys and model IDs in `.env.local`; run `node ops/local.mjs restart`.
-2. Create a project and verify its public domain.
-3. Authorize the scope, start a scan, and review its activity and coverage.
+**Existing installations:** the self-host v2 schema migration removes commercial
+tables. Verify a restorable database backup before applying migrations or
+starting the updated stack against an existing database. This task does not
+establish that backup/restore gate.
 
-| Command | Purpose |
-| --- | --- |
-| `node ops/local.mjs status` | Inspect services |
-| `node ops/local.mjs logs public-api` | Diagnose API errors |
-| `node ops/local.mjs stop` | Stop; keep database volumes |
+Optional CLI:
 
-**Included:** browser inspection, ZAP, recon, and the Nuclei adapter.
-**Bring separately:** OpenHack and Strix runtimes.
-Optional interactive **target-login** capture: `node ops/local.mjs start --with-browser`.
-
-Before scanning, resolve the [Nuclei template-policy blocker](docs/PUBLIC_RELEASE_READINESS.md#open-gaps).
-The adapter is packaged, but a reviewed template bundle is not yet supplied.
-
-Local means the workspace runs on your machine, **not** permission to scan
-localhost/private networks. Keep its ports on loopback.
-[Setup, model configuration, and troubleshooting →](docs/LOCAL_WORKSPACE.md)
-
-## Coding-agent skill
-
-Run in the application repository you want your agent to assess:
-
-```bash
-npx --yes skills add LumosLab-Innovation/OpenHunterAI --skill openhunter --agent codex claude-code gemini-cli grok --yes
+```sh
+npm install -g ./tools/cli
+openhunterai scan --host https://your-authorized.example/app --profile standard --authorized
 ```
 
-Reload your coding agent, then ask:
+Runtime setup: [local workspace](docs/LOCAL_WORKSPACE.md),
+[CLI](tools/cli/README.md), [local E2E runbook](docs/LOCAL_E2E_RUNBOOK.md).
+Provider keys belong in ignored local configuration. Codex CLI can be used by
+the bounded host bridge; other CLI/provider routes remain explicit options.
+A configured or logged-in model is not proof that an assessment ran.
 
-> Use OpenHunter to check my workspace and prepare a scoped security assessment.
-> Wait for my approval before starting a scan.
+## Where AI belongs
 
-OMP discovers the shared `.agents/skills` installation through its Agents
-provider. The skill includes a read-only API helper; installation does not start
-a scan. [Client compatibility →](docs/LOCAL_WORKSPACE.md#coding-agent-skill)
-
-## Architecture
-
-```mermaid
-flowchart LR
-  UI["Local workspace<br/>React + Vite"] --> API["Public API<br/>Scope + scan plan"]
-  API --> BUS["NATS<br/>Orchestrator + workers"]
-  BUS --> EVIDENCE["Internal API<br/>Findings + reporting"]
-  EVIDENCE --> DB[("Postgres")]
-  API <--> DB
-  API -->|"Activity + reports"| UI
+```text
+Deterministic discovery and sanitized surface metadata
+  → LLM ranks surfaces and proposes hypotheses / validation plans
+  → scope, approval, tool and resource gates
+  → reviewed executor and independent validator with matched controls
+  → LLM explains verified facts
+  → report_v2 and manual OpenShield handoff
 ```
 
-The public API builds the plan; Go workers execute it through bounded adapters.
-Signals pass through the findings policy before entering reports. Reporting is
-a backend service, not a separate scan worker.
+The existing twelve gateway use cases cover summarization, ranking, hypotheses,
+access/API/AI reasoning, validation planning, reports and retest guidance.
+Models cannot grant scope, execute an unapproved action or create evidence.
+A model's agreement is not an independent vulnerability verdict.
 
-[Runtime & data flow](docs/ARCHITECTURE.md) ·
-[Worker mapping](docs/WORKER_SPEC.md) ·
-[Integration setup](infra/INTEGRATIONS.md)
+## Methods and current evidence
 
-## Documentation
+The [method catalog](shared/security-core/src/pentest-methods.ts) and
+[source-linked research](docs/research/PENTEST_METHODS_2026.md) cover property /
+resolver authorization, OAuth/OIDC lifecycle, indirect injection into tool
+boundaries, RAG tenant isolation, MCP delegated identity, ORM/filter disclosure,
+cache boundaries, workflow concurrency and HTTP parser discrepancies.
 
-| Start here | Go deeper |
+| Area | Current boundary |
 | --- | --- |
-| [Local setup](docs/LOCAL_WORKSPACE.md) | [Architecture & data model](docs/ARCHITECTURE.md) |
-| [Product overview](docs/ONE-PAGE.md) | [Product requirements](docs/PRD.md) |
-| [Agent workflow](skills/openhunter/references/workflow.md) | [LLM routing](docs/LLM_PROVIDER_SPEC.md) |
-| [Security guardrails](docs/SECURITY_GUARDRAILS.md) | [Acceptance & release gates](docs/ACCEPTANCE_CRITERIA.md) |
+| Public target/scope policy and deterministic plan | Implemented controls; verify the selected deployment and worker readiness. |
+| Browser, passive surface, ZAP and curated Nuclei | Runtime/configuration dependent; unavailable or failed tools produce gaps. |
+| Coding CLI / Strix reasoning | Route and runtime dependent; reasoning does not demonstrate exploit execution. |
+| New method catalog | Research only: nine methods have no accepted executor. Cache/race/desync research is lab-only. |
+| Validated findings and retest | Metadata-only worker claims stay unvalidated. Independent replay and positive/negative efficacy benchmarks remain release gates. Unsupported retest must remain unsupported. |
+| OpenShield handoff | Sanitized finalized JSON snapshot plus digest; no live Shield connector or authority transfer. |
+| Country/security-framework harness | Offline evidence/benchmark research; not a SOC dashboard or compliance certification. |
 
-[All documentation](docs/README.md) ·
-[Known limitations](docs/PUBLIC_RELEASE_READINESS.md#open-gaps) ·
-[Historical technical specification](docs/archive/technical-spec-433ecf7.md)
+Zero validated findings does not establish a secure target. Read executed versus
+planned coverage, skipped checks, limitations and the next verification step.
 
-## Community & license
+## Reports for collaboration
 
-[Report a bug](https://github.com/LumosLab-Innovation/OpenHunterAI/issues/new/choose),
-suggest an improvement, or help clarify the docs.
-Read [contribution rules](CONTRIBUTING.md) first; disclose vulnerabilities
-[privately](SECURITY.md), without credentials or raw target data.
+The canonical report retains scope, scan/profile/account context, findings and
+validation basis, sanitized proof references, impact, developer fix guidance,
+manual retest criteria and coverage. Handoff metadata adds producer provenance,
+known/unknown evidence lineage and an explicit manual asset-mapping boundary.
+
+The JSON export hashes the immutable snapshot; mutable status overlays stay
+separate. Its digest detects changed bytes, not authenticity or exploitability.
+Imported text is untrusted data, never an instruction to execute a tool.
+
+## Research and development
+
+- [Core questions, current evidence and the next proof](docs/CORE_QUESTIONS.md)
+- [Pentest methods and AI responsibilities](docs/research/PENTEST_METHODS_2026.md)
+- [OpenHunter / OpenShield collaboration](docs/OPENSHIELD_COLLABORATION.md)
+- [Product requirements](docs/PRD.md) and [architecture](docs/ARCHITECTURE.md)
+- [Safety boundaries](docs/SECURITY_GUARDRAILS.md) and [acceptance gates](docs/ACCEPTANCE_CRITERIA.md)
+- [Worker contract](docs/WORKER_SPEC.md) and [LLM gateway](docs/LLM_PROVIDER_SPEC.md)
+- [Offline country/framework harness](tools/country-security-harness/README.md)
+- [Optional REA artifact analysis](docs/REA_INTEGRATION.md)
+- [Upstream provenance and licenses](docs/UPSTREAM_SOURCES.md)
 
 Source-available under [PolyForm Noncommercial 1.0.0](LICENSE).
-Commercial licensing: [LICENSING.md](LICENSING.md).
-[Upstream tools and attribution](docs/UPSTREAM_SOURCES.md) retain their own notices.
+[Commercial licensing](LICENSING.md). Disclose vulnerabilities
+[privately](SECURITY.md), without target data or credentials.
 
-## Star history
+## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=LumosLab-Innovation/OpenHunterAI&type=Date)](https://www.star-history.com/#LumosLab-Innovation/OpenHunterAI&Date)
 

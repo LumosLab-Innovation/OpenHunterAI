@@ -1,5 +1,11 @@
-import { describe, expect, it } from 'vitest';
-import { buildRetestRequestedPayload } from './findings.service.js';
+import { describe, expect, it, vi } from 'vitest';
+import { buildRetestRequestedPayload, FindingsService } from './findings.service.js';
+
+const prisma = vi.hoisted(() => ({
+  finding: { findFirst: vi.fn() },
+  retestRun: { create: vi.fn() },
+}));
+vi.mock('@x-hunter/db', () => ({ getPrisma: () => prisma }));
 
 describe('buildRetestRequestedPayload', () => {
   it('includes the complete scoped retest payload required by the retest worker', () => {
@@ -11,7 +17,8 @@ describe('buildRetestRequestedPayload', () => {
         id: 'scan_1',
         projectId: 'proj_1',
         scopeSnapshot: {
-          scanMode: 'free_hunter',
+          profile: 'quick',
+          targetUrl: 'https://example.com/app',
           targetType: 'static_content_website',
           authScope: 'none',
           testIntensityMode: 'safe_discovery',
@@ -30,7 +37,8 @@ describe('buildRetestRequestedPayload', () => {
       findingId: 'finding_1',
       scanId: 'scan_1',
       projectId: 'proj_1',
-      scanMode: 'free_hunter',
+      profile: 'quick',
+      targetUrl: 'https://example.com/app',
       targetType: 'static_content_website',
       authScope: 'none',
       testIntensityMode: 'safe_discovery',
@@ -41,5 +49,16 @@ describe('buildRetestRequestedPayload', () => {
       excludedPaths: ['/app/admin'],
       retestScenario: { title: 'Retest finding', steps: ['Load /app'] },
     });
+  });
+});
+
+describe('requestRetest before independent replay exists', () => {
+  it('returns RETEST_UNSUPPORTED repeatedly without creating a fake retest or enforcing a quota', async () => {
+    prisma.finding.findFirst.mockResolvedValue({ retestScenario: { steps: ['replay'] } });
+    const service = new FindingsService();
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      await expect(service.requestRetest('finding_1', 'org_1')).rejects.toMatchObject({ code: 'RETEST_UNSUPPORTED' });
+    }
+    expect(prisma.retestRun.create).not.toHaveBeenCalled();
   });
 });

@@ -1,12 +1,11 @@
 import { getPrisma } from '@x-hunter/db';
-import { sanitizeReportContent, sanitizeText } from '@x-hunter/shared';
+import { intensityToProfile, sanitizeReportContent, sanitizeText } from '@x-hunter/shared';
 
-type WorkerCode = 'Browser' | 'Z' | 'N' | 'O' | 'S' | 'R' | 'RPT';
+type WorkerCode = 'Browser' | 'Z' | 'N' | 'O' | 'S' | 'RPT';
 
 interface LiveScanInput {
   id: string;
   projectId: string;
-  mode: string;
   targetType: string;
   authScope: string;
   testIntensityMode: string;
@@ -108,7 +107,7 @@ export interface LiveScanSnapshot {
   scan: {
     id: string;
     projectId: string;
-    mode: string;
+    profile: string;
     targetType: string;
     authScope: string;
     testIntensityMode: string;
@@ -119,6 +118,19 @@ export interface LiveScanSnapshot {
     startedAt: string | null;
     finishedAt: string | null;
     errorMessage: string | null;
+  };
+  llmRoutes?: {
+    capturedAt: string;
+    routes: Array<{
+      useCase: string;
+      slot: 'primary' | 'fallback';
+      transport: string;
+      cli?: string;
+      provider?: string;
+      model: string;
+      reasoningLevel?: string;
+      accepted: boolean;
+    }>;
   };
   workers: Array<{
     code: WorkerCode;
@@ -212,14 +224,13 @@ interface SanitizedVisualArtifact {
 
 const MAX_VISUAL_DATA_URL_LENGTH = 350_000;
 
-const WORKER_ORDER: WorkerCode[] = ['Browser', 'Z', 'N', 'O', 'S', 'R', 'RPT'];
+const WORKER_ORDER: WorkerCode[] = ['Browser', 'Z', 'N', 'O', 'S', 'RPT'];
 const WORKER_TITLES: Record<WorkerCode, string> = {
   Browser: 'Browser',
   Z: 'Z',
   N: 'N',
-  O: 'O',
+  O: 'Passive surface',
   S: 'S',
-  R: 'R',
   RPT: 'Report',
 };
 
@@ -327,12 +338,13 @@ export function buildLiveScanSnapshot(
     createdAt: finding.createdAt.toISOString(),
   }));
   const findingsSummary = buildFindingsSummary(findingsPreview, scan.findingCandidates ?? []);
+  const frozenLlmRoutes = publicLlmRoutes(scan.scanPlan);
 
   return {
     scan: {
       id: scan.id,
       projectId: scan.projectId,
-      mode: scan.mode,
+      profile: intensityToProfile(scan.testIntensityMode as Parameters<typeof intensityToProfile>[0]),
       targetType: scan.targetType,
       authScope: scan.authScope,
       testIntensityMode: scan.testIntensityMode,
@@ -372,8 +384,36 @@ export function buildLiveScanSnapshot(
       })),
     },
     cursorPreview: buildCursorPreview(cursorActivity),
+    ...(frozenLlmRoutes ? { llmRoutes: frozenLlmRoutes } : {}),
     ...(degraded ? { degraded } : {}),
   };
+}
+
+export function publicLlmRoutes(scanPlan: unknown): LiveScanSnapshot['llmRoutes'] {
+  const snapshot = unwrapObject(unwrapObject(scanPlan).llmRouteSnapshot);
+  if (typeof snapshot.capturedAt !== 'string') return undefined;
+  const routes = unwrapObject(snapshot.routes);
+  const accepted = unwrapObject(snapshot.accepted);
+  const rows: NonNullable<LiveScanSnapshot['llmRoutes']>['routes'] = [];
+  for (const [useCase, pair] of Object.entries(routes)) {
+    const slots = unwrapObject(pair);
+    const flags = unwrapObject(accepted[useCase]);
+    for (const slot of ['primary', 'fallback'] as const) {
+      const route = unwrapObject(slots[slot]);
+      if (typeof route.transport !== 'string' || typeof route.model !== 'string') continue;
+      rows.push({
+        useCase,
+        slot,
+        transport: route.transport,
+        ...(typeof route.cli === 'string' ? { cli: route.cli } : {}),
+        ...(typeof route.provider === 'string' ? { provider: route.provider } : {}),
+        model: route.model,
+        ...(typeof route.reasoningLevel === 'string' ? { reasoningLevel: route.reasoningLevel } : {}),
+        accepted: flags[slot] === true,
+      });
+    }
+  }
+  return rows.length > 0 ? { capturedAt: snapshot.capturedAt, routes: rows } : undefined;
 }
 
 function expectedWorkerCodes(scanPlan: unknown, steps: LiveStepInput[]): WorkerCode[] {
@@ -492,7 +532,7 @@ function buildActivity(
       type: 'report_finalized',
       actor: 'report',
       title: `Report v${latestReport.version} finalized`,
-      body: 'The sanitized report_v1 snapshot is ready.',
+      body: 'The sanitized report_v2 snapshot is ready.',
       status: 'final',
       sanitized: true,
     });
@@ -701,7 +741,7 @@ function inferredWorkerState(scanState: string, code: WorkerCode): string {
 function defaultStepBody(actor: WorkerCode | 'report', state: string): string {
   if (actor === 'Z') return `Z finished passive signal checks with state ${state}.`;
   if (actor === 'N') return `N finished curated safe template checks with state ${state}.`;
-  if (actor === 'O') return `O finished scenario-first hunter checks with state ${state}.`;
+  if (actor === 'O') return `Passive surface hunter finished safe HTTP and header checks with state ${state}.`;
   if (actor === 'S') return `S finished sanitized reasoning with state ${state}.`;
   if (actor === 'Browser') return `Browser finished with state ${state}.`;
   return `Report step finished with state ${state}.`;
@@ -709,6 +749,8 @@ function defaultStepBody(actor: WorkerCode | 'report', state: string): string {
 
 function targetFromScope(scope: unknown): string {
   const obj = unwrapObject(scope);
+  const targetHost = obj.targetHost;
+  if (typeof targetHost === 'string' && targetHost) return sanitizeText(targetHost);
   const verifiedDomain = obj.verifiedDomain;
   if (typeof verifiedDomain === 'string' && verifiedDomain) return sanitizeText(verifiedDomain);
   const hosts = obj.allowedHosts;
@@ -746,12 +788,6 @@ function workerCode(kind: string): string {
     case 's':
     case 's_core':
       return 'S';
-    case 'recon':
-    case 'recon_proxy':
-    case 'recon_signal':
-    case 'r':
-    case 'r_signal':
-      return 'R';
     case 'report':
     case 'rpt':
       return 'RPT';
@@ -787,7 +823,6 @@ function cursorX(actor: LiveScanSnapshot['cursorPreview']['actor']): number {
   if (actor === 'N') return 52;
   if (actor === 'O') return 62;
   if (actor === 'S') return 72;
-  if (actor === 'R') return 77;
   return 82;
 }
 
@@ -823,15 +858,12 @@ function publicWorkerText(value: string): string {
     .replace(/\bzap\b/gi, 'Z')
     .replace(/\bnuclei[_-]signal\b/gi, 'N')
     .replace(/\bnuclei\b/gi, 'N')
-    .replace(/\bopenhack[_-]hunter\b/gi, 'O')
-    .replace(/\bopenhack\b/gi, 'O')
+    .replace(/\bopenhack[_-]hunter\b/gi, 'Passive surface')
+    .replace(/\bopenhack\b/gi, 'Passive surface')
     .replace(/\bstrix[_-]core\b/gi, 'S')
     .replace(/\bstrix\b/gi, 'S')
-    .replace(/\brecon[_-]signal\b/gi, 'R')
-    .replace(/\brecon\b/gi, 'R')
     .replace(/\bZ_signal\b/g, 'Z')
     .replace(/\bN_signal\b/g, 'N')
-    .replace(/\bO_hunter\b/g, 'O')
-    .replace(/\bS_core\b/g, 'S')
-    .replace(/\bR_signal\b/g, 'R');
+    .replace(/\bO_hunter\b/g, 'Passive surface')
+    .replace(/\bS_core\b/g, 'S');
 }

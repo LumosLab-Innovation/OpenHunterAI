@@ -1,11 +1,47 @@
 import { describe, expect, it } from 'vitest';
-import { buildScanListWhere, parseScanListQuery, ScansService } from './scans.service.js';
+import { DEFAULT_SURFACE_FLAGS } from '@x-hunter/shared';
+import { buildScanListWhere, canaryManifestInScope, parseScanListQuery, ScansService } from './scans.service.js';
+
+describe('canary manifest scope', () => {
+  const manifestUrl = 'https://staging.example.com/openhunter-canary/manifest.json';
+  const manifest = {
+    scenario: 'object_ownership',
+    vulnerablePath: '/openhunter-canary/objects/vulnerable/user-b-object',
+    fixedPath: '/openhunter-canary/objects/fixed/user-b-object',
+    userAOwnPath: '/openhunter-canary/objects/own/user-a-object',
+    userBOwnPath: '/openhunter-canary/objects/own/user-b-object',
+  };
+  const scope = {
+    allowedHosts: ['staging.example.com'],
+    allowedPaths: ['/openhunter-canary'],
+    excludedPaths: [] as string[],
+    testAccountPermission: true,
+    sensitiveActionPermission: true,
+    profile: 'deep' as const,
+    authScope: 'two_accounts' as const,
+    targetType: 'interactive_web_app' as const,
+    testIntensityMode: 'aggressive_staging' as const,
+    surfaceFlags: DEFAULT_SURFACE_FLAGS,
+    aggressiveStagingRiskAccepted: true,
+  };
+
+  it('accepts all four scoped control paths', () => {
+    expect(canaryManifestInScope(manifest, manifestUrl, scope)).toBe(true);
+  });
+
+  it('rejects missing or out-of-scope controls', () => {
+    expect(canaryManifestInScope({ ...manifest, userAOwnPath: undefined }, manifestUrl, scope)).toBe(false);
+    expect(canaryManifestInScope({ ...manifest, userAOwnPath: 'https://other.example.com/openhunter-canary/objects/a' }, manifestUrl, scope)).toBe(false);
+    expect(canaryManifestInScope(manifest, manifestUrl, { ...scope, excludedPaths: ['/openhunter-canary/objects/own'] })).toBe(false);
+    expect(canaryManifestInScope(manifest, manifestUrl, { ...scope, allowedPaths: ['/public'] })).toBe(false);
+  });
+});
 
 describe('scan list query helpers', () => {
   it('builds org-scoped list filters and hides soft-deleted scans', () => {
     const query = parseScanListQuery({
       state: 'running',
-      mode: 'free_hunter',
+      profile: 'standard',
       q: ' kopymatch ',
       sort: 'oldest',
       pageToken: '2026-06-16T10:00:00.000Z|scan_1',
@@ -13,7 +49,7 @@ describe('scan list query helpers', () => {
 
     expect(query).toEqual({
       state: 'running',
-      mode: 'free_hunter',
+      profile: 'standard',
       q: 'kopymatch',
       sort: 'oldest',
       pageToken: '2026-06-16T10:00:00.000Z|scan_1',
@@ -23,7 +59,7 @@ describe('scan list query helpers', () => {
       project: { organizationId: 'org_1' },
       hiddenAt: null,
       state: 'running',
-      mode: 'free_hunter',
+      testIntensityMode: 'controlled_attack_simulation',
       createdAt: { gt: new Date('2026-06-16T10:00:00.000Z') },
     });
   });
@@ -31,7 +67,7 @@ describe('scan list query helpers', () => {
   it('ignores unsupported filter values', () => {
     const query = parseScanListQuery({
       state: 'done',
-      mode: 'root',
+      profile: 'root',
       sort: 'bad',
       limit: '1000',
     });
@@ -45,13 +81,12 @@ describe('scan list query helpers', () => {
 });
 
 describe('public scan DTO', () => {
-  it('removes internal scan plan and worker labels from scan responses', () => {
+  it('shows profile and plan while hiding raw worker output', () => {
     const service = new ScansService();
     const dto = service.toPublicScan({
       id: 'scan_1',
       projectId: 'proj_1',
       authorizationId: 'auth_1',
-      mode: 'free_hunter',
       targetType: 'interactive_web_app',
       authScope: 'none',
       testIntensityMode: 'controlled_attack_simulation',
@@ -81,9 +116,10 @@ describe('public scan DTO', () => {
     });
 
     const serialized = JSON.stringify(dto);
-    expect(serialized).not.toContain('scanPlan');
+    expect(dto.profile).toBe('standard');
+    expect(dto.scanPlan).toEqual({ enabledWorkers: { zap: 'standard_safe' } });
     expect(serialized).not.toContain('outputRef');
-    expect(serialized).not.toMatch(/zap_signal|nuclei_signal|openhack_hunter|strix_core|browser_inspector/i);
+    expect(dto.steps?.[0]?.summary).toBe('Z completed');
     expect(dto.steps?.[0]?.kind).toBe('Z');
   });
 });

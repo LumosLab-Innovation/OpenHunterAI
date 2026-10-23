@@ -71,7 +71,7 @@ export function isHostAllowed(host: string, allowed: string[]): boolean {
 
 function matchesPathPrefix(path: string, prefix: string): boolean {
   const p = path.startsWith('/') ? path : `/${path}`;
-  const q = prefix.startsWith('/') ? prefix : `/${prefix}`;
+  const q = (prefix.startsWith('/') ? prefix : `/${prefix}`).replace(/\/+$/, '') || '/';
   if (q === '/') return true;
-  return p === q || p.startsWith(`${q}/`) || p === `${q}`;
+  return p === q || p.startsWith(`${q}/`);
 }

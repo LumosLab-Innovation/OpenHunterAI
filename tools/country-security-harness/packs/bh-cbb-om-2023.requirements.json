@@ -1,0 +1,522 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "bh-cbb-om-2023.curated",
+  "frameworkId": "bh-cbb-om-2023",
+  "version": "Volume 1, OM-5.5; clauses dated July 2021–October 2023; curated-2026-10-08",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "bh-cbb-om-2023.source",
+      "title": "Central Bank of Bahrain Rulebook Volume 1 OM-5.5",
+      "url": "https://cbben.thomsonreuters.com/entiresection/115277",
+      "locator": "OM-5.5.5–OM-5.5.58, dated rulebook clauses"
+    }
+  ],
+  "limitations": [
+    "Curated partial clause coverage only. The baseline is an assessment target, never a national security grade or a certification decision.",
+    "The linked platform publishes the CBB Rulebook; it is not an independent vendor interpretation. Selected local bank duties are used; generic NIST functions in OM-5.5.3 are not relabelled as new Bahrain clauses."
+  ],
+  "requirements": [
+    {
+      "id": "bh-cbb-om-2023.board-framework-review",
+      "label": "Board approves framework every three years or significant change",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.5",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review both scheduled review and significant-change triggers; calendar years are not approximated by days."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Review both scheduled review and significant-change triggers; calendar years are not approximated by days."
+    },
+    {
+      "id": "bh-cbb-om-2023.independent-risk",
+      "label": "Separate cyber risk function from IT",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.6",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Foreign branch alternative oversight must be reviewed under the full paragraph."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Foreign branch alternative oversight must be reviewed under the full paragraph."
+    },
+    {
+      "id": "bh-cbb-om-2023.cyber-strategy",
+      "label": "Document a bank-wide cyber strategy",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.13",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "bh-cbb-om-2023.cyber-strategy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "bh-cbb-om-2023.policy-review",
+      "label": "Approve written cyber policy at least annually",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.15",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review the governing approval record and required policy coverage."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Review the governing approval record and required policy coverage."
+    },
+    {
+      "id": "bh-cbb-om-2023.epp-edr",
+      "label": "Deploy endpoint protection, detection and response",
+      "controlId": "malware_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.18(a)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "bh-cbb-om-2023.epp-edr",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "bh-cbb-om-2023.dlp",
+      "label": "Prevent confidential data leakage",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.18(b)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "bh-cbb-om-2023.dlp",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "bh-cbb-om-2023.segmentation-waf",
+      "label": "Use segmentation firewalls, WAF and network ACLs",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.18(c)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "bh-cbb-om-2023.segmentation-waf",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "bh-cbb-om-2023.development-testing",
+      "label": "Test software security during development and after deployment",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.18(d)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "bh-cbb-om-2023.development-testing",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "bh-cbb-om-2023.privileged-access",
+      "label": "Manage and monitor access to critical assets",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.18(e)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "bh-cbb-om-2023.privileged-access",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "bh-cbb-om-2023.email-gateway",
+      "label": "Secure email against malicious content and phishing",
+      "controlId": "malware_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.18(f)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "bh-cbb-om-2023.email-gateway",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "bh-cbb-om-2023.web-gateway",
+      "label": "Protect browser access with a secure web gateway",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.18(g)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "bh-cbb-om-2023.web-gateway",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "bh-cbb-om-2023.application-allowlist",
+      "label": "Maintain authorised applications and components list",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.18(h)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "bh-cbb-om-2023.application-allowlist",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "bh-cbb-om-2023.mobile-management",
+      "label": "Manage bank-access mobile devices and BYOD security",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.18(i)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "bh-cbb-om-2023.mobile-management",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "bh-cbb-om-2023.network-access-control",
+      "label": "Restrict physical network-port connections",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.18(j)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "bh-cbb-om-2023.network-access-control",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "bh-cbb-om-2023.account-management",
+      "label": "Control and monitor privileged/non-privileged accounts",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.18(k)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "bh-cbb-om-2023.account-management",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "bh-cbb-om-2023.siem",
+      "label": "Implement incident management including SIEM",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.31",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "bh-cbb-om-2023.siem",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "bh-cbb-om-2023.soc",
+      "label": "Maintain tailored SOC, asset inventory and network diagrams",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.35",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "bh-cbb-om-2023.soc",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "bh-cbb-om-2023.cbb-contact",
+      "label": "Contact CBB within one hour for qualifying incident",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.57",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bh-cbb-om-2023.qualifying_incident_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "bh-cbb-om-2023.cbb-contact-elapsed-hours",
+        "max": 1,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Review the occurrence/detection trigger and qualifying customer-information or critical-service impact; the declared elapsed time is not independently measured."
+    },
+    {
+      "id": "bh-cbb-om-2023.initial-report",
+      "label": "Submit incident-report Section A within two hours",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.57",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bh-cbb-om-2023.qualifying_incident_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "bh-cbb-om-2023.initial-report-elapsed-hours",
+        "max": 2,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Review the occurrence/detection trigger and qualifying customer-information or critical-service impact; the declared elapsed time is not independently measured."
+    },
+    {
+      "id": "bh-cbb-om-2023.full-report",
+      "label": "Submit Section B within ten calendar days of occurrence",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.58",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bh-cbb-om-2023.qualifying_incident_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Clock is incident occurrence; review root-cause content and calendar-day timing rather than elapsed time since detection."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Clock is incident occurrence; review root-cause content and calendar-day timing rather than elapsed time since detection."
+    },
+    {
+      "id": "bh-cbb-om-2023.weekly-progress",
+      "label": "Provide weekly progress updates until incident resolved",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "bh-cbb-om-2023.source",
+      "locator": "OM-5.5.58",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "bh-cbb-om-2023.qualifying_incident_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review reporting records until resolution; no message or regulator report is sent by this harness."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Review reporting records until resolution; no message or regulator report is sent by this harness."
+    }
+  ]
+}

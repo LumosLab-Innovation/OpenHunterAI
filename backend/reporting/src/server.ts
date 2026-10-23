@@ -1,10 +1,11 @@
 import express from 'express';
 import helmet from 'helmet';
 import { createRequire } from 'node:module';
-import { REPORT_FORMAT_VERSION, renderReportMarkdown, sanitizeReportContent, sanitizeText, type ReportContentV1 } from '@x-hunter/shared';
+import { intensityToProfile, isIndependentlyValidatedFinding, REPORT_FORMAT_VERSION, renderReportMarkdown, sanitizeReportContent, sanitizeText } from '@x-hunter/shared';
 import { routeFor } from '@x-hunter/llm-gateway';
-import { generateFixPrompt, getGateway } from './llm.js';
+import { bridgeFromEnv, generateFixPrompt, snapshotFromPlan } from './llm.js';
 import { publishEvent } from '@openhunter/event-core';
+import { buildFinalContent } from './content.js';
 
 const app = express();
 const port = Number(process.env.REPORTING_PORT || 4400);
@@ -101,9 +102,11 @@ app.post('/internal/reports/:scanId/finalize', asyncRoute(async (req, res) => {
     where: { id: req.params.scanId! },
     include: {
       project: true,
-      findings: { include: { retestRuns: true } },
+      authorization: true,
+      findings: { include: { retestRuns: true, candidates: { include: { triageDecision: true } } } },
       reportDraftSections: true,
       reports: { orderBy: { version: 'desc' } },
+      steps: true,
     },
   });
   if (!scan) {
@@ -114,27 +117,63 @@ app.post('/internal/reports/:scanId/finalize', asyncRoute(async (req, res) => {
     res.json({ skipped: true, reason: 'SCAN_CANCELLED' });
     return;
   }
+  const existingFinal = (scan.reports ?? []).find((report: any) => report.state === 'final');
+  if (existingFinal) {
+    res.json({ report: existingFinal, idempotent: true });
+    return;
+  }
+  if ((scan.steps ?? []).some((step: any) => step.state === 'pending' || step.state === 'running')) {
+    res.status(409).json({ error: { code: 'WORKERS_NOT_TERMINAL' } });
+    return;
+  }
+  const candidateRows = await prisma.findingCandidate.findMany({
+    where: { scanJobId: scan.id }, include: { triageDecision: true },
+  });
+  if (candidateRows.some((candidate: any) => !candidate.triageDecision || candidate.triageDecision.state === 'candidate')) {
+    res.status(409).json({ error: { code: 'TRIAGE_NOT_TERMINAL' } });
+    return;
+  }
+  (scan as any).unvalidatedCandidates = candidateRows.filter((candidate: any) => candidate.triageDecision?.state !== 'validated').length;
 
   // Enrich findings that lack a developer fix prompt via the LLM Gateway
   // (recommendation-only; falls back deterministically and never blocks).
-  await Promise.all(
-    (scan.findings ?? [])
+  const fixResults = await Promise.all(
+    (scan.findings ?? []).filter(isIndependentlyValidatedFinding)
       .filter((f: any) => !f.fixPrompt)
       .map(async (f: any) => {
-        const { text } = await generateFixPrompt(getGateway(), {
+        const result = await generateFixPrompt({
+          snapshot: snapshotFromPlan(scan.scanPlan),
+          bridge: bridgeFromEnv(),
           projectId: scan.projectId,
           scanId: scan.id,
           findingId: f.id,
-          packageTier: scan.project.packageTier,
+          profile: intensityToProfile(scan.testIntensityMode),
           title: f.title,
           category: f.category,
           affectedAsset: f.affectedAsset,
           description: f.description ?? '',
         });
-        f.fixPrompt = text;
-        await prisma.finding.update({ where: { id: f.id }, data: { fixPrompt: text } });
+        f.fixPrompt = result.text;
+        await prisma.finding.update({ where: { id: f.id }, data: { fixPrompt: result.text } });
+        return result;
       }),
   );
+  if (fixResults.length > 0) {
+    const currentBudget = scan.budgetUsed && typeof scan.budgetUsed === 'object' && !Array.isArray(scan.budgetUsed) ? scan.budgetUsed : {};
+    const nextBudget = {
+      ...currentBudget,
+      llmAudits: [
+        ...(Array.isArray((currentBudget as any).llmAudits) ? (currentBudget as any).llmAudits : []),
+        ...fixResults.flatMap((result) => result.audits),
+      ],
+      llmCoverageGaps: [
+        ...(Array.isArray((currentBudget as any).llmCoverageGaps) ? (currentBudget as any).llmCoverageGaps : []),
+        ...fixResults.flatMap((result) => result.coverageGap ? [result.coverageGap] : []),
+      ],
+    };
+    await prisma.scanJob.update({ where: { id: scan.id }, data: { budgetUsed: nextBudget } });
+    (scan as any).budgetUsed = nextBudget;
+  }
   const guard = await prisma.scanJob.updateMany({
     where: { id: scan.id, state: { notIn: ['cancelled', 'failed', 'timeout'] } },
     data: { updatedAt: new Date() },
@@ -157,15 +196,13 @@ app.post('/internal/reports/:scanId/finalize', asyncRoute(async (req, res) => {
       select: { version: true },
     });
     const version = (current?.version ?? 0) + 1;
-    await tx.report.updateMany({
-      where: { scanJobId: scan.id, state: 'final' },
-      data: { state: 'superseded' },
-    });
-    return tx.report.create({
-      data: {
+    return tx.report.upsert({
+      where: { scanJobId_finalizationKey: { scanJobId: scan.id, finalizationKey: 'scan-final' } },
+      create: {
         projectId: scan.projectId,
         scanJobId: scan.id,
-        kind: scan.mode === 'free_hunter' ? 'free_hunter' : 'human',
+        finalizationKey: 'scan-final',
+        kind: 'human',
         version,
         state: 'final',
         formatVersion: REPORT_FORMAT_VERSION,
@@ -173,6 +210,7 @@ app.post('/internal/reports/:scanId/finalize', asyncRoute(async (req, res) => {
         markdown: renderReportMarkdown(content),
         finalizedAt: new Date(),
       },
+      update: {},
     });
   });
   if (!report) {
@@ -186,6 +224,7 @@ app.post('/internal/reports/:scanId/finalize', asyncRoute(async (req, res) => {
     bodyKey: 'activity.report_finalized.body',
     bodyParams: { reportId: report.id, version: report.version },
     status: 'final',
+    dedupeKey: 'report-finalized',
   });
   // Notify SSE subscribers that the report is finalized so they close cleanly.
   await publishEvent(`report.${scan.id}.finalized`, { reportId: report.id, version: report.version });
@@ -202,8 +241,10 @@ app.listen(port, '0.0.0.0', () => console.log(`reporting listening on ${port}`))
 function llmHealth() {
   const low = routeFor('low_reasoning_model');
   const high = routeFor('high_reasoning_model');
+  const configured = (provider: string) => Boolean(process.env[`${provider.toUpperCase()}_API_KEY`]);
+  const ready = (route: ReturnType<typeof routeFor>) => configured(route.primary.provider) || Boolean(route.fallback && configured(route.fallback.provider));
   return {
-    ok: Boolean(process.env.OPENAI_API_KEY && process.env.DEEPSEEK_API_KEY),
+    ok: ready(low) && ready(high),
     service: 'reporting',
     aliases: {
       low_reasoning_model: low,
@@ -212,6 +253,7 @@ function llmHealth() {
     providers: {
       openai: { configured: Boolean(process.env.OPENAI_API_KEY) },
       deepseek: { configured: Boolean(process.env.DEEPSEEK_API_KEY) },
+      claude: { configured: Boolean(process.env.CLAUDE_API_KEY) },
     },
   };
 }
@@ -226,12 +268,12 @@ async function recordActivity(
     bodyParams?: Record<string, unknown>;
     status: string;
     severity?: string | null;
+    dedupeKey?: string;
   },
 ) {
-  await prisma.scanActivityEvent
-    .create({
-      data: {
+  const data = {
         scanJobId,
+        dedupeKey: input.dedupeKey ?? null,
         eventType: sanitizeText(input.eventType).slice(0, 100),
         actor: input.actor === 'report' ? 'RPT' : sanitizeText(input.actor).slice(0, 80),
         titleKey: sanitizeText(input.titleKey).slice(0, 160),
@@ -240,9 +282,15 @@ async function recordActivity(
         status: sanitizeText(input.status).slice(0, 80),
         severity: input.severity ? sanitizeText(input.severity).slice(0, 40) : null,
         sanitized: true,
-      },
-    })
-    .catch(() => {});
+      };
+  const write = input.dedupeKey
+    ? (prisma as any).scanActivityEvent.upsert({
+        where: { scanJobId_dedupeKey: { scanJobId, dedupeKey: input.dedupeKey } },
+        create: data,
+        update: data,
+      })
+    : (prisma as any).scanActivityEvent.create({ data });
+  await write.catch(() => {});
 }
 
 function unwrapObject(value: unknown): Record<string, unknown> {
@@ -251,107 +299,4 @@ function unwrapObject(value: unknown): Record<string, unknown> {
     return value.value as Record<string, unknown>;
   }
   return value as Record<string, unknown>;
-}
-
-function buildFinalContent(scan: any): ReportContentV1 {
-  const findings = (scan.findings ?? []).slice(0, scan.mode === 'free_hunter' ? 1 : 50);
-  const reportFindings = findings.map((finding: any, index: number) => ({
-    id: finding.id,
-    rank: index + 1,
-    title: finding.title,
-    severity: finding.severity,
-    confidence: finding.confidence,
-    affectedAsset: finding.affectedAsset,
-    category: finding.category,
-    attackerPath: finding.description,
-    sanitizedProof: {
-      description: finding.evidence?.description ?? 'Sanitized evidence is unavailable.',
-      evidenceRefs: finding.evidence?.evidenceRefs ?? [],
-      sanitized: true as const,
-    },
-    impact: finding.description,
-    fixSummary: finding.fixPrompt ?? 'Apply the recommended fix and retest.',
-    retestScenario: finding.retestScenario ?? null,
-  }));
-  const coverageOnly = reportFindings.length === 0;
-  const scanPlan = scan.scanPlan ?? {};
-
-  return sanitizeReportContent({
-    formatVersion: REPORT_FORMAT_VERSION,
-    reportType: coverageOnly ? 'coverage_only' : 'finding_report',
-    packageTier: scan.project.packageTier,
-    scanMode: scan.mode,
-    targetType: scan.targetType,
-    authScope: scan.authScope,
-    testIntensityMode: scan.testIntensityMode,
-    surfaceFlags: scan.surfaceFlags,
-    ownerSummary: {
-      headline: coverageOnly ? 'Coverage report' : `${reportFindings.length} finding(s) confirmed`,
-      riskLevel: coverageOnly ? 'none' : reportFindings[0].severity,
-      whatWasTested: `${scan.targetType} under ${scan.testIntensityMode}`,
-      topRiskOrOutcome: coverageOnly ? 'No valuable finding was confirmed within budget.' : reportFindings[0].title,
-      businessImpact: coverageOnly ? 'Review coverage and hardening recommendations.' : reportFindings[0].impact,
-      recommendedNextAction: coverageOnly ? 'Review limitations and consider a paid deeper scan.' : 'Fix and retest the ranked findings.',
-    },
-    findings: reportFindings,
-    developerFixPack: reportFindings.map((finding: any) => ({
-      findingId: finding.id,
-      rootCauseHypothesis: finding.attackerPath,
-      concreteFixPrompt: finding.fixSummary,
-      validationSteps: ['Apply fix.', 'Run manual retest.', 'Confirm no regression.'],
-      regressionTestIdeas: ['Add a targeted regression test for this affected asset.'],
-      acceptanceCriteria: 'Retest no longer reproduces the issue.',
-    })),
-    coverage: {
-      targetType: scan.targetType,
-      workersRun: Object.keys(scanPlan.enabledWorkers ?? {}).map(displayUnitCode),
-      huntersRun: (scanPlan.enabledHunters ?? []).map(displayUnitCode),
-      skippedHunters: (scanPlan.skippedHunters ?? []).map((item: any) => ({
-        ...item,
-        hunter: displayUnitCode(String(item?.hunter ?? '')),
-      })),
-      coverageGaps: coverageOnly ? ['No valuable finding was confirmed within this scan budget.'] : [],
-      limitations: coverageOnly ? ['Coverage-only report; no finding was created.'] : ['Report uses sanitized evidence only.'],
-    },
-    hardeningRecommendations: coverageOnly
-      ? ['Review headers, auth boundaries, file upload exposure, API docs exposure, and sensitive data handling.']
-      : ['Prioritize confirmed findings before broad hardening.'],
-    retestAndMonitor: {
-      eligibleFindings: reportFindings.map((finding: any) => finding.id),
-      remainingRetestQuota: scan.mode === 'free_hunter' ? 1 : 10,
-      cooldownDays: scan.mode === 'free_hunter' ? 7 : 0,
-      manualRetestActions: reportFindings.map((finding: any) => `Retest ${finding.title}`),
-    },
-    generatedAt: new Date().toISOString(),
-  });
-}
-
-function displayUnitCode(key: string): string {
-  switch (key.toLowerCase().replace(/[-\s]/g, '_')) {
-    case 'browser':
-    case 'browser_inspector':
-      return 'Browser';
-    case 'zap':
-    case 'zap_signal':
-    case 'Z':
-      return 'Z';
-    case 'nuclei':
-    case 'nuclei_signal':
-    case 'N':
-      return 'N';
-    case 'openhack':
-    case 'openhack_hunter':
-    case 'O':
-      return 'O';
-    case 'strix':
-    case 'strix_core':
-    case 'S':
-      return 'S';
-    case 'report':
-      return 'RPT';
-    case 'retest':
-      return 'RT';
-    default:
-      return sanitizeText(key);
-  }
 }

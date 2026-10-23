@@ -1,5 +1,6 @@
 import { getPrisma } from '@x-hunter/db';
 import { sanitize, sanitizeReportContent, sanitizeText } from '@x-hunter/shared';
+import { createHash } from 'node:crypto';
 
 /**
  * Persists sanitized worker callbacks (scan steps and finding candidates) to the
@@ -10,6 +11,8 @@ import { sanitize, sanitizeReportContent, sanitizeText } from '@x-hunter/shared'
 // Worker result state -> ScanStepState.
 const STATE_MAP: Record<string, string> = {
   done: 'succeeded',
+  succeeded: 'succeeded',
+  partial: 'succeeded',
   skipped: 'skipped',
   failed: 'failed',
 };
@@ -26,25 +29,35 @@ const KIND_MAP: Record<string, string> = {
   O: 'openhack_hunter',
   strix: 'strix_core',
   S: 'strix_core',
-  recon: 'recon_signal',
-  R: 'recon_signal',
   report: 'report',
   retest: 'retest',
 };
 
 export interface WorkerStepResult {
+  runId?: string;
   scanId: string;
   projectId?: string;
   workerType: string;
   state: string;
+  status?: 'succeeded' | 'partial' | 'failed' | 'skipped';
   errorCode?: string;
   errorMsg?: string;
   coverageGap?: boolean;
   summary?: string;
   signals?: WorkerSignal[];
+  evidenceRefs?: string[];
   startedAt?: string;
   finishedAt?: string;
   meta?: Record<string, unknown>;
+  coverage?: {
+    surfacesAttempted?: string[];
+    surfacesCompleted?: string[];
+    surfacesSkipped?: string[];
+    gaps?: string[];
+  };
+  limitations?: string[];
+  retryable?: boolean;
+  runtimeProvenance?: Record<string, unknown>;
 }
 
 export interface WorkerSignal {
@@ -57,6 +70,8 @@ export interface WorkerSignal {
   evidenceRefs?: string[];
   evidenceClass?: string;
   validationState?: string;
+  counterevidence?: string;
+  demonstratedImpact?: string;
 }
 
 export interface WorkerActivityInput {
@@ -86,9 +101,9 @@ export class CallbacksService {
   async recordStep(scanId: string, result: WorkerStepResult) {
     const kind = KIND_MAP[result.workerType] ?? 'report';
     const state = STATE_MAP[result.state] ?? 'failed';
-    const step = await this.prisma.scanStep.create({
-      data: {
+    const data = {
         scanJobId: scanId,
+        runKey: result.runId || null,
         kind: kind as never,
         state: state as never,
         startedAt: result.startedAt ? new Date(result.startedAt) : null,
@@ -97,13 +112,25 @@ export class CallbacksService {
         outputRef: sanitize({
           summary: result.summary ? sanitizeText(result.summary) : undefined,
           coverageGap: Boolean(result.coverageGap),
+          status: result.status ?? canonicalStatus(result),
+          coverage: result.coverage ?? {},
+          limitations: result.limitations ?? [],
+          retryable: Boolean(result.retryable),
+          runtimeProvenance: result.runtimeProvenance ?? {},
+          evidenceRefs: Array.isArray(result.evidenceRefs) ? result.evidenceRefs.map(String) : [],
           signalCount: result.signals?.length ?? 0,
           meta: result.meta ?? {},
         }) as object,
         errorCode: result.errorCode ?? null,
         errorMsg: result.errorMsg ? sanitizeText(result.errorMsg) : null,
-      },
-    });
+      };
+    const step = result.runId
+      ? await (this.prisma as any).scanStep.upsert({
+          where: { scanJobId_runKey: { scanJobId: scanId, runKey: result.runId } },
+          create: data,
+          update: data,
+        })
+      : await (this.prisma as any).scanStep.create({ data });
     const activity = activityForWorkerResult(kind, state, result);
     await recordActivity(this.prisma, {
       scanJobId: scanId,
@@ -118,6 +145,7 @@ export class CallbacksService {
       status: state,
       severity: activity.severity,
       visualArtifact: result.meta?.visualArtifact,
+      dedupeKey: result.runId ? `step:${result.runId}` : undefined,
     });
     const retestUpdate = retestUpdateFromWorkerResult(result);
     if (retestUpdate) {
@@ -130,11 +158,12 @@ export class CallbacksService {
   }
 
   /** Records sanitized signals as finding candidates for later promotion. */
-  async recordFindings(scanId: string, workerType: string, signals: WorkerSignal[]) {
+  async recordFindings(scanId: string, runId: string, workerType: string, signals: WorkerSignal[]) {
     if (!signals.length) return { count: 0 };
     const source = KIND_MAP[workerType] ?? workerType;
-    const rows = signals.map((signal) => ({
+    const rows = signals.map((signal, index) => ({
       scanJobId: scanId,
+      dedupeKey: signalDedupeKey(runId, workerType, index, signal),
       source,
       title: sanitizeText(signal.title ?? 'Untitled signal').slice(0, 300),
       severity: (SEVERITIES.has(signal.severity ?? '') ? signal.severity : 'info') as never,
@@ -146,19 +175,25 @@ export class CallbacksService {
         evidenceRefs: Array.isArray(signal.evidenceRefs) ? signal.evidenceRefs.map(String) : [],
         evidenceClass: signal.evidenceClass ? sanitizeText(signal.evidenceClass).slice(0, 80) : 'signal',
         validationState: signal.validationState ? sanitizeText(signal.validationState).slice(0, 80) : 'unvalidated',
+        counterevidence: signal.counterevidence ? sanitizeText(signal.counterevidence) : undefined,
+        demonstratedImpact: signal.demonstratedImpact ? sanitizeText(signal.demonstratedImpact) : undefined,
         sanitized: true,
       }) as object,
     }));
-    const result = await this.prisma.findingCandidate.createMany({ data: rows });
+    const result = await (this.prisma as any).findingCandidate.createMany({ data: rows, skipDuplicates: true });
     await recordActivity(this.prisma, {
       scanJobId: scanId,
       eventType: 'finding_candidate',
       actor: workerType,
       titleKey: 'activity.finding_candidate.title',
       bodyKey: 'activity.finding_candidate.body',
-      bodyParams: { summary: `${result.count} candidate signal(s) recorded`, count: result.count },
+      // Duplicate callback delivery creates zero new rows, but the activity
+      // must still describe the same observed signals instead of overwriting
+      // its first delivery with a misleading "0 candidates" message.
+      bodyParams: { summary: `${signals.length} candidate signal(s) observed`, count: signals.length },
       status: 'ready',
       severity: signals.some((signal) => signal.severity === 'critical' || signal.severity === 'high') ? 'high' : 'info',
+      dedupeKey: runId ? `findings:${runId}` : undefined,
     });
     return result;
   }
@@ -257,14 +292,14 @@ async function recordActivity(
     status: string;
     severity?: string | null;
     visualArtifact?: unknown;
+    dedupeKey?: string;
   },
 ) {
   const bodyParams = sanitizeReportContent(input.bodyParams ?? {});
   const visualArtifact = sanitizeVisualArtifact(input.visualArtifact);
-  await (prisma as any).scanActivityEvent
-    .create({
-      data: {
+  const data = {
         scanJobId: input.scanJobId,
+        dedupeKey: input.dedupeKey ?? null,
         eventType: sanitizeText(input.eventType).slice(0, 100),
         actor: compactActor(input.actor),
         titleKey: sanitizeText(input.titleKey).slice(0, 160),
@@ -274,9 +309,32 @@ async function recordActivity(
         severity: input.severity ? sanitizeText(input.severity).slice(0, 40) : null,
         sanitized: true,
         visualArtifact: visualArtifact ?? undefined,
-      },
-    })
-    .catch(() => {});
+      };
+  const activityStore = (prisma as any).scanActivityEvent;
+  const write = input.dedupeKey
+    ? activityStore.upsert({
+        where: { scanJobId_dedupeKey: { scanJobId: input.scanJobId, dedupeKey: input.dedupeKey } },
+        create: data,
+        update: data,
+      })
+    : activityStore.create({ data });
+  await write.catch(() => {});
+}
+
+export function canonicalStatus(result: WorkerStepResult): 'succeeded' | 'partial' | 'failed' | 'skipped' {
+  if (result.state === 'failed') return 'failed';
+  if (result.state === 'skipped') return 'skipped';
+  if (result.coverageGap) return 'partial';
+  return 'succeeded';
+}
+
+export function signalDedupeKey(runId: string, workerType: string, index: number, signal: WorkerSignal): string {
+  const stable = JSON.stringify({
+    runId: runId || 'legacy', workerType, index,
+    kind: signal.kind, title: signal.title, asset: signal.asset,
+    evidenceRefs: signal.evidenceRefs ?? [],
+  });
+  return createHash('sha256').update(stable).digest('hex');
 }
 
 function compactActor(actor: string): string {
@@ -300,10 +358,6 @@ function compactActor(actor: string): string {
     case 'strix_core':
     case 's':
       return 'S';
-    case 'recon':
-    case 'recon_signal':
-    case 'r':
-      return 'R';
     case 'report':
       return 'RPT';
     default:

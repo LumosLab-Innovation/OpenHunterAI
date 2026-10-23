@@ -1,0 +1,1038 @@
+{
+  "schemaVersion": "country_security_framework_batch_v1",
+  "reviewedOn": "2026-10-08",
+  "frameworks": [
+    {
+      "id": "pl-kri",
+      "countryCode": "PL",
+      "countryName": "Poland",
+      "label": "KRI security requirements",
+      "version": "Regulation of 21 May 2024; Dz.U.2024 poz.773",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "reviewed_reference",
+      "applicability": "Entities performing public tasks under the Polish informatization act. Confirm entity and system scope. Register lists repeal on 2027-02-23; this reference is assessed as of 2026-10-08.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Operator-selected scope for this reference; does not grant a national grade or certification."
+        }
+      ],
+      "controlIds": [
+        "risk_management",
+        "system_classification",
+        "identity_access",
+        "staff_awareness",
+        "logging_monitoring",
+        "network_protection",
+        "supplier_security",
+        "patch_management",
+        "data_protection",
+        "incident_response",
+        "assurance_review"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "pl-primary",
+          "title": "KRI regulation",
+          "url": "https://eli.gov.pl/api/acts/DU/2024/773/text.html",
+          "locator": "§§19–20"
+        },
+        {
+          "id": "pl-status",
+          "title": "ELI official regulation status",
+          "url": "https://eli.gov.pl/eli/DU/2024/773",
+          "locator": "Publication, entry into force and repeal metadata"
+        }
+      ],
+      "limitations": [
+        "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+      ],
+      "jurisdictionType": "country_or_area"
+    },
+    {
+      "id": "fi-cyber-strengthening",
+      "countryCode": "FI",
+      "countryName": "Finland",
+      "label": "NCSC-FI organisational cyber strengthening",
+      "version": "Web guidance originating in early 2022; reviewed 2026-10-08",
+      "kind": "control_baseline",
+      "ordinalLevels": false,
+      "currency": "reviewed_reference",
+      "applicability": "Voluntary guidance for Finnish organisations and companies; does not replace sector legislation.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Operator-selected scope for this reference; does not grant a national grade or certification."
+        }
+      ],
+      "controlIds": [
+        "system_classification",
+        "backup_recovery",
+        "identity_access",
+        "patch_management",
+        "network_protection",
+        "malware_protection",
+        "supplier_security",
+        "logging_monitoring",
+        "assurance_review"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "fi-primary",
+          "title": "NCSC-FI strengthening cyber security",
+          "url": "https://kyberturvallisuuskeskus.fi/en/instructions-and-guides/instructions-and-guides-organisations-and-companies/strengthening-cyber-security-finnish-organisations-instructions-management-and-experts",
+          "locator": "Sections 1–3.10"
+        }
+      ],
+      "limitations": [
+        "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+      ],
+      "jurisdictionType": "country_or_area"
+    },
+    {
+      "id": "eu-nis2",
+      "countryCode": "EU",
+      "countryName": "European Union",
+      "label": "NIS2 directive obligations",
+      "version": "Directive (EU) 2022/2555, original OJ text of 2022-12-27",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Supranational directive target. National transposition, Articles 2–4 scope/exemptions, sector-specific equivalents and implementing acts must be reviewed independently; selection does not assert any country has enacted these clauses.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Operator-selected scope for this reference; does not grant a national grade or certification."
+        }
+      ],
+      "controlIds": [
+        "risk_management",
+        "staff_awareness",
+        "incident_response",
+        "backup_recovery",
+        "supplier_security",
+        "application_security",
+        "assurance_review",
+        "data_protection",
+        "identity_access"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "eu-primary",
+          "title": "NIS 2 directive",
+          "url": "https://eur-lex.europa.eu/eli/dir/2022/2555/oj?locale=en",
+          "locator": "Articles 2–4,20–23"
+        }
+      ],
+      "limitations": [
+        "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification.",
+        "Directive review does not verify national transposition or sector-specific implementing rules, including Regulation (EU) 2024/2690."
+      ],
+      "jurisdictionType": "supranational"
+    },
+    {
+      "id": "it-nis2-decree",
+      "countryCode": "IT",
+      "countryName": "Italy",
+      "label": "National NIS2 legislative decree",
+      "version": "Legislative Decree 138/2024, original gazette text effective 2024-10-16",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Essential and important subjects under national Decree 138/2024. Scope, ACN implementing determinations, individual notification dates and Articles 30–32 transition terms require separate verification before due obligations are assessed.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Operator-selected scope for this reference; does not grant a national grade or certification."
+        }
+      ],
+      "controlIds": [
+        "risk_management",
+        "staff_awareness",
+        "incident_response",
+        "backup_recovery",
+        "supplier_security",
+        "application_security",
+        "assurance_review",
+        "data_protection",
+        "identity_access"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "it-primary",
+          "title": "Decree 138/2024",
+          "url": "https://www.gazzettaufficiale.it/atto/serie_generale/caricaDettaglioAtto/originario?atto.codiceRedazionale=24G00155&atto.dataPubblicazioneGazzetta=2024-10-01&elenco30giorni=false",
+          "locator": "Articles 23–25;30–32"
+        },
+        {
+          "id": "it-article-23",
+          "title": "Decree 138/2024 Article 23",
+          "url": "https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=24G00155&art.dataPubblicazioneGazzetta=2024-10-01&art.flagTipoArticolo=0&art.idArticolo=23&art.idGruppo=4&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1",
+          "locator": "Article 23, original gazette text"
+        },
+        {
+          "id": "it-article-24",
+          "title": "Decree 138/2024 Article 24",
+          "url": "https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=24G00155&art.dataPubblicazioneGazzetta=2024-10-01&art.flagTipoArticolo=0&art.idArticolo=24&art.idGruppo=4&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1",
+          "locator": "Article 24, original gazette text"
+        },
+        {
+          "id": "it-article-25",
+          "title": "Decree 138/2024 Article 25",
+          "url": "https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=24G00155&art.dataPubblicazioneGazzetta=2024-10-01&art.flagTipoArticolo=0&art.idArticolo=25&art.idGruppo=4&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1",
+          "locator": "Article 25, original gazette text"
+        }
+      ],
+      "limitations": [
+        "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification.",
+        "Pinned original decree clauses. Current ACN implementing determinations and obligation-specific transition deadlines are not fully mapped; source/terms review is required."
+      ],
+      "jurisdictionType": "country_or_area"
+    },
+    {
+      "id": "fr-anssi-hygiene",
+      "countryCode": "FR",
+      "countryName": "France",
+      "label": "ANSSI information security hygiene",
+      "version": "2017 guide with 42 measures",
+      "kind": "control_baseline",
+      "ordinalLevels": false,
+      "currency": "reviewed_reference",
+      "applicability": "Public or private organisations with IT administration. Advisory hygiene guide; its standard and reinforced indicators are per-measure targets, not a French national system classification or certificate.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Operator-selected scope for this reference; does not grant a national grade or certification."
+        }
+      ],
+      "controlIds": [
+        "staff_awareness",
+        "supplier_security",
+        "system_classification",
+        "identity_access",
+        "network_protection",
+        "secure_configuration",
+        "malware_protection",
+        "data_protection",
+        "patch_management",
+        "logging_monitoring",
+        "backup_recovery",
+        "incident_response"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "fr-primary",
+          "title": "ANSSI hygiene guide",
+          "url": "https://messervices.cyber.gouv.fr/documents-guides/guide_hygiene_informatique_anssi.pdf",
+          "locator": "42 measures; mode d’emploi printed p.3"
+        }
+      ],
+      "limitations": [
+        "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+      ],
+      "jurisdictionType": "country_or_area"
+    },
+    {
+      "id": "es-ens",
+      "countryCode": "ES",
+      "countryName": "Spain",
+      "label": "Esquema Nacional de Seguridad",
+      "version": "Real Decreto 311/2022; BOE consolidation last updated 2024-11-06",
+      "kind": "impact_classification",
+      "ordinalLevels": true,
+      "currency": "reviewed_reference",
+      "applicability": "Spanish public-sector information systems and providers within ENS scope. Owner determines system category from impact dimensions; individual measures may depend on dimension grades instead of overall category.",
+      "levelSelection": "owner_or_authority",
+      "levels": [
+        {
+          "id": "basica",
+          "label": "BÁSICA",
+          "summary": "All assessed dimensions at BAJO."
+        },
+        {
+          "id": "media",
+          "label": "MEDIA",
+          "summary": "At least one dimension at MEDIO, none at ALTO."
+        },
+        {
+          "id": "alta",
+          "label": "ALTA",
+          "summary": "At least one assessed dimension at ALTO."
+        }
+      ],
+      "controlIds": [
+        "risk_management",
+        "secure_configuration",
+        "incident_response",
+        "application_security",
+        "identity_access",
+        "system_classification",
+        "data_protection",
+        "supplier_security",
+        "assurance_review"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "es-primary",
+          "title": "ENS Royal Decree",
+          "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2022-7191",
+          "locator": "Articles 2,31; Annexes I–II"
+        }
+      ],
+      "limitations": [
+        "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+      ],
+      "jurisdictionType": "country_or_area"
+    },
+    {
+      "id": "nl-ncsc-webapps",
+      "countryCode": "NL",
+      "countryName": "Netherlands",
+      "label": "NCSC web application security guidelines",
+      "version": "May 2024 edition (colophon); official listing dated 2026-04-17",
+      "kind": "control_baseline",
+      "ordinalLevels": false,
+      "currency": "reviewed_reference",
+      "applicability": "Voluntary technical guidance for web application owners, suppliers and assessors. High/middle/low guideline priority is not a national security grade. Adoption as contract or policy is assessed separately.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Operator-selected scope for this reference; does not grant a national grade or certification."
+        }
+      ],
+      "controlIds": [
+        "identity_access",
+        "data_protection",
+        "application_security",
+        "network_protection"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "nl-primary",
+          "title": "NCSC ICT web application security guidelines",
+          "url": "https://www.ncsc.nl/api/media/sites/default/files/Richtlijn%20ICT%20beveiligingsrichtlijnen%20webapplicaties%2007-24_0.pdf",
+          "locator": "U/TV, U/WA, U/PW and U/NW measures"
+        }
+      ],
+      "limitations": [
+        "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+      ],
+      "jurisdictionType": "country_or_area"
+    },
+    {
+      "id": "ie-public-baseline",
+      "countryCode": "IE",
+      "countryName": "Ireland",
+      "label": "Public Service cyber security baseline",
+      "version": "Revision 1, 2022",
+      "kind": "control_baseline",
+      "ordinalLevels": false,
+      "currency": "reviewed_reference",
+      "applicability": "Irish Public Service Bodies. SHALL/MUST clauses are mandatory within this administrative baseline; SHOULD clauses remain recommendations. Guidance notes are not promoted to requirements.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Operator-selected scope for this reference; does not grant a national grade or certification."
+        }
+      ],
+      "controlIds": [
+        "risk_management",
+        "system_classification",
+        "secure_configuration",
+        "supplier_security",
+        "identity_access",
+        "patch_management",
+        "network_protection",
+        "logging_monitoring"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "ie-primary",
+          "title": "NCSC Cyber Security Baseline Standards",
+          "url": "https://www.ncsc.gov.ie/pdfs/Cyber_Security_Baseline_Standards_Rev_1_2022_Final.pdf",
+          "locator": "Identify, Protect, Detect, Respond, Recover; normative left-column clauses"
+        }
+      ],
+      "limitations": [
+        "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+      ],
+      "jurisdictionType": "country_or_area"
+    },
+    {
+      "id": "dk-effective-defence",
+      "countryCode": "DK",
+      "countryName": "Denmark",
+      "label": "Cyberforsvar der virker",
+      "version": "6 July 2023 edition, hosted by SAMSIK",
+      "kind": "control_baseline",
+      "ordinalLevels": false,
+      "currency": "reviewed_reference",
+      "applicability": "Advisory six-step defence guidance for public agencies and companies. Does not replace government technical minimum requirements or sector obligations. Steps are a process, not security grades.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Operator-selected scope for this reference; does not grant a national grade or certification."
+        }
+      ],
+      "controlIds": [
+        "patch_management",
+        "network_protection",
+        "malware_protection",
+        "identity_access",
+        "backup_recovery",
+        "logging_monitoring",
+        "data_protection",
+        "secure_configuration"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "dk-primary",
+          "title": "SAMSIK/CFCS effective cyber defence",
+          "url": "https://samsik.dk/wp-content/uploads/2025/09/vejledning-cyberforsvar-der-virker-2023.pdf",
+          "locator": "Step 2 technical measures, pp.7–8; Steps 1–6"
+        }
+      ],
+      "limitations": [
+        "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+      ],
+      "jurisdictionType": "country_or_area"
+    },
+    {
+      "id": "gr-national-requirements",
+      "countryCode": "GR",
+      "countryName": "Greece",
+      "label": "National cybersecurity requirements framework",
+      "version": "Joint Ministerial Decision 1689/2025; Gazette B 2186/2025-05-06",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Essential and important entities under Law 5160/2024. Essential-only clauses require confirmed entity class; relevant public-sector implementation provisions and later amendments are separate context.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Operator-selected scope for this reference; does not grant a national grade or certification."
+        }
+      ],
+      "controlIds": [
+        "risk_management",
+        "patch_management",
+        "identity_access",
+        "system_classification",
+        "data_protection",
+        "incident_response",
+        "supplier_security",
+        "network_protection",
+        "backup_recovery",
+        "assurance_review",
+        "staff_awareness"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "gr-primary",
+          "title": "KYA 1689/2025 national requirements",
+          "url": "https://cyber.gov.gr/wp-content/uploads/2025/05/20250202186.pdf",
+          "locator": "Articles 3–11 and subsequent technical requirements"
+        }
+      ],
+      "limitations": [
+        "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification.",
+        "The May 2025 requirements were read directly; later public-sector implementation provisions and current entity-specific timing are not fully mapped."
+      ],
+      "jurisdictionType": "country_or_area"
+    },
+    {
+      "id": "ro-nis2-ordinance",
+      "countryCode": "RO",
+      "countryName": "Romania",
+      "label": "Civil national cybersecurity ordinance",
+      "version": "OUG 155/2024; available official text with Law 124/2025 amendment notes",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Essential and important entities in the civil national cyberspace under OUG 155/2024. DNSC risk-level orders, registration, sector equivalents and exemptions require separate review. Essential/important denotes entity class, not achievement.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Operator-selected scope for this reference; does not grant a national grade or certification."
+        }
+      ],
+      "controlIds": [
+        "risk_management",
+        "assurance_review",
+        "data_protection",
+        "supplier_security",
+        "application_security",
+        "identity_access",
+        "incident_response",
+        "backup_recovery",
+        "staff_awareness"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "ro-primary",
+          "title": "OUG 155/2024 consolidated text",
+          "url": "https://legislatie.just.ro/Public/DetaliiDocument/293121",
+          "locator": "Articles 11–14; Law 124/2025 amendment notes"
+        }
+      ],
+      "limitations": [
+        "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification.",
+        "Newer consolidated official view 311690 could not be fully read. Applicable DNSC orders and subsequent amendments remain a review gap."
+      ],
+      "jurisdictionType": "country_or_area"
+    },
+    {
+      "id": "se-agency-isms",
+      "countryCode": "SE",
+      "countryName": "Sweden",
+      "label": "Government agency information security rules",
+      "version": "MSBFS 2020:6; current MCF register reviewed 2026-10-08",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "reviewed_reference",
+      "applicability": "Government agencies within MSBFS 2020:6 scope; systematic, risk-based information security. Individual exceptions under §16 require competent authority review. Not a private-sector NIS 2 equivalence claim.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Operator-selected scope for this reference; does not grant a national grade or certification."
+        }
+      ],
+      "controlIds": [
+        "risk_management",
+        "assurance_review",
+        "system_classification",
+        "secure_configuration",
+        "supplier_security",
+        "staff_awareness",
+        "incident_response",
+        "backup_recovery"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "se-primary",
+          "title": "MCF current register for MSBFS 2020:6",
+          "url": "https://www.mcf.se/sv/regler/gallande-regler/msbfs-20206/",
+          "locator": "§§1–16"
+        },
+        {
+          "id": "se-rules",
+          "title": "MSBFS 2020:6 normative rules and general guidance",
+          "url": "https://www.msb.se/siteassets/dokument/regler/forfattningar/msbfs-2020-6-foreskrifter-om-informationssakerhet-for-statliga-myndigheter.pdf",
+          "locator": "§§4–14, printed pp.2–6"
+        }
+      ],
+      "limitations": [
+        "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+      ],
+      "jurisdictionType": "country_or_area"
+    },
+    {
+      "id": "no-nsm-principles",
+      "countryCode": "NO",
+      "countryName": "Norway",
+      "label": "NSM ICT security principles",
+      "version": "Version 2.1, published 2024-06-04; updated 2024-10-28",
+      "kind": "control_baseline",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Voluntary recommendations adapted to each organisation. The Norwegian Security Act may require more stringent controls; these principles do not replace those obligations.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Operator-selected scope for this reference; does not grant a national grade or certification."
+        }
+      ],
+      "controlIds": [
+        "system_classification",
+        "risk_management",
+        "identity_access",
+        "secure_configuration",
+        "network_protection",
+        "patch_management",
+        "malware_protection",
+        "application_security",
+        "data_protection",
+        "logging_monitoring",
+        "incident_response",
+        "backup_recovery",
+        "assurance_review",
+        "staff_awareness",
+        "supplier_security"
+      ],
+      "mappingCoverage": "overview_only",
+      "sources": [
+        {
+          "id": "no-primary",
+          "title": "NSM ICT security principles 2.1",
+          "url": "https://nsm.no/getfile.php/1313975-1717589722/NSM/Filer/Dokumenter/Veiledere/NSMs%20Grunnprinsipper%20for%20IKT-sikkerhet%20v2.1.pdf",
+          "locator": "Four principle groups and numbered measures"
+        }
+      ],
+      "limitations": [
+        "Technical clauses or current applicability were not sufficiently retrievable; no executable requirement pack or conformity conclusion.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+      ],
+      "jurisdictionType": "country_or_area"
+    },
+    {
+      "id": "de-compendium-reference",
+      "countryCode": "DE",
+      "countryName": "Germany",
+      "label": "BSI IT-Grundschutz Compendium reference",
+      "version": "Edition 2023, pinned historical reference; not asserted latest 2026",
+      "kind": "control_baseline",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "BSI component controls applied to a documented target model. Existing protection-needs and implementation-approach entries remain distinct. Grundschutz++ developments and a newer applicable edition require review.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Operator-selected scope for this reference; does not grant a national grade or certification."
+        }
+      ],
+      "controlIds": [
+        "system_classification",
+        "risk_management",
+        "identity_access",
+        "secure_configuration",
+        "network_protection",
+        "patch_management",
+        "malware_protection",
+        "application_security",
+        "data_protection",
+        "logging_monitoring",
+        "incident_response",
+        "backup_recovery",
+        "assurance_review",
+        "staff_awareness",
+        "supplier_security"
+      ],
+      "mappingCoverage": "overview_only",
+      "sources": [
+        {
+          "id": "de-primary",
+          "title": "BSI IT-Grundschutz Compendium 2023",
+          "url": "https://www.bsi.bund.de/SharedDocs/Downloads/DE/BSI/Grundschutz/IT-GS-Kompendium/IT_Grundschutz_Kompendium_Edition2023.pdf?__blob=publicationFile&v=4",
+          "locator": "Edition 2023 components and requirement classes"
+        }
+      ],
+      "limitations": [
+        "Technical clauses or current applicability were not sufficiently retrievable; no executable requirement pack or conformity conclusion.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+      ],
+      "jurisdictionType": "country_or_area"
+    },
+    {
+      "id": "be-cyfun",
+      "countryCode": "BE",
+      "countryName": "Belgium",
+      "label": "CyberFundamentals assessment tiers",
+      "version": "CyFun 2025 announcement; technical edition requires retrieval",
+      "kind": "maturity",
+      "ordinalLevels": true,
+      "currency": "requires_review",
+      "applicability": "Belgian organisations selecting CyFun targets, including applicable NIS 2 conformity routes. Basic/Important/Essential are framework assessment tiers; not interchangeable with entity legal class.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "basic",
+          "label": "Basic",
+          "summary": "Native CyFun tier; current2025 technical content requires retrieval before clause assessment."
+        },
+        {
+          "id": "important",
+          "label": "Important",
+          "summary": "Native CyFun tier; current2025 technical content requires retrieval before clause assessment."
+        },
+        {
+          "id": "essential",
+          "label": "Essential",
+          "summary": "Native CyFun tier; current2025 technical content requires retrieval before clause assessment."
+        }
+      ],
+      "controlIds": [
+        "system_classification",
+        "risk_management",
+        "identity_access",
+        "secure_configuration",
+        "network_protection",
+        "patch_management",
+        "malware_protection",
+        "application_security",
+        "data_protection",
+        "logging_monitoring",
+        "incident_response",
+        "backup_recovery",
+        "assurance_review",
+        "staff_awareness",
+        "supplier_security"
+      ],
+      "mappingCoverage": "overview_only",
+      "sources": [
+        {
+          "id": "be-primary",
+          "title": "CCB CyFun 2025 announcement",
+          "url": "https://ccb.belgium.be/nl/news/cyfunr-2025-nu-beschikbaar",
+          "locator": "Edition announcement; current technical framework retrieval gap"
+        }
+      ],
+      "limitations": [
+        "Technical clauses or current applicability were not sufficiently retrievable; no executable requirement pack or conformity conclusion.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification.",
+        "Legacy Small guidance is not represented as a certification tier. The 2025 PDF was inaccessible; no 2023 controls silently substituted."
+      ],
+      "jurisdictionType": "country_or_area"
+    },
+    {
+      "id": "ch-ict-minimum",
+      "countryCode": "CH",
+      "countryName": "Switzerland",
+      "label": "ICT minimum standard",
+      "version": "2023 ICT minimum standard listed by BACS",
+      "kind": "control_baseline",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "General national ICT guidance, with mandatory application only where a specific sector instrument says so. Electricity/rail sector applicability cannot be imposed on every Swiss organisation.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Operator-selected scope for this reference; does not grant a national grade or certification."
+        }
+      ],
+      "controlIds": [
+        "system_classification",
+        "risk_management",
+        "identity_access",
+        "secure_configuration",
+        "network_protection",
+        "patch_management",
+        "malware_protection",
+        "application_security",
+        "data_protection",
+        "logging_monitoring",
+        "incident_response",
+        "backup_recovery",
+        "assurance_review",
+        "staff_awareness",
+        "supplier_security"
+      ],
+      "mappingCoverage": "overview_only",
+      "sources": [
+        {
+          "id": "ch-primary",
+          "title": "BACS ICT minimum standards",
+          "url": "https://www.bacs.admin.ch/de/ikt-minimalstandards",
+          "locator": "General standard and sector-specific applicability"
+        }
+      ],
+      "limitations": [
+        "Technical clauses or current applicability were not sufficiently retrievable; no executable requirement pack or conformity conclusion.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+      ],
+      "jurisdictionType": "country_or_area"
+    },
+    {
+      "id": "at-security-framework-bund",
+      "countryCode": "AT",
+      "countryName": "Austria",
+      "label": "Security Framework Bund",
+      "version": "Version 2.0; official listing updated 2026-03-09",
+      "kind": "control_baseline",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Austrian federal administration framework with 286 questions across 13 chapters. National handbook and former NISV are separate references; repealed NISV 2019 is not used as current law.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Operator-selected scope for this reference; does not grant a national grade or certification."
+        }
+      ],
+      "controlIds": [
+        "system_classification",
+        "risk_management",
+        "identity_access",
+        "secure_configuration",
+        "network_protection",
+        "patch_management",
+        "malware_protection",
+        "application_security",
+        "data_protection",
+        "logging_monitoring",
+        "incident_response",
+        "backup_recovery",
+        "assurance_review",
+        "staff_awareness",
+        "supplier_security"
+      ],
+      "mappingCoverage": "overview_only",
+      "sources": [
+        {
+          "id": "at-primary",
+          "title": "Federal Chancellery Security Framework Bund",
+          "url": "https://www.bundeskanzleramt.gv.at/themen/cybersicherheit/security-framework-bund.html",
+          "locator": "Version 2.0 workbook;13 chapters"
+        }
+      ],
+      "limitations": [
+        "Technical clauses or current applicability were not sufficiently retrievable; no executable requirement pack or conformity conclusion.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+      ],
+      "jurisdictionType": "country_or_area"
+    },
+    {
+      "id": "cz-minimum-standard",
+      "countryCode": "CZ",
+      "countryName": "Czechia",
+      "label": "NUKIB minimum security standard",
+      "version": "Version 1.2, pinned supporting standard",
+      "kind": "control_baseline",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Voluntary minimum-security supporting material for organisations; not automatically the current lower- or higher-duty NIS 2 decree. New regulatory applicability is separately determined.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Operator-selected scope for this reference; does not grant a national grade or certification."
+        }
+      ],
+      "controlIds": [
+        "system_classification",
+        "risk_management",
+        "identity_access",
+        "secure_configuration",
+        "network_protection",
+        "patch_management",
+        "malware_protection",
+        "application_security",
+        "data_protection",
+        "logging_monitoring",
+        "incident_response",
+        "backup_recovery",
+        "assurance_review",
+        "staff_awareness",
+        "supplier_security"
+      ],
+      "mappingCoverage": "overview_only",
+      "sources": [
+        {
+          "id": "cz-primary",
+          "title": "NUKIB Minimum Security Standard 1.2",
+          "url": "https://nukib.gov.cz/download/publikace/podpurne_materialy/minimalni-bezpecnostni-standard_v1.2.pdf",
+          "locator": "Sections 2–17"
+        }
+      ],
+      "limitations": [
+        "Technical clauses or current applicability were not sufficiently retrievable; no executable requirement pack or conformity conclusion.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+      ],
+      "jurisdictionType": "country_or_area"
+    },
+    {
+      "id": "pt-qnrcs",
+      "countryCode": "PT",
+      "countryName": "Portugal",
+      "label": "National Cybersecurity Reference Framework",
+      "version": "QNRCS 2019, voluntary edition",
+      "kind": "control_baseline",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "CNCS voluntary framework for organisations, explicitly organised around Identify/Protect/Detect/Respond/Recover. April 2026 consultation drafts are not represented as enacted risk grades.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Operator-selected scope for this reference; does not grant a national grade or certification."
+        }
+      ],
+      "controlIds": [
+        "system_classification",
+        "risk_management",
+        "identity_access",
+        "secure_configuration",
+        "network_protection",
+        "patch_management",
+        "malware_protection",
+        "application_security",
+        "data_protection",
+        "logging_monitoring",
+        "incident_response",
+        "backup_recovery",
+        "assurance_review",
+        "staff_awareness",
+        "supplier_security"
+      ],
+      "mappingCoverage": "overview_only",
+      "sources": [
+        {
+          "id": "pt-primary",
+          "title": "CNCS QNRCS 2019",
+          "url": "https://www.cncs.gov.pt/docs/cncs-qnrcs-2019.pdf",
+          "locator": "Framework objectives and implementation measures"
+        }
+      ],
+      "limitations": [
+        "Technical clauses or current applicability were not sufficiently retrievable; no executable requirement pack or conformity conclusion.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+      ],
+      "jurisdictionType": "country_or_area"
+    },
+    {
+      "id": "ee-eits",
+      "countryCode": "EE",
+      "countryName": "Estonia",
+      "label": "Estonian information security standard",
+      "version": "E-ITS 2024 as listed by RIA; applicability needs current-law review",
+      "kind": "control_baseline",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Organisations applying the national E-ITS baseline and bodies within applicable Estonian obligations. The superseded 2024 decree is not used as current legal authority; no grades inferred from BSI lineage.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Operator-selected scope for this reference; does not grant a national grade or certification."
+        }
+      ],
+      "controlIds": [
+        "system_classification",
+        "risk_management",
+        "identity_access",
+        "secure_configuration",
+        "network_protection",
+        "patch_management",
+        "malware_protection",
+        "application_security",
+        "data_protection",
+        "logging_monitoring",
+        "incident_response",
+        "backup_recovery",
+        "assurance_review",
+        "staff_awareness",
+        "supplier_security"
+      ],
+      "mappingCoverage": "overview_only",
+      "sources": [
+        {
+          "id": "ee-primary",
+          "title": "RIA Estonian information security standard",
+          "url": "https://ria.ee/kuberturvalisus/riigi-infoturbe-meetmete-haldus/eesti-infoturbestandard-e-its",
+          "locator": "Current E-ITS description and implementation/audit references"
+        }
+      ],
+      "limitations": [
+        "Technical clauses or current applicability were not sufficiently retrievable; no executable requirement pack or conformity conclusion.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+      ],
+      "jurisdictionType": "country_or_area"
+    },
+    {
+      "id": "tr-information-guide",
+      "countryCode": "TR",
+      "countryName": "Türkiye",
+      "label": "Information and communication security guide",
+      "version": "2020 guide;2021 audit guide reference",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Public agencies and critical-infrastructure organisations under Presidential Circular 2019/12; current 2026 administrative ownership, applicable version and asset criticality levels require review.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Operator-selected scope for this reference; does not grant a national grade or certification."
+        }
+      ],
+      "controlIds": [
+        "system_classification",
+        "risk_management",
+        "identity_access",
+        "secure_configuration",
+        "network_protection",
+        "patch_management",
+        "malware_protection",
+        "application_security",
+        "data_protection",
+        "logging_monitoring",
+        "incident_response",
+        "backup_recovery",
+        "assurance_review",
+        "staff_awareness",
+        "supplier_security"
+      ],
+      "mappingCoverage": "overview_only",
+      "sources": [
+        {
+          "id": "tr-primary",
+          "title": "Official information security audit guide",
+          "url": "https://ms.hmb.gov.tr/uploads/2021/12/BG_Denetim_Rehberi-1.pdf",
+          "locator": "Circular 2019/12 and 2020 guide provenance"
+        }
+      ],
+      "limitations": [
+        "Technical clauses or current applicability were not sufficiently retrievable; no executable requirement pack or conformity conclusion.",
+        "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+      ],
+      "jurisdictionType": "country_or_area"
+    }
+  ]
+}

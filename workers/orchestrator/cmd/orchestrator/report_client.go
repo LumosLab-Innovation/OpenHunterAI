@@ -23,7 +23,7 @@ func newReportClient(reportingURL, findingsURL, token string) *reportClient {
 		reportingURL: reportingURL,
 		findingsURL:  findingsURL,
 		token:        token,
-		http:         &http.Client{Timeout: 30 * time.Second},
+		http:         &http.Client{Timeout: 75 * time.Second},
 	}
 }
 

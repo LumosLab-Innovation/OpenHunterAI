@@ -1,82 +1,30 @@
 # Acceptance criteria
 
-Required acceptance checks for v1. Unchecked items are gates, **not a status
-report**. Record the tested commit, environment, command, and sanitized evidence
-before marking a release accepted. See [current gaps](PUBLIC_RELEASE_READINESS.md#open-gaps).
+## #13: trustworthy self-host scan contract
 
-## Local workspace
+- Dashboard and `openhunterai` CLI use `POST /v1/scans/preflight` and `POST /v1/scans` with `scan_request_v2`; project-scoped routes adapt into the same service. Standard is the UI default. Quick/Standard/Deep remain labeled as selected; no silent downgrade.
+- A public HTTPS URL with a path defaults to that path and descendants. Explicit host-wide scope must be selected and reconfirmed. Private/local/metadata targets, out-of-scope paths/hosts and redirects are rejected at API and worker boundaries.
+- Preflight reports planned workers and installed/configured/reachable/executable states. If Standard lacks a worker, the gap appears before creation and in `report_v2`, and must be acknowledged. Deep blocks on missing mandatory safety/runtime prerequisites.
+- No commercial tier, scan mode, finding cap, retest quota/cooldown or use-case entitlement influences API, plan, LLM, worker event, DB or report. Resource/rate limits and approval gates still apply. LLM or worker budget exhaustion is a limitation/coverage gap.
+- Worker crash, timeout, malformed output and unavailability never generate findings or clean coverage. Duplicate callback/retry does not duplicate candidate, step, activity event, finding or final report.
+- Only candidates with a separate valid independent decision enter report findings; raw worker claims stay at `needs_more_evidence`. Two independently validated test fixtures appear as two findings. A retest without a real replay executor returns `RETEST_UNSUPPORTED`, with no fake `fixed` state.
+- Backup and restore are verified before dropping commercial tables/columns. Migration preserves project, scan, candidate, finding and report IDs and sanitized evidence, converts historical reports to `report_v2`/`legacy_unverified`, and is tested on a clone before local stack.
+- CLI and dashboard smoke produce the same request/plan/report type on one authorized host. Smoke does not satisfy exploit-recall acceptance.
+- System-wide reasoning routes show the CLI or provider, model, and reasoning level before a scan. The scan stores that copy. A route probe or a dashboard preview is not evidence that a coding CLI completed a prompt, and it is not evidence for XSS, SQLi, or IDOR.
 
-- [ ] Fresh clone starts at localhost:3001 without workspace signup/login.
-- [ ] Reserved identity is isolated; projects survive reload and restart.
-- [ ] Host/Origin/rebinding/cross-site requests are rejected before bootstrap.
-- [ ] Hosted mode still rejects missing/invalid sessions and wrong-organization access.
-- [ ] Status contains no credentials and distinguishes key presence from verified model access.
-- [ ] UI has loading, empty, error/retry states and usable desktop/mobile layouts.
-- [ ] Skill installs into the documented clients' discovery paths without starting a scan.
-- [ ] Only the reserved local organization bypasses hosted commercial checks.
-- [ ] Baseline startup is tested separately from authorized scan E2E; missing tools are explicit.
+## Assessment workspace and OpenShield handoff
 
-## Product and authorization
+- One local application workspace at `/` exposes scope/preflight, scans, approvals, findings, finding-scoped manual retest, report downloads and reasoning settings. Legacy detail links select the same workspace; desktop/mobile flows preserve authority and gap acknowledgments without horizontal overflow.
+- GitHub Pages publishes a separate static project landing. Relative assets work under `/OpenHunterAI/`; the page does not load dashboard code or call API/auth endpoints. The normal local frontend/Docker build retains the operational workspace.
+- OpenHunter owns assessment and verification. Incident queues, containment, operational response and recovery belong to OpenShield; finding fix guidance does not execute those actions.
+- Each research method records its source edition, prerequisites, safe scope, existing hunter/use-case mapping, deterministic oracle, matched negative and independent-validation requirements. Research-only records have no accepted executor and cannot enable a runtime scenario.
+- Finalized JSON exports contain the bounded sanitized `report_v2` snapshot and an external canonical SHA-256 digest. Mutable latest statuses are outside that digest; draft reports cannot be exported as finalized evidence.
+- Handoff records scope/authority context, producer and snapshot identity, scan window, validation basis, evidence references, coverage, remediation context and retest limitations. Missing artifact lineage or replay proof remains explicitly unknown. Scope metadata and the report digest grant no downstream authority.
+- OpenShield intake is manual until a real importer is implemented and accepted. Imported prose and URLs remain untrusted data, never tool instructions. No credential transfer or autonomous response is introduced.
 
-| Contract | Required result |
-| --- | --- |
-| Packages | Free Hunter / AI Black-hat Mindset Check / Monitor Workspace / Enterprise / PAYG |
-| Auth scope | Target-account scope, not another package |
-| Readiness export | Report view/export, not a scan package |
-| Monitor sub-tiers | Not public package names; no automatic retest implied |
-| Domain and consent | Verified/unexpired public domain plus explicit unexpired authorization |
-| Scope | Allowed hosts/paths and exclusions preserved; private targets and scope-escaping redirects blocked |
-| Account count | `none`: zero required; `one_account`: at least one; `two_accounts`: at least two |
-| Intensity | Aggressive staging requires explicit controlled staging/dev/test acceptance |
+## Later release gates
 
-## Deterministic plan
+- #14 verifies artifact provenance, baseline/exploit replay, demonstrated impact and negative controls; High/Critical require stronger independent evidence. Retest returns fixed/still reproducible/inconclusive with attempt evidence.
+- #22 runs an intentionally vulnerable, isolated target with matched negative controls and reports recall by class, false-positive rate, evidence completeness, coverage, time and cost. A new user can self-host, scan, inspect a real report, fix and retest without touching DB/NATS internals.
 
-- [ ] Target type and flags produce the [documented worker/hunter matrix](WORKER_SPEC.md#3-profiles-by-target-type).
-- [ ] Plan includes skipped-hunter reasons, quotas, and validation/approval level.
-- [ ] LLM does not choose target type or the worker set; no profiler worker is added.
-- [ ] Free may use each target/intensity when authorized and subject to the same safety gates.
-- [ ] Sensitive actions require human approval; budget exhaustion never opens broader scope.
-
-## Free Hunter
-
-- [ ] One returned finding, one monitored finding, one retest, seven-day cooldown.
-- [ ] First valuable finding stops expensive remaining work.
-- [ ] Limited finding/retest view does not become the full paid workspace.
-- [ ] No valuable finding returns coverage, hardening, limitations, and next steps.
-
-The first-valuable-finding output cap is not proof that early stopping is complete.
-See [fan-in limitations](WORKER_SPEC.md#5-completion-and-reporting-limits).
-
-## Workers and models
-
-- [ ] ZAP remains passive/baseline; Nuclei runs only a reviewed allowlist.
-- [ ] Nuclei template configuration is effective; missing/failed runtime cannot return fake clean success.
-- [ ] OpenHack/Strix use real configured runtimes, within scope/intensity/approval limits.
-- [ ] Recon actively probes only approved hosts; discovery never auto-expands scope.
-- [ ] Every worker has bounded timeout/retries, explicit failed/skipped coverage, and sanitized callbacks.
-- [ ] Business logic uses LLM aliases through the gateway.
-- [ ] Sanitizer, use-case allowance, budgets, timeout, retry, and fallback are tested.
-- [ ] Model recommendations cannot invent findings, evidence, IDs, or override policy.
-
-## Storage, reports, and exports
-
-- [ ] Sanitized findings/reports are stored in Postgres; no external artifact-store dependency.
-- [ ] Credentials/session state use dedicated encrypted fields; hosted access uses hashes.
-- [ ] Raw secrets, cookies, tokens, HAR, sensitive traffic, and private data never enter evidence/logs/prompts/exports.
-- [ ] Detected secrets retain only masked fingerprint/hash/metadata.
-- [ ] `report_v1` JSON is the immutable report snapshot; draft sections stream through scoped SSE.
-- [ ] DOCX/CSV/JSON/HTML/PDF exports are generated on demand, not persisted as raw artifacts.
-- [ ] Downloads require an organization-scoped final/superseded report; drafts are not final downloads.
-- [ ] JSON preserves the snapshot; latest status remains a separate optional overlay.
-- [ ] CSV neutralizes spreadsheet formulas and separates findings from hardening/coverage.
-- [ ] Long and Unicode report content is not lost in exported formats.
-- [ ] Manual retest updates its result and latest view without rewriting historical evidence.
-
-## Excluded scope
-
-Fail acceptance if unapproved implementation adds private/cloud/VPS scanning,
-server agents, mobile APK auditing, SAST/SCA/secrets scanning, automatic GitHub/Jira
-integration, CI/CD/deployment retest, or unrestricted offensive execution.
-The product remains attacker-style security assessment, not a compliance certification.
-
-Use [production readiness](PRODUCTION_READINESS.md) for release-environment checks.
+The PolyForm Noncommercial license and mandatory security guardrails remain in force.

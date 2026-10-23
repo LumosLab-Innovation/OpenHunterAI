@@ -1,0 +1,431 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "ma-law0908-security-selected-clauses",
+  "frameworkId": "ma-law0908-security",
+  "version": "2026-10-08.1",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "ma-law0908-security-source",
+      "title": "Law 09-08 — Security of personal-data processing — official reference",
+      "url": "https://www.cndp.ma/wp-content/uploads/2023/11/Loi-09-08-Fr.pdf",
+      "locator": "Articles 23–26; PDF pp 15–16"
+    }
+  ],
+  "limitations": [
+    "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+    "Art 24 is conditional on sensitive/health processing; CNDP dispensations require manual review. Authorization/declaration and transfer regimes are outside the selected security pack.",
+    "Any applicable CNDP dispensation stops automatic evaluation of Art 24 checks and remains an exclusion/gap requiring manual scope review."
+  ],
+  "requirements": [
+    {
+      "id": "ma-proportionate-security",
+      "label": "Use risk-appropriate security measures",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ma-law0908-security-source",
+      "locator": "Art 23(1);PDFp 15",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ma-proportionate-security",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ma-processor-assurance",
+      "label": "Select and supervise secure processors",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ma-law0908-security-source",
+      "locator": "Art 23(2);PDFp 15",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ma-processor-assurance",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ma-processor-contract",
+      "label": "Bind processor instructions and security",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ma-law0908-security-source",
+      "locator": "Art 23(3);PDFp 15",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "uses-processor",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ma-processor-contract",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ma-written-security",
+      "label": "Record contract security terms",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ma-law0908-security-source",
+      "locator": "Art 23(4);PDFp 15",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "uses-processor",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ma-written-security",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ma-physical-entry",
+      "label": "Restrict processing-facility entry",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ma-law0908-security-source",
+      "locator": "Art 24(1)(a);PDFp 15",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "sensitive-or-health-data",
+          "equals": true
+        },
+        {
+          "factId": "cndp-dispensation-applies",
+          "equals": false
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ma-physical-entry",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ma-media-control",
+      "label": "Control data-media access",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ma-law0908-security-source",
+      "locator": "Art 24(1)(b);PDFp 15",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "sensitive-or-health-data",
+          "equals": true
+        },
+        {
+          "factId": "cndp-dispensation-applies",
+          "equals": false
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ma-media-control",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ma-input-integrity",
+      "label": "Prevent unauthorized data alteration",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ma-law0908-security-source",
+      "locator": "Art 24(1)(c);PDFp 15",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "sensitive-or-health-data",
+          "equals": true
+        },
+        {
+          "factId": "cndp-dispensation-applies",
+          "equals": false
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ma-input-integrity",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ma-system-use",
+      "label": "Prevent unauthorized remote system use",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ma-law0908-security-source",
+      "locator": "Art 24(1)(d);PDFpp 15–16",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "sensitive-or-health-data",
+          "equals": true
+        },
+        {
+          "factId": "cndp-dispensation-applies",
+          "equals": false
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ma-system-use",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ma-authorized-data",
+      "label": "Limit access to authorized data",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ma-law0908-security-source",
+      "locator": "Art 24(1)(e);PDFp 16",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "sensitive-or-health-data",
+          "equals": true
+        },
+        {
+          "factId": "cndp-dispensation-applies",
+          "equals": false
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ma-authorized-data",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ma-recipient-verification",
+      "label": "Verify transmission recipients",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ma-law0908-security-source",
+      "locator": "Art 24(1)(f);PDFp 16",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "sensitive-or-health-data",
+          "equals": true
+        },
+        {
+          "factId": "cndp-dispensation-applies",
+          "equals": false
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ma-recipient-verification",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ma-input-traceability",
+      "label": "Trace entered data and actor",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ma-law0908-security-source",
+      "locator": "Art 24(1)(g);PDFp 16",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "sensitive-or-health-data",
+          "equals": true
+        },
+        {
+          "factId": "cndp-dispensation-applies",
+          "equals": false
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ma-input-traceability",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Sector-specific period is not guessed; review the applicable regulation for trace retention."
+    },
+    {
+      "id": "ma-transport-security",
+      "label": "Protect transmitted data and transported media",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ma-law0908-security-source",
+      "locator": "Art 24(1)(h);PDFp 16",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "sensitive-or-health-data",
+          "equals": true
+        },
+        {
+          "factId": "cndp-dispensation-applies",
+          "equals": false
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ma-transport-security",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    }
+  ]
+}

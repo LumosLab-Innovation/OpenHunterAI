@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "country_security_benchmark_run_v1",
+  "dataOrigin": "synthetic_fixture",
+  "frameworkId": "vn-system-levels",
+  "levelId": "level-3",
+  "producerId": "engine-fixture",
+  "results": [
+    {
+      "caseId": "xss-positive",
+      "outcome": "detected",
+      "validatorId": "reviewer-fixture",
+      "evidenceRefs": [
+        "artifact:baseline:xss-positive-baseline",
+        "artifact:probe:xss-positive-probe",
+        "artifact:impact:xss-positive-impact",
+        "artifact:replay:xss-positive-replay"
+      ]
+    },
+    {
+      "caseId": "xss-negative",
+      "outcome": "clear",
+      "validatorId": "reviewer-fixture",
+      "evidenceRefs": [
+        "artifact:baseline:xss-negative-baseline",
+        "artifact:probe:xss-negative-probe",
+        "artifact:negative:xss-negative-negative",
+        "artifact:replay:xss-negative-replay"
+      ]
+    },
+    {
+      "caseId": "sqli-positive",
+      "outcome": "detected",
+      "validatorId": "reviewer-fixture",
+      "evidenceRefs": [
+        "artifact:baseline:sqli-positive-baseline",
+        "artifact:probe:sqli-positive-probe",
+        "artifact:impact:sqli-positive-impact",
+        "artifact:replay:sqli-positive-replay"
+      ]
+    },
+    {
+      "caseId": "sqli-negative",
+      "outcome": "clear",
+      "validatorId": "reviewer-fixture",
+      "evidenceRefs": [
+        "artifact:baseline:sqli-negative-baseline",
+        "artifact:probe:sqli-negative-probe",
+        "artifact:negative:sqli-negative-negative",
+        "artifact:replay:sqli-negative-replay"
+      ]
+    },
+    {
+      "caseId": "idor-positive",
+      "outcome": "detected",
+      "validatorId": "reviewer-fixture",
+      "evidenceRefs": [
+        "artifact:baseline:idor-positive-baseline",
+        "artifact:probe:idor-positive-probe",
+        "artifact:impact:idor-positive-impact",
+        "artifact:replay:idor-positive-replay"
+      ]
+    },
+    {
+      "caseId": "idor-negative",
+      "outcome": "clear",
+      "validatorId": "reviewer-fixture",
+      "evidenceRefs": [
+        "artifact:baseline:idor-negative-baseline",
+        "artifact:probe:idor-negative-probe",
+        "artifact:negative:idor-negative-negative",
+        "artifact:replay:idor-negative-replay"
+      ]
+    }
+  ],
+  "coverageGaps": []
+}

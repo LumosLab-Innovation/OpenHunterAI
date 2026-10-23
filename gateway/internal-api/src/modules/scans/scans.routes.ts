@@ -38,8 +38,9 @@ scanRoutes.post('/:id/findings', async (req, res) => {
   }
   const signals = (req.body?.signals ?? []) as WorkerSignal[];
   const workerType = (req.body?.workerType as string) ?? 'unknown';
+  const runId = (req.body?.runId as string) ?? '';
   try {
-    const result = await service.recordFindings(scanId, workerType, signals);
+    const result = await service.recordFindings(scanId, runId, workerType, signals);
     res.status(202).json({ accepted: true, count: result.count });
   } catch (err) {
     res.status(400).json({ error: { code: 'FINDINGS_PERSIST_FAILED', message: (err as Error).message } });

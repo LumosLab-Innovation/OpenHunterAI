@@ -37,9 +37,9 @@ type Client struct {
 // worker step metadata.
 type BrowserSessionState struct {
 	TestAccountID string       `json:"testAccountId,omitempty"`
-	FinalURL     string       `json:"finalUrl,omitempty"`
-	ExpiresAt    string       `json:"expiresAt"`
-	StorageState StorageState `json:"storageState"`
+	FinalURL      string       `json:"finalUrl,omitempty"`
+	ExpiresAt     string       `json:"expiresAt"`
+	StorageState  StorageState `json:"storageState"`
 }
 
 type StorageState struct {
@@ -86,8 +86,9 @@ func (c *Client) PostStep(ctx context.Context, scanID string, res worker.Result)
 }
 
 // PostFindings reports sanitized signals as finding candidates for a scan.
-func (c *Client) PostFindings(ctx context.Context, scanID, workerType string, signals []worker.Signal) error {
+func (c *Client) PostFindings(ctx context.Context, runID, scanID, workerType string, signals []worker.Signal) error {
 	return c.post(ctx, fmt.Sprintf("/internal/scans/%s/findings", scanID), map[string]any{
+		"runId":      runID,
 		"workerType": workerType,
 		"signals":    signals,
 	})

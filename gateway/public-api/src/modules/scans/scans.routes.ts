@@ -4,20 +4,25 @@ import { asyncRoute } from '../../middlewares/async-route.middleware.js';
 import { validateBody } from '../../middlewares/validate.middleware.js';
 import {
   createScan,
+  createSelfHostedScan,
   cancelScan,
   getReportDraft,
   getScan,
   hideScan,
   listScans,
   preflightScan,
+  preflightSelfHostedScan,
   streamLiveEvents,
   streamReportEvents,
 } from './scans.controller.js';
 import { CreateScanBody } from './scans.dto.js';
+import { ScanRequestV2 } from './scan-request-v2.dto.js';
 
 export const scanRoutes = Router();
 
 scanRoutes.get('/scans', requireUser, asyncRoute(listScans));
+scanRoutes.post('/scans/preflight', requireUser, validateBody(ScanRequestV2), asyncRoute(preflightSelfHostedScan));
+scanRoutes.post('/scans', requireUser, validateBody(ScanRequestV2), asyncRoute(createSelfHostedScan));
 scanRoutes.get('/scans/:id/report-draft', requireUser, asyncRoute(getReportDraft));
 scanRoutes.get('/scans/:id/report-events', requireUser, asyncRoute(streamReportEvents));
 scanRoutes.get('/scans/:id/live-events', requireUser, asyncRoute(streamLiveEvents));

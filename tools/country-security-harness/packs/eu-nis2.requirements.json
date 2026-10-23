@@ -1,0 +1,580 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "eu-nis2-curated",
+  "frameworkId": "eu-nis2",
+  "version": "Directive (EU) 2022/2555, original OJ text of 2022-12-27",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "eu-primary",
+      "title": "NIS 2 directive",
+      "url": "https://eur-lex.europa.eu/eli/dir/2022/2555/oj?locale=en",
+      "locator": "Articles 2–4,20–23"
+    }
+  ],
+  "limitations": [
+    "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+    "Operator-supplied facts and evidence metadata do not constitute independent control verification.",
+    "Directive review does not verify national transposition or sector-specific implementing rules, including Regulation (EU) 2024/2690."
+  ],
+  "requirements": [
+    {
+      "id": "eu.management-approval",
+      "label": "Management approves security measures",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "eu-primary",
+      "locator": "Article 20(1)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "eu.directive_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Management approves security measures"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "eu.management-oversight",
+      "label": "Management oversees implementation",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "eu-primary",
+      "locator": "Article 20(1)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "eu.directive_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Management oversees implementation"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "eu.management-training",
+      "label": "Management follows cybersecurity training",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "eu-primary",
+      "locator": "Article 20(2)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "eu.directive_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Management follows cybersecurity training"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "eu.employee-training",
+      "label": "Offer regular similar employee training",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "eu-primary",
+      "locator": "Article 20(2)",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "eu.directive_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Offer regular similar employee training"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Member States encourage this training in Article 20(2); it is not silently promoted to a separate mandatory employee-training clause."
+    },
+    {
+      "id": "eu.risk-policy",
+      "label": "Maintain risk analysis and security policies",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "eu-primary",
+      "locator": "Article 21(2)(a)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "eu.directive_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Maintain risk analysis and security policies"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "eu.incident-handling",
+      "label": "Implement incident handling",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "eu-primary",
+      "locator": "Article 21(2)(b)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "eu.directive_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Implement incident handling"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "eu.continuity",
+      "label": "Manage backups, recovery and crises",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "eu-primary",
+      "locator": "Article 21(2)(c)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "eu.directive_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Manage backups, recovery and crises"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "eu.supply-chain",
+      "label": "Assess direct supplier security",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "eu-primary",
+      "locator": "Article 21(2)(d),21(3)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "eu.directive_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Assess direct supplier security"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "eu.lifecycle-security",
+      "label": "Secure acquisition, development and maintenance",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "eu-primary",
+      "locator": "Article 21(2)(e)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "eu.directive_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Secure acquisition, development and maintenance"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "eu.effectiveness",
+      "label": "Assess security measure effectiveness",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "eu-primary",
+      "locator": "Article 21(2)(f)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "eu.directive_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Assess security measure effectiveness"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "eu.hygiene-training",
+      "label": "Implement cyber hygiene and training",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "eu-primary",
+      "locator": "Article 21(2)(g)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "eu.directive_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Implement cyber hygiene and training"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "eu.cryptography",
+      "label": "Maintain appropriate cryptographic procedures",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "eu-primary",
+      "locator": "Article 21(2)(h)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "eu.directive_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Maintain appropriate cryptographic procedures"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "eu.personnel-access-assets",
+      "label": "Manage personnel, access and assets",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "eu-primary",
+      "locator": "Article 21(2)(i)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "eu.directive_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Manage personnel, access and assets"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "eu.authentication-communications",
+      "label": "Review appropriate authentication and secure communications",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "eu-primary",
+      "locator": "Article 21(2)(j)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "eu.directive_scope_confirmed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review appropriate authentication and secure communications"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Where-appropriate qualifier and continuous-authentication alternative are retained; this is not a blanket MFA mandate."
+    },
+    {
+      "id": "eu.early-warning-age",
+      "label": "Warn within 24 hours of significant-incident awareness",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "eu-primary",
+      "locator": "Article 23(4)(a)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "eu.directive_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "eu.significant_incident_occurred",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "eu.early-warning-age",
+        "max": 24,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Clock starts when the entity becomes aware of the significant incident, and the duty also requires no undue delay. Verify submission destination and content separately."
+    },
+    {
+      "id": "eu.notification-age",
+      "label": "Notify within 72 hours for ordinary significant incidents",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "eu-primary",
+      "locator": "Article 23(4)(b)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "eu.directive_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "eu.significant_incident_occurred",
+          "equals": true
+        },
+        {
+          "factId": "eu.trust_service_incident",
+          "equals": false
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "eu.notification-age",
+        "max": 72,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Trust service incidents use the separate 24-hour derogation. This metadata bound does not judge whether an incident is significant."
+    },
+    {
+      "id": "eu.trust-notification-age",
+      "label": "Trust incident notification within 24 hours",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "eu-primary",
+      "locator": "Article 23(4), final subparagraph",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "eu.directive_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "eu.significant_incident_occurred",
+          "equals": true
+        },
+        {
+          "factId": "eu.trust_service_incident",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "eu.trust-notification-age",
+        "max": 24,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "eu.final-report-age",
+      "label": "Final report within one calendar month of notification",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "eu-primary",
+      "locator": "Article 23(4)(d)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "eu.directive_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "eu.significant_incident_occurred",
+          "equals": true
+        },
+        {
+          "factId": "eu.incident_ongoing_at_report_deadline",
+          "equals": false
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "eu.final-report-age",
+        "max": 1,
+        "unit": "months"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator evaluates the actual calendar deadline from incident notification. Ongoing incidents follow the distinct progress/final-report rule in 23(4)(e)."
+    },
+    {
+      "id": "eu.ongoing-report",
+      "label": "Review progress and final reports for ongoing incidents",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "eu-primary",
+      "locator": "Article 23(4)(e)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "eu.directive_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "eu.significant_incident_occurred",
+          "equals": true
+        },
+        {
+          "factId": "eu.incident_ongoing_at_report_deadline",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review progress and final reports for ongoing incidents"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    }
+  ]
+}

@@ -1,164 +1,53 @@
-# Architecture
+# OpenHunterAI architecture
 
-This describes the checked-in local runtime, not a claim about live cloud
-deployments. Start with [local setup](LOCAL_WORKSPACE.md); service definitions are
-in [compose.local.yml](../compose.local.yml).
+The dashboard, CLI, and future coding-agent skill share one `scan_request_v2` → `report_v2` pipeline:
 
-## Runtime
-
-```mermaid
-flowchart TB
-  subgraph HOST["Your machine · loopback access"]
-    UI["React workspace<br/>localhost:3001"]
-    CLI["Coding-agent skill<br/>Read-only helper"]
-  end
-  subgraph STACK["Local Docker network"]
-    API["Public API · 4000<br/>Identity, scope, scan plan"]
-    DB[("Postgres · 5432")]
-    NATS["NATS JetStream · 4222"]
-    ORCH["Go orchestrator<br/>Dispatch + completion tracking"]
-    W["Browser / Z / N / O / S / R"]
-    INT["Internal API · 4100<br/>Worker callbacks"]
-    FIND["Findings · 4300<br/>Promotion policy"]
-    REPORT["Reporting · 4400<br/>Drafts + report_v1"]
-    TOOLS["ZAP / Nuclei / recon adapters"]
-  end
-  OPTIONAL["Optional runtimes<br/>OpenHack / Strix"]
-  UI -->|"nginx /api proxy"| API
-  CLI -->|"127.0.0.1:4000"| API
-  API <--> DB
-  API -->|"scan.created"| NATS
-  NATS --> ORCH
-  ORCH -->|"worker.*.run via NATS"| W
-  W --> TOOLS
-  W --> OPTIONAL
-  W -->|"Steps + signals"| INT
-  INT --> DB
-  ORCH -->|"Promote candidates"| FIND
-  FIND --> DB
-  W -->|"worker.completed via NATS"| ORCH
-  ORCH -->|"Finalize"| REPORT
-  REPORT --> DB
-  REPORT -->|"Report events"| NATS
-  NATS -->|"Report updates"| API
-  API -->|"SSE + reads"| UI
+```text
+Client → public API/preflight → immutable authorization + scope snapshot
+       → deterministic scan plan → Postgres + NATS → orchestrator
+       → browser/ZAP/Nuclei/built-in passive/Strix workers
+       → sanitized candidates → independent triage → findings
+       → report builder → immutable report_v2 + live UI events
 ```
 
-Browser inspection runs inside its worker. Interactive target-login capture is a
-separate optional `browser-session` service; it is not workspace authentication.
-OpenHack and Strix worker processes start with the local stack, but their tool
-runtimes must be supplied separately. Nuclei's adapter/binary is packaged; its
-reviewed template bundle and runtime configuration remain a release blocker.
+Self-host local mode creates an internal operator automatically and exposes the unauthenticated API only through a loopback-published port. Project IDs group scans and support audit. Billing, entitlement, payment, subscription, and credit state are not runtime concepts.
 
-| Component | Source | Local exposure |
-| --- | --- | --- |
-| UI + same-origin proxy | [frontend](../frontend/) | `127.0.0.1:3001` |
-| Public API | [gateway/public-api](../gateway/public-api/) | `127.0.0.1:4000` |
-| Callback API | [gateway/internal-api](../gateway/internal-api/) | Internal `4100` |
-| Findings / reporting | [backend](../backend/) | Internal `4300 / 4400` |
-| Browser-session capture | [backend/browser-session](../backend/browser-session/) | Optional, internal `4700` |
-| Workers / orchestrator | [workers](../workers/) | Internal health ports `5100–5170` |
-| Tool adapters | [integrations](../integrations/) | Internal; [runtime map](../infra/INTEGRATIONS.md) |
-| Postgres / NATS | [Compose](../compose.local.yml) | Internal `5432 / 4222`; named volumes |
+## Product and UI boundary
 
-There is no `report-worker` service. `backend/control-plane` and older
-`infra/docker-compose` overlays exist for contributor/hosted workflows; they are
-not additional services in the default local stack.
+The local client is one operational workspace at `/`; old project/scan/finding/report
+links select context on that same page. Target/scope and explicit consent remain
+visible before execution. Accounts, authorization details and model routes are
+collapsed settings. Approvals, candidate/finding state and report exports stay
+available without separate dashboards or an incident workflow.
 
-## Scan lifecycle
+The public GitHub Pages site is a separate static introduction from `site/`.
+It has no operational dashboard or API connection. Its dependency-free public
+build and the local React build are separate artifacts; see [public hosting](PUBLIC_SITE.md).
 
-```mermaid
-sequenceDiagram
-  actor User
-  participant API as Public API
-  participant DB as Postgres
-  participant Bus as NATS / orchestrator
-  participant Workers
-  participant Internal as Internal API
-  participant Findings
-  participant Report as Reporting
-  User->>API: Verify domain and authorize exact scope
-  User->>API: POST project scan
-  API->>API: Validate policy and build deterministic plan
-  API->>DB: Save scope snapshot, plan, initial draft
-  API->>Bus: scan.created
-  API-->>User: Scan ID
-  Bus->>Workers: worker.*.run for enabled keys
-  Workers->>Internal: Sanitized steps and candidate signals
-  Internal->>DB: Persist steps and candidate signals
-  Workers->>Bus: worker.completed
-  Bus->>Findings: Promote eligible candidates after completions
-  Findings->>DB: Persist validated findings
-  Bus->>Report: Finalize report
-  Report->>DB: Immutable report_v1 snapshot
-  Report-->>API: Report events with DB polling fallback
-  API-->>User: SSE updates and report reads
-```
+The canonical report can be exported as a bounded immutable snapshot plus an
+external digest for manual OpenShield intake. Mutable status overlays are not
+part of that digest. OpenShield owns investigation, response and recovery; no
+credential or authority crosses the file boundary. Its importer remains planned.
+See [the collaboration contract](OPENSHIELD_COLLABORATION.md).
 
-The planner is [buildScanPlan](../shared/security-core/src/scan-plan.ts), invoked
-by [ScansService](../gateway/public-api/src/modules/scans/scans.service.ts).
-The orchestrator dispatches that plan; an LLM does not choose the worker set.
+## Request and plan
 
-Completion tracking normalizes plan keys into runtime IDs. It waits for expected
-worker completions; `completed` does not mean every check succeeded. Inspect step
-states and report coverage. Free-mode result limits are enforced at promotion
-and report generation; immediate cancellation of other workers after the first
-valuable finding is not implemented in fan-in.
+The canonical request carries a public HTTPS URL (path included), profile `quick | standard | deep`, explicit authority confirmation, optional exact-host/path scope, exclusions, target type, auth scope, and surface hints. If a URL has a path, its subtree is the default scope. Both client preflight and creation call the same scan service; project-scoped routes are compatibility adapters. Changing profile or scope requires fresh user confirmation.
 
-Reports are generated by [backend/reporting](../backend/reporting/src/server.ts).
-The public API serves snapshots, latest-status overlays, and DOCX/CSV/JSON/HTML/PDF
-exports. Retest is separately requested for one finding, not a background loop.
+Profile maps to existing intensity: Quick → `safe_discovery`, Standard → `controlled_attack_simulation`, Deep → `aggressive_staging`. The plan deterministically selects workers and hunter families plus resource ceilings. An LLM can rank or explain sanitized observations but cannot expand scope, select unapproved workers, create findings, or override validation. Preflight probes each planned runtime; missing Standard workers require acknowledged gaps while mandatory Deep prerequisites block creation.
 
-## Data model
+## Worker lifecycle and coverage
 
-[Prisma](../shared/db/prisma/schema.prisma) is the database authority.
+`scan.created` includes a frozen scope snapshot and plan. The orchestrator fans out one scoped `WorkerRunPayload` per planned worker. Workers receive the exact seed URL and recheck host/path, DNS/IP and redirects before requests. `WorkerRunResult` carries `status`, signals/candidates, evidence references, attempted/completed/skipped surfaces, gaps, limitations, retryability and exact runtime provenance. Callback writes are idempotent by run ID; failed, skipped, partial and missing steps are not treated as successful coverage.
 
-```mermaid
-erDiagram
-  Organization ||--o{ Project : owns
-  Project ||--o{ Domain : verifies
-  Project ||--o{ ScanAuthorization : authorizes
-  Project ||--o{ ScanJob : runs
-  ScanJob ||--o{ ScanStep : records
-  ScanJob ||--o{ FindingCandidate : collects
-  ScanJob ||--o{ Finding : validates
-  ScanJob ||--o{ Report : snapshots
-  Finding ||--o{ RetestRun : retests
-```
+The findings service records one triage decision per candidate. A worker's severity, confidence or `validated_finding` claim is not independent proof. Until #14 implements artifact verification/replay, the metadata gate leaves worker claims at `needs_more_evidence`. The report builder finalizes only after worker and triage states are terminal; only independent validated decisions may enter `findings`.
 
-| Data | Storage rule |
-| --- | --- |
-| Scope, steps, findings, drafts, reports | Structured records in Postgres |
-| Test-account credentials / captured target sessions | Encrypted credential and storage-state fields; never plaintext evidence |
-| Hosted workspace access | Password hashes and session-token hashes |
-| Sanitized report evidence | Sanitized JSON and controlled evidence references |
-| Queue progress | NATS JetStream and KV; local queue volume |
-| Raw HAR / sensitive request bodies / secrets | Must not enter logs, prompts, reports, or exports |
+## Persistence and reports
 
-## Trust boundaries
+Postgres stores project, authorization, scan, step, candidate, triage, finding, draft and final report records. Reports are structured sanitized `report_v2` JSON; HTML/Markdown exports render from that snapshot on demand. Historical reports are migrated to `report_v2` with prior claims retained as `legacy_unverified`, never silently promoted. Sanitized finding/evidence IDs are stable across migration. Raw credentials, cookies, tokens, HAR and sensitive HTTP bodies are not stored or sent to models.
 
-| Mode | Access | Entitlements |
-| --- | --- | --- |
-| Local | Reserved local identity, loopback Host/Origin checks, no workspace login | Hosted payment checks bypassed only for the reserved local organization; scan safety quotas remain |
-| Hosted | Existing account/session flow with `OPENHUNTER_MODE=hosted` | Existing hosted checks retained |
+NATS carries scan/worker/retest events, not the canonical evidence store. Browser and scanner integrations are internal implementation details. The DB enum `openhack_hunter` remains for compatibility, while UI/manifest calls that worker the built-in passive surface hunter; it is not OpenHack runtime.
 
-Local mode trusts local machine processes. Do not expose its ports through a
-tunnel, shared reverse proxy, or LAN bind. Published host ports are loopback even
-though the API binds `0.0.0.0` **inside** its container.
+## Operational gates
 
-Model-provider calls can leave the machine. LLM context must be sanitized; a local
-database is not a promise of fully offline inference. See
-[LLM routing](LLM_PROVIDER_SPEC.md) and [guardrails](SECURITY_GUARDRAILS.md).
-
-## Deployment status
-
-- [Local Compose](../compose.local.yml) is the documented end-user entry point.
-- [Staging overlays](../infra/docker-compose/) and [Cloud Build configuration](../infra/cloudbuild/pipeline-runtime.yaml)
-  are checked-in deployment assets, not proof of a running deployment.
-- Recon is included locally and in developer integration tooling; the staging
-  worker overlay and cloud build pipeline do not include it.
-- The [managed-runtime ADR](adr/2026-06-16-managed-scan-runtime.md) is a proposal.
-  NATS has not been replaced by Pub/Sub in the local runtime.
-
-See [release gaps](PUBLIC_RELEASE_READINESS.md#open-gaps) before making
-end-to-end or production-readiness claims.
+Docker Compose self-host defaults to loopback-published UI/API/DB/NATS ports. Commercial schema removal requires a checked full backup and successful restore into a temporary DB before `prisma migrate deploy`. A completed scan with zero findings and any worker gap is inconclusive, not “clean.” Full positive/negative pentest efficacy requires #14 replay and #22 ground-truth benchmark.

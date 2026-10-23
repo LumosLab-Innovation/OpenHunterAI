@@ -1,0 +1,397 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "nz-nzism-3-9.curated",
+  "frameworkId": "nz-nzism-3-9",
+  "version": "Version 3.9, April 2025; live document states updated November 2025; curated-2026-10-08",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "nz-nzism-3-9.source",
+      "title": "GCSB New Zealand Information Security Manual v3.9",
+      "url": "https://nzism.gcsb.govt.nz/ism-document",
+      "locator": "Controls identified by native section and CID; sections 1.1, 2.2, 3 and 5"
+    }
+  ],
+  "limitations": [
+    "Curated partial clause coverage only. The baseline is an assessment target, never a national security grade or a certification decision.",
+    "MUST and SHOULD are preserved separately. Government protective markings and additional high-classification controls are not collapsed into this baseline. The live manual and April 2025 change overview were reviewed; no new v4.0 is presumed."
+  ],
+  "requirements": [
+    {
+      "id": "nz-nzism-3-9.contractor-accreditation",
+      "label": "Accredit off-site contractor systems to agency minimum",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "nz-nzism-3-9.source",
+      "locator": "Control 2.2.5.C.01, CID216 (All Classifications; MUST)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "nz-nzism-3-9.offsite_it_contractors",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review accreditation/assurance evidence; third-party report is an allowed means, not a required brand of certificate."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Review accreditation/assurance evidence; third-party report is an allowed means, not a required brand of certificate."
+    },
+    {
+      "id": "nz-nzism-3-9.agency-support",
+      "label": "Agency head supports continuing security processes",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "nz-nzism-3-9.source",
+      "locator": "Control 3.1.9.C.01, CID288 (All Classifications; MUST)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "nz-nzism-3-9.agency-support",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "nz-nzism-3-9.ciso-clearance",
+      "label": "Review CISO clearance and compartment access",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "nz-nzism-3-9.source",
+      "locator": "Control 3.2.8.C.01, CID307 (All Classifications; MUST)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review access to all classified agency information and briefing eligibility; do not supply classified data to the harness."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Review access to all classified agency information and briefing eligibility; do not supply classified data to the harness."
+    },
+    {
+      "id": "nz-nzism-3-9.ciso-role",
+      "label": "Assign the CISO role",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "nz-nzism-3-9.source",
+      "locator": "Control 3.2.8.C.02, CID308 (All Classifications; SHOULD)",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "nz-nzism-3-9.ciso-role",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "nz-nzism-3-9.ciso-conflicts",
+      "label": "Identify and manage CISO conflicts of interest",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "nz-nzism-3-9.source",
+      "locator": "Control 3.2.8.C.05, CID311 (All Classifications; SHOULD)",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "nz-nzism-3-9.ciso-conflicts",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "nz-nzism-3-9.ciso-reporting",
+      "label": "Provide direct security reporting to agency head",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "nz-nzism-3-9.source",
+      "locator": "Control 3.2.9.C.01, CID314 (All Classifications; SHOULD)",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "nz-nzism-3-9.ciso-reporting",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "nz-nzism-3-9.strategic-programme",
+      "label": "Maintain strategic security and risk programme",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "nz-nzism-3-9.source",
+      "locator": "Control 3.2.10.C.01, CID317 (All Classifications; SHOULD)",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "nz-nzism-3-9.strategic-programme",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "nz-nzism-3-9.awareness-oversight",
+      "label": "CISO oversees security training programmes",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "nz-nzism-3-9.source",
+      "locator": "Control 3.2.18.C.01, CID351 (All Classifications; SHOULD)",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "nz-nzism-3-9.awareness-oversight",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "nz-nzism-3-9.security-plans",
+      "label": "Maintain system SRMPs, SSPs and procedures",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "nz-nzism-3-9.source",
+      "locator": "Control 3.3.8.C.01, CID391 (All Classifications; MUST)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "nz-nzism-3-9.security-plans",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "nz-nzism-3-9.user-policy",
+      "label": "Require system users to follow security policies",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "nz-nzism-3-9.source",
+      "locator": "Control 3.5.4.C.01, CID466 (All Classifications; MUST)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "nz-nzism-3-9.user-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "nz-nzism-3-9.authenticator-care",
+      "label": "Protect authenticators and restrict sharing/use",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "nz-nzism-3-9.source",
+      "locator": "Control 3.5.4.C.02, CID467 (All Classifications; MUST)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "nz-nzism-3-9.authenticator-care",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "nz-nzism-3-9.bypass-authorisation",
+      "label": "Obtain formal approval before security-policy bypass",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "nz-nzism-3-9.source",
+      "locator": "Control 3.5.4.C.03, CID468 (All Classifications; MUST)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "nz-nzism-3-9.security_bypass_required",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "nz-nzism-3-9.bypass-authorisation",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "nz-nzism-3-9.agency-policy",
+      "label": "Maintain agency security policy",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "nz-nzism-3-9.source",
+      "locator": "Control 5.1.7.C.01, CID692 (All Classifications; MUST)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "nz-nzism-3-9.agency-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "nz-nzism-3-9.system-security-plan",
+      "label": "Cover every system with a system security plan",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "nz-nzism-3-9.source",
+      "locator": "Control 5.1.10.C.01, CID702 (All Classifications; MUST)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "nz-nzism-3-9.system-security-plan",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "nz-nzism-3-9.standard-procedures",
+      "label": "Develop secure standard operating procedures",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "nz-nzism-3-9.source",
+      "locator": "Control 5.1.11.C.01, CID705 (All Classifications; MUST)",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "nz-nzism-3-9.standard-procedures",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "nz-nzism-3-9.document-review",
+      "label": "Review security documents annually and after significant change",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "nz-nzism-3-9.source",
+      "locator": "Control 5.1.21.C.02, CID768 (All Classifications; SHOULD)",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Record the latest review date; annual guidance is not converted to a generic 365-day legal rule."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Record the latest review date; annual guidance is not converted to a generic 365-day legal rule."
+    }
+  ]
+}

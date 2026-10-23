@@ -1,0 +1,532 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openhunter.local/schemas/report-content-v2.schema.json",
+  "title": "OpenHunterAI Report Content v2",
+  "type": "object",
+  "required": [
+    "formatVersion",
+    "reportType",
+    "profile",
+    "targetType",
+    "authScope",
+    "testIntensityMode",
+    "surfaceFlags",
+    "ownerSummary",
+    "findings",
+    "developerFixPack",
+    "coverage",
+    "hardeningRecommendations",
+    "retest",
+    "generatedAt"
+  ],
+  "properties": {
+    "formatVersion": {
+      "const": "report_v2"
+    },
+    "reportType": {
+      "enum": [
+        "finding_report",
+        "coverage_only"
+      ]
+    },
+    "profile": {
+      "enum": [
+        "quick",
+        "standard",
+        "deep"
+      ]
+    },
+    "targetType": {
+      "enum": [
+        "static_content_website",
+        "interactive_web_app",
+        "api_service",
+        "ai_llm_application"
+      ]
+    },
+    "authScope": {
+      "enum": [
+        "none",
+        "one_account",
+        "two_accounts"
+      ]
+    },
+    "testIntensityMode": {
+      "enum": [
+        "safe_discovery",
+        "controlled_attack_simulation",
+        "aggressive_staging"
+      ]
+    },
+    "surfaceFlags": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "boolean"
+      }
+    },
+    "ownerSummary": {
+      "type": "object",
+      "required": [
+        "headline",
+        "riskLevel",
+        "whatWasTested",
+        "topRiskOrOutcome",
+        "businessImpact",
+        "recommendedNextAction"
+      ]
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "validationStatus"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "validationStatus": {
+            "const": "validated"
+          }
+        }
+      },
+      "maxItems": 1000
+    },
+    "historicalFindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "validationStatus"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "validationStatus": {
+            "const": "legacy_unverified"
+          }
+        }
+      },
+      "maxItems": 1000
+    },
+    "developerFixPack": {
+      "type": "array",
+      "maxItems": 1000
+    },
+    "coverage": {
+      "type": "object",
+      "required": [
+        "coverageGaps",
+        "limitations"
+      ]
+    },
+    "hardeningRecommendations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 1000
+    },
+    "retest": {
+      "type": "object",
+      "required": [
+        "eligibleFindings",
+        "manualRetestActions"
+      ]
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "handoff": {
+      "type": "object",
+      "required": [
+        "purpose",
+        "producer",
+        "source",
+        "scope",
+        "scanWindow",
+        "evidence",
+        "validation",
+        "grantsAuthority",
+        "assetMappingRequired",
+        "manualIntakeRequired",
+        "connectorStatus",
+        "retestMode",
+        "retestExecution",
+        "limitations"
+      ],
+      "properties": {
+        "purpose": {
+          "const": "investigation_input"
+        },
+        "producer": {
+          "type": "object",
+          "required": [
+            "product",
+            "version",
+            "buildRef"
+          ],
+          "properties": {
+            "product": {
+              "const": "OpenHunterAI"
+            },
+            "version": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 64,
+                  "pattern": "^v?\\d+\\.\\d+\\.\\d+(?:[-+][A-Za-z0-9.-]+)?$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "buildRef": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{7,40}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "source": {
+          "type": "object",
+          "required": [
+            "projectId",
+            "scanId",
+            "authorizationId"
+          ],
+          "properties": {
+            "projectId": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "scanId": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "authorizationId": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "scope": {
+          "type": "object",
+          "required": [
+            "status",
+            "targetUrl",
+            "allowedHosts",
+            "allowedPaths",
+            "excludedPaths",
+            "capturedAt",
+            "authorityConfirmation"
+          ],
+          "properties": {
+            "targetUrl": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 8000
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "allowedHosts": {
+              "type": "array",
+              "maxItems": 1000,
+              "items": {
+                "type": "string",
+                "maxLength": 8000
+              }
+            },
+            "allowedPaths": {
+              "type": "array",
+              "maxItems": 1000,
+              "items": {
+                "type": "string",
+                "maxLength": 8000
+              }
+            },
+            "excludedPaths": {
+              "type": "array",
+              "maxItems": 1000,
+              "items": {
+                "type": "string",
+                "maxLength": 8000
+              }
+            },
+            "capturedAt": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "authorityConfirmation": {
+              "enum": [
+                "recorded",
+                "unknown"
+              ]
+            },
+            "status": {
+              "enum": [
+                "recorded",
+                "incomplete"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "scanWindow": {
+          "type": "object",
+          "required": [
+            "startedAt",
+            "finishedAt"
+          ],
+          "properties": {
+            "startedAt": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "finishedAt": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            }
+          },
+          "additionalProperties": false
+        },
+        "evidence": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "type": "object",
+            "required": [
+              "ref",
+              "collector",
+              "capturedAt",
+              "sha256",
+              "sanitizerVersion",
+              "lineage",
+              "status"
+            ],
+            "properties": {
+              "ref": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              },
+              "collector": {
+                "type": "null"
+              },
+              "capturedAt": {
+                "type": "null"
+              },
+              "sha256": {
+                "type": "null"
+              },
+              "sanitizerVersion": {
+                "type": "null"
+              },
+              "lineage": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "status": {
+                "const": "metadata_unavailable"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "validation": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "type": "object",
+            "required": [
+              "findingId",
+              "producerClaim",
+              "validator",
+              "decisionEvidenceRefs",
+              "replayStatus",
+              "counterevidence",
+              "rationale"
+            ],
+            "properties": {
+              "findingId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              },
+              "producerClaim": {
+                "const": "validated"
+              },
+              "validator": {
+                "enum": [
+                  "independent_policy_v1",
+                  null
+                ]
+              },
+              "decisionEvidenceRefs": {
+                "type": "array",
+                "maxItems": 1000,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                }
+              },
+              "replayStatus": {
+                "const": "not_attested"
+              },
+              "counterevidence": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 8000
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "rationale": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "maxLength": 8000
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "grantsAuthority": {
+          "const": false
+        },
+        "assetMappingRequired": {
+          "const": true
+        },
+        "manualIntakeRequired": {
+          "const": true
+        },
+        "connectorStatus": {
+          "const": "not_implemented"
+        },
+        "retestMode": {
+          "const": "manual"
+        },
+        "retestExecution": {
+          "const": "unsupported"
+        },
+        "limitations": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "type": "string",
+            "maxLength": 8000
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "historicalDeveloperFixPack": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "required": [
+          "findingId",
+          "rootCauseHypothesis",
+          "concreteFixPrompt",
+          "validationSteps",
+          "regressionTestIdeas",
+          "acceptanceCriteria"
+        ],
+        "properties": {
+          "findingId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "rootCauseHypothesis": {
+            "type": "string",
+            "maxLength": 8000
+          },
+          "concreteFixPrompt": {
+            "type": "string",
+            "maxLength": 8000
+          },
+          "validationSteps": {
+            "type": "array",
+            "maxItems": 1000,
+            "items": {
+              "type": "string",
+              "maxLength": 8000
+            }
+          },
+          "regressionTestIdeas": {
+            "type": "array",
+            "maxItems": 1000,
+            "items": {
+              "type": "string",
+              "maxLength": 8000
+            }
+          },
+          "acceptanceCriteria": {
+            "type": "string",
+            "maxLength": 8000
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": true
+}

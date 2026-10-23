@@ -1,0 +1,419 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "ke-cbk-banking-cyber-selected-clauses",
+  "frameworkId": "ke-cbk-banking-cyber",
+  "version": "2026-10-08.1",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "ke-cbk-banking-cyber-source",
+      "title": "CBK Guidance Note on Cybersecurity — Banking sector — official reference",
+      "url": "https://www.centralbank.go.ke/uploads/banking_circulars/634077191_GUIDANCE%20NOTE%20ON%20CYBERSECURITY%20FOR%20THE%20BANKING%20SECTOR.pdf",
+      "locator": "PartI 1.3; PartIII 3.1–3.4; PartIV; AnnexI; PDF pp 3,5–12"
+    }
+  ],
+  "limitations": [
+    "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+    "Source wording should remains recommendation unless a clause states a mandatory reporting duty. A 2026 draft prudential-guideline consultation is not treated as enacted replacement."
+  ],
+  "requirements": [
+    {
+      "id": "ke-board-risk",
+      "label": "Approve and review cyber risk framework",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ke-cbk-banking-cyber-source",
+      "locator": "3.1(a)(vi);PDFp 6",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ke-board-risk",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ke-board-review",
+      "label": "Review framework implementation yearly",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ke-cbk-banking-cyber-source",
+      "locator": "3.1(a)(viii);PDFp 6",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "ke-board-review-age",
+        "max": 12,
+        "unit": "months"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ke-authentication",
+      "label": "Deploy strong authentication",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ke-cbk-banking-cyber-source",
+      "locator": "3.1(b)(v);PDFp 6",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ke-authentication",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ke-response-plan",
+      "label": "Document incident response roles",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ke-cbk-banking-cyber-source",
+      "locator": "3.1(b)(x);PDFp 7",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ke-response-plan",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ke-post-incident",
+      "label": "Analyze incident corrective actions",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ke-cbk-banking-cyber-source",
+      "locator": "3.1(b)(xii);PDFp 7",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ke-post-incident",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ke-third-party-risks",
+      "label": "Assess supplier-introduced risk",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ke-cbk-banking-cyber-source",
+      "locator": "3.1(b)(xiii);PDFp 7",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ke-third-party-risks",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ke-ciso-inventory",
+      "label": "Maintain users/assets/network knowledge",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ke-cbk-banking-cyber-source",
+      "locator": "3.1(c)(ii);PDFp 7",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ke-ciso-inventory",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ke-risk-assessments",
+      "label": "Conduct comprehensive cyber risk review",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ke-cbk-banking-cyber-source",
+      "locator": "3.1(c)(vi);PDFp 7",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ke-risk-assessments",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ke-event-monitoring",
+      "label": "Monitor systems for incidents",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ke-cbk-banking-cyber-source",
+      "locator": "3.1(c)(vii);PDFp 7",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ke-event-monitoring",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ke-critical-backups",
+      "label": "Back up critical systems separately",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ke-cbk-banking-cyber-source",
+      "locator": "3.1(c)(xi);PDFp 8",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ke-critical-backups",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ke-independent-assessment",
+      "label": "Review independent threat/pentest assessment",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ke-cbk-banking-cyber-source",
+      "locator": "3.2 Role of External Auditors(iii),(v);PDFp 9",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review authorized independent assessment scope and evidence. No test execution or reproduction is asserted."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ke-outsourcing-contract",
+      "label": "Maintain provider security arrangements",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ke-cbk-banking-cyber-source",
+      "locator": "3.3;PDFp 10",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ke-outsourcing-contract",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ke-staff-awareness",
+      "label": "Train personnel on cybersecurity",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ke-cbk-banking-cyber-source",
+      "locator": "3.4;PDFp 10",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ke-staff-awareness",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ke-notification-time",
+      "label": "Notify CBK of significant cyber incident",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ke-cbk-banking-cyber-source",
+      "locator": "PartIV(b);PDFpp 10–11",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "significant-cyber-incident",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "ke-cbk-notification-elapsed",
+        "max": 24,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Final source says should notify within 24 hours; retain recommendation strength. Clock, significance and reporting format require manual review."
+    }
+  ]
+}

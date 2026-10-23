@@ -1,0 +1,1950 @@
+{
+  "schemaVersion": "country_security_web_assurance_v1",
+  "reviewedOn": "2026-10-08",
+  "standard": {
+    "name": "OWASP ASVS",
+    "version": "5.0.0",
+    "tag": "v5.0.0_release",
+    "commit": "5cf9b032440be53ce345ab3c130fda46ba1ce7a2",
+    "url": "https://raw.githubusercontent.com/OWASP/ASVS/5cf9b032440be53ce345ab3c130fda46ba1ce7a2/5.0/docs_en/OWASP_Application_Security_Verification_Standard_5.0.0_en.json",
+    "sha256": "bcdbec214d70abcfad9284a31d4f9e5134305831d628aad3aa85d7e26626cb35",
+    "license": "CC-BY-SA-4.0",
+    "attribution": "OWASP Application Security Verification Standard project. IDs and minimum levels from pinned release; scenario descriptions authored for OpenHunter."
+  },
+  "requirementIndex": [
+    {
+      "id": "V1.1.1",
+      "minimumLevel": 2,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.1.2",
+      "minimumLevel": 2,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.2.1",
+      "minimumLevel": 1,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.2.2",
+      "minimumLevel": 1,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.2.3",
+      "minimumLevel": 1,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.2.4",
+      "minimumLevel": 1,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.2.5",
+      "minimumLevel": 1,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.2.6",
+      "minimumLevel": 2,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.2.7",
+      "minimumLevel": 2,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.2.8",
+      "minimumLevel": 2,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.2.9",
+      "minimumLevel": 2,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.2.10",
+      "minimumLevel": 3,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.3.1",
+      "minimumLevel": 1,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.3.2",
+      "minimumLevel": 1,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.3.3",
+      "minimumLevel": 2,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.3.4",
+      "minimumLevel": 2,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.3.5",
+      "minimumLevel": 2,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.3.6",
+      "minimumLevel": 2,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.3.7",
+      "minimumLevel": 2,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.3.8",
+      "minimumLevel": 2,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.3.9",
+      "minimumLevel": 2,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.3.10",
+      "minimumLevel": 2,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.3.11",
+      "minimumLevel": 2,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.3.12",
+      "minimumLevel": 3,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.4.1",
+      "minimumLevel": 2,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.4.2",
+      "minimumLevel": 2,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.4.3",
+      "minimumLevel": 2,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.5.1",
+      "minimumLevel": 1,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.5.2",
+      "minimumLevel": 2,
+      "chapter": "V1"
+    },
+    {
+      "id": "V1.5.3",
+      "minimumLevel": 3,
+      "chapter": "V1"
+    },
+    {
+      "id": "V2.1.1",
+      "minimumLevel": 1,
+      "chapter": "V2"
+    },
+    {
+      "id": "V2.1.2",
+      "minimumLevel": 2,
+      "chapter": "V2"
+    },
+    {
+      "id": "V2.1.3",
+      "minimumLevel": 2,
+      "chapter": "V2"
+    },
+    {
+      "id": "V2.2.1",
+      "minimumLevel": 1,
+      "chapter": "V2"
+    },
+    {
+      "id": "V2.2.2",
+      "minimumLevel": 1,
+      "chapter": "V2"
+    },
+    {
+      "id": "V2.2.3",
+      "minimumLevel": 2,
+      "chapter": "V2"
+    },
+    {
+      "id": "V2.3.1",
+      "minimumLevel": 1,
+      "chapter": "V2"
+    },
+    {
+      "id": "V2.3.2",
+      "minimumLevel": 2,
+      "chapter": "V2"
+    },
+    {
+      "id": "V2.3.3",
+      "minimumLevel": 2,
+      "chapter": "V2"
+    },
+    {
+      "id": "V2.3.4",
+      "minimumLevel": 2,
+      "chapter": "V2"
+    },
+    {
+      "id": "V2.3.5",
+      "minimumLevel": 3,
+      "chapter": "V2"
+    },
+    {
+      "id": "V2.4.1",
+      "minimumLevel": 2,
+      "chapter": "V2"
+    },
+    {
+      "id": "V2.4.2",
+      "minimumLevel": 3,
+      "chapter": "V2"
+    },
+    {
+      "id": "V3.1.1",
+      "minimumLevel": 3,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.2.1",
+      "minimumLevel": 1,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.2.2",
+      "minimumLevel": 1,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.2.3",
+      "minimumLevel": 3,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.3.1",
+      "minimumLevel": 1,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.3.2",
+      "minimumLevel": 2,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.3.3",
+      "minimumLevel": 2,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.3.4",
+      "minimumLevel": 2,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.3.5",
+      "minimumLevel": 3,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.4.1",
+      "minimumLevel": 1,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.4.2",
+      "minimumLevel": 1,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.4.3",
+      "minimumLevel": 2,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.4.4",
+      "minimumLevel": 2,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.4.5",
+      "minimumLevel": 2,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.4.6",
+      "minimumLevel": 2,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.4.7",
+      "minimumLevel": 3,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.4.8",
+      "minimumLevel": 3,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.5.1",
+      "minimumLevel": 1,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.5.2",
+      "minimumLevel": 1,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.5.3",
+      "minimumLevel": 1,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.5.4",
+      "minimumLevel": 2,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.5.5",
+      "minimumLevel": 2,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.5.6",
+      "minimumLevel": 3,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.5.7",
+      "minimumLevel": 3,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.5.8",
+      "minimumLevel": 3,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.6.1",
+      "minimumLevel": 3,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.7.1",
+      "minimumLevel": 2,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.7.2",
+      "minimumLevel": 2,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.7.3",
+      "minimumLevel": 3,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.7.4",
+      "minimumLevel": 3,
+      "chapter": "V3"
+    },
+    {
+      "id": "V3.7.5",
+      "minimumLevel": 3,
+      "chapter": "V3"
+    },
+    {
+      "id": "V4.1.1",
+      "minimumLevel": 1,
+      "chapter": "V4"
+    },
+    {
+      "id": "V4.1.2",
+      "minimumLevel": 2,
+      "chapter": "V4"
+    },
+    {
+      "id": "V4.1.3",
+      "minimumLevel": 2,
+      "chapter": "V4"
+    },
+    {
+      "id": "V4.1.4",
+      "minimumLevel": 3,
+      "chapter": "V4"
+    },
+    {
+      "id": "V4.1.5",
+      "minimumLevel": 3,
+      "chapter": "V4"
+    },
+    {
+      "id": "V4.2.1",
+      "minimumLevel": 2,
+      "chapter": "V4"
+    },
+    {
+      "id": "V4.2.2",
+      "minimumLevel": 3,
+      "chapter": "V4"
+    },
+    {
+      "id": "V4.2.3",
+      "minimumLevel": 3,
+      "chapter": "V4"
+    },
+    {
+      "id": "V4.2.4",
+      "minimumLevel": 3,
+      "chapter": "V4"
+    },
+    {
+      "id": "V4.2.5",
+      "minimumLevel": 3,
+      "chapter": "V4"
+    },
+    {
+      "id": "V4.3.1",
+      "minimumLevel": 2,
+      "chapter": "V4"
+    },
+    {
+      "id": "V4.3.2",
+      "minimumLevel": 2,
+      "chapter": "V4"
+    },
+    {
+      "id": "V4.4.1",
+      "minimumLevel": 1,
+      "chapter": "V4"
+    },
+    {
+      "id": "V4.4.2",
+      "minimumLevel": 2,
+      "chapter": "V4"
+    },
+    {
+      "id": "V4.4.3",
+      "minimumLevel": 2,
+      "chapter": "V4"
+    },
+    {
+      "id": "V4.4.4",
+      "minimumLevel": 2,
+      "chapter": "V4"
+    },
+    {
+      "id": "V5.1.1",
+      "minimumLevel": 2,
+      "chapter": "V5"
+    },
+    {
+      "id": "V5.2.1",
+      "minimumLevel": 1,
+      "chapter": "V5"
+    },
+    {
+      "id": "V5.2.2",
+      "minimumLevel": 1,
+      "chapter": "V5"
+    },
+    {
+      "id": "V5.2.3",
+      "minimumLevel": 2,
+      "chapter": "V5"
+    },
+    {
+      "id": "V5.2.4",
+      "minimumLevel": 3,
+      "chapter": "V5"
+    },
+    {
+      "id": "V5.2.5",
+      "minimumLevel": 3,
+      "chapter": "V5"
+    },
+    {
+      "id": "V5.2.6",
+      "minimumLevel": 3,
+      "chapter": "V5"
+    },
+    {
+      "id": "V5.3.1",
+      "minimumLevel": 1,
+      "chapter": "V5"
+    },
+    {
+      "id": "V5.3.2",
+      "minimumLevel": 1,
+      "chapter": "V5"
+    },
+    {
+      "id": "V5.3.3",
+      "minimumLevel": 3,
+      "chapter": "V5"
+    },
+    {
+      "id": "V5.4.1",
+      "minimumLevel": 2,
+      "chapter": "V5"
+    },
+    {
+      "id": "V5.4.2",
+      "minimumLevel": 2,
+      "chapter": "V5"
+    },
+    {
+      "id": "V5.4.3",
+      "minimumLevel": 2,
+      "chapter": "V5"
+    },
+    {
+      "id": "V6.1.1",
+      "minimumLevel": 1,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.1.2",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.1.3",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.2.1",
+      "minimumLevel": 1,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.2.2",
+      "minimumLevel": 1,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.2.3",
+      "minimumLevel": 1,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.2.4",
+      "minimumLevel": 1,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.2.5",
+      "minimumLevel": 1,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.2.6",
+      "minimumLevel": 1,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.2.7",
+      "minimumLevel": 1,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.2.8",
+      "minimumLevel": 1,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.2.9",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.2.10",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.2.11",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.2.12",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.3.1",
+      "minimumLevel": 1,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.3.2",
+      "minimumLevel": 1,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.3.3",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.3.4",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.3.5",
+      "minimumLevel": 3,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.3.6",
+      "minimumLevel": 3,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.3.7",
+      "minimumLevel": 3,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.3.8",
+      "minimumLevel": 3,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.4.1",
+      "minimumLevel": 1,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.4.2",
+      "minimumLevel": 1,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.4.3",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.4.4",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.4.5",
+      "minimumLevel": 3,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.4.6",
+      "minimumLevel": 3,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.5.1",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.5.2",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.5.3",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.5.4",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.5.5",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.5.6",
+      "minimumLevel": 3,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.5.7",
+      "minimumLevel": 3,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.5.8",
+      "minimumLevel": 3,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.6.1",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.6.2",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.6.3",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.6.4",
+      "minimumLevel": 3,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.7.1",
+      "minimumLevel": 3,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.7.2",
+      "minimumLevel": 3,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.8.1",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.8.2",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.8.3",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V6.8.4",
+      "minimumLevel": 2,
+      "chapter": "V6"
+    },
+    {
+      "id": "V7.1.1",
+      "minimumLevel": 2,
+      "chapter": "V7"
+    },
+    {
+      "id": "V7.1.2",
+      "minimumLevel": 2,
+      "chapter": "V7"
+    },
+    {
+      "id": "V7.1.3",
+      "minimumLevel": 2,
+      "chapter": "V7"
+    },
+    {
+      "id": "V7.2.1",
+      "minimumLevel": 1,
+      "chapter": "V7"
+    },
+    {
+      "id": "V7.2.2",
+      "minimumLevel": 1,
+      "chapter": "V7"
+    },
+    {
+      "id": "V7.2.3",
+      "minimumLevel": 1,
+      "chapter": "V7"
+    },
+    {
+      "id": "V7.2.4",
+      "minimumLevel": 1,
+      "chapter": "V7"
+    },
+    {
+      "id": "V7.3.1",
+      "minimumLevel": 2,
+      "chapter": "V7"
+    },
+    {
+      "id": "V7.3.2",
+      "minimumLevel": 2,
+      "chapter": "V7"
+    },
+    {
+      "id": "V7.4.1",
+      "minimumLevel": 1,
+      "chapter": "V7"
+    },
+    {
+      "id": "V7.4.2",
+      "minimumLevel": 1,
+      "chapter": "V7"
+    },
+    {
+      "id": "V7.4.3",
+      "minimumLevel": 2,
+      "chapter": "V7"
+    },
+    {
+      "id": "V7.4.4",
+      "minimumLevel": 2,
+      "chapter": "V7"
+    },
+    {
+      "id": "V7.4.5",
+      "minimumLevel": 2,
+      "chapter": "V7"
+    },
+    {
+      "id": "V7.5.1",
+      "minimumLevel": 2,
+      "chapter": "V7"
+    },
+    {
+      "id": "V7.5.2",
+      "minimumLevel": 2,
+      "chapter": "V7"
+    },
+    {
+      "id": "V7.5.3",
+      "minimumLevel": 3,
+      "chapter": "V7"
+    },
+    {
+      "id": "V7.6.1",
+      "minimumLevel": 2,
+      "chapter": "V7"
+    },
+    {
+      "id": "V7.6.2",
+      "minimumLevel": 2,
+      "chapter": "V7"
+    },
+    {
+      "id": "V8.1.1",
+      "minimumLevel": 1,
+      "chapter": "V8"
+    },
+    {
+      "id": "V8.1.2",
+      "minimumLevel": 2,
+      "chapter": "V8"
+    },
+    {
+      "id": "V8.1.3",
+      "minimumLevel": 3,
+      "chapter": "V8"
+    },
+    {
+      "id": "V8.1.4",
+      "minimumLevel": 3,
+      "chapter": "V8"
+    },
+    {
+      "id": "V8.2.1",
+      "minimumLevel": 1,
+      "chapter": "V8"
+    },
+    {
+      "id": "V8.2.2",
+      "minimumLevel": 1,
+      "chapter": "V8"
+    },
+    {
+      "id": "V8.2.3",
+      "minimumLevel": 2,
+      "chapter": "V8"
+    },
+    {
+      "id": "V8.2.4",
+      "minimumLevel": 3,
+      "chapter": "V8"
+    },
+    {
+      "id": "V8.3.1",
+      "minimumLevel": 1,
+      "chapter": "V8"
+    },
+    {
+      "id": "V8.3.2",
+      "minimumLevel": 3,
+      "chapter": "V8"
+    },
+    {
+      "id": "V8.3.3",
+      "minimumLevel": 3,
+      "chapter": "V8"
+    },
+    {
+      "id": "V8.4.1",
+      "minimumLevel": 2,
+      "chapter": "V8"
+    },
+    {
+      "id": "V8.4.2",
+      "minimumLevel": 3,
+      "chapter": "V8"
+    },
+    {
+      "id": "V9.1.1",
+      "minimumLevel": 1,
+      "chapter": "V9"
+    },
+    {
+      "id": "V9.1.2",
+      "minimumLevel": 1,
+      "chapter": "V9"
+    },
+    {
+      "id": "V9.1.3",
+      "minimumLevel": 1,
+      "chapter": "V9"
+    },
+    {
+      "id": "V9.2.1",
+      "minimumLevel": 1,
+      "chapter": "V9"
+    },
+    {
+      "id": "V9.2.2",
+      "minimumLevel": 2,
+      "chapter": "V9"
+    },
+    {
+      "id": "V9.2.3",
+      "minimumLevel": 2,
+      "chapter": "V9"
+    },
+    {
+      "id": "V9.2.4",
+      "minimumLevel": 2,
+      "chapter": "V9"
+    },
+    {
+      "id": "V10.1.1",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.1.2",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.2.1",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.2.2",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.2.3",
+      "minimumLevel": 3,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.3.1",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.3.2",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.3.3",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.3.4",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.3.5",
+      "minimumLevel": 3,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.4.1",
+      "minimumLevel": 1,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.4.2",
+      "minimumLevel": 1,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.4.3",
+      "minimumLevel": 1,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.4.4",
+      "minimumLevel": 1,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.4.5",
+      "minimumLevel": 1,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.4.6",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.4.7",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.4.8",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.4.9",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.4.10",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.4.11",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.4.12",
+      "minimumLevel": 3,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.4.13",
+      "minimumLevel": 3,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.4.14",
+      "minimumLevel": 3,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.4.15",
+      "minimumLevel": 3,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.4.16",
+      "minimumLevel": 3,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.5.1",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.5.2",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.5.3",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.5.4",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.5.5",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.6.1",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.6.2",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.7.1",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.7.2",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V10.7.3",
+      "minimumLevel": 2,
+      "chapter": "V10"
+    },
+    {
+      "id": "V11.1.1",
+      "minimumLevel": 2,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.1.2",
+      "minimumLevel": 2,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.1.3",
+      "minimumLevel": 3,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.1.4",
+      "minimumLevel": 3,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.2.1",
+      "minimumLevel": 2,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.2.2",
+      "minimumLevel": 2,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.2.3",
+      "minimumLevel": 2,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.2.4",
+      "minimumLevel": 3,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.2.5",
+      "minimumLevel": 3,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.3.1",
+      "minimumLevel": 1,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.3.2",
+      "minimumLevel": 1,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.3.3",
+      "minimumLevel": 2,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.3.4",
+      "minimumLevel": 3,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.3.5",
+      "minimumLevel": 3,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.4.1",
+      "minimumLevel": 1,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.4.2",
+      "minimumLevel": 2,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.4.3",
+      "minimumLevel": 2,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.4.4",
+      "minimumLevel": 2,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.5.1",
+      "minimumLevel": 2,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.5.2",
+      "minimumLevel": 3,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.6.1",
+      "minimumLevel": 2,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.6.2",
+      "minimumLevel": 3,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.7.1",
+      "minimumLevel": 3,
+      "chapter": "V11"
+    },
+    {
+      "id": "V11.7.2",
+      "minimumLevel": 3,
+      "chapter": "V11"
+    },
+    {
+      "id": "V12.1.1",
+      "minimumLevel": 1,
+      "chapter": "V12"
+    },
+    {
+      "id": "V12.1.2",
+      "minimumLevel": 2,
+      "chapter": "V12"
+    },
+    {
+      "id": "V12.1.3",
+      "minimumLevel": 2,
+      "chapter": "V12"
+    },
+    {
+      "id": "V12.1.4",
+      "minimumLevel": 3,
+      "chapter": "V12"
+    },
+    {
+      "id": "V12.1.5",
+      "minimumLevel": 3,
+      "chapter": "V12"
+    },
+    {
+      "id": "V12.2.1",
+      "minimumLevel": 1,
+      "chapter": "V12"
+    },
+    {
+      "id": "V12.2.2",
+      "minimumLevel": 1,
+      "chapter": "V12"
+    },
+    {
+      "id": "V12.3.1",
+      "minimumLevel": 2,
+      "chapter": "V12"
+    },
+    {
+      "id": "V12.3.2",
+      "minimumLevel": 2,
+      "chapter": "V12"
+    },
+    {
+      "id": "V12.3.3",
+      "minimumLevel": 2,
+      "chapter": "V12"
+    },
+    {
+      "id": "V12.3.4",
+      "minimumLevel": 2,
+      "chapter": "V12"
+    },
+    {
+      "id": "V12.3.5",
+      "minimumLevel": 3,
+      "chapter": "V12"
+    },
+    {
+      "id": "V13.1.1",
+      "minimumLevel": 2,
+      "chapter": "V13"
+    },
+    {
+      "id": "V13.1.2",
+      "minimumLevel": 3,
+      "chapter": "V13"
+    },
+    {
+      "id": "V13.1.3",
+      "minimumLevel": 3,
+      "chapter": "V13"
+    },
+    {
+      "id": "V13.1.4",
+      "minimumLevel": 3,
+      "chapter": "V13"
+    },
+    {
+      "id": "V13.2.1",
+      "minimumLevel": 2,
+      "chapter": "V13"
+    },
+    {
+      "id": "V13.2.2",
+      "minimumLevel": 2,
+      "chapter": "V13"
+    },
+    {
+      "id": "V13.2.3",
+      "minimumLevel": 2,
+      "chapter": "V13"
+    },
+    {
+      "id": "V13.2.4",
+      "minimumLevel": 2,
+      "chapter": "V13"
+    },
+    {
+      "id": "V13.2.5",
+      "minimumLevel": 2,
+      "chapter": "V13"
+    },
+    {
+      "id": "V13.2.6",
+      "minimumLevel": 3,
+      "chapter": "V13"
+    },
+    {
+      "id": "V13.3.1",
+      "minimumLevel": 2,
+      "chapter": "V13"
+    },
+    {
+      "id": "V13.3.2",
+      "minimumLevel": 2,
+      "chapter": "V13"
+    },
+    {
+      "id": "V13.3.3",
+      "minimumLevel": 3,
+      "chapter": "V13"
+    },
+    {
+      "id": "V13.3.4",
+      "minimumLevel": 3,
+      "chapter": "V13"
+    },
+    {
+      "id": "V13.4.1",
+      "minimumLevel": 1,
+      "chapter": "V13"
+    },
+    {
+      "id": "V13.4.2",
+      "minimumLevel": 2,
+      "chapter": "V13"
+    },
+    {
+      "id": "V13.4.3",
+      "minimumLevel": 2,
+      "chapter": "V13"
+    },
+    {
+      "id": "V13.4.4",
+      "minimumLevel": 2,
+      "chapter": "V13"
+    },
+    {
+      "id": "V13.4.5",
+      "minimumLevel": 2,
+      "chapter": "V13"
+    },
+    {
+      "id": "V13.4.6",
+      "minimumLevel": 3,
+      "chapter": "V13"
+    },
+    {
+      "id": "V13.4.7",
+      "minimumLevel": 3,
+      "chapter": "V13"
+    },
+    {
+      "id": "V14.1.1",
+      "minimumLevel": 2,
+      "chapter": "V14"
+    },
+    {
+      "id": "V14.1.2",
+      "minimumLevel": 2,
+      "chapter": "V14"
+    },
+    {
+      "id": "V14.2.1",
+      "minimumLevel": 1,
+      "chapter": "V14"
+    },
+    {
+      "id": "V14.2.2",
+      "minimumLevel": 2,
+      "chapter": "V14"
+    },
+    {
+      "id": "V14.2.3",
+      "minimumLevel": 2,
+      "chapter": "V14"
+    },
+    {
+      "id": "V14.2.4",
+      "minimumLevel": 2,
+      "chapter": "V14"
+    },
+    {
+      "id": "V14.2.5",
+      "minimumLevel": 3,
+      "chapter": "V14"
+    },
+    {
+      "id": "V14.2.6",
+      "minimumLevel": 3,
+      "chapter": "V14"
+    },
+    {
+      "id": "V14.2.7",
+      "minimumLevel": 3,
+      "chapter": "V14"
+    },
+    {
+      "id": "V14.2.8",
+      "minimumLevel": 3,
+      "chapter": "V14"
+    },
+    {
+      "id": "V14.3.1",
+      "minimumLevel": 1,
+      "chapter": "V14"
+    },
+    {
+      "id": "V14.3.2",
+      "minimumLevel": 2,
+      "chapter": "V14"
+    },
+    {
+      "id": "V14.3.3",
+      "minimumLevel": 2,
+      "chapter": "V14"
+    },
+    {
+      "id": "V15.1.1",
+      "minimumLevel": 1,
+      "chapter": "V15"
+    },
+    {
+      "id": "V15.1.2",
+      "minimumLevel": 2,
+      "chapter": "V15"
+    },
+    {
+      "id": "V15.1.3",
+      "minimumLevel": 2,
+      "chapter": "V15"
+    },
+    {
+      "id": "V15.1.4",
+      "minimumLevel": 3,
+      "chapter": "V15"
+    },
+    {
+      "id": "V15.1.5",
+      "minimumLevel": 3,
+      "chapter": "V15"
+    },
+    {
+      "id": "V15.2.1",
+      "minimumLevel": 1,
+      "chapter": "V15"
+    },
+    {
+      "id": "V15.2.2",
+      "minimumLevel": 2,
+      "chapter": "V15"
+    },
+    {
+      "id": "V15.2.3",
+      "minimumLevel": 2,
+      "chapter": "V15"
+    },
+    {
+      "id": "V15.2.4",
+      "minimumLevel": 3,
+      "chapter": "V15"
+    },
+    {
+      "id": "V15.2.5",
+      "minimumLevel": 3,
+      "chapter": "V15"
+    },
+    {
+      "id": "V15.3.1",
+      "minimumLevel": 1,
+      "chapter": "V15"
+    },
+    {
+      "id": "V15.3.2",
+      "minimumLevel": 2,
+      "chapter": "V15"
+    },
+    {
+      "id": "V15.3.3",
+      "minimumLevel": 2,
+      "chapter": "V15"
+    },
+    {
+      "id": "V15.3.4",
+      "minimumLevel": 2,
+      "chapter": "V15"
+    },
+    {
+      "id": "V15.3.5",
+      "minimumLevel": 2,
+      "chapter": "V15"
+    },
+    {
+      "id": "V15.3.6",
+      "minimumLevel": 2,
+      "chapter": "V15"
+    },
+    {
+      "id": "V15.3.7",
+      "minimumLevel": 2,
+      "chapter": "V15"
+    },
+    {
+      "id": "V15.4.1",
+      "minimumLevel": 3,
+      "chapter": "V15"
+    },
+    {
+      "id": "V15.4.2",
+      "minimumLevel": 3,
+      "chapter": "V15"
+    },
+    {
+      "id": "V15.4.3",
+      "minimumLevel": 3,
+      "chapter": "V15"
+    },
+    {
+      "id": "V15.4.4",
+      "minimumLevel": 3,
+      "chapter": "V15"
+    },
+    {
+      "id": "V16.1.1",
+      "minimumLevel": 2,
+      "chapter": "V16"
+    },
+    {
+      "id": "V16.2.1",
+      "minimumLevel": 2,
+      "chapter": "V16"
+    },
+    {
+      "id": "V16.2.2",
+      "minimumLevel": 2,
+      "chapter": "V16"
+    },
+    {
+      "id": "V16.2.3",
+      "minimumLevel": 2,
+      "chapter": "V16"
+    },
+    {
+      "id": "V16.2.4",
+      "minimumLevel": 2,
+      "chapter": "V16"
+    },
+    {
+      "id": "V16.2.5",
+      "minimumLevel": 2,
+      "chapter": "V16"
+    },
+    {
+      "id": "V16.3.1",
+      "minimumLevel": 2,
+      "chapter": "V16"
+    },
+    {
+      "id": "V16.3.2",
+      "minimumLevel": 2,
+      "chapter": "V16"
+    },
+    {
+      "id": "V16.3.3",
+      "minimumLevel": 2,
+      "chapter": "V16"
+    },
+    {
+      "id": "V16.3.4",
+      "minimumLevel": 2,
+      "chapter": "V16"
+    },
+    {
+      "id": "V16.4.1",
+      "minimumLevel": 2,
+      "chapter": "V16"
+    },
+    {
+      "id": "V16.4.2",
+      "minimumLevel": 2,
+      "chapter": "V16"
+    },
+    {
+      "id": "V16.4.3",
+      "minimumLevel": 2,
+      "chapter": "V16"
+    },
+    {
+      "id": "V16.5.1",
+      "minimumLevel": 2,
+      "chapter": "V16"
+    },
+    {
+      "id": "V16.5.2",
+      "minimumLevel": 2,
+      "chapter": "V16"
+    },
+    {
+      "id": "V16.5.3",
+      "minimumLevel": 2,
+      "chapter": "V16"
+    },
+    {
+      "id": "V16.5.4",
+      "minimumLevel": 3,
+      "chapter": "V16"
+    },
+    {
+      "id": "V17.1.1",
+      "minimumLevel": 2,
+      "chapter": "V17"
+    },
+    {
+      "id": "V17.1.2",
+      "minimumLevel": 3,
+      "chapter": "V17"
+    },
+    {
+      "id": "V17.2.1",
+      "minimumLevel": 2,
+      "chapter": "V17"
+    },
+    {
+      "id": "V17.2.2",
+      "minimumLevel": 2,
+      "chapter": "V17"
+    },
+    {
+      "id": "V17.2.3",
+      "minimumLevel": 2,
+      "chapter": "V17"
+    },
+    {
+      "id": "V17.2.4",
+      "minimumLevel": 2,
+      "chapter": "V17"
+    },
+    {
+      "id": "V17.2.5",
+      "minimumLevel": 3,
+      "chapter": "V17"
+    },
+    {
+      "id": "V17.2.6",
+      "minimumLevel": 3,
+      "chapter": "V17"
+    },
+    {
+      "id": "V17.2.7",
+      "minimumLevel": 3,
+      "chapter": "V17"
+    },
+    {
+      "id": "V17.2.8",
+      "minimumLevel": 3,
+      "chapter": "V17"
+    },
+    {
+      "id": "V17.3.1",
+      "minimumLevel": 2,
+      "chapter": "V17"
+    },
+    {
+      "id": "V17.3.2",
+      "minimumLevel": 2,
+      "chapter": "V17"
+    }
+  ],
+  "categoryCrosswalk": [
+    {
+      "category": "xss",
+      "controlId": "application_security",
+      "requirementIds": [
+        "V1.2.1",
+        "V1.2.2",
+        "V1.2.3",
+        "V1.3.1"
+      ],
+      "relationship": "test_can_supply_partial_counterevidence"
+    },
+    {
+      "category": "sqli",
+      "controlId": "application_security",
+      "requirementIds": [
+        "V1.2.4"
+      ],
+      "relationship": "test_can_supply_partial_counterevidence"
+    },
+    {
+      "category": "idor",
+      "controlId": "identity_access",
+      "requirementIds": [
+        "V8.2.1",
+        "V8.2.2",
+        "V8.3.1"
+      ],
+      "relationship": "test_can_supply_partial_counterevidence"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "xss-html",
+      "category": "xss",
+      "reviewGoal": "Compare authorized lab HTML output with an inert encoded counterpart.",
+      "requiredRoles": [
+        "baseline",
+        "probe",
+        "impact",
+        "negative",
+        "replay"
+      ],
+      "retestStates": [
+        "fixed",
+        "still_reproducible",
+        "inconclusive"
+      ]
+    },
+    {
+      "id": "xss-attribute",
+      "category": "xss",
+      "reviewGoal": "Review whether output remains confined to an HTML attribute.",
+      "requiredRoles": [
+        "baseline",
+        "probe",
+        "impact",
+        "negative",
+        "replay"
+      ],
+      "retestStates": [
+        "fixed",
+        "still_reproducible",
+        "inconclusive"
+      ]
+    },
+    {
+      "id": "xss-script",
+      "category": "xss",
+      "reviewGoal": "Review untrusted data handling in a JavaScript context.",
+      "requiredRoles": [
+        "baseline",
+        "probe",
+        "impact",
+        "negative",
+        "replay"
+      ],
+      "retestStates": [
+        "fixed",
+        "still_reproducible",
+        "inconclusive"
+      ]
+    },
+    {
+      "id": "xss-stored",
+      "category": "xss",
+      "reviewGoal": "Review a persisted input on a later authorized read.",
+      "requiredRoles": [
+        "baseline",
+        "probe",
+        "impact",
+        "negative",
+        "replay"
+      ],
+      "retestStates": [
+        "fixed",
+        "still_reproducible",
+        "inconclusive"
+      ]
+    },
+    {
+      "id": "xss-dom",
+      "category": "xss",
+      "reviewGoal": "Review a client-side input-to-output path separately from server output.",
+      "requiredRoles": [
+        "baseline",
+        "probe",
+        "impact",
+        "negative",
+        "replay"
+      ],
+      "retestStates": [
+        "fixed",
+        "still_reproducible",
+        "inconclusive"
+      ]
+    },
+    {
+      "id": "sqli-query",
+      "category": "sqli",
+      "reviewGoal": "Compare a scoped relational query fixture with a parameterized counterpart.",
+      "requiredRoles": [
+        "baseline",
+        "probe",
+        "impact",
+        "negative",
+        "replay"
+      ],
+      "retestStates": [
+        "fixed",
+        "still_reproducible",
+        "inconclusive"
+      ]
+    },
+    {
+      "id": "sqli-normalization",
+      "category": "sqli",
+      "reviewGoal": "Check whether input normalization changes a database query boundary.",
+      "requiredRoles": [
+        "baseline",
+        "probe",
+        "impact",
+        "negative",
+        "replay"
+      ],
+      "retestStates": [
+        "fixed",
+        "still_reproducible",
+        "inconclusive"
+      ]
+    },
+    {
+      "id": "idor-owner",
+      "category": "idor",
+      "reviewGoal": "Compare object access by two users with the same role and different ownership.",
+      "requiredRoles": [
+        "baseline",
+        "probe",
+        "impact",
+        "negative",
+        "replay"
+      ],
+      "retestStates": [
+        "fixed",
+        "still_reproducible",
+        "inconclusive"
+      ]
+    },
+    {
+      "id": "idor-role",
+      "category": "idor",
+      "reviewGoal": "Compare a permitted role with a role lacking that function permission.",
+      "requiredRoles": [
+        "baseline",
+        "probe",
+        "impact",
+        "negative",
+        "replay"
+      ],
+      "retestStates": [
+        "fixed",
+        "still_reproducible",
+        "inconclusive"
+      ]
+    },
+    {
+      "id": "idor-tenant",
+      "category": "idor",
+      "reviewGoal": "Compare object access across an explicitly isolated tenant boundary.",
+      "requiredRoles": [
+        "baseline",
+        "probe",
+        "impact",
+        "negative",
+        "replay"
+      ],
+      "retestStates": [
+        "fixed",
+        "still_reproducible",
+        "inconclusive"
+      ]
+    }
+  ],
+  "limitations": [
+    "This curated crosswalk is not an official national-framework equivalence or ASVS certification.",
+    "A validated finding can contradict part of a mapped requirement; a clear scan does not establish satisfaction of that requirement.",
+    "A scenario is an offline benchmark design and grants no execution permission. Every active test still requires the existing product scope and approval gates.",
+    "The minimum-level index does not supply all normative text. Review the pinned complete ASVS release for implementation and assessment."
+  ]
+}

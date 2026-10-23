@@ -1,0 +1,485 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "my-bnm-rmit-2026.curated",
+  "frameworkId": "my-bnm-rmit-2026",
+  "version": "Issued 25 September 2026; curated-2026-10-08",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "my-bnm-rmit-2026.source",
+      "title": "Bank Negara Malaysia Risk Management in Technology, 25 September 2026",
+      "url": "https://www.bnm.gov.my/documents/20124/938039/pd-rmit-sep26.pdf",
+      "locator": "Paragraphs 2–5, 8–11; S and G clause markings"
+    }
+  ],
+  "limitations": [
+    "Curated partial clause coverage only. The baseline is an assessment target, never a national security grade or a certification decision.",
+    "Future deadlines in the September 2026 policy are not treated as already due. Appendix-specific requirements, NCII Code of Practice and permitted exclusions require separate review."
+  ],
+  "requirements": [
+    {
+      "id": "my-bnm-rmit-2026.risk-appetite",
+      "label": "Board approves technology risk appetite",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "my-bnm-rmit-2026.source",
+      "locator": "S paragraph 8.1",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "my-bnm-rmit-2026.risk-appetite",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "my-bnm-rmit-2026.board-committee",
+      "label": "Designate a competent board technology committee",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "my-bnm-rmit-2026.source",
+      "locator": "S paragraph 8.3",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "my-bnm-rmit-2026.board-committee",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "my-bnm-rmit-2026.audit-capability",
+      "label": "Board audit committee ensures technology-audit effectiveness",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "my-bnm-rmit-2026.source",
+      "locator": "S paragraph 8.5",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "my-bnm-rmit-2026.audit-capability",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "my-bnm-rmit-2026.cross-functional-committee",
+      "label": "Establish cross-functional technology governance committee",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "my-bnm-rmit-2026.source",
+      "locator": "S paragraph 8.7",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "my-bnm-rmit-2026.cross-functional-committee",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "my-bnm-rmit-2026.trmf-integration",
+      "label": "Integrate technology risk framework with enterprise risk",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "my-bnm-rmit-2026.source",
+      "locator": "S paragraph 9.1",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "my-bnm-rmit-2026.trmf-integration",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "my-bnm-rmit-2026.independent-risk-function",
+      "label": "Maintain independent enterprise technology risk function",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "my-bnm-rmit-2026.source",
+      "locator": "S paragraph 9.3",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "my-bnm-rmit-2026.independent-risk-function",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "my-bnm-rmit-2026.ciso",
+      "label": "Designate a Chief Information Security Officer",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "my-bnm-rmit-2026.source",
+      "locator": "S paragraph 9.4",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "my-bnm-rmit-2026.ciso",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "my-bnm-rmit-2026.secure-sdlc",
+      "label": "Adopt secure system development lifecycle methodology",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "my-bnm-rmit-2026.source",
+      "locator": "S paragraph 10.5",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "my-bnm-rmit-2026.secure-sdlc",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "my-bnm-rmit-2026.environment-separation",
+      "label": "Separate production from development/testing environments",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "my-bnm-rmit-2026.source",
+      "locator": "S paragraph 10.7",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review physical segregation, or permitted logical segregation in cloud environments, against the full clause."
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Review physical segregation, or permitted logical segregation in cloud environments, against the full clause."
+    },
+    {
+      "id": "my-bnm-rmit-2026.system-testing",
+      "label": "Test systems rigorously before deployment",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "my-bnm-rmit-2026.source",
+      "locator": "S paragraph 10.8",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "my-bnm-rmit-2026.system-testing",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "my-bnm-rmit-2026.critical-code-review",
+      "label": "Review critical-system source-code changes before release",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "my-bnm-rmit-2026.source",
+      "locator": "S paragraph 10.10",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "my-bnm-rmit-2026.critical_source_changes_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "my-bnm-rmit-2026.critical-code-review",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "my-bnm-rmit-2026.change-approval",
+      "label": "Independently review and approve system changes",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "my-bnm-rmit-2026.source",
+      "locator": "S paragraph 10.11",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "my-bnm-rmit-2026.change-approval",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "my-bnm-rmit-2026.crypto-policy",
+      "label": "Establish strong cryptography and key-lifecycle policy",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "my-bnm-rmit-2026.source",
+      "locator": "S paragraph 10.20",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "my-bnm-rmit-2026.crypto-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "my-bnm-rmit-2026.crypto-due-diligence",
+      "label": "Evaluate controls for the technology used",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "my-bnm-rmit-2026.source",
+      "locator": "S paragraph 10.21",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Key ownership exceptions and risk-dependent safeguards require review; no blanket key-custody conclusion."
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Key ownership exceptions and risk-dependent safeguards require review; no blanket key-custody conclusion."
+    },
+    {
+      "id": "my-bnm-rmit-2026.data-centre-resilience",
+      "label": "Define data-centre resilience and availability objectives",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "my-bnm-rmit-2026.source",
+      "locator": "S paragraph 10.24",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "my-bnm-rmit-2026.data-centre-resilience",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "my-bnm-rmit-2026.capacity-monitoring",
+      "label": "Monitor key processes and service capacity in real time",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "my-bnm-rmit-2026.source",
+      "locator": "S paragraph 10.30",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "my-bnm-rmit-2026.capacity-monitoring",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "my-bnm-rmit-2026.cyber-framework",
+      "label": "Maintain cyber risk/resilience framework",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "my-bnm-rmit-2026.source",
+      "locator": "S paragraph 11.2",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "my-bnm-rmit-2026.cyber-framework",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "my-bnm-rmit-2026.threat-intelligence",
+      "label": "Collect and analyse environment-relevant threat intelligence",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "my-bnm-rmit-2026.source",
+      "locator": "S paragraph 11.10",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "my-bnm-rmit-2026.threat-intelligence",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "my-bnm-rmit-2026.crisis-procedures",
+      "label": "Integrate cyber scenarios with crisis and recovery plans",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "my-bnm-rmit-2026.source",
+      "locator": "S paragraph 11.12",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "my-bnm-rmit-2026.crisis-procedures",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "my-bnm-rmit-2026.incident-plan",
+      "label": "Implement a comprehensive cyber incident response plan",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "my-bnm-rmit-2026.source",
+      "locator": "S paragraph 11.13",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "my-bnm-rmit-2026.incident-plan",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    }
+  ]
+}

@@ -7,7 +7,7 @@
 #     provider; set the matching *_API_KEY in runtime/.env). Business logic still
 #     routes through the LLM Gateway; this key is for the Strix runtime only.
 #   - Accept the operational posture of running an autonomous offensive agent,
-#     constrained to verified, authorized targets only (AGENTS.md ?4.3).
+#     constrained to explicitly authorized public hosts only (AGENTS.md 4.3).
 #   - Strix uses a Docker sandbox backend (STRIX_RUNTIME_BACKEND=docker); the
 #     host must expose a Docker socket or set an alternative backend.
 
@@ -22,8 +22,11 @@ RUN go build -o /out/strix-adapter ./cmd/strix
 FROM python:3.12-slim AS runtime
 # uv is Strix's recommended installer.
 RUN pip install --no-cache-dir uv \
-    && uv tool install strix-agent
+    && uv tool install strix-agent==1.6.2
 ENV PATH="/root/.local/bin:${PATH}"
+# Build-time CLI contract: this exact release must accept the flags emitted by
+# the Go adapter. The adapter's JSON artifact fixtures are checked by Go tests.
+RUN python -c "import subprocess; h=subprocess.check_output(['strix','--help'], text=True); assert '--target' in h and '--non-interactive' in h and '--scan-mode' in h and '--run-name' not in h"
 COPY --from=build /out/strix-adapter /usr/local/bin/strix-adapter
 WORKDIR /work
 EXPOSE 6130

@@ -1,0 +1,413 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "ca-osfi-b13-selected-clauses",
+  "frameworkId": "ca-osfi-b13",
+  "version": "2026-10-08.1",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "ca-osfi-b13-source",
+      "title": "OSFI Guideline B-13 — Technology and Cyber Risk Management — official reference",
+      "url": "https://www.osfi-bsif.gc.ca/en/guidance/guidance-library/technology-cyber-risk-management",
+      "locator": "A.Purpose and scope; 1.1–1.3;2.2–2.6;3.1–3.4"
+    }
+  ],
+  "limitations": [
+    "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+    "Requirements using should/where feasible remain recommendations in this pack. Other OSFI guidance and incident reporting advisory are outside coverage.",
+    "Selected supervisory expectations retain recommendation strength. Source should/where-feasible language is not promoted to statutory shall."
+  ],
+  "requirements": [
+    {
+      "id": "ca-accountability",
+      "label": "Assign senior cyber-risk responsibility",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ca-osfi-b13-source",
+      "locator": "1.1.1",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ca-accountability",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ca-risk-framework",
+      "label": "Align and refresh risk framework",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ca-osfi-b13-source",
+      "locator": "1.3.1",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ca-risk-framework",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ca-asset-inventory",
+      "label": "Maintain asset inventory and dependencies",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ca-osfi-b13-source",
+      "locator": "2.2.2",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ca-asset-inventory",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ca-config-discrepancies",
+      "label": "Manage baseline configuration differences",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ca-osfi-b13-source",
+      "locator": "2.2.3",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ca-config-discrepancies",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ca-unsupported-assets",
+      "label": "Manage outdated asset risks",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ca-osfi-b13-source",
+      "locator": "2.2.5",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ca-unsupported-assets",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ca-sdlc-security",
+      "label": "Apply development security gates",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ca-osfi-b13-source",
+      "locator": "2.4.2",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ca-sdlc-security",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ca-cryptography",
+      "label": "Protect encryption keys across lifecycle",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ca-osfi-b13-source",
+      "locator": "3.2.2",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ca-cryptography",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ca-network-zones",
+      "label": "Separate authorized network zones",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ca-osfi-b13-source",
+      "locator": "3.2.4",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ca-network-zones",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ca-data-lifecycle",
+      "label": "Protect classified data throughout lifecycle",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ca-osfi-b13-source",
+      "locator": "3.2.5",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ca-data-lifecycle",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ca-patch-management",
+      "label": "Remediate and report vulnerabilities",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ca-osfi-b13-source",
+      "locator": "3.2.6",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ca-patch-management",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ca-identity-control",
+      "label": "Review risk-based identity controls",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ca-osfi-b13-source",
+      "locator": "3.2.7",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review least privilege, MFA, privileged and service accounts, considering feasibility and risk."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ca-baselines",
+      "label": "Enforce approved security baselines",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ca-osfi-b13-source",
+      "locator": "3.2.8",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ca-baselines",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ca-release-testing",
+      "label": "Assess application changes before release",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ca-osfi-b13-source",
+      "locator": "3.2.9",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review pre-release static/dynamic testing where feasible and pipeline security gates."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "ca-central-logs",
+      "label": "Provide central security logs",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ca-osfi-b13-source",
+      "locator": "3.3.1",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ca-central-logs",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    }
+  ]
+}

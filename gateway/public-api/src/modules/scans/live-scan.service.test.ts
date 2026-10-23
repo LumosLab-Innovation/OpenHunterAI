@@ -1,12 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { buildLiveScanSnapshot, filterLiveActivity, normalizeActivityEvent } from './live-scan.service.js';
+import { buildLiveScanSnapshot, filterLiveActivity, normalizeActivityEvent, publicLlmRoutes } from './live-scan.service.js';
 
 describe('buildLiveScanSnapshot', () => {
   it('builds a sanitized live snapshot with compact worker labels', () => {
     const snapshot = buildLiveScanSnapshot({
       id: 'scan_1',
       projectId: 'proj_1',
-      mode: 'ai_blackhat_mindset_check',
       targetType: 'interactive_web_app',
       authScope: 'none',
       testIntensityMode: 'controlled_attack_simulation',
@@ -112,7 +111,6 @@ describe('buildLiveScanSnapshot', () => {
     const snapshot = buildLiveScanSnapshot({
       id: 'scan_1',
       projectId: 'proj_1',
-      mode: 'ai_blackhat_mindset_check',
       targetType: 'interactive_web_app',
       authScope: 'none',
       testIntensityMode: 'controlled_attack_simulation',
@@ -266,7 +264,6 @@ describe('buildLiveScanSnapshot', () => {
     const snapshot = buildLiveScanSnapshot({
       id: 'scan_1',
       projectId: 'proj_1',
-      mode: 'ai_blackhat_mindset_check',
       targetType: 'interactive_web_app',
       authScope: 'none',
       testIntensityMode: 'controlled_attack_simulation',
@@ -293,5 +290,27 @@ describe('buildLiveScanSnapshot', () => {
     });
 
     expect(JSON.stringify(snapshot)).not.toMatch(/zap|nuclei|openhack|strix|Z_signal|N_signal|O_hunter|S_core|browser_inspector/i);
+  });
+
+  it('shows the frozen CLI route instead of later settings', () => {
+    const published = publicLlmRoutes({
+      llmRouteSnapshot: {
+        capturedAt: '2026-09-27T00:00:00.000Z',
+        routes: {
+          attacker_hypothesis: {
+            primary: { transport: 'coding_cli', cli: 'codex', model: 'cli-default', reasoningLevel: 'high' },
+            fallback: { transport: 'coding_cli', cli: 'claude', model: 'cli-default', reasoningLevel: 'high' },
+          },
+        },
+        accepted: { attacker_hypothesis: { primary: true, fallback: false } },
+      },
+    });
+    expect(published).toEqual({
+      capturedAt: '2026-09-27T00:00:00.000Z',
+      routes: [
+        { useCase: 'attacker_hypothesis', slot: 'primary', transport: 'coding_cli', cli: 'codex', model: 'cli-default', reasoningLevel: 'high', accepted: true },
+        { useCase: 'attacker_hypothesis', slot: 'fallback', transport: 'coding_cli', cli: 'claude', model: 'cli-default', reasoningLevel: 'high', accepted: false },
+      ],
+    });
   });
 });

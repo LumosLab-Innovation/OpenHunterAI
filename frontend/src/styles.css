@@ -98,15 +98,6 @@
 }
 
 @layer components {
-  /* Faint radar-grid atmosphere for hero / empty surfaces. */
-  .bg-radar {
-    background-image: var(--tw-bg-grid, theme('backgroundImage.grid'));
-    background-size: 32px 32px;
-    background-position: center;
-    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black, transparent 75%);
-    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black, transparent 75%);
-  }
-
   .text-data {
     font-family: ui-monospace, 'Cascadia Code', 'SFMono-Regular', Consolas, monospace;
     font-variant-numeric: tabular-nums;

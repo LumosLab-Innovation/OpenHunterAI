@@ -1,9 +1,9 @@
 // zaproxy-adapter wires worker Z to a real ZAP daemon over its HTTP API.
 //
 // Flow (passive/baseline only — no active attack, per scope v1):
-//   1. Tell ZAP to access the in-scope target URL (proxied through ZAP).
-//   2. Wait for the passive scanner queue to drain.
-//   3. Read alerts for the target and return them as sanitized signals.
+//  1. Tell ZAP to access the in-scope target URL (proxied through ZAP).
+//  2. Wait for the passive scanner queue to drain.
+//  3. Read alerts for the target and return them as sanitized signals.
 //
 // Returns 503 TOOL_UNAVAILABLE when the ZAP daemon is unreachable, never a fake
 // success (infra/INTEGRATIONS.md).
@@ -60,8 +60,9 @@ type signal struct {
 }
 
 type runResponse struct {
-	Signals []signal `json:"signals"`
-	Summary string   `json:"summary"`
+	Signals           []signal       `json:"signals"`
+	Summary           string         `json:"summary"`
+	RuntimeProvenance map[string]any `json:"runtimeProvenance"`
 }
 
 func runHandler(w http.ResponseWriter, r *http.Request) {
@@ -89,7 +90,11 @@ func runHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// 2. Wait for the passive scan queue to drain (bounded).
-	zapWaitPassive(60 * time.Second)
+	if err := zapWaitPassive(60 * time.Second); err != nil {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		writeJSON(w, map[string]any{"code": "TOOL_UNAVAILABLE", "tool": "zaproxy", "message": "ZAP passive scan did not complete: " + err.Error()})
+		return
+	}
 	// 3. Collect alerts for the target.
 	alerts, err := zapAlerts(req.Target)
 	if err != nil {
@@ -114,6 +119,10 @@ func runHandler(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, runResponse{
 		Signals: signals,
 		Summary: fmt.Sprintf("ZAP passive baseline produced %d alert(s) for the target.", len(signals)),
+		RuntimeProvenance: map[string]any{
+			"upstreamId": "zap", "upstreamRef": "v2.17.0",
+			"adapterVersion": "openhunter-zap-adapter/v1",
+		},
 	})
 }
 
@@ -126,7 +135,7 @@ func zapReachable() bool {
 		return false
 	}
 	defer resp.Body.Close()
-	return resp.StatusCode < 500
+	return resp.StatusCode == http.StatusOK
 }
 
 func zapAccessURL(target string) error {
@@ -134,20 +143,25 @@ func zapAccessURL(target string) error {
 	return zapAction("/JSON/core/action/accessUrl/", q)
 }
 
-func zapWaitPassive(timeout time.Duration) {
+func zapWaitPassive(timeout time.Duration) error {
 	deadline := time.Now().Add(timeout)
 	for time.Now().Before(deadline) {
 		var out struct {
 			RecordsToScan string `json:"recordsToScan"`
 		}
 		if err := zapGet("/JSON/pscan/view/recordsToScan/", url.Values{"apikey": {zapKey()}}, &out); err != nil {
-			return
+			return err
 		}
-		if n, _ := strconv.Atoi(out.RecordsToScan); n == 0 {
-			return
+		n, err := strconv.Atoi(out.RecordsToScan)
+		if err != nil || n < 0 {
+			return fmt.Errorf("invalid passive queue count")
+		}
+		if n == 0 {
+			return nil
 		}
 		time.Sleep(1 * time.Second)
 	}
+	return fmt.Errorf("passive queue timed out")
 }
 
 type zapAlert struct {

@@ -155,7 +155,6 @@ exports.Prisma.ProjectScalarFieldEnum = {
   id: 'id',
   organizationId: 'organizationId',
   name: 'name',
-  packageTier: 'packageTier',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -185,7 +184,7 @@ exports.Prisma.ScanAuthorizationScalarFieldEnum = {
   id: 'id',
   projectId: 'projectId',
   domainId: 'domainId',
-  scanMode: 'scanMode',
+  targetUrl: 'targetUrl',
   authScope: 'authScope',
   targetType: 'targetType',
   testIntensityMode: 'testIntensityMode',
@@ -237,7 +236,6 @@ exports.Prisma.ScanJobScalarFieldEnum = {
   projectId: 'projectId',
   authorizationId: 'authorizationId',
   initiatorUserId: 'initiatorUserId',
-  mode: 'mode',
   targetType: 'targetType',
   authScope: 'authScope',
   testIntensityMode: 'testIntensityMode',
@@ -258,6 +256,7 @@ exports.Prisma.ScanJobScalarFieldEnum = {
 exports.Prisma.ScanStepScalarFieldEnum = {
   id: 'id',
   scanJobId: 'scanJobId',
+  runKey: 'runKey',
   kind: 'kind',
   state: 'state',
   startedAt: 'startedAt',
@@ -271,6 +270,7 @@ exports.Prisma.ScanStepScalarFieldEnum = {
 exports.Prisma.ScanActivityEventScalarFieldEnum = {
   id: 'id',
   scanJobId: 'scanJobId',
+  dedupeKey: 'dedupeKey',
   eventType: 'eventType',
   actor: 'actor',
   titleKey: 'titleKey',
@@ -286,6 +286,7 @@ exports.Prisma.ScanActivityEventScalarFieldEnum = {
 exports.Prisma.FindingCandidateScalarFieldEnum = {
   id: 'id',
   scanJobId: 'scanJobId',
+  dedupeKey: 'dedupeKey',
   source: 'source',
   title: 'title',
   severity: 'severity',
@@ -296,6 +297,18 @@ exports.Prisma.FindingCandidateScalarFieldEnum = {
   rawSignal: 'rawSignal',
   createdAt: 'createdAt',
   promotedToId: 'promotedToId'
+};
+
+exports.Prisma.TriageDecisionScalarFieldEnum = {
+  id: 'id',
+  candidateId: 'candidateId',
+  state: 'state',
+  rationale: 'rationale',
+  counterevidence: 'counterevidence',
+  validator: 'validator',
+  evidenceRefs: 'evidenceRefs',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.FindingScalarFieldEnum = {
@@ -321,6 +334,7 @@ exports.Prisma.ReportScalarFieldEnum = {
   id: 'id',
   projectId: 'projectId',
   scanJobId: 'scanJobId',
+  finalizationKey: 'finalizationKey',
   kind: 'kind',
   version: 'version',
   state: 'state',
@@ -382,52 +396,6 @@ exports.Prisma.RetestRunScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
-exports.Prisma.CreditEntryScalarFieldEnum = {
-  id: 'id',
-  projectId: 'projectId',
-  delta: 'delta',
-  reason: 'reason',
-  refType: 'refType',
-  refId: 'refId',
-  createdAt: 'createdAt'
-};
-
-exports.Prisma.PaymentScalarFieldEnum = {
-  id: 'id',
-  organizationId: 'organizationId',
-  projectId: 'projectId',
-  provider: 'provider',
-  providerRef: 'providerRef',
-  amount: 'amount',
-  currency: 'currency',
-  status: 'status',
-  creditDelta: 'creditDelta',
-  metadata: 'metadata',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.SubscriptionScalarFieldEnum = {
-  id: 'id',
-  organizationId: 'organizationId',
-  projectId: 'projectId',
-  provider: 'provider',
-  externalId: 'externalId',
-  status: 'status',
-  packageTier: 'packageTier',
-  currentPeriodEnd: 'currentPeriodEnd',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.WebhookEventScalarFieldEnum = {
-  id: 'id',
-  provider: 'provider',
-  eventId: 'eventId',
-  eventType: 'eventType',
-  processedAt: 'processedAt'
-};
-
 exports.Prisma.AuditLogScalarFieldEnum = {
   id: 'id',
   organizationId: 'organizationId',
@@ -475,13 +443,6 @@ exports.UserRole = exports.$Enums.UserRole = {
   member: 'member'
 };
 
-exports.PackageTier = exports.$Enums.PackageTier = {
-  free_hunter: 'free_hunter',
-  ai_blackhat_mindset_check: 'ai_blackhat_mindset_check',
-  monitor_workspace: 'monitor_workspace',
-  enterprise_payg: 'enterprise_payg'
-};
-
 exports.VerificationMethod = exports.$Enums.VerificationMethod = {
   dns_txt: 'dns_txt',
   well_known: 'well_known'
@@ -492,11 +453,6 @@ exports.VerificationStatus = exports.$Enums.VerificationStatus = {
   verified: 'verified',
   failed: 'failed',
   expired: 'expired'
-};
-
-exports.ScanMode = exports.$Enums.ScanMode = {
-  free_hunter: 'free_hunter',
-  ai_blackhat_mindset_check: 'ai_blackhat_mindset_check'
 };
 
 exports.AuthScope = exports.$Enums.AuthScope = {
@@ -567,6 +523,13 @@ exports.Confidence = exports.$Enums.Confidence = {
   high: 'high'
 };
 
+exports.TriageDecisionState = exports.$Enums.TriageDecisionState = {
+  candidate: 'candidate',
+  rejected: 'rejected',
+  needs_more_evidence: 'needs_more_evidence',
+  validated: 'validated'
+};
+
 exports.FindingStatus = exports.$Enums.FindingStatus = {
   open: 'open',
   in_progress: 'in_progress',
@@ -577,7 +540,6 @@ exports.FindingStatus = exports.$Enums.FindingStatus = {
 };
 
 exports.ReportKind = exports.$Enums.ReportKind = {
-  free_hunter: 'free_hunter',
   human: 'human',
   ai_dev: 'ai_dev'
 };
@@ -625,26 +587,6 @@ exports.RetestResult = exports.$Enums.RetestResult = {
   cannot_verify: 'cannot_verify'
 };
 
-exports.PaymentProvider = exports.$Enums.PaymentProvider = {
-  sepay: 'sepay',
-  polar: 'polar'
-};
-
-exports.PaymentStatus = exports.$Enums.PaymentStatus = {
-  pending: 'pending',
-  paid: 'paid',
-  failed: 'failed',
-  refunded: 'refunded',
-  expired: 'expired'
-};
-
-exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
-  active: 'active',
-  past_due: 'past_due',
-  canceled: 'canceled',
-  expired: 'expired'
-};
-
 exports.Prisma.ModelName = {
   Organization: 'Organization',
   User: 'User',
@@ -659,16 +601,13 @@ exports.Prisma.ModelName = {
   ScanStep: 'ScanStep',
   ScanActivityEvent: 'ScanActivityEvent',
   FindingCandidate: 'FindingCandidate',
+  TriageDecision: 'TriageDecision',
   Finding: 'Finding',
   Report: 'Report',
   ReportDraftSection: 'ReportDraftSection',
   ApprovalRequest: 'ApprovalRequest',
   ApprovalDecision: 'ApprovalDecision',
   RetestRun: 'RetestRun',
-  CreditEntry: 'CreditEntry',
-  Payment: 'Payment',
-  Subscription: 'Subscription',
-  WebhookEvent: 'WebhookEvent',
   AuditLog: 'AuditLog'
 };
 

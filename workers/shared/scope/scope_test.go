@@ -62,7 +62,7 @@ func TestHostInScope(t *testing.T) {
 		in   bool
 	}{
 		{"example.com", true},
-		{"api.example.com", true},   // subdomain allowed
+		{"api.example.com", false},  // subdomain requires its own authorization
 		{"app.test.io", true},
 		{"notexample.com", false},   // suffix trick must fail
 		{"example.com.evil.com", false},
@@ -136,6 +136,32 @@ func TestCheckURL(t *testing.T) {
 		if !errors.As(err, &v) || v.Code != c.wantCode {
 			t.Errorf("CheckURL(%q) = %v, want code %s", c.url, err, c.wantCode)
 		}
+	}
+}
+
+func TestInitialURLStartsInsideDeclaredPath(t *testing.T) {
+	if got := InitialURL("example.com", nil); got != "https://example.com" {
+		t.Fatalf("host-wide seed = %q", got)
+	}
+	seed := InitialURL("example.com", []string{"/vi/trang-chu"})
+	if seed != "https://example.com/vi/trang-chu" {
+		t.Fatalf("path-limited seed = %q", seed)
+	}
+	sc := Scope{AllowedHosts: []string{"example.com"}, AllowedPaths: []string{"/vi/trang-chu"}}
+	if err := CheckURL(seed, sc); err != nil {
+		t.Fatalf("seed should be in scope: %v", err)
+	}
+	if err := CheckURL("https://example.com/", sc); err == nil {
+		t.Fatal("host root must remain out of scope")
+	}
+}
+
+func TestSeedURLPreservesRequestedPath(t *testing.T) {
+	if got := SeedURL("https://example.com/app/page", "example.com", []string{"/app"}); got != "https://example.com/app/page" {
+		t.Fatalf("seed = %q", got)
+	}
+	if got := SeedURL("", "example.com", []string{"/app"}); got != "https://example.com/app" {
+		t.Fatalf("legacy seed = %q", got)
 	}
 }
 

@@ -1,25 +1,25 @@
 import { createRequire } from 'node:module';
 import { describe, expect, it, vi } from 'vitest';
-import { DEFAULT_SURFACE_FLAGS, type ReportContentV1 } from '@x-hunter/shared';
+import { DEFAULT_SURFACE_FLAGS, type ReportContentV2 } from '@x-hunter/shared';
 import { reportCsv, reportDocx } from './report-downloads.js';
 import { ReportsService } from './reports.service.js';
 
-const report: ReportContentV1 = {
-  formatVersion: 'report_v1', reportType: 'finding_report', packageTier: 'free_hunter', scanMode: 'free_hunter',
+const report: ReportContentV2 = {
+  formatVersion: 'report_v2', reportType: 'finding_report', profile: 'standard',
   targetType: 'interactive_web_app', authScope: 'none', testIntensityMode: 'safe_discovery', surfaceFlags: DEFAULT_SURFACE_FLAGS,
   ownerSummary: { headline: 'Test report', riskLevel: 'high', whatWasTested: 'Verified public scope',
     topRiskOrOutcome: 'Validated issue', businessImpact: 'Test impact', recommendedNextAction: 'Review fix' },
   findings: [{ id: 'f1', rank: 1, title: ' =HYPERLINK("https://example.com")', severity: 'high', confidence: 'high',
     affectedAsset: 'https://example.com', category: 'access_control', attackerPath: 'Controlled test',
     sanitizedProof: { description: 'Bearer secret-test-value', evidenceRefs: ['e1'], sanitized: true },
-    impact: 'Test impact', fixSummary: 'Fix ownership checks' }],
+    impact: 'Test impact', fixSummary: 'Fix ownership checks', validationStatus: 'validated' }],
   developerFixPack: [{ findingId: 'f1', rootCauseHypothesis: 'Ownership check missing', concreteFixPrompt: 'Check owner',
     validationSteps: ['Verify rejection'], regressionTestIdeas: ['Different owner'], acceptanceCriteria: 'Returns 403' }],
   coverage: { targetType: 'interactive_web_app', workersRun: ['Browser', 'R', 'Z'], huntersRun: [],
     skippedHunters: [{ hunter: 'S', reason: 'Disabled by user' }], coverageGaps: ['Authentication not tested'],
     limitations: ['Limited to authorized scope', 'Vietnamese: Tiếng Việt'] },
   hardeningRecommendations: ['Check headers'],
-  retestAndMonitor: { eligibleFindings: ['f1'], remainingRetestQuota: 1, cooldownDays: 7, manualRetestActions: ['Manual retest f1'] },
+  retest: { eligibleFindings: ['f1'], manualRetestActions: ['Manual retest f1'] },
   generatedAt: '2026-09-07T00:00:00.000Z',
 };
 
@@ -58,18 +58,19 @@ describe('report downloads', () => {
   it('uses the org-scoped report lookup and exports immutable JSON snapshot separately from latest state', async () => {
     const service = new ReportsService();
     const get = vi.spyOn(service, 'get').mockResolvedValue({
-      snapshot: { id: 'r1', state: 'final', content: report, generatedAt: new Date(report.generatedAt) },
+      snapshot: { id: 'r1', projectId: 'p1', scanJobId: 's1', version: 1, kind: 'human', formatVersion: 'report_v2', state: 'final', content: report, generatedAt: new Date(report.generatedAt), finalizedAt: new Date(report.generatedAt) },
       latestOverlay: { findingStatuses: [] },
     } as any);
     const result = await service.export('r1', 'org1', 'json', 'snapshot');
     expect(get).toHaveBeenCalledWith('r1', 'org1');
     const parsed = JSON.parse(result!.body.toString());
-    expect(parsed.snapshot.content.formatVersion).toBe('report_v1');
+    expect(parsed.snapshot.content.formatVersion).toBe('report_v2');
     expect(parsed.snapshot.generatedAt).toBe(report.generatedAt);
     expect(result!.body.toString()).not.toContain('secret-test-value');
     expect(parsed.latestOverlay).toBeUndefined();
     const latest = await service.export('r1', 'org1', 'json', 'latest');
-    expect(JSON.parse(latest!.body.toString()).latestOverlay).toEqual({ findingStatuses: [] });
+    expect(JSON.parse(latest!.body.toString()).latestOverlay).toEqual({ findingStatuses: [], retestStates: [] });
+    expect(JSON.parse(latest!.body.toString()).integrity.digest).toBe(parsed.integrity.digest);
     get.mockResolvedValue(null);
     expect(await service.export('r1', 'other-org', 'docx', 'snapshot')).toBeNull();
     get.mockResolvedValue({ snapshot: { state: 'draft' } } as any);

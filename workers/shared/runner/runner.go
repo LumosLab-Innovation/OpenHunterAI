@@ -15,22 +15,22 @@ import (
 	"openhunter/workers/shared/bus"
 	"openhunter/workers/shared/callback"
 	"openhunter/workers/shared/events"
-	"openhunter/workers/shared/worker"
 	"openhunter/workers/shared/wlog"
+	"openhunter/workers/shared/worker"
 
 	"encoding/json"
 )
 
 // Config describes one signal worker.
 type Config struct {
-	WorkerType string        // e.g. "Z", "N", "O", "S"
-	Subject    string        // events.SubjectWorker* this worker pulls
-	Durable    string        // durable consumer name
-	Port       string        // health endpoint port
-	NATSURL    string        // NATS connection URL
-	InternalAPIURL string    // internal-api base URL for callbacks
-	WorkerToken    string    // shared secret for internal-api callbacks
-	Timeout    time.Duration // per-run hard timeout
+	WorkerType     string        // e.g. "Z", "N", "O", "S"
+	Subject        string        // events.SubjectWorker* this worker pulls
+	Durable        string        // durable consumer name
+	Port           string        // health endpoint port
+	NATSURL        string        // NATS connection URL
+	InternalAPIURL string        // internal-api base URL for callbacks
+	WorkerToken    string        // shared secret for internal-api callbacks
+	Timeout        time.Duration // per-run hard timeout
 }
 
 // Serve runs the worker until the process receives a termination signal. fn is
@@ -89,6 +89,9 @@ func handle(ctx context.Context, cfg Config, b *bus.Bus, cb *callback.Client, e 
 	if in.WorkerType == "" {
 		in.WorkerType = cfg.WorkerType
 	}
+	if in.RunID == "" {
+		in.RunID = e.ID
+	}
 	log := wlog.New(wlog.Fields{WorkerType: cfg.WorkerType, ScanID: in.ScanID, ProjectID: in.ProjectID})
 
 	res := worker.Run(ctx, in, worker.Options{Timeout: cfg.timeoutOrDefault(), Logger: log}, fn)
@@ -98,7 +101,7 @@ func handle(ctx context.Context, cfg Config, b *bus.Bus, cb *callback.Client, e 
 		return err
 	}
 	if len(res.Signals) > 0 {
-		if err := cb.PostFindings(ctx, in.ScanID, in.WorkerType, res.Signals); err != nil {
+		if err := cb.PostFindings(ctx, in.RunID, in.ScanID, in.WorkerType, res.Signals); err != nil {
 			log.Error("callback_findings_failed", "err", err.Error())
 			return err
 		}
@@ -107,10 +110,12 @@ func handle(ctx context.Context, cfg Config, b *bus.Bus, cb *callback.Client, e 
 	// Fan-in signal: tell the orchestrator this worker is done. Published after
 	// the callback so a redelivery never double-counts a completion.
 	if err := b.Publish(ctx, events.SubjectWorkerCompleted, events.WorkerCompletedPayload{
+		RunID:       in.RunID,
 		ScanID:      in.ScanID,
 		ProjectID:   in.ProjectID,
 		WorkerType:  cfg.WorkerType,
 		State:       string(res.State),
+		Status:      string(res.Status),
 		SignalCount: len(res.Signals),
 		CoverageGap: res.CoverageGap,
 	}); err != nil {

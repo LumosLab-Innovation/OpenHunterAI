@@ -1,21 +1,28 @@
 import { getPrisma } from '@x-hunter/db';
+import { isLocalMode } from '../../middlewares/auth.middleware.js';
 import {
   REPORT_FORMAT_VERSION,
+  GuardrailError,
+  normalizeReportSnapshotContent,
+  normalizeReportLatestOverlay,
+  reportSnapshotExport,
+  deriveWorkerCoverage,
+  intensityToProfile,
+  isIndependentlyValidatedFinding,
   renderReportHtml,
   renderReportMarkdown,
   sanitizeReportContent,
   sanitizeText,
-  type ReportContentV1,
-  GuardrailError,
+  type ReportContentV2,
 } from '@x-hunter/shared';
-import { REPORT_EXPORT_FORMATS, reportCsv, reportDocx, type ReportExportFormat } from './report-downloads.js';
+import { reportCsv, reportDocx, type ReportExportFormat } from './report-downloads.js';
 
 export class ReportsService {
   private readonly prisma = getPrisma();
 
   list(orgId: string) {
     return this.prisma.report.findMany({
-      where: { state: 'final', project: { organizationId: orgId } },
+      where: { state: 'final', ...(isLocalMode() ? {} : { project: { organizationId: orgId } }) },
       select: {
         id: true,
         projectId: true,
@@ -42,7 +49,7 @@ export class ReportsService {
 
   async get(id: string, orgId: string) {
     const report = await this.prisma.report.findFirst({
-      where: { id, project: { organizationId: orgId } },
+      where: { id, ...(isLocalMode() ? {} : { project: { organizationId: orgId } }) },
       include: {
         scanJob: {
           include: {
@@ -59,32 +66,23 @@ export class ReportsService {
   async export(id: string, orgId: string, format: ReportExportFormat, view: 'snapshot' | 'latest') {
     const envelope = await this.get(id, orgId);
     if (!envelope) return null;
-    if (!['final', 'superseded'].includes(envelope.snapshot.state)) {
-      throw new GuardrailError('INVALID_INPUT', 'Report is still being prepared');
+    if (envelope.snapshot.state !== 'final' && envelope.snapshot.state !== 'superseded') throw new GuardrailError('INVALID_INPUT', 'Report is still being prepared');
+    const content = normalizeReportSnapshotContent(envelope.snapshot.content);
+    const filename = `openhunter-report-${id.replace(/[^A-Za-z0-9_.-]/g, '_')}`;
+    if (format === 'json') {
+      const exported = { ...reportSnapshotExport({ ...envelope.snapshot, content }),
+        ...(view === 'latest' ? { latestOverlay: normalizeReportLatestOverlay(envelope.latestOverlay, content.findings.map((finding) => finding.id)) } : {}) };
+      return { contentType: 'application/json; charset=utf-8', filename: `${filename}.json`,
+        body: Buffer.from(JSON.stringify(exported, null, 2), 'utf8') };
     }
-    const content = sanitizeReportContent(envelope.snapshot.content as ReportContentV1);
-    if (format === 'json') return {
-      contentType: 'application/json; charset=utf-8', filename: `openhunter-report-${id}.json`,
-      // Serialize dates before sanitizing the complete public download envelope.
-      body: Buffer.from(JSON.stringify(sanitizeReportContent(JSON.parse(JSON.stringify({
-        snapshot: envelope.snapshot,
-        ...(view === 'latest' ? { latestOverlay: envelope.latestOverlay } : {}),
-      }))), null, 2), 'utf8'),
-    };
-    if (format === 'csv') return {
-      contentType: 'text/csv; charset=utf-8', filename: `openhunter-report-${id}.csv`,
-      body: Buffer.from(reportCsv(content, view === 'latest' ? renderOverlayMarkdown(envelope.latestOverlay) : undefined), 'utf8'),
-    };
-    if (format === 'docx') return {
-      contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      filename: `openhunter-report-${id}.docx`,
-      body: await reportDocx(content, view === 'latest' ? renderOverlayMarkdown(envelope.latestOverlay) : undefined),
-    };
+    const latest = view === 'latest' ? renderOverlayMarkdown(envelope.latestOverlay) : undefined;
+    if (format === 'csv') return { contentType: 'text/csv; charset=utf-8', filename: `${filename}.csv`, body: Buffer.from(reportCsv(content, latest), 'utf8') };
+    if (format === 'docx') return { contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: `${filename}.docx`, body: await reportDocx(content, latest) };
     const html = renderReportHtml(content, view === 'latest' ? envelope.latestOverlay : undefined);
     if (format === 'html') {
       return {
         contentType: 'text/html; charset=utf-8',
-        filename: `openhunter-report-${id}.html`,
+        filename: `${filename}.html`,
         body: Buffer.from(html, 'utf8'),
       };
     }
@@ -98,7 +96,7 @@ ${renderOverlayMarkdown(envelope.latestOverlay)}`
         : renderReportMarkdown(content);
     return {
       contentType: 'application/pdf',
-      filename: `openhunter-report-${id}.pdf`,
+      filename: `${filename}.pdf`,
       body: renderSimplePdf(markdown),
     };
   }
@@ -131,14 +129,11 @@ ${renderOverlayMarkdown(envelope.latestOverlay)}`
   }
 
   private toEnvelope(report: any) {
-    const publicContent = publicReportContent(report.content) as ReportContentV1;
+    const publicContent = publicReportContent(report.content) as ReportContentV2;
     const snapshotFindingIds = new Set(
       (publicContent.findings ?? []).map((finding: { id: string }) => finding.id),
     );
-    const findings =
-      report.scanJob.mode === 'free_hunter'
-        ? (report.scanJob.findings ?? []).filter((finding: any) => snapshotFindingIds.has(finding.id)).slice(0, 1)
-        : (report.scanJob.findings ?? []);
+    const findings = (report.scanJob.findings ?? []).filter((finding: any) => snapshotFindingIds.has(finding.id));
     const latestOverlay = {
       findingStatuses: findings.map((finding: any) => ({
         id: finding.id,
@@ -155,11 +150,6 @@ ${renderOverlayMarkdown(envelope.latestOverlay)}`
           finishedAt: run.finishedAt,
         })),
       ),
-      monitor: {
-        maxMonitoredFindings: report.scanJob.mode === 'free_hunter' ? 1 : 50,
-        maxRetests: report.scanJob.mode === 'free_hunter' ? 1 : 10,
-        cooldownDays: report.scanJob.mode === 'free_hunter' ? 7 : 0,
-      },
     };
 
     return {
@@ -178,7 +168,7 @@ ${renderOverlayMarkdown(envelope.latestOverlay)}`
       },
       latestOverlay,
       exports: {
-        formats: REPORT_EXPORT_FORMATS,
+        formats: ['docx', 'csv', 'json', 'html', 'pdf'],
         generatedOnDemand: true,
       },
     };
@@ -188,7 +178,6 @@ ${renderOverlayMarkdown(envelope.latestOverlay)}`
 function renderOverlayMarkdown(overlay: {
   findingStatuses: Array<{ id: string; status: string; severity: string }>;
   retestStates: Array<{ findingId: string; result: string | null }>;
-  monitor: { maxMonitoredFindings: number; maxRetests: number; cooldownDays: number };
 }) {
   const statuses =
     overlay.findingStatuses.length > 0
@@ -201,15 +190,13 @@ function renderOverlayMarkdown(overlay: {
   return sanitizeText(`${statuses}
 
 Retests:
-${retests}
-
-Monitor quota: ${overlay.monitor.maxMonitoredFindings} findings, ${overlay.monitor.maxRetests} retests, ${overlay.monitor.cooldownDays} cooldown days.`);
+${retests}`);
 }
 
 export async function createInitialReportDraft(prisma: ReturnType<typeof getPrisma>, scanId: string) {
   const scan = await prisma.scanJob.findUnique({
     where: { id: scanId },
-    include: { project: true, authorization: true, findings: true, reportDraftSections: true },
+    include: { project: true, authorization: true, findings: { include: { candidates: { include: { triageDecision: true } } } }, reportDraftSections: true, steps: true },
   });
   if (!scan) return null;
   const content = buildReportContent(scan);
@@ -222,8 +209,7 @@ export async function createInitialReportDraft(prisma: ReturnType<typeof getPris
       sectionKey: 'scope',
       state: 'ready',
       content: sanitizeReportContent({
-        packageTier: scan.project.packageTier,
-        scanMode: scan.mode,
+        profile: intensityToProfile(scan.testIntensityMode),
         targetType: scan.targetType,
         authScope: scan.authScope,
         testIntensityMode: scan.testIntensityMode,
@@ -234,8 +220,7 @@ export async function createInitialReportDraft(prisma: ReturnType<typeof getPris
     update: {
       state: 'ready',
       content: sanitizeReportContent({
-        packageTier: scan.project.packageTier,
-        scanMode: scan.mode,
+        profile: intensityToProfile(scan.testIntensityMode),
         targetType: scan.targetType,
         authScope: scan.authScope,
         testIntensityMode: scan.testIntensityMode,
@@ -250,7 +235,7 @@ export async function createInitialReportDraft(prisma: ReturnType<typeof getPris
     create: {
       projectId: scan.projectId,
       scanJobId: scan.id,
-      kind: scan.mode === 'free_hunter' ? 'free_hunter' : 'human',
+      kind: 'human',
       version: 1,
       state: 'draft',
       formatVersion: REPORT_FORMAT_VERSION,
@@ -264,16 +249,15 @@ export async function createInitialReportDraft(prisma: ReturnType<typeof getPris
   });
 }
 
-function buildReportContent(scan: any): ReportContentV1 {
+function buildReportContent(scan: any): ReportContentV2 {
   const scanPlan = (scan.scanPlan ?? {}) as {
     enabledWorkers?: Record<string, string>;
     enabledHunters?: string[];
     skippedHunters?: Array<{ hunter: string; reason: string }>;
-    budgets?: { maxRetests?: number; cooldownDays?: number };
   };
-  const findings = ((scan.findings ?? []) as any[]).slice(0, scan.mode === 'free_hunter' ? 1 : 50);
+  const findings = ((scan.findings ?? []) as any[]).filter(isIndependentlyValidatedFinding);
   const reportFindings = findings.map((finding, index) => {
-    const evidence = (finding.evidence ?? {}) as { description?: string; evidenceRefs?: string[] };
+    const evidence = (finding.evidence ?? {}) as { description?: string; evidenceRefs?: string[]; demonstratedImpact?: string };
     return {
       id: finding.id,
       rank: index + 1,
@@ -288,33 +272,35 @@ function buildReportContent(scan: any): ReportContentV1 {
         evidenceRefs: Array.isArray(evidence.evidenceRefs) ? evidence.evidenceRefs.map(String) : [],
         sanitized: true as const,
       },
-      impact: sanitizeText(finding.description ?? 'Potential security impact requires review.'),
+      impact: sanitizeText(evidence.demonstratedImpact ?? finding.description ?? 'Potential security impact requires review.'),
       fixSummary: sanitizeText(finding.fixPrompt ?? 'Review the affected asset and apply the recommended fix.'),
       retestScenario: sanitizeReportContent(finding.retestScenario ?? null),
+      validationStatus: 'validated' as const,
     };
   });
   const coverageOnly = reportFindings.length === 0;
+  const workerCoverage = deriveWorkerCoverage(scan.steps ?? [], Object.keys(scanPlan.enabledWorkers ?? {}));
+  const incompleteCoverage = workerCoverage.coverageGaps.length > 0;
 
   return sanitizeReportContent({
     formatVersion: REPORT_FORMAT_VERSION,
     reportType: coverageOnly ? 'coverage_only' : 'finding_report',
-    packageTier: scan.project.packageTier,
-    scanMode: scan.mode,
+    profile: intensityToProfile(scan.testIntensityMode),
     targetType: scan.targetType,
     authScope: scan.authScope,
     testIntensityMode: scan.testIntensityMode,
     surfaceFlags: scan.surfaceFlags,
     ownerSummary: {
-      headline: coverageOnly ? 'Coverage report is being prepared' : `${reportFindings.length} finding(s) ready for review`,
+      headline: coverageOnly && incompleteCoverage ? 'Assessment coverage is incomplete' : coverageOnly ? 'Coverage report is being prepared' : `${reportFindings.length} finding(s) ready for review`,
       riskLevel: coverageOnly ? 'none' : reportFindings[0].severity,
       whatWasTested: `${scan.targetType} under ${scan.testIntensityMode}`,
       topRiskOrOutcome: coverageOnly
-        ? 'No valuable finding has been confirmed within the current budget yet.'
+        ? incompleteCoverage ? 'Some planned checks have not completed; no-finding status is inconclusive.' : 'No finding has been independently validated in this scope yet.'
         : reportFindings[0].title,
       businessImpact: coverageOnly
-        ? 'The scan still provides coverage, hardening, and limitation context.'
+        ? incompleteCoverage ? 'Missing coverage may hide issues.' : 'The scan still provides coverage, hardening, and limitation context.'
         : reportFindings[0].impact,
-      recommendedNextAction: coverageOnly ? 'Review coverage gaps and hardening recommendations.' : 'Fix the top finding and run retest.',
+      recommendedNextAction: coverageOnly ? 'Review coverage gaps and rerun incomplete checks.' : 'Fix the top finding and run retest.',
     },
     findings: reportFindings,
     developerFixPack: reportFindings.map((finding) => ({
@@ -327,24 +313,27 @@ function buildReportContent(scan: any): ReportContentV1 {
     })),
     coverage: {
       targetType: scan.targetType,
-      workersRun: Object.keys(scanPlan.enabledWorkers ?? {}).map(displayUnitCode),
-      huntersRun: (scanPlan.enabledHunters ?? []).map(displayUnitCode),
+      workersRun: workerCoverage.workersRun.map(displayUnitCode),
+      huntersPlanned: (scanPlan.enabledHunters ?? []).map(displayUnitCode),
+      huntersRun: [],
       skippedHunters: (scanPlan.skippedHunters ?? []).map((item) => ({
         ...item,
         hunter: displayUnitCode(item.hunter),
       })),
-      coverageGaps: coverageOnly ? ['No valuable finding was confirmed within this scan budget.'] : [],
-      limitations: coverageOnly
-        ? ['Free Hunter may stop early based on budget and first valuable finding policy.']
-        : ['Report uses sanitized evidence only.'],
+      coverageGaps: workerCoverage.coverageGaps,
+      limitations: [
+        ...workerCoverage.limitations,
+        'Hunter-family execution is not measured separately; planned families do not imply tested coverage.',
+        ...(coverageOnly
+          ? ['Coverage-only report; no finding was created.']
+          : ['Report uses sanitized evidence only.']),
+      ],
     },
     hardeningRecommendations: coverageOnly
       ? ['Review security headers, authentication boundaries, sensitive data exposure, and dependency hygiene.']
       : ['Prioritize the ranked findings before broad hardening work.'],
-    retestAndMonitor: {
+    retest: {
       eligibleFindings: reportFindings.map((finding) => finding.id),
-      remainingRetestQuota: scan.mode === 'free_hunter' ? 1 : (scanPlan.budgets?.maxRetests ?? 10),
-      cooldownDays: scan.mode === 'free_hunter' ? 7 : (scanPlan.budgets?.cooldownDays ?? 0),
       manualRetestActions: reportFindings.map((finding) => `Retest ${finding.title}`),
     },
     generatedAt: new Date().toISOString(),
@@ -367,15 +356,11 @@ function displayUnitCode(key: string): string {
     case 'openhack':
     case 'openhack_hunter':
     case 'O':
-      return 'O';
+      return 'Passive surface';
     case 'strix':
     case 'strix_core':
     case 'S':
       return 'S';
-    case 'recon':
-    case 'recon_signal':
-    case 'R':
-      return 'R';
     case 'report':
       return 'RPT';
     case 'retest':
@@ -388,8 +373,8 @@ function displayUnitCode(key: string): string {
 function publicScanPlanSummary(scanPlan: unknown) {
   const obj = scanPlan && typeof scanPlan === 'object' ? (scanPlan as Record<string, any>) : {};
   return {
-    workersRun: Object.keys(obj.enabledWorkers ?? {}).map(displayUnitCode),
-    huntersRun: Array.isArray(obj.enabledHunters) ? obj.enabledHunters.map(displayUnitCode) : [],
+    workersPlanned: Object.keys(obj.enabledWorkers ?? {}).map(displayUnitCode),
+    huntersPlanned: Array.isArray(obj.enabledHunters) ? obj.enabledHunters.map(displayUnitCode) : [],
     skippedHunters: Array.isArray(obj.skippedHunters)
       ? obj.skippedHunters.map((item: any) => ({
           hunter: displayUnitCode(String(item?.hunter ?? '')),
@@ -400,20 +385,21 @@ function publicScanPlanSummary(scanPlan: unknown) {
 }
 
 function publicReportContent(content: unknown): unknown {
-  return rewritePublicWorkerLabels(sanitizeReportContent(content ?? {}));
+  const rewritten = rewritePublicWorkerLabels(sanitizeReportContent(content ?? {}));
+  return rewritten && typeof rewritten === 'object' && (rewritten as any).formatVersion === REPORT_FORMAT_VERSION
+    ? normalizeReportSnapshotContent(rewritten) : rewritten;
 }
 
 function rewritePublicWorkerLabels(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(rewritePublicWorkerLabels);
-  if (!value || typeof value !== 'object') {
-    if (typeof value === 'string') return publicWorkerText(value);
-    return value;
-  }
+  if (!value || typeof value !== 'object') return value;
   const out: Record<string, unknown> = {};
   for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
-    if (key === 'scanPlan' || key === 'enabledWorkers') {
+    if (key === 'handoff') {
+      out[key] = child;
+    } else if (key === 'scanPlan' || key === 'enabledWorkers') {
       out[key] = publicScanPlanSummary(child);
-    } else if (key === 'workersRun' || key === 'huntersRun') {
+    } else if (key === 'workersRun' || key === 'huntersRun' || key === 'workersPlanned' || key === 'huntersPlanned') {
       out[key] = Array.isArray(child) ? child.map((item) => displayUnitCode(String(item))) : [];
     } else if (key === 'skippedHunters') {
       out[key] = Array.isArray(child)
@@ -424,23 +410,6 @@ function rewritePublicWorkerLabels(value: unknown): unknown {
     }
   }
   return out;
-}
-
-function publicWorkerText(value: string): string {
-  const exact = displayUnitCode(value);
-  if (exact !== sanitizeText(value)) return exact;
-  return sanitizeText(value)
-    .replace(/\bbrowser[_-]inspector\b/gi, 'Browser')
-    .replace(/\bzap[_-]signal\b/gi, 'Z')
-    .replace(/\bzap\b/gi, 'Z')
-    .replace(/\bnuclei[_-]signal\b/gi, 'N')
-    .replace(/\bnuclei\b/gi, 'N')
-    .replace(/\bopenhack[_-]hunter\b/gi, 'O')
-    .replace(/\bopenhack\b/gi, 'O')
-    .replace(/\bstrix[_-]core\b/gi, 'S')
-    .replace(/\bstrix\b/gi, 'S')
-    .replace(/\brecon[_-]signal\b/gi, 'R')
-    .replace(/\brecon\b/gi, 'R');
 }
 
 function renderSimplePdf(markdown: string): Buffer {

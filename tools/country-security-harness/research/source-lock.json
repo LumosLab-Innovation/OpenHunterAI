@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "country_security_research_source_lock_v1",
+  "reviewedOn": "2026-10-08",
+  "refreshPolicy": "manual",
+  "sources": [
+    {
+      "sourceId": "asd-e8-2023",
+      "url": "https://www.cyber.gov.au/sites/default/files/2025-03/Essential%20Eight%20maturity%20model%20(November%202023).pdf",
+      "format": "pdf",
+      "reviewStatus": "official_text_reviewed",
+      "bytePinStatus": "unavailable",
+      "sha256": null,
+      "byteLength": null
+    },
+    {
+      "sourceId": "ncsc-ce-v33",
+      "url": "https://www.ncsc.gov.uk/files/cyber-essentials-requirements-for-it-infrastructure-v3-3.pdf",
+      "format": "pdf",
+      "reviewStatus": "official_text_reviewed",
+      "bytePinStatus": "unavailable",
+      "sha256": null,
+      "byteLength": null
+    },
+    {
+      "sourceId": "vn-decree-331",
+      "url": "https://congbao.chinhphu.vn/van-ban/nghi-dinh-so-331-2026-nd-cp-470334.htm",
+      "format": "docx",
+      "reviewStatus": "downloaded_bytes_hashed",
+      "bytePinStatus": "available",
+      "sha256": "db2430bb6a6a8ddd07935b13d2e4ad654b7ff62f87e71cccc390b1ad71049afc"
+    },
+    {
+      "sourceId": "vn-law-116",
+      "url": "https://congbao.chinhphu.vn/van-ban/luat-so-116-2025-qh15-468678/61574.htm",
+      "format": "docx",
+      "reviewStatus": "downloaded_bytes_hashed",
+      "bytePinStatus": "available",
+      "sha256": "b3bb2ad8e013881361a7ae2325aecb660d55e41f48755ed590a6f23cb44d1150"
+    },
+    {
+      "sourceId": "owasp-asvs-500",
+      "url": "https://raw.githubusercontent.com/OWASP/ASVS/5cf9b032440be53ce345ab3c130fda46ba1ce7a2/5.0/docs_en/OWASP_Application_Security_Verification_Standard_5.0.0_en.json",
+      "format": "json",
+      "reviewStatus": "downloaded_bytes_hashed",
+      "bytePinStatus": "available",
+      "sha256": "bcdbec214d70abcfad9284a31d4f9e5134305831d628aad3aa85d7e26626cb35",
+      "byteLength": 149407
+    },
+    {
+      "sourceId": "vn-tcvn-14423-2026",
+      "url": "https://tieuchuan.vsqi.gov.vn/tieuchuan/view?sohieu=TCVN+14423%3A2026",
+      "format": "metadata_only",
+      "reviewStatus": "metadata_only_full_text_unavailable",
+      "bytePinStatus": "unavailable",
+      "sha256": null
+    }
+  ],
+  "limitations": [
+    "Hashes identify the specific source bytes reviewed, not their current legal completeness or ongoing validity.",
+    "For DOCX downloads the URL is the official landing page; hashes apply to the downloaded DOCX, not HTML.",
+    "AU/GB parsed PDF text was reviewed through web tools; direct-byte refetch timed out, so no PDF hash is claimed.",
+    "TCVN14423:2026 has metadata confirmation only; full text is absent and no full-text hash is claimed."
+  ]
+}

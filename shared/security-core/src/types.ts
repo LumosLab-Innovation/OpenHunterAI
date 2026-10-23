@@ -7,8 +7,7 @@
 
 import type {
   AuthScope,
-  PackageTier,
-  ScanMode,
+  ScanProfile,
   SurfaceFlags,
   TargetType,
   TestIntensityMode,
@@ -16,9 +15,7 @@ import type {
 
 export type {
   AuthScope,
-  CommercialPackage,
-  PackageTier,
-  ScanMode,
+  ScanProfile,
   SurfaceFlags,
   TargetType,
   TestIntensityMode,
@@ -57,7 +54,6 @@ export type ScanStepKind =
   | 'nuclei_signal'
   | 'openhack_hunter'
   | 'strix_core'
-  | 'recon_signal'
   | 'report'
   | 'retest';
 
@@ -74,7 +70,7 @@ export interface ScopeAuthorization {
   testAccountPermission: boolean;
   /** Whether sensitive (POST/PUT/PATCH/DELETE, billing, file, email, webhook) actions may be attempted. */
   sensitiveActionPermission: boolean;
-  scanMode: ScanMode;
+  profile: ScanProfile;
   authScope: AuthScope;
   targetType: TargetType;
   testIntensityMode: TestIntensityMode;
@@ -83,8 +79,9 @@ export interface ScopeAuthorization {
 }
 
 export interface ScopeSnapshot extends ScopeAuthorization {
-  packageTier: PackageTier;
   verifiedDomain: string;
+  /** Initial authorized URL (including the selected path when path-scoped). */
+  targetUrl?: string;
   capturedAt: string;
 }
 
@@ -93,12 +90,16 @@ export interface FindingEvidence {
   description: string;
   /** Sanitized artifact references only; no raw evidence persistence in v1 core. */
   evidenceRefs?: string[];
+  /** Sanitized evidence that weakens or disproves the candidate. */
+  counterevidence?: string;
+  /** Concrete, observed impact; required by independent validation. */
+  demonstratedImpact?: string;
   /** Was the evidence run through the sanitizer? Must be true for any report. */
   sanitized: true;
 }
 
 export interface FindingCandidate {
-  source: 'browser' | 'zap' | 'nuclei' | 'openhack' | 'strix' | 'recon';
+  source: 'browser' | 'zap' | 'nuclei' | 'openhack' | 'strix';
   title: string;
   severity: Severity;
   confidence: Confidence;
@@ -106,6 +107,51 @@ export interface FindingCandidate {
   affectedAsset: string;
   evidence: FindingEvidence;
   rawSignal?: Record<string, unknown>;
+}
+
+export type WorkerRunStatus = 'succeeded' | 'partial' | 'failed' | 'skipped';
+
+export interface WorkerCoverage {
+  surfacesAttempted: string[];
+  surfacesCompleted: string[];
+  surfacesSkipped: string[];
+  gaps: string[];
+}
+
+export interface RuntimeProvenance {
+  upstreamId: 'openhunter_core' | 'openhack' | 'strix' | 'zap' | 'nuclei' | 'claude_bughunter';
+  /** Exact tag, commit, or image digest. Mutable names such as main/stable are forbidden. */
+  upstreamRef: string;
+  adapterVersion: string;
+  playbookRevisions?: string[];
+}
+
+/** Canonical sanitized worker boundary shared by self-host and agent/CLI callers. */
+export interface WorkerRunResult {
+  runId: string;
+  scanId: string;
+  projectId: string;
+  workerType: string;
+  status: WorkerRunStatus;
+  signals: Array<Record<string, unknown>>;
+  findingCandidates: Array<Record<string, unknown>>;
+  evidenceRefs: string[];
+  coverage: WorkerCoverage;
+  limitations: string[];
+  errorCode?: string;
+  retryable: boolean;
+  runtimeProvenance: RuntimeProvenance;
+}
+
+export type TriageDecisionState = 'candidate' | 'rejected' | 'needs_more_evidence' | 'validated';
+
+export interface TriageDecision {
+  candidateId: string;
+  state: TriageDecisionState;
+  rationale: string;
+  counterevidence?: string;
+  validator: 'evidence_policy_v1' | 'independent_policy_v1' | 'human';
+  evidenceRefs: string[];
 }
 
 export interface CompactSecurityContext {

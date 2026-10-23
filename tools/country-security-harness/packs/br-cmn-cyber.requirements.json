@@ -1,0 +1,471 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "br-cmn-cyber-selected-clauses",
+  "frameworkId": "br-cmn-cyber",
+  "version": "2026-10-08.1",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "br-cmn-cyber-source",
+      "title": "CMN Resolution 4.893 — Cybersecurity policy and cloud outsourcing — official reference",
+      "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?numero=4893&tipo=Resolu%C3%A7%C3%A3o+CMN",
+      "locator": "Articles 1–3,3-A,4–12,21; updated scope at Art 1 sole paragraph"
+    }
+  ],
+  "limitations": [
+    "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+    "This selected map does not exhaust additions in CMN 5.274/2025, cloud requirements or related 2026 BCB normative instructions. Scope exclusions are material.",
+    "Selected core governance/incident/outsourcing clauses only. New 2025 technical subclauses and 2026 linked instructions remain coverage gaps; no obsolete pre-2025 enumeration is substituted."
+  ],
+  "requirements": [
+    {
+      "id": "br-cyber-policy",
+      "label": "Maintain proportionate cybersecurity policy",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "br-cmn-cyber-source",
+      "locator": "Art 2 caput,§1",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "br-cyber-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "br-vulnerability-controls",
+      "label": "Document incident-prevention controls",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "br-cmn-cyber-source",
+      "locator": "Art 3 II",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "br-vulnerability-controls",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "br-sensitive-traceability",
+      "label": "Protect and trace sensitive information",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "br-cmn-cyber-source",
+      "locator": "Art 3 III",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "br-sensitive-traceability",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "br-policy-distribution",
+      "label": "Communicate policy to staff/providers",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "br-cmn-cyber-source",
+      "locator": "Art 4",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "br-policy-distribution",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "br-action-plan",
+      "label": "Define policy implementation actions",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "br-cmn-cyber-source",
+      "locator": "Art 6 sole paragraphI",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "br-action-plan",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "br-response-routines",
+      "label": "Define incident prevention and response",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "br-cmn-cyber-source",
+      "locator": "Art 6 sole paragraphII",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "br-response-routines",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "br-incident-record-owner",
+      "label": "Assign incident-effect records owner",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "br-cmn-cyber-source",
+      "locator": "Art 6 sole paragraphIII",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "br-incident-record-owner",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "br-director",
+      "label": "Assign cybersecurity director",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "br-cmn-cyber-source",
+      "locator": "Art 7",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "br-director",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "br-annual-report",
+      "label": "Prepare annual incident-plan report",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "br-cmn-cyber-source",
+      "locator": "Art 8 caput",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "br-annual-report",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "br-board-approval",
+      "label": "Approve policy and plan at governing body",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "br-cmn-cyber-source",
+      "locator": "Art 9",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "br-board-approval",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "br-annual-review",
+      "label": "Review policy and plan annually",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "br-cmn-cyber-source",
+      "locator": "Art 10",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "br-annual-review",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "br-outsourcing-risk",
+      "label": "Include critical cloud/service risks",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "br-cmn-cyber-source",
+      "locator": "Art 11",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "br-outsourcing-risk",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "br-provider-governance",
+      "label": "Review service procurement governance",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "br-cmn-cyber-source",
+      "locator": "Art 12 I",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "br-provider-governance",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "br-effectiveness-tests",
+      "label": "Define tests and audit trails",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "br-cmn-cyber-source",
+      "locator": "Art 21 I",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "br-effectiveness-tests",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "br-effectiveness-metrics",
+      "label": "Define implementation indicators",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "br-cmn-cyber-source",
+      "locator": "Art 21 II",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "br-effectiveness-metrics",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "br-deficiency-remediation",
+      "label": "Identify and correct programme deficiencies",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "br-cmn-cyber-source",
+      "locator": "Art 21 III",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "br-deficiency-remediation",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    }
+  ]
+}

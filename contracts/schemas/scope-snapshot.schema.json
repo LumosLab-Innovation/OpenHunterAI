@@ -9,8 +9,8 @@
     "excludedPaths",
     "testAccountPermission",
     "sensitiveActionPermission",
-    "packageTier",
-    "scanMode",
+    "profile",
+    "targetUrl",
     "authScope",
     "targetType",
     "testIntensityMode",
@@ -25,12 +25,8 @@
     "excludedPaths": { "type": "array", "items": { "type": "string" } },
     "testAccountPermission": { "type": "boolean" },
     "sensitiveActionPermission": { "type": "boolean" },
-    "packageTier": {
-      "enum": ["free_hunter", "ai_blackhat_mindset_check", "monitor_workspace", "enterprise_payg"]
-    },
-    "scanMode": {
-      "enum": ["free_hunter", "ai_blackhat_mindset_check"]
-    },
+    "profile": { "enum": ["quick", "standard", "deep"] },
+    "targetUrl": { "type": "string", "format": "uri", "pattern": "^https://" },
     "authScope": {
       "enum": ["none", "one_account", "two_accounts"]
     },

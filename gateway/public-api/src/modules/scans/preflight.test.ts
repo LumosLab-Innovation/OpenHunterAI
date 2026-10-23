@@ -1,27 +1,33 @@
 import { describe, expect, it } from 'vitest';
-import { evaluateAggressiveStagingPreflight } from './preflight.js';
+import type { LlmRouteSnapshot } from '@x-hunter/shared';
+import { evaluateAggressiveStagingPreflight, moduleLlmReadiness } from './preflight.js';
 
 const future = new Date('2026-06-17T10:30:00.000Z');
 const now = new Date('2026-06-17T10:00:00.000Z');
 
 describe('evaluateAggressiveStagingPreflight', () => {
-  it('requires OpenAI primary aliases, DeepSeek fallback aliases, browser runtime, two fresh sessions, and canary readiness', () => {
+  it('uses accepted Codex module routes for Deep readiness without API keys', () => {
+    const snapshot = { accepted: {
+      signal_summary: { primary: true, fallback: true },
+      candidate_dedupe: { primary: true, fallback: true },
+      attacker_hypothesis: { primary: true, fallback: true },
+      validation_plan: { primary: true, fallback: true },
+      report_generation: { primary: true, fallback: true },
+    } } as LlmRouteSnapshot;
+    expect(moduleLlmReadiness(snapshot)).toEqual({ lowReady: true, highReady: true });
+    snapshot.accepted.validation_plan.primary = false;
+    snapshot.accepted.validation_plan.fallback = false;
+    expect(moduleLlmReadiness(snapshot)).toEqual({ lowReady: true, highReady: false });
+  });
+  it('requires both model aliases, browser runtime, two fresh sessions, and canary readiness', () => {
     const result = evaluateAggressiveStagingPreflight({
       now,
       authorization: {
-        scanMode: 'ai_blackhat_mindset_check',
         authScope: 'two_accounts',
         testIntensityMode: 'aggressive_staging',
         aggressiveStagingRiskAccepted: true,
       },
-      llm: {
-        lowPrimaryProvider: 'deepseek',
-        lowFallbackProvider: 'openai',
-        highPrimaryProvider: 'deepseek',
-        highFallbackProvider: 'openai',
-        openaiConfigured: false,
-        deepseekConfigured: true,
-      },
+      llm: { lowReady: true, highReady: false },
       browserSessionRuntimeReady: false,
       sessions: [
         { testAccountId: 'acct_a', status: 'active', expiresAt: future },
@@ -44,19 +50,11 @@ describe('evaluateAggressiveStagingPreflight', () => {
     const result = evaluateAggressiveStagingPreflight({
       now,
       authorization: {
-        scanMode: 'free_hunter',
         authScope: 'two_accounts',
         testIntensityMode: 'aggressive_staging',
         aggressiveStagingRiskAccepted: true,
       },
-      llm: {
-        lowPrimaryProvider: 'openai',
-        lowFallbackProvider: 'deepseek',
-        highPrimaryProvider: 'openai',
-        highFallbackProvider: 'deepseek',
-        openaiConfigured: true,
-        deepseekConfigured: true,
-      },
+      llm: { lowReady: true, highReady: true },
       browserSessionRuntimeReady: true,
       sessions: [
         { testAccountId: 'acct_a', status: 'active', expiresAt: future },
@@ -81,19 +79,11 @@ describe('evaluateAggressiveStagingPreflight', () => {
     const result = evaluateAggressiveStagingPreflight({
       now,
       authorization: {
-        scanMode: 'free_hunter',
         authScope: 'none',
         testIntensityMode: 'controlled_attack_simulation',
         aggressiveStagingRiskAccepted: false,
       },
-      llm: {
-        lowPrimaryProvider: 'deepseek',
-        lowFallbackProvider: 'openai',
-        highPrimaryProvider: 'deepseek',
-        highFallbackProvider: 'openai',
-        openaiConfigured: false,
-        deepseekConfigured: false,
-      },
+      llm: { lowReady: false, highReady: false },
       browserSessionRuntimeReady: false,
       sessions: [],
       requireCanary: true,
@@ -108,19 +98,11 @@ describe('evaluateAggressiveStagingPreflight', () => {
     const result = evaluateAggressiveStagingPreflight({
       now,
       authorization: {
-        scanMode: 'ai_blackhat_mindset_check',
         authScope: 'none',
         testIntensityMode: 'aggressive_staging',
         aggressiveStagingRiskAccepted: true,
       },
-      llm: {
-        lowPrimaryProvider: 'openai',
-        lowFallbackProvider: 'deepseek',
-        highPrimaryProvider: 'openai',
-        highFallbackProvider: 'deepseek',
-        openaiConfigured: true,
-        deepseekConfigured: true,
-      },
+      llm: { lowReady: true, highReady: true },
       browserSessionRuntimeReady: true,
       sessions: [],
       requireCanary: false,

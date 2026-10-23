@@ -1,0 +1,636 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "se-agency-isms-curated",
+  "frameworkId": "se-agency-isms",
+  "version": "MSBFS 2020:6; current MCF register reviewed 2026-10-08",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "se-primary",
+      "title": "MCF current register for MSBFS 2020:6",
+      "url": "https://www.mcf.se/sv/regler/gallande-regler/msbfs-20206/",
+      "locator": "§§1–16"
+    },
+    {
+      "id": "se-rules",
+      "title": "MSBFS 2020:6 normative rules and general guidance",
+      "url": "https://www.msb.se/siteassets/dokument/regler/forfattningar/msbfs-2020-6-foreskrifter-om-informationssakerhet-for-statliga-myndigheter.pdf",
+      "locator": "§§4–14, printed pp.2–6"
+    }
+  ],
+  "limitations": [
+    "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+    "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+  ],
+  "requirements": [
+    {
+      "id": "se.systematic-isms",
+      "label": "Operate systematic risk-based information security",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§4",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Operate systematic risk-based information security"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.security-policy",
+      "label": "Document management security objectives",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§5 first item",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Document management security objectives"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.role-authority",
+      "label": "Assign security responsibilities and authority",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§5 second item",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Assign security responsibilities and authority"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.resources",
+      "label": "Allocate necessary security resources",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§5 third item",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Allocate necessary security resources"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.rules-review",
+      "label": "Evaluate and adapt internal security rules",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§5 fifth item",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Evaluate and adapt internal security rules"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.classification",
+      "label": "Classify information by CIA consequences",
+      "controlId": "system_classification",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§6(1)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Classify information by CIA consequences"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.risk-assessment",
+      "label": "Identify, analyse and evaluate information risks",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§6(2)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Identify, analyse and evaluate information risks"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.proportionate-controls",
+      "label": "Implement controls derived from classification and risk",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§6(3)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Implement controls derived from classification and risk"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.gap-analysis",
+      "label": "Evaluate measures and perform gap analysis",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§6(4)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Evaluate measures and perform gap analysis"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.delegation-agreement",
+      "label": "Document cross-agency responsibilities and risks",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§7",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        },
+        {
+          "factId": "se.other_agency_delegation",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Document cross-agency responsibilities and risks"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.outsourcing-contract",
+      "label": "Specify provider measures and follow-up in contracts",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§8",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        },
+        {
+          "factId": "se.external_information_processing",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Specify provider measures and follow-up in contracts"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.personnel-screening",
+      "label": "Match screening to information access",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§9(1)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Match screening to information access"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.personnel-rules",
+      "label": "Inform own and hired personnel about security rules",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§9(2)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Inform own and hired personnel about security rules"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.competence",
+      "label": "Ensure designated security personnel competence",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§9(4)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Ensure designated security personnel competence"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.continuing-training",
+      "label": "Maintain staff competence with training and exercises",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§9(5)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Maintain staff competence with training and exercises"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.physical-needs",
+      "label": "Assess access, alarm and physical zone protection needs",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§10(1–3)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Assess access, alarm and physical zone protection needs"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.incident-detection",
+      "label": "Detect and assess incidents promptly",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§11(1)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Detect and assess incidents promptly"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.information-recovery",
+      "label": "Restore manipulated or lost information",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§11(2)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Restore manipulated or lost information"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.reporting-assessment",
+      "label": "Assess whether external incident reporting is required",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§11(3)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Assess whether external incident reporting is required"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.root-cause",
+      "label": "Identify incident root causes and prevent recurrence",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§12",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        },
+        {
+          "factId": "se.incident_or_deviation_occurred",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Identify incident root causes and prevent recurrence"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.continuity-exercises",
+      "label": "Exercise required information-processing continuity",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§13(2)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Exercise required information-processing continuity"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "se.annual-followup",
+      "label": "Review security work at least annually",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "se-rules",
+      "locator": "§14",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "se.agency_rules_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "se.annual-followup",
+        "max": 12,
+        "unit": "months"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assessment interval remains calendar months. Review aggregation and analysis of the five referenced evaluation outputs separately."
+    }
+  ]
+}

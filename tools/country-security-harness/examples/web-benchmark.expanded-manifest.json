@@ -1,0 +1,152 @@
+{
+  "schemaVersion": "country_security_benchmark_manifest_v1",
+  "dataOrigin": "synthetic_fixture",
+  "cases": [
+    {
+      "id": "xss-html-positive",
+      "pairId": "xss-html",
+      "category": "xss",
+      "controlId": "application_security",
+      "expected": "detected"
+    },
+    {
+      "id": "xss-html-negative",
+      "pairId": "xss-html",
+      "category": "xss",
+      "controlId": "application_security",
+      "expected": "clear"
+    },
+    {
+      "id": "xss-attribute-positive",
+      "pairId": "xss-attribute",
+      "category": "xss",
+      "controlId": "application_security",
+      "expected": "detected"
+    },
+    {
+      "id": "xss-attribute-negative",
+      "pairId": "xss-attribute",
+      "category": "xss",
+      "controlId": "application_security",
+      "expected": "clear"
+    },
+    {
+      "id": "xss-script-positive",
+      "pairId": "xss-script",
+      "category": "xss",
+      "controlId": "application_security",
+      "expected": "detected"
+    },
+    {
+      "id": "xss-script-negative",
+      "pairId": "xss-script",
+      "category": "xss",
+      "controlId": "application_security",
+      "expected": "clear"
+    },
+    {
+      "id": "xss-stored-positive",
+      "pairId": "xss-stored",
+      "category": "xss",
+      "controlId": "application_security",
+      "expected": "detected"
+    },
+    {
+      "id": "xss-stored-negative",
+      "pairId": "xss-stored",
+      "category": "xss",
+      "controlId": "application_security",
+      "expected": "clear"
+    },
+    {
+      "id": "xss-dom-positive",
+      "pairId": "xss-dom",
+      "category": "xss",
+      "controlId": "application_security",
+      "expected": "detected"
+    },
+    {
+      "id": "xss-dom-negative",
+      "pairId": "xss-dom",
+      "category": "xss",
+      "controlId": "application_security",
+      "expected": "clear"
+    },
+    {
+      "id": "sqli-query-positive",
+      "pairId": "sqli-query",
+      "category": "sqli",
+      "controlId": "application_security",
+      "expected": "detected"
+    },
+    {
+      "id": "sqli-query-negative",
+      "pairId": "sqli-query",
+      "category": "sqli",
+      "controlId": "application_security",
+      "expected": "clear"
+    },
+    {
+      "id": "sqli-normalization-positive",
+      "pairId": "sqli-normalization",
+      "category": "sqli",
+      "controlId": "application_security",
+      "expected": "detected"
+    },
+    {
+      "id": "sqli-normalization-negative",
+      "pairId": "sqli-normalization",
+      "category": "sqli",
+      "controlId": "application_security",
+      "expected": "clear"
+    },
+    {
+      "id": "idor-owner-positive",
+      "pairId": "idor-owner",
+      "category": "idor",
+      "controlId": "identity_access",
+      "expected": "detected"
+    },
+    {
+      "id": "idor-owner-negative",
+      "pairId": "idor-owner",
+      "category": "idor",
+      "controlId": "identity_access",
+      "expected": "clear"
+    },
+    {
+      "id": "idor-role-positive",
+      "pairId": "idor-role",
+      "category": "idor",
+      "controlId": "identity_access",
+      "expected": "detected"
+    },
+    {
+      "id": "idor-role-negative",
+      "pairId": "idor-role",
+      "category": "idor",
+      "controlId": "identity_access",
+      "expected": "clear"
+    },
+    {
+      "id": "idor-tenant-positive",
+      "pairId": "idor-tenant",
+      "category": "idor",
+      "controlId": "identity_access",
+      "expected": "detected"
+    },
+    {
+      "id": "idor-tenant-negative",
+      "pairId": "idor-tenant",
+      "category": "idor",
+      "controlId": "identity_access",
+      "expected": "clear"
+    }
+  ],
+  "thresholds": {
+    "minRecall": 1,
+    "maxFalsePositiveRate": 0,
+    "minEvidenceCompleteness": 1,
+    "minExecutionCoverage": 1
+  }
+}

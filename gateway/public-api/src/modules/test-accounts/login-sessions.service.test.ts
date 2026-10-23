@@ -3,16 +3,16 @@ import {
   isBrowserSessionFresh,
   publicLoginSessionStreamUrl,
   sanitizeBrowserStorageState,
-  validateLoginUrlInVerifiedScope,
+  validateLoginUrlInAuthorizedScope,
 } from './login-sessions.service.js';
 import { isGuardrailError } from '@x-hunter/shared';
 
 describe('login session helpers', () => {
-  it('rejects login URLs outside verified project scope', () => {
-    expect(() => validateLoginUrlInVerifiedScope('https://app.example.com/login', ['app.example.com'])).not.toThrow();
+  it('rejects login URLs outside authorized project scope', () => {
+    expect(() => validateLoginUrlInAuthorizedScope('https://app.example.com/login', ['app.example.com'])).not.toThrow();
 
     try {
-      validateLoginUrlInVerifiedScope('https://evil.example.net/login', ['app.example.com']);
+      validateLoginUrlInAuthorizedScope('https://evil.example.net/login', ['app.example.com']);
       throw new Error('expected out-of-scope URL to be rejected');
     } catch (error) {
       expect(isGuardrailError(error)).toBe(true);

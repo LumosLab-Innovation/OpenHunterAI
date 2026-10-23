@@ -78,20 +78,20 @@ type ScanCreatedPayload struct {
 	ScanID          string          `json:"scanId"`
 	ProjectID       string          `json:"projectId"`
 	AuthorizationID string          `json:"authorizationId"`
-	Mode            string          `json:"mode"`
+	Profile         string          `json:"profile"`
 	Scope           ScopeSnapshot   `json:"scope"`
 	ScanPlan        json.RawMessage `json:"scanPlan"`
 }
 
 // ScopeSnapshot mirrors contracts/generated/go ScopeSnapshot.
 type ScopeSnapshot struct {
+	TargetURL                     string          `json:"targetUrl"`
 	AllowedHosts                  []string        `json:"allowedHosts"`
 	AllowedPaths                  []string        `json:"allowedPaths"`
 	ExcludedPaths                 []string        `json:"excludedPaths"`
 	TestAccountPermission         bool            `json:"testAccountPermission"`
 	SensitiveActionPermission     bool            `json:"sensitiveActionPermission"`
-	PackageTier                   string          `json:"packageTier"`
-	ScanMode                      string          `json:"scanMode"`
+	Profile                       string          `json:"profile"`
 	AuthScope                     string          `json:"authScope"`
 	TargetType                    string          `json:"targetType"`
 	TestIntensityMode             string          `json:"testIntensityMode"`
@@ -105,9 +105,11 @@ type ScopeSnapshot struct {
 // WorkerRunPayload is the input handed to a signal worker by the orchestrator.
 // It mirrors the required worker input in WORKER_SPEC.md §1.
 type WorkerRunPayload struct {
+	TargetURL         string          `json:"targetUrl"`
+	RunID             string          `json:"runId"`
 	ScanID            string          `json:"scanId"`
 	ProjectID         string          `json:"projectId"`
-	ScanMode          string          `json:"scanMode"`
+	Profile           string          `json:"profile"`
 	TargetType        string          `json:"targetType"`
 	AuthScope         string          `json:"authScope"`
 	TestIntensityMode string          `json:"testIntensityMode"`
@@ -124,10 +126,12 @@ type WorkerRunPayload struct {
 // WorkerCompletedPayload is published by a worker once its run (and callback)
 // is finished, so the orchestrator can fan-in and decide when to finalize.
 type WorkerCompletedPayload struct {
+	RunID       string `json:"runId"`
 	ScanID      string `json:"scanId"`
 	ProjectID   string `json:"projectId"`
 	WorkerType  string `json:"workerType"`
 	State       string `json:"state"`       // done | skipped | failed
+	Status      string `json:"status"`      // succeeded | partial | skipped | failed
 	SignalCount int    `json:"signalCount"` // sanitized count, never raw signals
 	CoverageGap bool   `json:"coverageGap"`
 }
@@ -135,11 +139,12 @@ type WorkerCompletedPayload struct {
 // RetestRequestedPayload is the payload of a retest.requested event. Retest is
 // finding-scoped and manual in v1 (WORKER_SPEC §0 / AGENTS §4.4).
 type RetestRequestedPayload struct {
+	TargetURL         string          `json:"targetUrl"`
 	RetestRunID       string          `json:"retestRunId"`
 	FindingID         string          `json:"findingId"`
 	ScanID            string          `json:"scanId"`
 	ProjectID         string          `json:"projectId"`
-	ScanMode          string          `json:"scanMode"`
+	Profile           string          `json:"profile"`
 	TargetType        string          `json:"targetType"`
 	AuthScope         string          `json:"authScope"`
 	TestIntensityMode string          `json:"testIntensityMode"`

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activityForWorkerResult, retestUpdateFromWorkerResult } from './callbacks.service.js';
+import { activityForWorkerResult, canonicalStatus, retestUpdateFromWorkerResult, signalDedupeKey } from './callbacks.service.js';
 
 describe('retestUpdateFromWorkerResult', () => {
   it('maps sanitized retest worker metadata into a RetestRun update', () => {
@@ -51,5 +51,17 @@ describe('activityForWorkerResult', () => {
       bodyKey: 'activity.auth_session_required.body',
       severity: 'medium',
     });
+  });
+});
+
+describe('worker callback idempotency contract', () => {
+  it('derives a stable candidate key for redelivered callbacks', () => {
+    const signal = { kind: 'idor', title: 'Object access', asset: '/orders/1', evidenceRefs: ['artifact_sha256:abc'] };
+    expect(signalDedupeKey('run_1', 'S', 0, signal)).toBe(signalDedupeKey('run_1', 'S', 0, signal));
+    expect(signalDedupeKey('run_2', 'S', 0, signal)).not.toBe(signalDedupeKey('run_1', 'S', 0, signal));
+  });
+
+  it('reports partial when a legacy done result contains a coverage gap', () => {
+    expect(canonicalStatus({ scanId: 's', workerType: 'N', state: 'done', coverageGap: true })).toBe('partial');
   });
 });

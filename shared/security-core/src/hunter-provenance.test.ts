@@ -14,7 +14,7 @@ const validRef: HunterProvenance = {
   source: {
     upstreamId: 'claude_bughunter',
     upstreamUrl: 'https://github.com/elementalsouls/Claude-BugHunter',
-    upstreamRef: 'main',
+    upstreamRef: '5e78b5e275d8224ccf48eafee8efa190db48e605',
     importMode: 'reference_only',
     importedBy: 'manual_claude_code_run',
     licenseNote: 'MIT',
@@ -40,6 +40,16 @@ describe('hunter-provenance', () => {
       source: { ...validRef.source, importedBy: 'cron_job' as never },
     });
     expect(problems.some((p) => p.includes('no auto sync'))).toBe(true);
+  });
+
+  it('rejects mutable or missing external upstream refs', () => {
+    for (const upstreamRef of [undefined, 'main', 'stable', 'ghcr.io/zaproxy/zaproxy:stable']) {
+      const problems = validateHunterProvenance({
+        ...validRef,
+        source: { ...validRef.source, upstreamRef },
+      });
+      expect(problems.some((p) => p.includes('upstreamRef'))).toBe(true);
+    }
   });
 
   it('does not let ZAP become a business-logic hunter', () => {
@@ -74,8 +84,6 @@ describe('hunter-provenance', () => {
       for (const testIntensityMode of TEST_INTENSITY_MODES) {
         for (const has of [true, false]) {
           const plan = buildScanPlan({
-            packageTier: 'enterprise_payg',
-            scanMode: 'ai_blackhat_mindset_check',
             targetType,
             surfaceFlags: {
               ...DEFAULT_SURFACE_FLAGS,
@@ -107,8 +115,6 @@ describe('hunter-provenance', () => {
       for (const testIntensityMode of TEST_INTENSITY_MODES) {
         for (const has of [true, false]) {
           const plan = buildScanPlan({
-            packageTier: 'enterprise_payg',
-            scanMode: 'ai_blackhat_mindset_check',
             targetType,
             surfaceFlags: {
               ...DEFAULT_SURFACE_FLAGS,
@@ -177,5 +183,24 @@ describe('upstream-sources.json registry', () => {
         expect(s.canVendorFull).toBe(false);
       }
     }
+  });
+
+  it('pins every external source to an immutable-looking reference', () => {
+    for (const source of registry.sources.filter((s: { id: string }) => s.id !== 'openhunter_core')) {
+      expect(source.ref).toBeTruthy();
+      expect(['main', 'master', 'stable', 'latest', 'vendored-snapshot']).not.toContain(source.ref);
+      expect(source.ref.endsWith(':stable')).toBe(false);
+      expect(source.ref.endsWith(':latest')).toBe(false);
+    }
+  });
+  it('REA is a pinned optional local artifact adapter with no scan or execution permission', () => {
+    const source = registry.sources.find((entry: { id: string }) => entry.id === 'rea');
+    expect(source.ref).toBe('27dc42d10249f0410904a75c0997842eb03b931c');
+    expect(source.runtimeRef).toBe('rea-agents@6.7.0');
+    expect(source.optional).toBe(true);
+    expect(source.vendoredPaths).toEqual([]);
+    expect(source.forbiddenUse).toContain('target_code_execution');
+    expect(source.forbiddenUse).toContain('automatic_finding_promotion');
+    expect(source.allowedUse).toContain('authorized_local_web_artifact_analysis');
   });
 });

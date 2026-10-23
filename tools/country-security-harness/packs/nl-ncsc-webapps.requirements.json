@@ -1,0 +1,640 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "nl-ncsc-webapps-curated",
+  "frameworkId": "nl-ncsc-webapps",
+  "version": "May 2024 edition (colophon); official listing dated 2026-04-17",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "nl-primary",
+      "title": "NCSC ICT web application security guidelines",
+      "url": "https://www.ncsc.nl/api/media/sites/default/files/Richtlijn%20ICT%20beveiligingsrichtlijnen%20webapplicaties%2007-24_0.pdf",
+      "locator": "U/TV, U/WA, U/PW and U/NW measures"
+    }
+  ],
+  "limitations": [
+    "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+    "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+  ],
+  "requirements": [
+    {
+      "id": "nl.password-storage",
+      "label": "Protect password verifiers with justified hashing",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/TV.01/02, p.9",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        },
+        {
+          "factId": "nl.password_credentials_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Protect password verifiers with justified hashing"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "nl.biometrics-local",
+      "label": "Keep biometric verification at the user authenticator",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/TV.01/02, p.9",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        },
+        {
+          "factId": "nl.biometric_authentication_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "nl.biometrics-local",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "nl.authentication-assurance",
+      "label": "Use authentication beyond passwords alone",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/TV.01/03, p.9",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Use authentication beyond passwords alone"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "nl.accounts-inventory",
+      "label": "Maintain account-to-person inventory",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/TV.01/06, p.9",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "nl.accounts-inventory",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "nl.rights-revocation",
+      "label": "Revoke access immediately when entitlement ends",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/TV.01/07, p.9",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "nl.rights-revocation",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "nl.input-validation",
+      "label": "Validate all external input before processing",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/WA.03 introduction, pp.13–15",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Validate all external input before processing"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "nl.input-normalization",
+      "label": "Normalize input before validation",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/WA.03 introduction, p.13",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "nl.input-normalization",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "nl.invalid-rejection",
+      "label": "Reject input failing validation",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/WA.03 introduction, pp.13–15",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "nl.invalid-rejection",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "nl.output-encoding",
+      "label": "Encode dynamic output for its actual context",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/WA.04/01, p.15",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Encode dynamic output for its actual context"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "HTML, attributes, URLs and script contexts need different treatment. A declared clean scan alone does not verify source-code output encoding."
+    },
+    {
+      "id": "nl.sensitive-storage",
+      "label": "Apply application-level protection to sensitive stored data",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/WA.05/03, p.16",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        },
+        {
+          "factId": "nl.sensitive_data_stored",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Apply application-level protection to sensitive stored data"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "nl.session-random",
+      "label": "Use cryptographically generated session identifiers",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/WA.05/04, p.16",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Use cryptographically generated session identifiers"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "nl.https",
+      "label": "Encrypt web application communications",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/WA.05/05, p.17",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "nl.https",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "nl.no-mixed-content",
+      "label": "Exclude insecure mixed content",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/WA.05/05, p.17",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "nl.no-mixed-content",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "nl.https-hostnames",
+      "label": "Provide HTTPS and correct certificates for every hostname",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/WA.05/05, p.17",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Provide HTTPS and correct certificates for every hostname"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "nl.comments-removed",
+      "label": "Remove production script comments",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/WA.06/01, p.17",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "nl.comments-removed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "nl.internal-names",
+      "label": "Remove or pseudonymise internal system references",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/WA.06/02, p.17",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "nl.internal-names",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "nl.parameterized-queries",
+      "label": "Use fixed parameterised commands and queries",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/WA.07/01–02, p.18",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Use fixed parameterised commands and queries"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "nl.backend-rights",
+      "label": "Document only necessary backend functionality and rights",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/WA.07/03, p.18",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Document only necessary backend functionality and rights"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "nl.login-session-rotation",
+      "label": "Invalidate previous session when authenticating",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/WA.08/01, p.19",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "nl.login-session-rotation",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "nl.server-timeout",
+      "label": "Enforce configured inactivity expiry on the server",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/WA.08/02, p.19",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Enforce configured inactivity expiry on the server"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "The source leaves the configured interval to policy; no arbitrary minute threshold is added."
+    },
+    {
+      "id": "nl.logout",
+      "label": "Offer logout to users and administrators",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/WA.08/03, p.19",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "nl.logout",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "nl.logout-invalidates",
+      "label": "Make ended sessions unusable",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "nl-primary",
+      "locator": "U/WA.08/04, p.19",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "nl.web_application_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "nl.logout-invalidates",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    }
+  ]
+}

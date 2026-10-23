@@ -84,7 +84,7 @@ async function recordStateActivity(
         actor: 'scan',
         titleKey: `activity.${eventType}.title`,
         bodyKey: `activity.${eventType}.body`,
-        bodyParams: unwrapObject(sanitizeReportContent({ summary: errorMessage ?? `Scan state changed to ${state}` })),
+        bodyParams: stateActivityBodyParams(errorMessage ?? `Scan state changed to ${state}`),
         status: state,
         severity: state === 'failed' || state === 'timeout' ? 'high' : null,
         sanitized: true,
@@ -93,10 +93,6 @@ async function recordStateActivity(
     .catch(() => {});
 }
 
-function unwrapObject(value: unknown): Record<string, unknown> {
-  if (!value || typeof value !== 'object') return {};
-  if ('value' in value && value.value && typeof value.value === 'object') {
-    return value.value as Record<string, unknown>;
-  }
-  return sanitizeText(String(value)) ? { summary: sanitizeText(String(value)) } : {};
+export function stateActivityBodyParams(summary: string): Record<string, unknown> {
+  return sanitizeReportContent({ summary: sanitizeText(summary) });
 }

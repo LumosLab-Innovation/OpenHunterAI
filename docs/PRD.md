@@ -1,138 +1,56 @@
-# Product requirements
+# OpenHunterAI product requirements
 
-OpenHunterAI is a local-first AI red-team workspace for authorized external
-web, API, and AI/LLM application testing. This document defines the product
-contract; [release status](PUBLIC_RELEASE_READINESS.md) records implementation gaps.
+OpenHunterAI is one self-hosted, authorized black-box pentest engine. The dashboard, `openhunterai` CLI, and future coding-agent skill are clients of the same scan API and report. The goal is a reproducible, real vulnerability finding with an evidence chain—not a count of agents, hypotheses, or scanner alerts.
 
-## Audience and outcome
+Select engineering priorities through the [core questions and evidence audit](CORE_QUESTIONS.md).
+Configured routes, research catalogs and green component tests do not establish
+discovery, independent validation, useful retest or incremental AI value.
 
-| User | Outcome |
-| --- | --- |
-| Application owner | Understand tested scope, validated risks, coverage, and next steps |
-| Developer | Inspect sanitized evidence and remediation guidance; request a narrow retest |
-| Security tester | Prepare bounded attacker hypotheses without losing human control |
-| Coding-agent user | Read workspace state and follow an explicitly authorized assessment workflow |
+## OpenHunter / OpenShield ownership
 
-The workflow is black-box: repository access is not required by the scanner.
-A coding agent may separately inspect or fix the user's application repository
-when asked; this does not add SAST or automatic source-code access to OpenHunterAI.
+OpenHunter owns authorized pentest research, assessment evidence, independent
+finding validation and manual verification retest. OpenShieldAI owns incident /
+situation investigation, containment, remediation coordination and recovery.
+The application has one compact operational page; project grouping, account
+access and model routes are collapsed configuration rather than separate products.
+GitHub Pages is a separate public introduction; the one-page operational
+dashboard belongs to the local application, not the public landing.
+No incident/SOC/remediation executor is added to Hunter. The existing report
+provides a sanitized manual file handoff, with independent downstream authority.
+See [the collaboration contract](OPENSHIELD_COLLABORATION.md).
 
-## User journey
+## Minimal user journey
 
-```mermaid
-flowchart LR
-  LOCAL["Start workspace"] --> SCOPE["Verify domain<br/>Authorize scope"]
-  SCOPE --> SCAN["Run bounded plan"]
-  SCAN --> REVIEW["Review evidence<br/>Coverage + fixes"]
-  REVIEW --> RETEST["Request manual retest"]
-```
+1. Enter one public HTTPS URL, including an optional path. Choose Quick, Standard (default), or Deep, and confirm authority to test.
+2. Preflight shows the exact host/path scope, resource plan, and each worker's installed/configured/reachable/executable state. A missing worker is an explicit coverage gap. Standard may continue only after acknowledgment; Deep blocks when a mandatory safety/runtime prerequisite is absent.
+3. The engine runs the deterministic plan, captures sanitized evidence, triages candidates separately, and produces `report_v2`.
+4. The report distinguishes independently validated findings, candidates needing more evidence, executed versus planned coverage, limitations, and next actions. After a fix, a finding-scoped retest must replay the scenario or return `RETEST_UNSUPPORTED`; it must never infer “fixed” from an unreachable target.
 
-Local workspace access has no login or subscription requirement. It does not
-waive domain verification, authorization, approval gates, or scan safety quotas.
-Hosted deployments retain their existing account/session flow.
+No signup, billing, paid workspace, finding quota, cooldown, or DNS ownership challenge is required in local self-host mode. The local unauthenticated API is published on loopback only. Project and internal operator IDs remain for audit and grouping, not commerce.
 
-## Product vocabulary
+## Input and scope contract
 
-| Concept | Values / meaning |
-| --- | --- |
-| Scan mode | `free_hunter`, `ai_blackhat_mindset_check` |
-| Target type | `static_content_website`, `interactive_web_app`, `api_service`, `ai_llm_application` |
-| Auth scope | `none`, `one_account`, `two_accounts`; target test accounts, not workspace login |
-| Intensity | `safe_discovery`, `controlled_attack_simulation`, `aggressive_staging` |
-| Package tier | Existing hosted entitlement identifiers; not another scan intensity |
-| Readiness export | A report view/export, not a scan package |
-| Monitor Workspace | Existing package vocabulary; does not imply automated monitoring/retests |
+`scan_request_v2` contains `targetUrl`, `profile`, `authorityConfirmed`, optional project/scope and surface hints, and accepted worker gaps. Quick maps to `safe_discovery`; Standard to `controlled_attack_simulation`; Deep to `aggressive_staging`. A URL with a path defaults to that path and descendants. An explicit empty `allowedPaths` means the exact host, not wildcard subdomains. Exclusions, redirects, and request-time DNS/IP checks remain mandatory.
 
-Hosted package labels remain Free Hunter, AI Black-hat Mindset Check,
-Monitor Workspace, and Enterprise / PAYG. Optional monitor sub-tiers are not
-public package names. Local projects use the existing `enterprise_payg` tier to
-permit both scan modes without hosted credit checks. License terms are unchanged.
+Authenticated scans use saved test accounts (`none | one_account | two_accounts`) and the same engine. API spec/Postman ingestion waits for a stable URL-only benchmark. Neither UI nor CLI may synthesize a second pipeline or silently downgrade Standard to Quick.
 
-Canonical enums: [packages.ts](../shared/security-core/src/packages.ts).
+## Engine and evidence
 
-## Authorization inputs
+Browser, ZAP, Nuclei, built-in passive surface hunter, and Strix are internal workers/adapters. Worker output is a signal or candidate, never an independently validated finding. The state path is recon item → scenario → result → candidate → independent triage → finding. Failed, skipped, partial, timeout, and malformed worker output produce a coverage gap. LLM calls use the gateway with profile-based resource ceilings; budget exhaustion is a limitation, not a clean result.
 
-Every scan needs a verified, unexpired public domain and an explicit authorization:
+`report_v2` contains only findings with an independent validation decision. Historical reports retain old claims under `historicalFindings` with `legacy_unverified`; IDs and sanitized evidence are preserved. Zero validated findings does not mean all vulnerability classes were tested. The report must show what ran, what did not, and the next verification step.
 
-| Input | Requirement |
-| --- | --- |
-| Scope | `allowedHosts`, `allowedPaths`, `excludedPaths`; never auto-expand on discovery |
-| Execution | Scan mode, target type, intensity, and surface flags |
-| Accounts | None / at least one / at least two test accounts according to auth scope |
-| Consent | Recorded scope authorization; separate approval for sensitive actions |
-| Aggressive staging | Explicit staging/dev/test ownership and risk acceptance |
+## Current release boundary
 
-Surface flags: `has_login`, `has_test_account`, `has_api_docs`,
-`has_file_upload`, `has_payment`, `has_admin_dashboard`, `has_webhook`,
-`has_chatbot_or_rag_or_tool_calling`.
+Issue #13 establishes the self-host scan/report/runtime contract. Metadata-only triage still ends at `needs_more_evidence`; independent artifact verification, replay, and meaningful retest are #14. Ground-truth positive/negative benchmark and recall/false-positive measurements are #22. Until those gates pass, do not claim that a green URL-only smoke test proves XSS, SQLi, IDOR, or a complete pentest.
 
-Risk acceptance must explain possible errors, load, test data, or alerts.
-Risky runs should include a testing window and emergency contact.
+Out of v1: cloud IAM, AD/Entra, VPN/private-network scanning, mobile, web3, source-aware SAST, autonomous fixing, unrestricted exploits, or deployment-triggered retests. The PolyForm Noncommercial license remains unchanged.
 
-## Planning and execution
+## Owner-requested optional REA extension (2026-10-24)
 
-The public API calls the deterministic planner using authorized inputs and
-package policy. The LLM does not choose target type or the enabled worker set.
-Worker profiles, hunter decisions, validation level, budgets, and skipped reasons
-are saved with the scan. See the [canonical worker matrix](WORKER_SPEC.md#3-profiles-by-target-type).
-
-| Layer | Responsibility |
-| --- | --- |
-| Browser / recon / ZAP / Nuclei | Observations and bounded signals, not automatic proof |
-| OpenHack / Strix | Scenario and reasoning adapters within the same policy gates |
-| Findings service | Sanitized candidate promotion and deterministic limits |
-| Reporting service | Owner summary, developer fix guidance, coverage and limitations |
-| Retest worker | Separately requested replay for one finding |
-
-Tool availability and safety policy are different questions. In particular,
-Nuclei template wiring is an [open blocker](PUBLIC_RELEASE_READINESS.md#open-gaps).
-
-## Free Hunter requirements
-
-Free Hunter uses the same target/intensity model when authorized; it is a bounded
-assessment, not a full pentest or merely a report preview.
-
-| Limit | Value |
-| --- | --- |
-| Returned findings | 1 |
-| Monitored findings | 1 |
-| Retests | 1 |
-| Cooldown | 7 days |
-
-The product requirement is to stop expensive work after the first valuable
-finding. Current fan-in waits for all expected workers; only the output/promotion
-cap is implemented. Keep early stopping as an unresolved acceptance item.
-
-No valuable finding means a coverage report with hardening, limitations, and
-next steps—not a declaration that the application is secure.
-
-## Reports and remediation
-
-The canonical artifact is a sanitized, versioned `report_v1` JSON snapshot in
-Postgres. Draft updates are streamed through the public API; latest finding/retest
-status is a separate overlay, not a rewrite of historical evidence.
-
-| Reader | Content |
-| --- | --- |
-| Owner | What was tested, risk/outcome, recommended next action |
-| Developer | Finding evidence, root-cause hypothesis, fix guidance, validation steps |
-| Security reviewer | Worker/hunter coverage, skipped checks, limitations, approval context |
-
-DOCX, CSV, JSON, HTML, and PDF download routes exist. The current PDF renderer is
-a limited one-page text export; use other formats for long reports until fixed.
-All downloads require an organization-scoped final/superseded report.
-
-AI recommendations cannot invent evidence, unknown finding IDs, or severity.
-Black-box remediation is guidance requiring developer review, not a guaranteed
-mergeable patch.
-
-## Out of scope
-
-No unverified/private/internal/metadata targets, mass scanning, destructive
-testing, malware, persistence, stealth/evasion, credential stuffing, or unrestricted
-offensive mode. No CI/CD/deployment-triggered retests, cloud/VPS account scanning,
-server agents, mobile APK auditing, SAST/SCA/secrets-scanning product, or automatic
-GitHub/Jira integration.
-
-Mandatory rules: [security guardrails](SECURITY_GUARDRAILS.md).
-Required verification: [acceptance criteria](ACCEPTANCE_CRITERIA.md).
+The local CLI may invoke pinned REA for static analysis of an explicitly
+authorized local JavaScript web-artifact directory. This separate artifact
+command returns sanitized static-analysis coverage; it is not a scan profile,
+worker, source-aware vulnerability scan, validated finding or retest. The
+public-host pipeline and all scope/approval/evidence gates above still apply.
+See [REA integration](REA_INTEGRATION.md).

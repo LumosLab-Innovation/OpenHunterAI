@@ -1,0 +1,636 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "fr-anssi-hygiene-curated",
+  "frameworkId": "fr-anssi-hygiene",
+  "version": "2017 guide with 42 measures",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "fr-primary",
+      "title": "ANSSI hygiene guide",
+      "url": "https://messervices.cyber.gouv.fr/documents-guides/guide_hygiene_informatique_anssi.pdf",
+      "locator": "42 measures; mode d’emploi printed p.3"
+    }
+  ],
+  "limitations": [
+    "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+    "Operator-supplied facts and evidence metadata do not constitute independent control verification.",
+    "Only standard indicators are curated. Reinforced-only measures, including measure 38 annual audits, are not silently included in the baseline; standard/renforcé are per-rule guide indicators."
+  ],
+  "requirements": [
+    {
+      "id": "fr.operations-training",
+      "label": "Train operational security teams",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 1, standard, printed p.5",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Train operational security teams"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.user-awareness",
+      "label": "Provide recurring user awareness",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 2, standard, printed p.6",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Provide recurring user awareness"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.outsourcing-risk",
+      "label": "Assess outsourcing risks and contractual assurances",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 3, standard, printed p.7",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "fr.outsourcing_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Assess outsourcing risks and contractual assurances"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.sensitive-map",
+      "label": "Identify sensitive servers and maintain network map",
+      "controlId": "system_classification",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 4, standard, printed p.9",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Identify sensitive servers and maintain network map"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.privileged-inventory",
+      "label": "Maintain privileged account inventory",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 5, standard, printed p.10",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "fr.privileged-inventory",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.account-lifecycle",
+      "label": "Manage joining, leaving and role changes",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 6, standard, printed p.11",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Manage joining, leaving and role changes"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.managed-device-access",
+      "label": "Limit network access to controlled devices",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 7, standard, printed p.12",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "fr.managed-device-access",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.named-identities",
+      "label": "Use named identities and separate administration",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 8, standard, printed p.14",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "fr.named-identities",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.sensitive-rights",
+      "label": "Review access to sensitive resources",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 9, standard, printed p.15",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review access to sensitive resources"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.password-policy",
+      "label": "Define and verify password selection rules",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 10, standard, printed p.16",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Define and verify password selection rules"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.stored-credentials",
+      "label": "Protect stored authentication material",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 11, standard, printed p.17",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Protect stored authentication material"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.default-credentials",
+      "label": "Replace default authentication settings",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 12, standard, printed p.18",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "fr.default-credentials",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.mfa-feasibility",
+      "label": "Review strong authentication where possible",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 13, standard, printed p.19",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review strong authentication where possible"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Where possible is retained; no unconditional MFA violation is created from an unavailable feature."
+    },
+    {
+      "id": "fr.endpoint-baseline",
+      "label": "Apply minimum workstation security",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 14, standard, printed p.21",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Apply minimum workstation security"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.removable-media",
+      "label": "Control removable media threats",
+      "controlId": "malware_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 15, standard, printed p.22",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Control removable media threats"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.central-management",
+      "label": "Centralise consistent security policy management",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 16, standard, printed p.23",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "fr.central-management",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.host-firewall",
+      "label": "Enable restrictive local firewalls",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 17, standard, printed p.24",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "fr.host-firewall",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.admin-internet",
+      "label": "Keep administration workstations off the internet",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 27, standard, printed p.37",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "fr.admin-internet",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.admin-network",
+      "label": "Isolate a dedicated administration network",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 28, standard, printed p.38",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "fr.admin-network",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.admin-need",
+      "label": "Limit workstation administration rights to need",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 29, standard, printed p.39",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Limit workstation administration rights to need"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.sensitive-encryption",
+      "label": "Encrypt sensitive data on portable equipment",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 31, standard, printed p.42",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "fr.portable_sensitive_data",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "fr.sensitive-encryption",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.update-policy",
+      "label": "Maintain component update policy",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 34, standard, printed p.46",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Maintain component update policy"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.end-of-support",
+      "label": "Plan software support expiry and dependencies",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 35, standard, printed p.47",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Plan software support expiry and dependencies"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.critical-logs",
+      "label": "Enable critical component logs and common time",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 36, standard, printed p.49",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Enable critical component logs and common time"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.critical-backup-policy",
+      "label": "Maintain critical-component backup policy",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 37, standard, printed p.51",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Maintain critical-component backup policy"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.security-contact",
+      "label": "Identify and communicate security contact",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 39, standard, printed p.53",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Identify and communicate security contact"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "fr.incident-procedure",
+      "label": "Define security incident management procedures",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "fr-primary",
+      "locator": "Measure 40, standard, printed p.54",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Define security incident management procedures"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    }
+  ]
+}

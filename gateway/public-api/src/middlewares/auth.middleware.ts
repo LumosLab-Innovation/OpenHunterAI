@@ -105,14 +105,14 @@ export function clearSessionCookie(res: Response) {
 }
 
 export function requireUser(req: Request, res: Response, next: NextFunction) {
-  if (workspaceMode() === 'local') {
-    if (!isLocalWorkspaceRequest(req)) {
-      res.status(403).json({ error: { code: 'LOCAL_ONLY', message: 'Local workspace access requires localhost.' } });
+  if (isLocalMode()) {
+    if (!isTrustedLocalRequest(req)) {
+      res.status(403).json({ error: { code: 'LOCAL_ONLY', message: 'Local mode only accepts requests from the configured loopback UI or CLI' } });
       return;
     }
     void localWorkspaceUser().then((user) => {
-      req.user = user;
       res.setHeader('Cache-Control', 'no-store');
+      req.user = user;
       next();
     }).catch(next);
     return;
@@ -128,6 +128,20 @@ export function requireUser(req: Request, res: Response, next: NextFunction) {
       next();
     })
     .catch(next);
+}
+
+export function isLocalMode(): boolean {
+  return workspaceMode() === 'local';
+}
+
+export function isTrustedLocalRequest(req: Pick<Request, 'header'>): boolean {
+  return isLocalWorkspaceRequest({
+    headers: {
+      host: req.header('host'),
+      origin: req.header('origin'),
+      'sec-fetch-site': req.header('sec-fetch-site'),
+    },
+  });
 }
 
 export function requireAllowedOrigin(req: Request, res: Response, next: NextFunction) {

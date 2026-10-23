@@ -62,7 +62,7 @@ func (f *fakeState) SetState(_ context.Context, _, state, _ string) error {
 	return nil
 }
 
-func completedEnv(t *testing.T, mode string, signals int) *events.Envelope {
+func completedEnv(t *testing.T, signals int) *events.Envelope {
 	t.Helper()
 	env, err := events.NewEnvelope("id1", events.SubjectWorkerCompleted, events.WorkerCompletedPayload{
 		ScanID: "scan_1", ProjectID: "proj_1", WorkerType: "Z",
@@ -71,7 +71,6 @@ func completedEnv(t *testing.T, mode string, signals int) *events.Envelope {
 	if err != nil {
 		t.Fatalf("env: %v", err)
 	}
-	_ = mode
 	return env
 }
 
@@ -79,7 +78,7 @@ func TestHandleCompletedFinalizesWhenAllDone(t *testing.T) {
 	kv := &fakeKV{finalizeOnMark: true, claimOK: true}
 	rep := &fakeFinalizer{}
 	st := &fakeState{}
-	if err := handleCompleted(context.Background(), kv, rep, st, completedEnv(t, "ai_blackhat_mindset_check", 0), wlog.New(wlog.Fields{})); err != nil {
+	if err := handleCompleted(context.Background(), kv, rep, st, completedEnv(t, 0), wlog.New(wlog.Fields{})); err != nil {
 		t.Fatalf("handleCompleted: %v", err)
 	}
 	if rep.calls != 1 {
@@ -102,7 +101,7 @@ func TestHandleCompletedFinalizesWhenAllDone(t *testing.T) {
 func TestHandleCompletedKeepsShortWorkerCodes(t *testing.T) {
 	kv := &fakeKV{finalizeOnMark: false}
 	rep := &fakeFinalizer{}
-	if err := handleCompleted(context.Background(), kv, rep, &fakeState{}, completedEnv(t, "ai_blackhat_mindset_check", 0), wlog.New(wlog.Fields{})); err != nil {
+	if err := handleCompleted(context.Background(), kv, rep, &fakeState{}, completedEnv(t, 0), wlog.New(wlog.Fields{})); err != nil {
 		t.Fatalf("handleCompleted: %v", err)
 	}
 	if kv.lastWorkerType != "Z" {
@@ -111,9 +110,9 @@ func TestHandleCompletedKeepsShortWorkerCodes(t *testing.T) {
 }
 
 func TestHandleCompletedNoFinalizeWhenIncomplete(t *testing.T) {
-	kv := &fakeKV{finalizeOnMark: false, progress: bus.ScanProgress{Mode: "ai_blackhat_mindset_check"}}
+	kv := &fakeKV{finalizeOnMark: false, progress: bus.ScanProgress{Profile: "standard"}}
 	rep := &fakeFinalizer{}
-	if err := handleCompleted(context.Background(), kv, rep, &fakeState{}, completedEnv(t, "ai_blackhat_mindset_check", 0), wlog.New(wlog.Fields{})); err != nil {
+	if err := handleCompleted(context.Background(), kv, rep, &fakeState{}, completedEnv(t, 0), wlog.New(wlog.Fields{})); err != nil {
 		t.Fatalf("handleCompleted: %v", err)
 	}
 	if rep.calls != 0 {
@@ -121,13 +120,13 @@ func TestHandleCompletedNoFinalizeWhenIncomplete(t *testing.T) {
 	}
 }
 
-func TestHandleCompletedFreeHunterEarlyFinalize(t *testing.T) {
-	// free_hunter must not finalize from raw signal count. Only promoted
+func TestHandleCompletedNoEarlyFinalize(t *testing.T) {
+	// A scan must not finalize from raw signal count. Only promoted
 	// valuable findings may shape the final report, and promotion happens in
 	// the finalization path after all worker candidates are present.
-	kv := &fakeKV{finalizeOnMark: false, claimOK: true, progress: bus.ScanProgress{Mode: "free_hunter"}}
+	kv := &fakeKV{finalizeOnMark: false, claimOK: true, progress: bus.ScanProgress{Profile: "quick"}}
 	rep := &fakeFinalizer{}
-	if err := handleCompleted(context.Background(), kv, rep, &fakeState{}, completedEnv(t, "free_hunter", 1), wlog.New(wlog.Fields{})); err != nil {
+	if err := handleCompleted(context.Background(), kv, rep, &fakeState{}, completedEnv(t, 1), wlog.New(wlog.Fields{})); err != nil {
 		t.Fatalf("handleCompleted: %v", err)
 	}
 	if kv.claimCalls != 0 {
@@ -138,10 +137,10 @@ func TestHandleCompletedFreeHunterEarlyFinalize(t *testing.T) {
 	}
 }
 
-func TestHandleCompletedFreeHunterNoSignalNoFinalize(t *testing.T) {
-	kv := &fakeKV{finalizeOnMark: false, claimOK: true, progress: bus.ScanProgress{Mode: "free_hunter"}}
+func TestHandleCompletedNoSignalNoFinalize(t *testing.T) {
+	kv := &fakeKV{finalizeOnMark: false, claimOK: true, progress: bus.ScanProgress{Profile: "quick"}}
 	rep := &fakeFinalizer{}
-	if err := handleCompleted(context.Background(), kv, rep, &fakeState{}, completedEnv(t, "free_hunter", 0), wlog.New(wlog.Fields{})); err != nil {
+	if err := handleCompleted(context.Background(), kv, rep, &fakeState{}, completedEnv(t, 0), wlog.New(wlog.Fields{})); err != nil {
 		t.Fatalf("handleCompleted: %v", err)
 	}
 	if kv.claimCalls != 0 {
@@ -152,11 +151,11 @@ func TestHandleCompletedFreeHunterNoSignalNoFinalize(t *testing.T) {
 	}
 }
 
-func TestHandleCompletedFreeHunterLostClaim(t *testing.T) {
+func TestHandleCompletedLostClaim(t *testing.T) {
 	// Another trigger already claimed finalize => this one must not double-finalize.
-	kv := &fakeKV{finalizeOnMark: true, claimOK: false, progress: bus.ScanProgress{Mode: "free_hunter"}}
+	kv := &fakeKV{finalizeOnMark: true, claimOK: false, progress: bus.ScanProgress{Profile: "quick"}}
 	rep := &fakeFinalizer{}
-	if err := handleCompleted(context.Background(), kv, rep, &fakeState{}, completedEnv(t, "free_hunter", 1), wlog.New(wlog.Fields{})); err != nil {
+	if err := handleCompleted(context.Background(), kv, rep, &fakeState{}, completedEnv(t, 1), wlog.New(wlog.Fields{})); err != nil {
 		t.Fatalf("handleCompleted: %v", err)
 	}
 	if rep.calls != 0 {
@@ -167,7 +166,7 @@ func TestHandleCompletedFreeHunterLostClaim(t *testing.T) {
 func TestHandleCompletedReleasesFinalizeClaimWhenFinalizeFails(t *testing.T) {
 	kv := &fakeKV{finalizeOnMark: true, claimOK: true}
 	rep := &fakeFinalizer{err: context.DeadlineExceeded}
-	err := handleCompleted(context.Background(), kv, rep, &fakeState{}, completedEnv(t, "ai_blackhat_mindset_check", 0), wlog.New(wlog.Fields{}))
+	err := handleCompleted(context.Background(), kv, rep, &fakeState{}, completedEnv(t, 0), wlog.New(wlog.Fields{}))
 	if err == nil {
 		t.Fatal("handleCompleted error = nil, want finalize error")
 	}

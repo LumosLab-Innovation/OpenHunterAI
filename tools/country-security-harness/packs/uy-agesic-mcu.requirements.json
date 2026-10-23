@@ -1,0 +1,588 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "uy-agesic-mcu-selected-clauses",
+  "frameworkId": "uy-agesic-mcu",
+  "version": "2026-10-08.1",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "uy-agesic-mcu-source",
+      "title": "AGESIC Marco de Ciberseguridad 5.0 — official reference",
+      "url": "https://www.gub.uy/agencia-gobierno-electronico-sociedad-informacion-conocimiento/comunicacion/publicaciones/marco-ciberseguridad-50/marco-ciberseguridad-50",
+      "locator": "MCU 5.0 model; levels 0–4; implementation controls OR.6,SO.5,SC.14,CN.3"
+    },
+    {
+      "id": "uy-native-model",
+      "title": "AGESIC MCU 5.0 — Modelo de madurez",
+      "url": "https://www.gub.uy/agencia-gobierno-electronico-sociedad-informacion-conocimiento/comunicacion/publicaciones/marco-ciberseguridad-50/marco-ciberseguridad-50/modelo-madurez",
+      "locator": "Modelo de madurez:0–4 and cumulative rule."
+    },
+    {
+      "id": "uy-remote",
+      "title": "AGESIC MCU 5.0 — OR.6 remote access",
+      "url": "https://www.gub.uy/agencia-gobierno-electronico-sociedad-informacion-conocimiento/comunicacion/publicaciones/guia-implementacion-del-mcu-50/organizacion-gobernanza/or6-establecer",
+      "locator": "OR.6-1 throughOR.6-5; levels 1–2."
+    },
+    {
+      "id": "uy-malware",
+      "title": "AGESIC MCU 5.0 — SO.5 malware",
+      "url": "https://www.gub.uy/agencia-gobierno-electronico-sociedad-informacion-conocimiento/comunicacion/publicaciones/guia-implementacion-del-mcu-50/seguridad-fisica-del-ambiente/so5",
+      "locator": "SO.5-1,3–8; levels 1–4."
+    },
+    {
+      "id": "uy-transfer",
+      "title": "AGESIC MCU 5.0 — SC.14 secure information exchange",
+      "url": "https://www.gub.uy/agencia-gobierno-electronico-sociedad-informacion-conocimiento/comunicacion/publicaciones/guia-implementacion-del-mcu-50/seguridad-comunicaciones/sc14-mantener",
+      "locator": "SC.14-1 through 4; levels 1–3."
+    },
+    {
+      "id": "uy-testing",
+      "title": "AGESIC MCU 5.0 — CN.3 vulnerability/pentest assessment",
+      "url": "https://www.gub.uy/agencia-gobierno-electronico-sociedad-informacion-conocimiento/comunicacion/publicaciones/guia-implementacion-del-mcu-50/cumplimiento-normativo-revision/cn3",
+      "locator": "CN.3-1 andCN.3-2; levels 1–2."
+    }
+  ],
+  "limitations": [
+    "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+    "Level 0 denotes absent activity and is explicitly outside the implemented model; it has no positive executable requirements here. Level membership follows native controls and explicit cumulative rule, not inferred cross-country equivalence. Community profiles BĂ¡sico/EstĂ¡ndar/Avanzado are distinct from maturity levels.",
+    "Selected native maturity controls are recommendations here because sector mandates are not adjudicated. Explicit MCU cumulative rule supports higher-level membership. The ad-hoc SO.5-2 description is not promoted to a positive security requirement."
+  ],
+  "requirements": [
+    {
+      "id": "uy-remote-devices",
+      "label": "Set remote-device safeguards",
+      "controlId": "secure_configuration",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "cumulative_minimum",
+      "sourceId": "uy-remote",
+      "locator": "OR.6-1;Nivel 1",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "uy-remote-devices",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "uy-remote-records",
+      "label": "Record remote connection context",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "level-2",
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "cumulative_minimum",
+      "sourceId": "uy-remote",
+      "locator": "OR.6-2;Nivel 2",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "uy-remote-records",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "uy-remote-allow",
+      "label": "Allow remote access to listed resources",
+      "controlId": "identity_access",
+      "levels": [
+        "level-2",
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "cumulative_minimum",
+      "sourceId": "uy-remote",
+      "locator": "OR.6-3;Nivel 2",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "uy-remote-allow",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "uy-remote-mfa",
+      "label": "Require remote-access MFA",
+      "controlId": "identity_access",
+      "levels": [
+        "level-2",
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "cumulative_minimum",
+      "sourceId": "uy-remote",
+      "locator": "OR.6-4;Nivel 2",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "uy-remote-mfa",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "uy-remote-approval",
+      "label": "Approve remote access by asset owner",
+      "controlId": "identity_access",
+      "levels": [
+        "level-2",
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "cumulative_minimum",
+      "sourceId": "uy-remote",
+      "locator": "OR.6-5;Nivel 2",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "uy-remote-approval",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "uy-staff-antimalware",
+      "label": "Protect personnel endpoints from malware",
+      "controlId": "malware_protection",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "cumulative_minimum",
+      "sourceId": "uy-malware",
+      "locator": "SO.5-1;Nivel 1",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "uy-staff-antimalware",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "uy-server-antimalware",
+      "label": "Review server antimalware and exceptions",
+      "controlId": "malware_protection",
+      "levels": [
+        "level-2",
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "cumulative_minimum",
+      "sourceId": "uy-malware",
+      "locator": "SO.5-3;Nivel 2",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Server antimalware coverage with documented justified exceptions."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "uy-periodic-antimalware",
+      "label": "Configure periodic endpoint checks",
+      "controlId": "malware_protection",
+      "levels": [
+        "level-2",
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "cumulative_minimum",
+      "sourceId": "uy-malware",
+      "locator": "SO.5-4;Nivel 2",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "uy-periodic-antimalware",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "uy-malware-policy",
+      "label": "Define malware-handling policy",
+      "controlId": "malware_protection",
+      "levels": [
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "cumulative_minimum",
+      "sourceId": "uy-malware",
+      "locator": "SO.5-5;Nivel 3",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "uy-malware-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "uy-malware-procedure",
+      "label": "Define malware-handling procedure",
+      "controlId": "malware_protection",
+      "levels": [
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "cumulative_minimum",
+      "sourceId": "uy-malware",
+      "locator": "SO.5-6;Nivel 3",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "uy-malware-procedure",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "uy-central-antimalware",
+      "label": "Centralize antimalware management",
+      "controlId": "malware_protection",
+      "levels": [
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "cumulative_minimum",
+      "sourceId": "uy-malware",
+      "locator": "SO.5-7;Nivel 3",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "uy-central-antimalware",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "uy-web-malware-control",
+      "label": "Block malicious or unauthorized websites",
+      "controlId": "network_protection",
+      "levels": [
+        "level-4"
+      ],
+      "levelBasis": "cumulative_minimum",
+      "sourceId": "uy-malware",
+      "locator": "SO.5-8;Nivel 4",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "uy-web-malware-control",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "uy-transit-crypto",
+      "label": "Protect data in transit cryptographically",
+      "controlId": "data_protection",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "cumulative_minimum",
+      "sourceId": "uy-transfer",
+      "locator": "SC.14-1;Nivel 1",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "uy-transit-crypto",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "uy-crypto-practice",
+      "label": "Use consistent transit crypto practices",
+      "controlId": "data_protection",
+      "levels": [
+        "level-2",
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "cumulative_minimum",
+      "sourceId": "uy-transfer",
+      "locator": "SC.14-2;Nivel 2",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "uy-crypto-practice",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "uy-transfer-procedure",
+      "label": "Document secure physical/digital transfer",
+      "controlId": "data_protection",
+      "levels": [
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "cumulative_minimum",
+      "sourceId": "uy-transfer",
+      "locator": "SC.14-3;Nivel 3",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "uy-transfer-procedure",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "uy-sensitive-transfer",
+      "label": "Differentiate transfer safeguards by sensitivity",
+      "controlId": "data_protection",
+      "levels": [
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "cumulative_minimum",
+      "sourceId": "uy-transfer",
+      "locator": "SC.14-4;Nivel 3",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "uy-sensitive-transfer",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "uy-targeted-review",
+      "label": "Review systems using internal/external resources",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "cumulative_minimum",
+      "sourceId": "uy-testing",
+      "locator": "CN.3-1;Nivel 1",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "uy-targeted-review",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "uy-critical-testing",
+      "label": "Review authorized critical-system pentests",
+      "controlId": "assurance_review",
+      "levels": [
+        "level-2",
+        "level-3",
+        "level-4"
+      ],
+      "levelBasis": "cumulative_minimum",
+      "sourceId": "uy-testing",
+      "locator": "CN.3-2;Nivel 2",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review periodic or significant-change pentest evidence and authorized critical scope; no actual testing is performed."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    }
+  ]
+}

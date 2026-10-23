@@ -1,0 +1,1162 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "au-essential-eight-2023",
+  "frameworkId": "au-essential-eight",
+  "version": "November 2023",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "asd-e8-2023",
+      "title": "ASD Essential Eight maturity model (November 2023)",
+      "url": "https://www.cyber.gov.au/sites/default/files/2025-03/Essential%20Eight%20maturity%20model%20(November%202023).pdf",
+      "locator": "Appendices A (pp. 5–7), B (pp. 8–14), C (pp. 15–23), D comparison (pp. 24–33)"
+    }
+  ],
+  "limitations": [
+    "This is a partial, manually curated extraction; omitted statements remain an explicit coverage gap. Passing these rules is not an Essential Eight maturity determination.",
+    "Level 0 has no passable baseline in this pack. The pack only encodes expressly stated Level 1, 2 and 3 requirements.",
+    "Every fact is supplied by an operator. References and reviewer identifiers do not prove artifact authenticity, complete scope or actual enforcement.",
+    "Calendar months must be assessed from declared calendar dates; the engine must not approximate them as 30 days.",
+    "Scope, exceptions, compensating controls, business need and independent assessment remain matters for contextual human review.",
+    "This pack performs no network requests, authenticated configuration collection, attack execution, artifact replay or backup restoration."
+  ],
+  "requirements": [
+    {
+      "id": "au.discovery.fortnightly",
+      "label": "Automated asset discovery interval",
+      "controlId": "patch_applications",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices A/B/C, Patch applications, asset discovery; printed pp. 5, 8, 15",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "number",
+        "factId": "automated_asset_discovery_max_interval_days",
+        "max": 14,
+        "unit": "days"
+      },
+      "evidenceKinds": [
+        "scan_metadata"
+      ],
+      "interpretationNotes": "Use the maximum observed discovery interval across the declared asset population and review period; one recent scan does not prove recurring coverage."
+    },
+    {
+      "id": "au.scanner.database",
+      "label": "Current vulnerability database",
+      "controlId": "patch_applications",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices A/B/C, Patch applications, scanner database; printed pp. 5, 8, 15",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "vulnerability_scanner_database_current",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "scan_metadata"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.scan.online",
+      "label": "Online service scan interval",
+      "controlId": "patch_applications",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices A/B/C, Patch applications, online-service vulnerability scanning; printed pp. 5, 8, 15",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "online_services_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "online_service_scan_max_interval_hours",
+        "max": 24,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "scan_metadata"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.scan.common-apps",
+      "label": "Common application scan interval",
+      "controlId": "patch_applications",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices A/B/C, Patch applications, commonly targeted application scanning; printed pp. 5, 8, 15",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "common_applications_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "common_application_scan_max_interval_days",
+        "max": 7,
+        "unit": "days"
+      },
+      "evidenceKinds": [
+        "scan_metadata"
+      ],
+      "interpretationNotes": "Include office suites, browsers and extensions, email clients, PDF software and security products. Scope completeness requires an inventory review."
+    },
+    {
+      "id": "au.patch.online-critical",
+      "label": "Urgent online service patch delay",
+      "controlId": "patch_applications",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices A/B/C, Patch applications, critical or exploited online-service fixes; printed pp. 5, 8, 15",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "critical_or_exploited_online_updates_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "online_critical_patch_max_delay_hours",
+        "max": 48,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "scan_metadata",
+        "independent_review"
+      ],
+      "interpretationNotes": "Measure from vendor release to verified deployment across all applicable fixes. This condition includes vendor-critical flaws OR a working exploit; missing severity information is not a safe exemption."
+    },
+    {
+      "id": "au.patch.online-other",
+      "label": "Other online service patch delay",
+      "controlId": "patch_applications",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices A/B/C, Patch applications, non-critical non-exploited online-service fixes; printed pp. 5, 8, 15",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "noncritical_unexploited_online_updates_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "online_noncritical_patch_max_delay_days",
+        "max": 14,
+        "unit": "days"
+      },
+      "evidenceKinds": [
+        "scan_metadata",
+        "independent_review"
+      ],
+      "interpretationNotes": "The declared applicability population excludes vendor-critical flaws and working exploits. Measure elapsed delay from release, using the worst applicable case."
+    },
+    {
+      "id": "au.patch.common-lower",
+      "label": "Common application patch delay",
+      "controlId": "patch_applications",
+      "levels": [
+        "level-1",
+        "level-2"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices A/B, Patch applications, commonly targeted application fixes; printed pp. 5, 8",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "common_application_updates_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "common_application_patch_max_delay_days",
+        "max": 14,
+        "unit": "days"
+      },
+      "evidenceKinds": [
+        "scan_metadata"
+      ],
+      "interpretationNotes": "The population comprises office productivity suites, web browsers and extensions, email clients, PDF software and security products. The Level 3 urgency split is a separate rule; do not apply this lower-level threshold to critical or exploited Level 3 cases."
+    },
+    {
+      "id": "au.patch.common-urgent",
+      "label": "Urgent common application patch delay",
+      "controlId": "patch_applications",
+      "levels": [
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendix C, Patch applications, critical or exploited commonly targeted fixes; printed p. 15",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "critical_or_exploited_common_updates_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "common_critical_patch_max_delay_hours",
+        "max": 48,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "scan_metadata",
+        "independent_review"
+      ],
+      "interpretationNotes": "Includes office suites, browsers and extensions, email clients, PDF software and security products. Condition is vendor-critical OR working exploit."
+    },
+    {
+      "id": "au.scan.other-apps",
+      "label": "Other application scan interval",
+      "controlId": "patch_applications",
+      "levels": [
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices B/C, Patch applications, other application vulnerability scanning; printed pp. 8, 15",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "other_applications_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "other_application_scan_max_interval_days",
+        "max": 14,
+        "unit": "days"
+      },
+      "evidenceKinds": [
+        "scan_metadata"
+      ],
+      "interpretationNotes": "Other applications excludes office productivity suites, web browsers and extensions, email clients, PDF software and security products. Measure the maximum scan interval across the assessment window and the reconciled inventory."
+    },
+    {
+      "id": "au.patch.other-apps",
+      "label": "Other application calendar patch delay",
+      "controlId": "patch_applications",
+      "levels": [
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices B/C, Patch applications, other application fixes; printed pp. 8, 15",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "other_application_updates_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "other_application_patch_max_delay_months",
+        "max": 1,
+        "unit": "months"
+      },
+      "evidenceKinds": [
+        "scan_metadata",
+        "independent_review"
+      ],
+      "interpretationNotes": "Other applications excludes office productivity suites, web browsers and extensions, email clients, PDF software and security products. One month is a calendar unit. Operator evidence must declare the calendar calculation from release to deployment; do not approximate it as 30 days."
+    },
+    {
+      "id": "au.os.internet-urgent",
+      "label": "Urgent internet-facing OS patch delay",
+      "controlId": "patch_operating_systems",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices A/B/C, Patch operating systems, critical or exploited internet-facing fixes; printed pp. 6, 9, 16",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "critical_or_exploited_internet_os_updates_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "internet_os_critical_patch_max_delay_hours",
+        "max": 48,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "scan_metadata",
+        "independent_review"
+      ],
+      "interpretationNotes": "Population includes internet-facing servers and network devices. Vendor-critical OR working exploit triggers this deadline."
+    },
+    {
+      "id": "au.os.internet-other",
+      "label": "Other internet-facing OS patch delay",
+      "controlId": "patch_operating_systems",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices A/B/C, Patch operating systems, non-critical non-exploited internet-facing fixes; printed pp. 6, 9, 16",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "noncritical_unexploited_internet_os_updates_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "internet_os_noncritical_patch_max_delay_days",
+        "max": 14,
+        "unit": "days"
+      },
+      "evidenceKinds": [
+        "scan_metadata"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.os.other-lower",
+      "label": "Other OS calendar patch delay",
+      "controlId": "patch_operating_systems",
+      "levels": [
+        "level-1",
+        "level-2"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices A/B, Patch operating systems, workstation and non-internet-facing fixes; printed pp. 6, 9",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "other_os_updates_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "other_os_patch_max_delay_months",
+        "max": 1,
+        "unit": "months"
+      },
+      "evidenceKinds": [
+        "scan_metadata",
+        "independent_review"
+      ],
+      "interpretationNotes": "One month remains a calendar month. Workstations, internal servers and internal network devices are included; Level 3 urgent cases have a separate rule."
+    },
+    {
+      "id": "au.os.other-urgent",
+      "label": "Urgent other OS patch delay",
+      "controlId": "patch_operating_systems",
+      "levels": [
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendix C, Patch operating systems, critical or exploited workstation and non-internet-facing fixes; printed p. 16",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "critical_or_exploited_other_os_updates_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "other_os_critical_patch_max_delay_hours",
+        "max": 48,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "scan_metadata",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.os.release-distance",
+      "label": "Supported OS release position",
+      "controlId": "patch_operating_systems",
+      "levels": [
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendix C, Patch operating systems, latest or previous release; printed p. 17",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "number",
+        "factId": "os_max_release_distance_from_latest",
+        "max": 1,
+        "unit": "count"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Zero denotes the latest release and one the previous release in the applicable vendor release sequence. This is not a version-number subtraction; an operator must identify the vendor sequence."
+    },
+    {
+      "id": "au.mfa.sensitive-online",
+      "label": "Sensitive workforce online MFA",
+      "controlId": "multi_factor_authentication",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices A/B/C, Multi-factor authentication, organisational and third-party sensitive online services; printed pp. 6, 9, 17",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "sensitive_workforce_online_services_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "sensitive_workforce_online_mfa_complete",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Cover every workforce user of the declared organisation-owned and third-party services handling sensitive organisational data. A visible login challenge is insufficient to establish complete enforcement."
+    },
+    {
+      "id": "au.mfa.system-users",
+      "label": "System user MFA coverage",
+      "controlId": "multi_factor_authentication",
+      "levels": [
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices B/C, Multi-factor authentication, privileged and unprivileged system users; printed pp. 9, 17",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "system_users_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "system_user_mfa_complete",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.mfa.repositories",
+      "label": "Repository user MFA coverage",
+      "controlId": "multi_factor_authentication",
+      "levels": [
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendix C, Multi-factor authentication, data-repository users; printed p. 17",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "data_repository_users_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "repository_user_mfa_complete",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.mfa.workforce-resistant",
+      "label": "Workforce online phishing resistance",
+      "controlId": "multi_factor_authentication",
+      "levels": [
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices B/C, Multi-factor authentication, online-service phishing resistance; printed pp. 10, 17",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "workforce_online_mfa_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "workforce_online_mfa_phishing_resistant",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "This clause qualifies MFA actually used for workforce online services. A third-party service processing only non-sensitive data without available MFA does not itself trigger a phishing-resistance violation. MFA absence for the separately applicable sensitive-service populations is assessed by the base MFA coverage rules. Evaluate all used MFA mechanisms and fallback paths from scoped evidence; false applicability remains subject to review."
+    },
+    {
+      "id": "au.mfa.customer-option",
+      "label": "Customer resistant MFA option",
+      "controlId": "multi_factor_authentication",
+      "levels": [
+        "level-2"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendix B, Multi-factor authentication, customer-service phishing-resistant option; printed p. 10",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "customer_online_services_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "customer_phishing_resistant_mfa_option_available",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Level 2 requires an available resistant option. Level 3 has a separate requirement for the customer authentication actually used."
+    },
+    {
+      "id": "au.mfa.customer-resistant",
+      "label": "Customer enforced phishing resistance",
+      "controlId": "multi_factor_authentication",
+      "levels": [
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendix C, Multi-factor authentication, customer-service phishing resistance; printed p. 17",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "customer_online_services_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "customer_online_mfa_phishing_resistant",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.admin.dedicated",
+      "label": "Dedicated administrative accounts",
+      "controlId": "restrict_admin_privileges",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices A/B/C, Restrict administrative privileges, dedicated privileged accounts; printed pp. 6, 10, 18",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "privileged_users_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "dedicated_admin_accounts_complete",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.admin.revalidation",
+      "label": "Privileged access revalidation interval",
+      "controlId": "restrict_admin_privileges",
+      "levels": [
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices B/C, Restrict administrative privileges, 12-month revalidation; printed pp. 10, 18",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "privileged_access_grants_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "active_privileged_access_max_unreviewed_months",
+        "max": 12,
+        "unit": "months"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Use calendar months for active system, application and data-repository grants. Grants older than the interval need renewed validation or removal; a policy statement alone does not prove enforcement."
+    },
+    {
+      "id": "au.admin.inactivity",
+      "label": "Inactive privilege disable delay",
+      "controlId": "restrict_admin_privileges",
+      "levels": [
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices B/C, Restrict administrative privileges, 45-day inactivity; printed pp. 10, 18",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "privileged_system_or_application_accounts_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "privileged_inactivity_max_days_before_disable",
+        "max": 45,
+        "unit": "days"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "This clause names systems and applications. Include actual account inactivity/disable transitions across the declared population; do not silently extend the same deadline to unrelated grant types."
+    },
+    {
+      "id": "au.admin.jump-servers",
+      "label": "Administrative jump server use",
+      "controlId": "restrict_admin_privileges",
+      "levels": [
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices B/C, Restrict administrative privileges, administrative jump servers; printed pp. 11, 19",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "administrative_activities_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "administrative_activities_use_jump_servers",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.admin.workstations",
+      "label": "Secure admin workstation use",
+      "controlId": "restrict_admin_privileges",
+      "levels": [
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendix C, Restrict administrative privileges, Secure Admin Workstations; printed p. 19",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "administrative_activities_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "administrative_activities_use_secure_admin_workstations",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.admin.jit",
+      "label": "Just-in-time administration",
+      "controlId": "restrict_admin_privileges",
+      "levels": [
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendix C, Restrict administrative privileges, just-in-time administration; printed p. 19",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "system_application_administration_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "system_application_administration_just_in_time",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.allowlist.workstations",
+      "label": "Workstation execution allowlisting",
+      "controlId": "application_control",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices A/B/C, Application control, workstations; printed pp. 7, 11, 20",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "workstations_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "workstation_application_allowlisting_complete",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.allowlist.internet-servers",
+      "label": "Internet-facing server execution allowlisting",
+      "controlId": "application_control",
+      "levels": [
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices B/C, Application control, internet-facing servers; printed pp. 11, 20",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "internet_facing_servers_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "internet_server_application_allowlisting_complete",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.allowlist.internal-servers",
+      "label": "Internal server execution allowlisting",
+      "controlId": "application_control",
+      "levels": [
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendix C, Application control, non-internet-facing servers; printed p. 20",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "noninternet_facing_servers_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "internal_server_application_allowlisting_complete",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.allowlist.drivers",
+      "label": "Driver execution allowlisting",
+      "controlId": "application_control",
+      "levels": [
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendix C, Application control, approved drivers; printed p. 20",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "driver_execution_supported",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "driver_execution_allowlisting_complete",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.macros.business-need",
+      "label": "Disable unnecessary Office macros",
+      "controlId": "restrict_macros",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices A/B/C, Restrict Microsoft Office macros, demonstrated business requirement; printed pp. 7, 12, 21",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "microsoft_office_macros_supported",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "office_macros_disabled_without_business_requirement",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Review the business-need decisions and effective policy together; the harness does not decide which users need macros."
+    },
+    {
+      "id": "au.macros.internet",
+      "label": "Block internet-origin Office macros",
+      "controlId": "restrict_macros",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices A/B/C, Restrict Microsoft Office macros, internet-origin files; printed pp. 7, 12, 21",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "microsoft_office_macros_supported",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "internet_origin_office_macros_blocked",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.macros.win32",
+      "label": "Block macro Win32 calls",
+      "controlId": "restrict_macros",
+      "levels": [
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices B/C, Restrict Microsoft Office macros, Win32 API calls; printed pp. 12, 21",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "microsoft_office_macros_supported",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "office_macro_win32_calls_blocked",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.hardening.office-child",
+      "label": "Block Office child processes",
+      "controlId": "user_application_hardening",
+      "levels": [
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices B/C, User application hardening, Microsoft Office child processes; printed pp. 12, 21",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "microsoft_office_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "microsoft_office_child_processes_blocked",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.hardening.powershell-two",
+      "label": "Disable legacy PowerShell",
+      "controlId": "user_application_hardening",
+      "levels": [
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendix C, User application hardening, Windows PowerShell 2.0; printed p. 22",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "windows_powershell_supported",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "windows_powershell_two_disabled_or_removed",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.hardening.powershell-language",
+      "label": "Constrain PowerShell language",
+      "controlId": "user_application_hardening",
+      "levels": [
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendix C, User application hardening, Constrained Language Mode; printed p. 22",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "powershell_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "powershell_constrained_language_enabled",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.backups.restore",
+      "label": "Exercise backup restoration",
+      "controlId": "regular_backups",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices A/B/C, Regular backups, disaster-recovery restoration exercises; printed pp. 7, 13, 23",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "backup_common_point_restore_exercised",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "independent_review"
+      ],
+      "interpretationNotes": "Require records of a completed restoration exercise across data, applications and settings to a common point; a configured backup job is insufficient. No synthetic test is a real restore."
+    },
+    {
+      "id": "au.backups.unprivileged-mutation",
+      "label": "Protect backups from ordinary users",
+      "controlId": "regular_backups",
+      "levels": [
+        "level-1",
+        "level-2",
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendices A/B/C, Regular backups, unprivileged modification and deletion restrictions; printed pp. 7, 14, 23",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "unprivileged_backup_modification_deletion_blocked",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Assess the complete declared asset population from sanitized operator evidence. A website observation alone does not establish this requirement."
+    },
+    {
+      "id": "au.backups.admin-retention",
+      "label": "Protect retained backups from backup admins",
+      "controlId": "regular_backups",
+      "levels": [
+        "level-3"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "asd-e8-2023",
+      "locator": "Appendix C, Regular backups, backup-administrator retention restrictions; printed p. 23",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "backup_admin_retention_modification_deletion_blocked",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Evaluate write/delete restrictions for backup administrators during the declared retention window; general user permissions do not establish this stronger Level 3 control."
+    }
+  ]
+}

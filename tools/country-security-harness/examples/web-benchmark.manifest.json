@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "country_security_benchmark_manifest_v1",
+  "dataOrigin": "synthetic_fixture",
+  "cases": [
+    {
+      "id": "xss-positive",
+      "pairId": "xss-pair",
+      "category": "xss",
+      "controlId": "application_security",
+      "expected": "detected"
+    },
+    {
+      "id": "xss-negative",
+      "pairId": "xss-pair",
+      "category": "xss",
+      "controlId": "application_security",
+      "expected": "clear"
+    },
+    {
+      "id": "sqli-positive",
+      "pairId": "sqli-pair",
+      "category": "sqli",
+      "controlId": "application_security",
+      "expected": "detected"
+    },
+    {
+      "id": "sqli-negative",
+      "pairId": "sqli-pair",
+      "category": "sqli",
+      "controlId": "application_security",
+      "expected": "clear"
+    },
+    {
+      "id": "idor-positive",
+      "pairId": "idor-pair",
+      "category": "idor",
+      "controlId": "identity_access",
+      "expected": "detected"
+    },
+    {
+      "id": "idor-negative",
+      "pairId": "idor-pair",
+      "category": "idor",
+      "controlId": "identity_access",
+      "expected": "clear"
+    }
+  ],
+  "thresholds": {
+    "minRecall": 1,
+    "maxFalsePositiveRate": 0,
+    "minEvidenceCompleteness": 1,
+    "minExecutionCoverage": 1
+  }
+}

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1100" viewBox="0 0 1200 1100" role="img" aria-labelledby="title desc">
+<title id="title">OpenHunterAI CLI and help wireframe</title>
+<desc id="desc">Launch uses the original mascot asset; slash help explains real commands with syntax, purpose and examples. A live run retains the command prompt.</desc>
+<style>
+ text{font-family:Consolas,'Cascadia Code',monospace;fill:#dce9eb;font-size:17px}.bg{fill:#e9eeee}.term{fill:#0d141b;stroke:#2f4650;stroke-width:2}.chrome{fill:#19262e}.rule{stroke:#344953;stroke-width:1.3}.teal{fill:#65e7d2}.blue{fill:#69a8f8}.muted{fill:#9aafb6}.amber{fill:#f2c173}.title{font-size:22px;font-weight:750;fill:#173039;font-family:Inter,Arial,sans-serif}.note{font-size:14px;fill:#48636b;font-family:Inter,Arial,sans-serif}.small{font-size:14px}.brand{font-size:26px;font-weight:800;letter-spacing:1px}
+</style>
+<rect width="1200" height="1100" class="bg"/>
+<text x="40" y="44" class="title">CLI/TUI · one prompt, usable help</text><text x="40" y="66" class="note">Illustrative state only. The left artwork is the original transparent mascot asset, composited in the PNG reference.</text>
+
+<!-- Launch -->
+<text x="40" y="102" class="note">01  LAUNCH · original mascot once; no substitute drawing</text>
+<rect x="40" y="115" width="1120" height="290" rx="12" class="term"/>
+<path d="M52 115h1096q12 0 12 12v35H40v-35q0-12 12-12z" class="chrome"/>
+<text x="65" y="145" class="small muted">openhunterai</text><text x="957" y="145" class="small teal">● engine ready</text>
+<text x="289" y="217" class="brand blue">OPENHUNTERAI</text><text x="289" y="246" class="small teal">AI-ASSISTED PENTEST</text>
+<text x="289" y="296">Paste a public HTTPS URL, or type /help.</text>
+<text x="289" y="327" class="small muted">/scan     /runs     /dashboard     /doctor</text>
+<path d="M65 354h1069" class="rule"/><text x="65" y="386" class="teal">›</text><text x="91" y="386" class="muted">https://example.com/app</text><text x="1019" y="386" class="small muted">EN ▾</text>
+
+<!-- Help -->
+<text x="40" y="446" class="note">02  /help · syntax + effect + example; only implemented commands are listed</text>
+<rect x="40" y="459" width="1120" height="356" rx="12" class="term"/>
+<path d="M52 459h1096q12 0 12 12v35H40v-35q0-12 12-12z" class="chrome"/>
+<text x="65" y="489" class="small muted">OpenHunterAI  /  Help</text><text x="990" y="489" class="small muted">EN  VI  中文</text>
+<text x="65" y="534" class="teal">Command</text><text x="368" y="534" class="teal">What it does</text><text x="793" y="534" class="teal">Example</text>
+<path d="M65 547h1069" class="rule"/>
+<text x="65" y="580">/scan &lt;url&gt;</text><text x="368" y="580">Review and start a scan</text><text x="793" y="580" class="muted">/scan https://example.com</text>
+<text x="65" y="614">/status [runId]</text><text x="368" y="614">Show real run state</text><text x="793" y="614" class="muted">/status</text>
+<text x="65" y="648">/coverage [runId]</text><text x="368" y="648">Show tested / skipped / gaps</text><text x="793" y="648" class="muted">/coverage</text>
+<text x="65" y="682">/report [runId]</text><text x="368" y="682">Open the run report</text><text x="793" y="682" class="muted">/report run_123</text>
+<text x="65" y="716">/lang &lt;en|vi|zh-CN&gt;</text><text x="368" y="716">Change display language</text><text x="793" y="716" class="muted">/lang vi</text>
+<path d="M65 735h1069" class="rule"/>
+<text x="65" y="765" class="small muted">More: /runs, /resume, /retest, /export, /dashboard, /doctor, /cancel, /exit</text>
+<text x="65" y="791" class="small muted">/help &lt;command&gt; shows prerequisites, options and one runnable example.</text>
+
+<!-- Live -->
+<text x="40" y="854" class="note">03  LIVE RUN · compact state, same command input</text>
+<rect x="40" y="867" width="1120" height="192" rx="12" class="term"/>
+<path d="M52 867h1096q12 0 12 12v35H40v-35q0-12 12-12z" class="chrome"/>
+<text x="65" y="897" class="small muted">example.com/app  ·  Standard  ·  run_123</text><text x="1001" y="897" class="small amber">Running</text>
+<text x="65" y="937">Test ●   Browser ✓   Nuclei ●   Auth skipped</text>
+<text x="65" y="967" class="small amber">1 candidate awaiting validation   ·   1 coverage gap</text>
+<path d="M65 981h1069" class="rule"/><text x="65" y="1021" class="teal">›</text><text x="91" y="1021" class="muted">/coverage</text><text x="834" y="1021" class="small muted">Ctrl+C detach · /cancel stops</text>
+<text x="40" y="1085" class="note">At 80×24, render one column; /help remains navigable and available in all states.</text>
+</svg>

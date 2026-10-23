@@ -1,16 +1,10 @@
 // Product vocabulary mirrored from shared/security-core/src/packages.ts.
 // Kept in the frontend so option lists and labels stay in one place.
 
-export const PACKAGE_OPTIONS = [
-  { value: 'free_hunter', label: 'Free Hunter' },
-  { value: 'ai_blackhat_mindset_check', label: 'AI Black-hat Mindset Check' },
-  { value: 'monitor_workspace', label: 'Monitor Workspace' },
-  { value: 'enterprise_payg', label: 'Enterprise / PAYG' },
-] as const;
-
-export const SCAN_MODE_OPTIONS = [
-  { value: 'free_hunter', label: 'Free Hunter' },
-  { value: 'ai_blackhat_mindset_check', label: 'AI Black-hat Mindset Check' },
+export const SCAN_PROFILE_OPTIONS = [
+  { value: 'quick', label: 'Quick' },
+  { value: 'standard', label: 'Standard' },
+  { value: 'deep', label: 'Deep' },
 ] as const;
 
 export const TARGET_TYPE_OPTIONS = [
@@ -18,12 +12,6 @@ export const TARGET_TYPE_OPTIONS = [
   { value: 'interactive_web_app', label: 'Interactive Web App', hint: 'Dashboards, SaaS, authenticated flows.' },
   { value: 'api_service', label: 'API Service', hint: 'REST/GraphQL backends and services.' },
   { value: 'ai_llm_application', label: 'AI / LLM Application', hint: 'Chatbots, RAG, tool-calling agents.' },
-] as const;
-
-export const INTENSITY_OPTIONS = [
-  { value: 'safe_discovery', label: 'Safe Discovery', hint: 'Observe, passive/baseline, little to no validation.' },
-  { value: 'controlled_attack_simulation', label: 'Controlled Attack Simulation', hint: 'Controlled in-scope validation, benign PoC. Default paid mode.' },
-  { value: 'aggressive_staging', label: 'Aggressive Staging', hint: 'Staging/dev/test only. Explicit risk acceptance required.' },
 ] as const;
 
 export const AUTH_SCOPE_OPTIONS = [
@@ -42,11 +30,3 @@ export const SURFACE_FLAGS = [
   ['has_webhook', 'Webhook'],
   ['has_chatbot_or_rag_or_tool_calling', 'Chatbot / RAG / tool calling'],
 ] as const;
-
-export function labelFor(
-  options: ReadonlyArray<{ value: string; label: string }>,
-  value?: string,
-  fallback = '—',
-) {
-  return options.find((o) => o.value === value)?.label ?? fallback;
-}

@@ -1,0 +1,502 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "ro-nis2-ordinance-curated",
+  "frameworkId": "ro-nis2-ordinance",
+  "version": "OUG 155/2024; available official text with Law 124/2025 amendment notes",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "ro-primary",
+      "title": "OUG 155/2024 consolidated text",
+      "url": "https://legislatie.just.ro/Public/DetaliiDocument/293121",
+      "locator": "Articles 11–14; Law 124/2025 amendment notes"
+    }
+  ],
+  "limitations": [
+    "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+    "Operator-supplied facts and evidence metadata do not constitute independent control verification.",
+    "Pinned available official 2025 consolidated clauses; the newer official consolidated view 311690 was not fully retrievable. Current orders and amendments remain an explicit review gap."
+  ],
+  "requirements": [
+    {
+      "id": "ro.risk-policies",
+      "label": "Periodically review risk and system-security procedures",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ro-primary",
+      "locator": "Article 13(a)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ro.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "ro.current_applicable_orders_reviewed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Periodically review risk and system-security procedures"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ro.effectiveness",
+      "label": "Assess risk-management effectiveness",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ro-primary",
+      "locator": "Article 13(b)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ro.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "ro.current_applicable_orders_reviewed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Assess risk-management effectiveness"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ro.crypto-procedures",
+      "label": "Maintain appropriate cryptographic procedures",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ro-primary",
+      "locator": "Article 13(c)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ro.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "ro.current_applicable_orders_reviewed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Maintain appropriate cryptographic procedures"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ro.supplier-security",
+      "label": "Assess direct supplier relationships",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ro-primary",
+      "locator": "Article 13(d)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ro.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "ro.current_applicable_orders_reviewed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Assess direct supplier relationships"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ro.lifecycle-security",
+      "label": "Secure acquisition through disposal and vulnerability handling",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ro-primary",
+      "locator": "Article 13(e)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ro.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "ro.current_applicable_orders_reviewed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Secure acquisition through disposal and vulnerability handling"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ro.personnel-access-assets",
+      "label": "Manage staff, access and assets",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ro-primary",
+      "locator": "Article 13(f)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ro.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "ro.current_applicable_orders_reviewed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Manage staff, access and assets"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ro.incident-handling",
+      "label": "Maintain incident handling",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ro-primary",
+      "locator": "Article 13(g)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ro.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "ro.current_applicable_orders_reviewed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Maintain incident handling"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ro.continuity",
+      "label": "Manage continuity, backups, recovery and crises",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ro-primary",
+      "locator": "Article 13(h)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ro.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "ro.current_applicable_orders_reviewed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Manage continuity, backups, recovery and crises"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ro.hygiene-training",
+      "label": "Maintain cybersecurity hygiene and training",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ro-primary",
+      "locator": "Article 13(i)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ro.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "ro.current_applicable_orders_reviewed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Maintain cybersecurity hygiene and training"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ro.authentication-communications",
+      "label": "Review appropriate authentication and communications",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ro-primary",
+      "locator": "Article 13(j)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ro.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "ro.current_applicable_orders_reviewed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review appropriate authentication and communications"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Where-appropriate qualifier remains; national text is reviewed directly rather than substituted with a generic EU clause."
+    },
+    {
+      "id": "ro.management-approval",
+      "label": "Management approves and oversees measures",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ro-primary",
+      "locator": "Article 14(1)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ro.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "ro.current_applicable_orders_reviewed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Management approves and oversees measures"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ro.management-training",
+      "label": "Management follows accredited professional training",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ro-primary",
+      "locator": "Article 14(2)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ro.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "ro.current_applicable_orders_reviewed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Management follows accredited professional training"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    },
+    {
+      "id": "ro.annual-self-assessment",
+      "label": "Submit management-approved annual self-assessment",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ro-primary",
+      "locator": "Article 12(4)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ro.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "ro.current_applicable_orders_reviewed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Submit management-approved annual self-assessment"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Submission obligation and DNSC/sectoral recipient must be reviewed; a recent local document alone is insufficient."
+    },
+    {
+      "id": "ro.essential-remediation-age",
+      "label": "Submit essential-entity remediation plan within 30 days",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ro-primary",
+      "locator": "Article 12(5)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ro.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "ro.current_applicable_orders_reviewed",
+          "equals": true
+        },
+        {
+          "factId": "ro.entity_class",
+          "equals": "essential"
+        },
+        {
+          "factId": "ro.self_assessment_completed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "ro.essential-remediation-age",
+        "max": 30,
+        "unit": "days"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Clock begins with completed self-assessment. Review management approval and submission to DNSC or applicable sector authority separately."
+    },
+    {
+      "id": "ro.corrective-measures",
+      "label": "Apply necessary corrections without unjustified delay",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ro-primary",
+      "locator": "Article 12(3)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "ro.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "ro.current_applicable_orders_reviewed",
+          "equals": true
+        },
+        {
+          "factId": "ro.nonconformity_identified",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Apply necessary corrections without unjustified delay"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion; supporting metadata is declared by the operator. Review full normative context, applicability and implementation evidence independently."
+    }
+  ]
+}

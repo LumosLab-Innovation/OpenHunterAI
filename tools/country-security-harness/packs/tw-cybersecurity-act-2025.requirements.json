@@ -1,0 +1,450 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "tw-cybersecurity-act-2025.curated",
+  "frameworkId": "tw-cybersecurity-act-2025",
+  "version": "Revised 24 September 2025, 35 articles; curated-2026-10-08",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "tw-cybersecurity-act-2025.source",
+      "title": "MODA Cyber Security Management Act, revised 2025 official English text",
+      "url": "https://law.moda.gov.tw/EngLawContent.aspx?id=93&lan=E",
+      "locator": "Articles 3, 7–24 and 27–35"
+    }
+  ],
+  "limitations": [
+    "Curated partial clause coverage only. The baseline is an assessment target, never a national security grade or a certification decision.",
+    "Revised Act expanded from 23 to 35 articles. Enforcement date and subordinate regulations must be confirmed against Executive Yuan orders. A–E responsibility levels are not mapped in this act-only pack."
+  ],
+  "requirements": [
+    {
+      "id": "tw-cybersecurity-act-2025.level-record",
+      "label": "Submit responsibility level for authority approval/recordation",
+      "controlId": "system_classification",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "tw-cybersecurity-act-2025.source",
+      "locator": "Article 7 paragraph 1",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Confirm designated category and responsibility level; A–E implementation regulations are outside this pack."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Confirm designated category and responsibility level; A–E implementation regulations are outside this pack."
+    },
+    {
+      "id": "tw-cybersecurity-act-2025.level-measures",
+      "label": "Implement management, technical, awareness and training measures",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "tw-cybersecurity-act-2025.source",
+      "locator": "Article 7 paragraph 2",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Measures depend on authority-approved responsibility level."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Measures depend on authority-approved responsibility level."
+    },
+    {
+      "id": "tw-cybersecurity-act-2025.audit-correction",
+      "label": "Submit corrective report after identified audit deficiencies",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "tw-cybersecurity-act-2025.source",
+      "locator": "Article 8 paragraph 2",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "tw-cybersecurity-act-2025.audit_deficiencies_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "tw-cybersecurity-act-2025.audit-correction",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "tw-cybersecurity-act-2025.contractor-selection",
+      "label": "Select and supervise suitable security-managed contractors",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "tw-cybersecurity-act-2025.source",
+      "locator": "Article 10 paragraph 1",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "tw-cybersecurity-act-2025.outsourcing_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "tw-cybersecurity-act-2025.contractor-selection",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "tw-cybersecurity-act-2025.contractor-environment",
+      "label": "Review contractor security measures or independent certification",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "tw-cybersecurity-act-2025.source",
+      "locator": "Article 10 paragraph 2",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "tw-cybersecurity-act-2025.outsourcing_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Comprehensive measures OR impartial third-party certification are alternatives; no compulsory certificate is invented."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Comprehensive measures OR impartial third-party certification are alternatives; no compulsory certificate is invented."
+    },
+    {
+      "id": "tw-cybersecurity-act-2025.written-contract",
+      "label": "Specify outsourcing rights and liabilities in writing",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "tw-cybersecurity-act-2025.source",
+      "locator": "Article 10 paragraph 3",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "tw-cybersecurity-act-2025.outsourcing_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "tw-cybersecurity-act-2025.written-contract",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "tw-cybersecurity-act-2025.drill-cooperation",
+      "label": "Cooperate in authority-planned cybersecurity drills",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "tw-cybersecurity-act-2025.source",
+      "locator": "Article 10 paragraph 4",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "tw-cybersecurity-act-2025.drill-cooperation",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "tw-cybersecurity-act-2025.gov-restricted-products",
+      "label": "Review prohibited products and approved exceptions",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "tw-cybersecurity-act-2025.source",
+      "locator": "Article 11 paragraphs 1–3",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "tw-cybersecurity-act-2025.government_agency",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Product determination and case-specific competent approvals must be reviewed."
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Product determination and case-specific competent approvals must be reviewed."
+    },
+    {
+      "id": "tw-cybersecurity-act-2025.gov-ciso",
+      "label": "Appoint government Chief Information Security Officer",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "tw-cybersecurity-act-2025.source",
+      "locator": "Article 12",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "tw-cybersecurity-act-2025.government_agency",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "tw-cybersecurity-act-2025.gov-ciso",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "tw-cybersecurity-act-2025.gov-maintenance-plan",
+      "label": "Formulate, revise and implement agency security plan",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "tw-cybersecurity-act-2025.source",
+      "locator": "Article 13",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "tw-cybersecurity-act-2025.government_agency",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "tw-cybersecurity-act-2025.gov-maintenance-plan",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "tw-cybersecurity-act-2025.gov-annual-report",
+      "label": "Report security-plan implementation annually",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "tw-cybersecurity-act-2025.source",
+      "locator": "Article 14",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "tw-cybersecurity-act-2025.government_agency",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Calendar submission and receiving authority vary by agency type; not converted to a day count."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Calendar submission and receiving authority vary by agency type; not converted to a day count."
+    },
+    {
+      "id": "tw-cybersecurity-act-2025.gov-incident-mechanism",
+      "label": "Establish government incident reporting and response",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "tw-cybersecurity-act-2025.source",
+      "locator": "Article 17 paragraph 1",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "tw-cybersecurity-act-2025.government_agency",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "tw-cybersecurity-act-2025.gov-incident-mechanism",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "tw-cybersecurity-act-2025.gov-personnel",
+      "label": "Appoint dedicated security personnel for assigned level",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "tw-cybersecurity-act-2025.source",
+      "locator": "Article 18 paragraph 1",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "tw-cybersecurity-act-2025.government_agency",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "tw-cybersecurity-act-2025.gov-personnel",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "tw-cybersecurity-act-2025.non-gov-maintenance",
+      "label": "Maintain designated non-government security plan/personnel",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "tw-cybersecurity-act-2025.source",
+      "locator": "Article 20 paragraph 2; Article 21 paragraph 1",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "tw-cybersecurity-act-2025.specific_non_gov_agency",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "tw-cybersecurity-act-2025.non-gov-maintenance",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "tw-cybersecurity-act-2025.non-gov-ciso",
+      "label": "Appoint specific non-government CISO",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "tw-cybersecurity-act-2025.source",
+      "locator": "Article 23",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "tw-cybersecurity-act-2025.specific_non_gov_agency",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "tw-cybersecurity-act-2025.non-gov-ciso",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "tw-cybersecurity-act-2025.non-gov-incident",
+      "label": "Establish specific non-government incident notification/response",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "tw-cybersecurity-act-2025.source",
+      "locator": "Article 24 paragraph 1",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "tw-cybersecurity-act-2025.specific_non_gov_agency",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "tw-cybersecurity-act-2025.non-gov-incident",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    }
+  ]
+}

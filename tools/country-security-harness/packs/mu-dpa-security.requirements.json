@@ -1,0 +1,366 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "mu-dpa-security-selected-clauses",
+  "frameworkId": "mu-dpa-security",
+  "version": "2026-10-08.1",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "mu-dpa-security-source",
+      "title": "Data Protection Act 2017 — Security of processing — official reference",
+      "url": "https://dataprotection.govmu.org/Documents/DPA_2017.pdf",
+      "locator": "Sections 25–26,31–32; PDF pp 33–35,40–43"
+    }
+  ],
+  "limitations": [
+    "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+    "Official site lists Data Protection Regulations 2026; their complete interaction with this selected Act map requires review. Do not use superseded 2004 Act section numbers."
+  ],
+  "requirements": [
+    {
+      "id": "mu-prevent-unauthorized-access",
+      "label": "Prevent unauthorized access and alteration",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "mu-dpa-security-source",
+      "locator": "s 31(1)(a);PDFpp 40–41",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "mu-prevent-unauthorized-access",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "mu-risk-proportionality",
+      "label": "Review harm and data sensitivity",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "mu-dpa-security-source",
+      "locator": "s 31(1)(b);PDFp 41",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Assess security proportional to harm and the nature of personal data."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "mu-pseudonym-encryption",
+      "label": "Apply pseudonymisation and encryption",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "mu-dpa-security-source",
+      "locator": "s 31(2)(a)(i);PDFp 41",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review the statutory security measures in processing context; this harness does not verify encryption or pseudonymisation artifacts."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "mu-cia-resilience",
+      "label": "Maintain processing confidentiality and resilience",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "mu-dpa-security-source",
+      "locator": "s 31(2)(a)(ii);PDFp 41",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "mu-cia-resilience",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "mu-restore-data",
+      "label": "Restore access after incidents",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "mu-dpa-security-source",
+      "locator": "s 31(2)(a)(iii);PDFp 42",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "mu-restore-data",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "mu-control-testing",
+      "label": "Review safeguard effectiveness regularly",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "mu-dpa-security-source",
+      "locator": "s 31(2)(a)(iv);PDFp 42",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "mu-control-testing",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "mu-selection-context",
+      "label": "Consider technology/cost/risk/data factors",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "mu-dpa-security-source",
+      "locator": "s 31(3);PDFp 42",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review all contextual factors for selecting security measures, including network transmission risks."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "mu-processor-guarantees",
+      "label": "Check processor security guarantees",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "mu-dpa-security-source",
+      "locator": "s 31(4)(a);PDFpp 42–43",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "uses-processor",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "mu-processor-guarantees",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "mu-written-instructions",
+      "label": "Document processor instructions contractually",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "mu-dpa-security-source",
+      "locator": "s 31(4)(b)(i);PDFp 43",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "uses-processor",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "mu-written-instructions",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "mu-processor-security-duty",
+      "label": "Bind processor security obligations",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "mu-dpa-security-source",
+      "locator": "s 31(4)(b)(ii);PDFp 43",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "uses-processor",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "mu-processor-security-duty",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "mu-staff-security",
+      "label": "Ensure staff know and follow safeguards",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "mu-dpa-security-source",
+      "locator": "s 31(6);PDFp 43",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "mu-staff-security",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "mu-prior-check",
+      "label": "Review regulator-requested prior security inspection",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "mu-dpa-security-source",
+      "locator": "s 32(1);PDFp 43",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review any Commissioner prior-security-check decision; the harness cannot substitute for the official inspection."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    }
+  ]
+}

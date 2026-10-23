@@ -32,7 +32,7 @@ export interface HunterPlaybook {
 const CBH = {
   upstreamId: 'claude_bughunter' as const,
   upstreamUrl: 'https://github.com/elementalsouls/Claude-BugHunter',
-  upstreamRef: 'main',
+  upstreamRef: '5e78b5e275d8224ccf48eafee8efa190db48e605',
   importMode: 'reasoning_guide' as const,
   importedBy: 'manual_claude_code_run' as const,
   licenseNote: 'MIT',
@@ -41,8 +41,18 @@ const CBH = {
 const OPENHACK = {
   upstreamId: 'openhack' as const,
   upstreamUrl: 'https://github.com/hadriansecurity/openhack',
+  upstreamRef: 'e43e4cb2bf8d8810467b987f798304af23dbcdc1',
   importMode: 'reference_only' as const,
   importedBy: 'manual_claude_code_run' as const,
+};
+
+const STRIX = {
+  upstreamId: 'strix' as const,
+  upstreamUrl: 'https://github.com/usestrix/strix',
+  upstreamRef: '391d81bea7077b647741896dbe97745be47acacd',
+  importMode: 'reasoning_guide' as const,
+  importedBy: 'manual_claude_code_run' as const,
+  licenseNote: 'Apache-2.0',
 };
 
 /**
@@ -56,6 +66,9 @@ export const SHARED_VALIDATION_GATE: string[] = [
   'Is there real signal, not a guess? No signal means coverage_gap, never a fabricated finding.',
   'Does demonstrating impact stay within Test Intensity Mode and the allowed validation level?',
   'Do any sensitive actions (state change, access-control, test-account use) require an approval gate first?',
+  'What counterevidence or negative control could disprove this candidate?',
+  'Is severity based on demonstrated impact rather than the vulnerability label alone?',
+  'Could this response come from parsing or validation middleware before authentication was evaluated?',
 ];
 
 export const SHARED_EVIDENCE_HYGIENE: string[] = [
@@ -73,12 +86,14 @@ export const HUNTER_PLAYBOOKS: HunterPlaybook[] = [
     reasoningGuides: [
       'Treat every session token as untrusted: test fixation, missing rotation on privilege change, and weak logout/invalidation.',
       'Probe authentication boundaries (login, MFA step-up, password reset) for response/timing oracles within scope.',
+      'Establish a per-host and per-path-depth nonexistent-route baseline before treating HTTP 200 or an SPA shell as endpoint discovery.',
     ],
     validationGate: SHARED_VALIDATION_GATE,
     evidenceHygiene: SHARED_EVIDENCE_HYGIENE,
     provenance: [
       { hunterId: 'session_auth', source: { ...CBH, upstreamPath: 'skills/hunt-auth-bypass' } },
       { hunterId: 'session_auth', source: { ...OPENHACK, upstreamPath: 'agents/experts/authentication-failures.md' } },
+      { hunterId: 'session_auth', source: { ...STRIX, upstreamPath: 'strix/skills/analysis/counterevidence.md' } },
     ],
   },
   {
@@ -87,12 +102,14 @@ export const HUNTER_PLAYBOOKS: HunterPlaybook[] = [
     reasoningGuides: [
       'Treat every object reference as untrusted until proven bound to the caller: test horizontal, vertical, and cross-tenant access.',
       'Check projection/expansion knobs (fields, include, expand, populate) that often bypass authorization in resolvers/serializers.',
+      'Pass the authorized hosts and forbidden actions explicitly to every delegated test; scope never inherits implicitly.',
     ],
     validationGate: SHARED_VALIDATION_GATE,
     evidenceHygiene: SHARED_EVIDENCE_HYGIENE,
     provenance: [
       { hunterId: 'admin_like_surface', source: { ...CBH, upstreamPath: 'skills/hunt-idor' } },
       { hunterId: 'admin_like_surface', source: { ...OPENHACK, upstreamPath: 'agents/experts/broken-access-control.md' } },
+      { hunterId: 'admin_like_surface', source: { ...STRIX, upstreamPath: 'strix/skills/analysis/severity_calibration.md' } },
     ],
   },
   {
@@ -107,6 +124,7 @@ export const HUNTER_PLAYBOOKS: HunterPlaybook[] = [
     provenance: [
       { hunterId: 'data_exposure', source: { ...CBH, upstreamPath: 'skills/hunt-api-misconfig' } },
       { hunterId: 'data_exposure', source: { ...OPENHACK, upstreamPath: 'agents/experts/sensitive-information-exposure.md' } },
+      { hunterId: 'data_exposure', source: { ...STRIX, upstreamPath: 'strix/skills/analysis/counterevidence.md' } },
     ],
   },
   {
@@ -120,6 +138,7 @@ export const HUNTER_PLAYBOOKS: HunterPlaybook[] = [
     evidenceHygiene: SHARED_EVIDENCE_HYGIENE,
     provenance: [
       { hunterId: 'ai_prompt', source: { ...CBH, upstreamPath: 'skills/hunt-llm-ai' } },
+      { hunterId: 'ai_prompt', source: { ...STRIX, upstreamPath: 'strix/skills/analysis/severity_calibration.md' } },
     ],
   },
 ];

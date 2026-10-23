@@ -1,71 +1,80 @@
-# Production readiness
+# PRODUCTION_READINESS.md - OpenHunterAI
 
-A release checklist, not evidence that a hosted deployment is ready.
-[Public release status](PUBLIC_RELEASE_READINESS.md) lists known implementation
-gaps; [acceptance criteria](ACCEPTANCE_CRITERIA.md) defines product behavior.
+> Engineering and operations blockers before production rollout.
 
-## Release gates
+---
 
-| Gate | Evidence required |
-| --- | --- |
-| Reproducible build | Fresh clone, dependency locks, generated Prisma client, correct toolchain, exact image SHA/digests |
-| Hosted access | Explicit hosted mode, valid/expired sessions, organization isolation, scoped SSE/downloads |
-| Target safety | Verification expiry, private/metadata blocking, DNS/redirect scope tests, approval before sensitive actions |
-| Worker runtime | Real tools, timeouts, bounded retries, callback persistence, truthful failure coverage |
-| Models | Sanitized context, valid configured providers, tested budgets and fallback |
-| Data | Encrypted credentials/session state, sanitized evidence, backup/restore and retention checks |
-| Reporting | Canonical snapshot, complete exports, separate latest-status overlay, manual retest result |
-| Operations | Queue failure, restart/recovery, cancellation, logs/metrics, rollback evidence |
-| Distribution | Existing license policy, third-party notices, contribution-rights review, secret-history review |
+# 1. Canonical Contract
 
-Do not treat a CI badge, health endpoint, image build, or empty report as proof of
-a successful security assessment.
+- [ ] CLI/dashboard/API use one `scan_request_v2` contract with Quick, Standard and Deep profiles.
+- [ ] Billing/entitlement schema and all finding/retest/cooldown quotas are absent from runtime.
+- [ ] Target Type + Surface Flags + Test Intensity Mode drive deterministic Scan Plan.
+- [ ] `report_v2` structured JSON is the canonical report contract; legacy claims are `legacy_unverified`.
+- [ ] No profiler worker.
+- [ ] No external artifact storage in core v1 docs/env/code path.
 
-## Runtime checklist
+---
 
-- [ ] Build the actual services: frontend, public/internal API, findings, reporting,
-  orchestrator, browser-inspector, Z/N/O/S/R, and retest.
-- [ ] Include optional browser-session only when required and tested.
-- [ ] Pin/review upstream images; the current ZAP `stable` tag is mutable.
-- [ ] Resolve Nuclei's missing template bundle, environment mismatch, and failure handling.
-- [ ] Configure real OpenHack/Strix tools; adapter-only images are not complete runtimes.
-- [ ] Verify recon in the chosen deployment; local inclusion does not prove staging rollout.
-- [ ] Keep database, queue, callbacks, and adapters off public interfaces.
-- [ ] Never deploy passwordless local Compose as a shared/public service.
-- [ ] Verify the toolchain against [go.work](../go.work), not only the CI setup version.
+# 2. Security Blockers
 
-## End-to-end acceptance path
+- [ ] Scan authorization requires explicit authority confirmation and a public-host scope; DNS proof is optional in self-host.
+- [ ] Private/local/metadata target blocking is tested.
+- [ ] Redirect out of scope is blocked and audited.
+- [ ] Aggressive Staging requires staging/dev/test risk acceptance.
+- [ ] Raw password/token/cookie/API key/HAR/request/response never appears in DB, logs, prompts, reports, or storage.
+- [ ] Sensitive actions require User Approval Gate.
+- [ ] Production path cannot return mock scan results.
+- [ ] Review/remediate frontend lockfile advisories before release. On 2026-09-20,
+  `npm audit --omit=dev` reported 4 high and 4 moderate entries (including
+  build-tool packages listed as dependencies); impact on shipped static assets
+  has not been established.
 
-Run only on a verified, owned, authorized **public staging target**, after the
-known safety blockers are resolved. [Canary fixture](OPENHUNTER_CANARY_CONTRACT.md).
+---
 
-```mermaid
-flowchart LR
-  START["Fresh local stack"] --> AUTH["Verify + authorize"]
-  AUTH --> RUN["Actual worker run"]
-  RUN --> PROOF["Positive + fixed control"]
-  PROOF --> REPORT["Final report + exports"]
-  REPORT --> RETEST["Manual retest + restart"]
+# 3. Workers And Integrations
+
+- [ ] Per-family images exist for web, API, orchestrator, browser, ZAP, Nuclei, built-in passive surface, Strix, report, retest.
+- [ ] Integration adapter images expose health checks and stable ports.
+- [x] ZAP is pinned/restricted and passive/baseline by default.
+- [x] Nuclei image uses pinned binary + internal curated templates only.
+- [ ] Playwright/browser worker has isolation, low concurrency, hard timeout, egress/scope guardrails.
+- [x] Tool unavailable becomes skipped/coverage gap, not fake success.
+- [x] Worker callbacks are idempotent by run id for steps, candidates, and activity events.
+- [x] Worker claims require a separate independent triage decision before promotion.
+- [ ] Independent replay verifies that referenced baseline/exploit exchanges exist and still demonstrate impact. Until this exists, metadata-only triage records `needs_more_evidence` and does not promote worker candidates.
+- [ ] The compose Local E2E canary passes report and retest gates on a Docker-capable host.
+
+---
+
+# 4. LLM Gateway
+
+- [ ] Business logic uses only `low_reasoning_model` / `high_reasoning_model`.
+- [ ] Provider/model mapping is config behind LLM Gateway.
+- [ ] Prompt sanitizer runs before provider adapters.
+- [ ] Budget/timeout/retry/fallback are tested.
+
+---
+
+# 5. Reporting And Export
+
+- [ ] Report draft SSE is org-scoped, authenticated, and does not leak cross-tenant updates.
+- [ ] Report content is sanitized before DB insert and before HTML/PDF export.
+- [ ] HTML/PDF export is generated on demand and does not persist files.
+- [ ] LLM ranking is recommendation-only and cannot create findings or override policy.
+
+---
+
+# 6. Deliberately Not V1
+
+```text
+CI/CD-based automated retesting
+deployment-triggered retest
+GitHub code scanning
+Jira/Linear integration
+VPS/cloud/private network scan
+server agent
+mobile/APK audit
+SAST/SCA/secrets scanning
+Kubernetes/secureCodeBox orchestration
+full DefectDojo integration
 ```
-
-- [ ] Record commit, target authorization, runtime versions, and enabled workers.
-- [ ] Complete required target login/captcha/MFA manually.
-- [ ] Trace scan creation → NATS dispatch → callbacks → promotion → final report.
-- [ ] Confirm vulnerable control yields actual sanitized evidence; fixed control does not.
-- [ ] Observe unavailable tools, queue outage, slow callbacks, cancellation, and recovery.
-- [ ] Confirm reports preserve finding limits, skipped work, and coverage gaps.
-- [ ] Verify long/Unicode exports; current PDF truncation must not be hidden.
-- [ ] Request a finding-scoped retest and verify persisted result/latest view.
-- [ ] Restart and verify saved data and completed work remain consistent.
-- [ ] Retain sanitized browser/API/server evidence; no raw secrets or target traffic.
-
-## Deployment record
-
-For an authorized deployment, record the exact source commit, image digests,
-migration state, active service revision, target smoke result, and rollback target.
-Check browser behavior and server logs against that revision.
-
-The [staging assets](../infra/) and [historical hosted plan](superpowers/plans/2026-06-16-scan-pipeline-runtime.md)
-are references, not standing authority to modify cloud resources.
-Do not add CI/CD retests, private-network scanning, or new orchestration platforms
-as part of satisfying this checklist.

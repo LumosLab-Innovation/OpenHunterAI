@@ -1,0 +1,458 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "cl-cyber-law-selected-clauses",
+  "frameworkId": "cl-cyber-law",
+  "version": "2026-10-08.1",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "cl-cyber-law-source",
+      "title": "Cybersecurity Framework Law 21.663 — official reference",
+      "url": "https://www.bcn.cl/leychile/navegar?idNorma=1202434",
+      "locator": "Articles 4–9: essential services, vital operators and cybersecurity duties"
+    }
+  ],
+  "limitations": [
+    "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+    "Designation decisions, ANCI implementing protocols and current operational reporting rules need review. This map does not itself determine designation."
+  ],
+  "requirements": [
+    {
+      "id": "cl-permanent-measures",
+      "label": "Maintain incident prevention/report/resolution",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "cl-cyber-law-source",
+      "locator": "Art 7 para 1",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "cl-permanent-measures",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "cl-agency-standards",
+      "label": "Review applicable ANCI/sector protocols",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "cl-cyber-law-source",
+      "locator": "Art 7 para 2",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Identify currently binding ANCI and sector protocols for the declared provider; source currency needs review."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "cl-isms",
+      "label": "Maintain continuous information-security management",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "cl-cyber-law-source",
+      "locator": "Art 8(a)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "designated-vital-operator",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "cl-isms",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "cl-action-record",
+      "label": "Record security-management actions",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "cl-cyber-law-source",
+      "locator": "Art 8(b)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "designated-vital-operator",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "cl-action-record",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "cl-continuity-plans",
+      "label": "Implement continuity and cybersecurity plans",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "cl-cyber-law-source",
+      "locator": "Art 8(c)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "designated-vital-operator",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "cl-continuity-plans",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "cl-plan-certification",
+      "label": "Review required plan/security certification",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "cl-cyber-law-source",
+      "locator": "Art 8(c),(f),Art 28",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "designated-vital-operator",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Official certification and competent-body requirements; no harness certification is awarded."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "cl-plan-review",
+      "label": "Review plans at required cadence",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "cl-cyber-law-source",
+      "locator": "Art 8(c)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "designated-vital-operator",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review two-year minimum frequency and any legally required earlier ANCI instruction."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "cl-continuous-exercises",
+      "label": "Review systems and conduct exercises",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "cl-cyber-law-source",
+      "locator": "Art 8(d)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "designated-vital-operator",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "cl-continuous-exercises",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "cl-incident-containment",
+      "label": "Contain incident impact and propagation",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "cl-cyber-law-source",
+      "locator": "Art 8(e)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "designated-vital-operator",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "cl-incident-containment",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "cl-affected-notice",
+      "label": "Review ANCI-directed affected-party notice",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "cl-cyber-law-source",
+      "locator": "Art 8(g)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "designated-vital-operator",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review agency request, serious compromise, identified persons and interaction with other notification law."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "cl-cyber-hygiene",
+      "label": "Provide continuous cybersecurity training",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "cl-cyber-law-source",
+      "locator": "Art 8(h)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "designated-vital-operator",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "cl-cyber-hygiene",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "cl-cyber-delegate",
+      "label": "Designate cybersecurity liaison",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "cl-cyber-law-source",
+      "locator": "Art 8(i)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "designated-vital-operator",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "cl-cyber-delegate",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "cl-early-alert",
+      "label": "Send significant-incident early warning",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "cl-cyber-law-source",
+      "locator": "Art 9(a)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "significant-cyber-incident",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "cl-early-alert-elapsed",
+        "max": 3,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Clock begins upon knowledge of an incident with potentially significant impact. Current regulations and authorized reporting scope require review."
+    },
+    {
+      "id": "cl-incident-update",
+      "label": "Review 72 hour/24 hour incident updates",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "cl-cyber-law-source",
+      "locator": "Art 9(b)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "significant-cyber-incident",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "General 72 hours;24 hours when vital operator essential services are affected. Review context and current report-content regulation."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    }
+  ]
+}

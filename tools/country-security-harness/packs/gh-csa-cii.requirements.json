@@ -1,0 +1,514 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "gh-csa-cii-selected-clauses",
+  "frameworkId": "gh-csa-cii",
+  "version": "2026-10-08.1",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "gh-csa-cii-source",
+      "title": "CSA Directive for Protection of Critical Information Infrastructure — official reference",
+      "url": "https://www.csa.gov.gh/resources/Directive_CII.pdf",
+      "locator": "CSA CII Directive; Act 1038 sections 35–40;13 designated sectors"
+    },
+    {
+      "id": "gh-csa-overview",
+      "title": "CSA official CII scope and resources",
+      "url": "https://www.csa.gov.gh/cii",
+      "locator": "CII sectors, Act 1038 sections 35–40; designation Notice 13223 September 2021."
+    }
+  ],
+  "limitations": [
+    "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+    "CII designation, current CSA notices and risk-assessment framework require review; sector listing alone does not establish an individual system designation."
+  ],
+  "requirements": [
+    {
+      "id": "gh-cyber-policy",
+      "label": "Implement CII cybersecurity policy",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gh-csa-cii-source",
+      "locator": "5.1(a);PDFp 12/printedp 9",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gh-cyber-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "gh-accountable-officer",
+      "label": "Appoint accountable senior officer",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gh-csa-cii-source",
+      "locator": "5.1(c);PDFp 12/printedp 9",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gh-accountable-officer",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "gh-policy-review",
+      "label": "Review CII policy annually",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gh-csa-cii-source",
+      "locator": "5.1(e);PDFp 13/printedp 10",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "gh-policy-review-age",
+        "max": 12,
+        "unit": "months"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "gh-asset-catalogue",
+      "label": "Classify and catalogue CII assets",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gh-csa-cii-source",
+      "locator": "5.2(a);PDFp 13/printedp 10",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gh-asset-catalogue",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "gh-access-control",
+      "label": "Control CII service access",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gh-csa-cii-source",
+      "locator": "5.2(b);PDFp 13/printedp 10",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gh-access-control",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "gh-affiliate-risks",
+      "label": "Mitigate staff and supplier cyber risks",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gh-csa-cii-source",
+      "locator": "5.2(c);PDFp 13/printedp 10",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gh-affiliate-risks",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "gh-screen-personnel",
+      "label": "Screen CII information handlers",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gh-csa-cii-source",
+      "locator": "5.2(d);PDFp 13/printedp 10",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gh-screen-personnel",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "gh-awareness",
+      "label": "Train CII personnel",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gh-csa-cii-source",
+      "locator": "5.2(e);PDFp 13/printedp 10",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gh-awareness",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "gh-detection-response",
+      "label": "Monitor and respond to cyber incidents",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gh-csa-cii-source",
+      "locator": "5.2(f);PDFp 14/printedp 11",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gh-detection-response",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "gh-physical-security",
+      "label": "Protect physical CII systems/dependencies",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gh-csa-cii-source",
+      "locator": "5.2(g);PDFp 14/printedp 11",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gh-physical-security",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "gh-maintenance",
+      "label": "Manage equipment maintenance and updates",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gh-csa-cii-source",
+      "locator": "5.2(h);PDFp 14/printedp 11",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gh-maintenance",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "gh-recovery-exercises",
+      "label": "Test and update continuity/recovery plans",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gh-csa-cii-source",
+      "locator": "5.2(i);PDFp 14/printedp 11",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gh-recovery-exercises",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "gh-quarterly-assessment",
+      "label": "Conduct quarterly cyber risk assessment",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gh-csa-cii-source",
+      "locator": "5.2(j);PDFp 14/printedp 11",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review quarterly assessment cadence and designated CII scope, including existing vulnerabilities."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "gh-annual-audit",
+      "label": "Conduct yearly cybersecurity audit",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gh-csa-cii-source",
+      "locator": "5.2(k);PDFp 14/printedp 11",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gh-annual-audit",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "gh-risk-register",
+      "label": "Maintain CII cyber risk register",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gh-csa-cii-source",
+      "locator": "5.2(l);PDFp 14/printedp 11",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "gh-risk-register",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    },
+    {
+      "id": "gh-incident-notification",
+      "label": "Report cyber incidents within 24 hours",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gh-csa-cii-source",
+      "locator": "5.3(b);PDFp 15/printedp 12",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "cyber-incident",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "gh-incident-report-elapsed",
+        "max": 24,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Bind elapsed time to awareness of the incident and appropriate sector CERT or CERT-GH. Operator declaration only."
+    },
+    {
+      "id": "gh-vulnerability-disclosure",
+      "label": "Report identified vulnerabilities within 72 hours",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "gh-csa-cii-source",
+      "locator": "5.3(d);PDFp 15/printedp 12",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        },
+        {
+          "factId": "identified-vulnerability",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "gh-vulnerability-report-elapsed",
+        "max": 72,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source scope and exceptions; evidence references do not verify the underlying control."
+    }
+  ]
+}

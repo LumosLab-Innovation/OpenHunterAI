@@ -1,0 +1,354 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "ec-lopdp-security-selected-clauses",
+  "frameworkId": "ec-lopdp-security",
+  "version": "2026-10-08.1",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "ec-lopdp-security-source",
+      "title": "LOPDP — Personal-data security and risk duties — official reference",
+      "url": "https://spdp.gob.ec/wp-content/uploads/2024/12/03.pdf.pdf",
+      "locator": "Articles 37–43 security, risks, by-design, impact and breach notification; Art 47 responsibilities"
+    }
+  ],
+  "limitations": [
+    "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+    "Current implementing regulation and SPDP resolutions are not exhausted by this law map. Optional mechanisms in Art 37 must not be converted into unconditional mandatory technology checks."
+  ],
+  "requirements": [
+    {
+      "id": "ec-context-selection",
+      "label": "Select safeguards for processing context",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ec-lopdp-security-source",
+      "locator": "Art 37 para 1;PDFp 20",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ec-context-selection",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "ec-control-review",
+      "label": "Continuously review safeguard effectiveness",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ec-lopdp-security-source",
+      "locator": "Art 37 para 2;PDFp 20",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ec-control-review",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "ec-risk-mitigation-evidence",
+      "label": "Document measures mitigating identified risks",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ec-lopdp-security-source",
+      "locator": "Art 37 para 3;PDFp 20",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ec-risk-mitigation-evidence",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "ec-crypto-option",
+      "label": "Consider anonymisation/pseudonymisation/encryption",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ec-lopdp-security-source",
+      "locator": "Art 37(1);PDFp 20",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Optional listed measure, not an unconditional encryption or anonymisation mandate."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "ec-resilience-option",
+      "label": "Consider resilience and restoration measures",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ec-lopdp-security-source",
+      "locator": "Art 37(2),(3);PDFp 20",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review selected availability/resilience mechanisms; source says measures may include these."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "ec-security-by-design",
+      "label": "Address data risks during design",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ec-lopdp-security-source",
+      "locator": "Art 39 para 1;PDFp 21",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ec-security-by-design",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "ec-secure-default",
+      "label": "Apply necessary-data defaults",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ec-lopdp-security-source",
+      "locator": "Art 39 para 2;PDFp 21",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ec-secure-default",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "ec-risk-method",
+      "label": "Use contextual risk/vulnerability methodology",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ec-lopdp-security-source",
+      "locator": "Art 40(1)–(3);PDFp 21",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ec-risk-method",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "ec-control-selection",
+      "label": "Select controls using risks and incidents",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ec-lopdp-security-source",
+      "locator": "Art 41 para 1;PDFp 21",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ec-control-selection",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "ec-continuous-mitigation",
+      "label": "Continuously mitigate threats and vulnerabilities",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ec-lopdp-security-source",
+      "locator": "Art 41 para 2;PDFp 21",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "ec-continuous-mitigation",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "ec-high-risk-impact",
+      "label": "Review required impact assessment",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ec-lopdp-security-source",
+      "locator": "Art 42;PDFpp 21–22",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review high-risk/authority triggers and statutory mandatory processing classes; assess before processing begins."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "ec-breach-notice",
+      "label": "Review controller/processor breach notices",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "ec-lopdp-security-source",
+      "locator": "Art 43;PDFp 22",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review risk exemption, five-day controller and two-day processor términos, authority recipients and delay reasons; do not convert statutory working terms to naive elapsed calendar days."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    }
+  ]
+}

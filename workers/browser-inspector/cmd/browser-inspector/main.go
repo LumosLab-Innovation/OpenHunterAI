@@ -70,7 +70,7 @@ type pageObservation struct {
 }
 
 func runCDP(ctx context.Context, in events.WorkerRunPayload) worker.Result {
-	target := "https://" + in.VerifiedDomain
+	target := scope.SeedURL(in.TargetURL, in.VerifiedDomain, in.AllowedPaths)
 	sc := scope.Scope{AllowedHosts: in.AllowedHosts, AllowedPaths: in.AllowedPaths, ExcludedPaths: in.ExcludedPaths}
 	if err := scope.CheckURL(target, sc); err != nil {
 		return scopeFailure(in, err, "base target rejected by browser scope guard")
@@ -134,7 +134,7 @@ func runCDP(ctx context.Context, in events.WorkerRunPayload) worker.Result {
 		}
 		replay, err := runCanaryReplay(ctx, target, sc, states[:2])
 		if err != nil {
-			return worker.Skipped(in, "CANARY_UNAVAILABLE", "The /openhunter-canary object-ownership contract is unavailable in verified scope.")
+			return worker.Skipped(in, "CANARY_UNAVAILABLE", "The /openhunter-canary object-ownership contract is unavailable in the authorized scope.")
 		}
 		canaryReplay = &replay
 		signals = append(signals, canarySignalsFromReplay(target, replay)...)
@@ -170,6 +170,8 @@ func runCDP(ctx context.Context, in events.WorkerRunPayload) worker.Result {
 	if canaryReplay != nil {
 		meta["canaryReplay"] = map[string]any{
 			"available":        canaryReplay.Available,
+			"userAOwnStatus":   canaryReplay.UserAOwnStatus,
+			"userBOwnStatus":   canaryReplay.UserBOwnStatus,
 			"vulnerableStatus": canaryReplay.VulnerableStatus,
 			"fixedStatus":      canaryReplay.FixedStatus,
 			"vulnerablePath":   sanitizeText(canaryReplay.VulnerablePath),
@@ -200,12 +202,16 @@ type canaryManifest struct {
 	Scenario       string `json:"scenario"`
 	VulnerablePath string `json:"vulnerablePath"`
 	FixedPath      string `json:"fixedPath"`
+	UserAOwnPath   string `json:"userAOwnPath"`
+	UserBOwnPath   string `json:"userBOwnPath"`
 }
 
 type canaryReplayResult struct {
 	Available        bool
 	VulnerableStatus int
 	FixedStatus      int
+	UserAOwnStatus   int
+	UserBOwnStatus   int
 	VulnerablePath   string
 	FixedPath        string
 }
@@ -225,7 +231,7 @@ func runCanaryReplay(ctx context.Context, target string, sc scope.Scope, session
 	if err := fetchJSON(ctx, manifestURL, cookieHeaderForURL(manifestURL, sessions[0].StorageState), &manifest); err != nil {
 		return canaryReplayResult{}, err
 	}
-	if manifest.Scenario != "object_ownership" || manifest.VulnerablePath == "" || manifest.FixedPath == "" {
+	if manifest.Scenario != "object_ownership" || manifest.VulnerablePath == "" || manifest.FixedPath == "" || manifest.UserAOwnPath == "" || manifest.UserBOwnPath == "" {
 		return canaryReplayResult{}, errors.New("invalid canary manifest")
 	}
 	vulnerableURL, err := resolveURL(target, manifest.VulnerablePath)
@@ -242,30 +248,75 @@ func runCanaryReplay(ctx context.Context, target string, sc scope.Scope, session
 	if err := scope.CheckURL(fixedURL, sc); err != nil {
 		return canaryReplayResult{}, err
 	}
-	client := &http.Client{Timeout: 20 * time.Second}
+	userAURL, err := resolveURL(target, manifest.UserAOwnPath)
+	if err != nil {
+		return canaryReplayResult{}, err
+	}
+	userBURL, err := resolveURL(target, manifest.UserBOwnPath)
+	if err != nil {
+		return canaryReplayResult{}, err
+	}
+	for _, rawURL := range []string{userAURL, userBURL} {
+		if err := scope.CheckURL(rawURL, sc); err != nil {
+			return canaryReplayResult{}, err
+		}
+	}
+	client := &http.Client{Timeout: 20 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
+	userAIndex, userBIndex := -1, -1
+	userAOwnStatus, userBOwnStatus := 0, 0
+	for index, session := range sessions[:2] {
+		aStatus := statusForGET(ctx, client, userAURL, cookieHeaderForURL(userAURL, session.StorageState))
+		bStatus := statusForGET(ctx, client, userBURL, cookieHeaderForURL(userBURL, session.StorageState))
+		if aStatus == 0 || bStatus == 0 {
+			return canaryReplayResult{}, errors.New("canary account control request failed")
+		}
+		if is2xx(aStatus) && isBlocked(bStatus) {
+			userAIndex = index
+			userAOwnStatus = aStatus
+		}
+		if is2xx(bStatus) && isBlocked(aStatus) {
+			userBIndex = index
+			userBOwnStatus = bStatus
+		}
+	}
+	if userAIndex < 0 || userBIndex < 0 || userAIndex == userBIndex {
+		return canaryReplayResult{}, errors.New("canary account controls did not identify distinct users")
+	}
+	userA := sessions[userAIndex]
+	vulnerableStatus := statusForGET(ctx, client, vulnerableURL, cookieHeaderForURL(vulnerableURL, userA.StorageState))
+	fixedStatus := statusForGET(ctx, client, fixedURL, cookieHeaderForURL(fixedURL, userA.StorageState))
+	if vulnerableStatus == 0 || fixedStatus == 0 {
+		return canaryReplayResult{}, errors.New("canary replay request failed")
+	}
 	return canaryReplayResult{
 		Available:        true,
-		VulnerableStatus: statusForGET(ctx, client, vulnerableURL, cookieHeaderForURL(vulnerableURL, sessions[0].StorageState)),
-		FixedStatus:      statusForGET(ctx, client, fixedURL, cookieHeaderForURL(fixedURL, sessions[0].StorageState)),
+		VulnerableStatus: vulnerableStatus,
+		FixedStatus:      fixedStatus,
+		UserAOwnStatus:   userAOwnStatus,
+		UserBOwnStatus:   userBOwnStatus,
 		VulnerablePath:   manifest.VulnerablePath,
 		FixedPath:        manifest.FixedPath,
 	}, nil
 }
 
 func canarySignalsFromReplay(target string, replay canaryReplayResult) []worker.Signal {
-	if !replay.Available || !is2xx(replay.VulnerableStatus) || !isBlocked(replay.FixedStatus) {
+	if !replay.Available || !is2xx(replay.UserAOwnStatus) || !is2xx(replay.UserBOwnStatus) || !is2xx(replay.VulnerableStatus) || !isBlocked(replay.FixedStatus) {
 		return nil
 	}
 	return []worker.Signal{{
-		Kind:            "access_control_object_ownership",
-		Title:           "Validated cross-user object ownership bypass in staging canary",
-		Severity:        "high",
-		Confidence:      "high",
-		Asset:           sanitizeText(target + replay.VulnerablePath),
-		Description:     fmt.Sprintf("Canary replay showed User A could access a User B object on the vulnerable route (HTTP %d), while the fixed route blocked cross-user access (HTTP %d).", replay.VulnerableStatus, replay.FixedStatus),
-		EvidenceRefs:    []string{"openhunter-canary:object_ownership:vulnerable_route", "openhunter-canary:object_ownership:fixed_route"},
-		EvidenceClass:   "validated_finding",
-		ValidationState: "validated_finding",
+		Kind:        "access_control_object_ownership",
+		Title:       "Candidate cross-user object ownership bypass in staging canary",
+		Severity:    "high",
+		Confidence:  "high",
+		Asset:       sanitizeText(target + replay.VulnerablePath),
+		Description: fmt.Sprintf("Canary replay showed User A could access a User B object on the vulnerable route (HTTP %d), while the fixed route blocked cross-user access (HTTP %d).", replay.VulnerableStatus, replay.FixedStatus),
+		// Status metadata is not a persisted HTTP exchange. A separate verifier
+		// must attach real baseline/exploit artifact references before promotion.
+		EvidenceRefs:       []string{},
+		DemonstratedImpact: "User A could access an object owned by User B on the vulnerable route.",
+		Counterevidence:    "The fixed control route denied the equivalent cross-user request.",
+		EvidenceClass:      "candidate",
+		ValidationState:    "candidate",
 	}}
 }
 
@@ -294,7 +345,7 @@ func fetchJSON(ctx context.Context, rawURL, cookie string, out any) error {
 	if cookie != "" {
 		req.Header.Set("cookie", cookie)
 	}
-	resp, err := (&http.Client{Timeout: 15 * time.Second}).Do(req)
+	resp, err := (&http.Client{Timeout: 15 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}).Do(req)
 	if err != nil {
 		return err
 	}

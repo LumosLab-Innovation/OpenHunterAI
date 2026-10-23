@@ -80,9 +80,10 @@ func fanOut(ctx context.Context, pub publisher, env *events.Envelope, log *wlog.
 			continue
 		}
 		run := events.WorkerRunPayload{
+			TargetURL:         sc.Scope.TargetURL,
 			ScanID:            sc.ScanID,
 			ProjectID:         sc.ProjectID,
-			ScanMode:          sc.Scope.ScanMode,
+			Profile:           sc.Scope.Profile,
 			TargetType:        sc.Scope.TargetType,
 			AuthScope:         sc.Scope.AuthScope,
 			TestIntensityMode: sc.Scope.TestIntensityMode,

@@ -1,0 +1,486 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "th-bot-it-risk-2023.curated",
+  "frameworkId": "th-bot-it-risk-2023",
+  "version": "Notification SorNorSor. 5/2566 (2023); curated-2026-10-08",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "th-bot-it-risk-2023.source",
+      "title": "BOT IT risk supervision notification 5/2566, official Thai text",
+      "url": "https://www.bot.or.th/content/dam/bot/fipcs/documents/FOG/2566/ThaiPDF/25660202.pdf",
+      "locator": "Sections 4, 6, 7 and attachments"
+    }
+  ],
+  "limitations": [
+    "Curated partial clause coverage only. The baseline is an assessment target, never a national security grade or a certification decision.",
+    "2023 notification supersedes the 2019 notification identified in section 3. The Thai text and later circulars control applicability; translation and current consolidation require competent review."
+  ],
+  "requirements": [
+    {
+      "id": "th-bot-it-risk-2023.governance",
+      "label": "Define IT risk governance and responsible security roles",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "th-bot-it-risk-2023.source",
+      "locator": "Section 7.1; Attachment 1",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "th-bot-it-risk-2023.governance",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "th-bot-it-risk-2023.risk-management",
+      "label": "Manage IT risks across business and IT functions",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "th-bot-it-risk-2023.source",
+      "locator": "Section 7.3; Attachment 3",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "th-bot-it-risk-2023.risk-management",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "th-bot-it-risk-2023.compliance",
+      "label": "Monitor IT-related law and regulatory compliance",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "th-bot-it-risk-2023.source",
+      "locator": "Section 7.4; Attachment 4",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "th-bot-it-risk-2023.compliance",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "th-bot-it-risk-2023.audit",
+      "label": "Audit IT according to importance and risk",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "th-bot-it-risk-2023.source",
+      "locator": "Section 7.5; Attachment 5",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "th-bot-it-risk-2023.audit",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "th-bot-it-risk-2023.asset-inventory",
+      "label": "Maintain comprehensive IT asset inventory",
+      "controlId": "system_classification",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "th-bot-it-risk-2023.source",
+      "locator": "Attachment 2, point 1, PDF p16",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "th-bot-it-risk-2023.asset-inventory",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "th-bot-it-risk-2023.data-security",
+      "label": "Classify, protect, retain and dispose of data appropriately",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "th-bot-it-risk-2023.source",
+      "locator": "Attachment 2, point 2, PDF p16",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "th-bot-it-risk-2023.data-security",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "th-bot-it-risk-2023.privileged-control",
+      "label": "Control assignment and use of privileged accounts",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "th-bot-it-risk-2023.source",
+      "locator": "Attachment 2, point 3.1, PDF p16",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "th-bot-it-risk-2023.privileged-control",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "th-bot-it-risk-2023.privileged-mfa",
+      "label": "Review privileged MFA and permitted compensating safeguards",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "th-bot-it-risk-2023.source",
+      "locator": "Attachment 2, point 3.2(1), PDF p16–17",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "MFA is required for the specified privileged accounts; unsupported systems need equivalent measures or approved risk-based exceptions."
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. MFA is required for the specified privileged accounts; unsupported systems need equivalent measures or approved risk-based exceptions."
+    },
+    {
+      "id": "th-bot-it-risk-2023.customer-remote-mfa",
+      "label": "Review MFA for public-network access to customer data",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "th-bot-it-risk-2023.source",
+      "locator": "Attachment 2, point 3.2(2), PDF p16–17",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "th-bot-it-risk-2023.public_customer_data_access",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review unsupported-system equivalent measures and approved risk exceptions. This is not a blanket rule for all internal accounts."
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Review unsupported-system equivalent measures and approved risk exceptions. This is not a blanket rule for all internal accounts."
+    },
+    {
+      "id": "th-bot-it-risk-2023.physical-security",
+      "label": "Protect IT facilities against intrusion and environmental harm",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "th-bot-it-risk-2023.source",
+      "locator": "Attachment 2, point 4, PDF p17",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "th-bot-it-risk-2023.physical-security",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "th-bot-it-risk-2023.communications",
+      "label": "Secure networks and transmitted information",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "th-bot-it-risk-2023.source",
+      "locator": "Attachment 2, point 5, PDF p17",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "th-bot-it-risk-2023.communications",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "th-bot-it-risk-2023.logging",
+      "label": "Keep and review critical-system access/activity logs",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "th-bot-it-risk-2023.source",
+      "locator": "Attachment 2, point 6.4, PDF p18",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "th-bot-it-risk-2023.logging",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "th-bot-it-risk-2023.monitoring",
+      "label": "Monitor emerging threats and critical-system anomalies",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "th-bot-it-risk-2023.source",
+      "locator": "Attachment 2, point 6.5, PDF p18",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "th-bot-it-risk-2023.monitoring",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "th-bot-it-risk-2023.vulnerability-management",
+      "label": "Assess vulnerabilities and review critical-system annual coverage",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "th-bot-it-risk-2023.source",
+      "locator": "Attachment 2, point 6.6, PDF p18",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Assess every system by risk; critical systems require at least annual review and review after significant change."
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Assess every system by risk; critical systems require at least annual review and review after significant change."
+    },
+    {
+      "id": "th-bot-it-risk-2023.independent-testing",
+      "label": "Review annual independent testing of Internet-facing systems",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "th-bot-it-risk-2023.source",
+      "locator": "Attachment 2, point 6.7, PDF p18",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "th-bot-it-risk-2023.internet_facing_systems",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review authorised independent testing evidence and significant-change retests. The offline harness executes no penetration test."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Review authorised independent testing evidence and significant-change retests. The offline harness executes no penetration test."
+    },
+    {
+      "id": "th-bot-it-risk-2023.change-control",
+      "label": "Control deployment, configuration and patch changes",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "th-bot-it-risk-2023.source",
+      "locator": "Attachment 2, point 6.8, PDF p18",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "th-bot-it-risk-2023.change-control",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "th-bot-it-risk-2023.hardening",
+      "label": "Maintain and review written minimum security configurations",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "th-bot-it-risk-2023.source",
+      "locator": "Attachment 2, point 6.9, PDF p18–19",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review the policy baseline and any approved risk-based exception; an exception is not automatically accepted as matching."
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. Review the policy baseline and any approved risk-based exception; an exception is not automatically accepted as matching."
+    },
+    {
+      "id": "th-bot-it-risk-2023.patch-process",
+      "label": "Manage patches with risk-based timing and exceptions",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "th-bot-it-risk-2023.source",
+      "locator": "Attachment 2, point 6.10, PDF p19",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "No invented patch SLA. Missing vendor patches or technical inability require alternative controls and reviewed approval."
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified. No invented patch SLA. Missing vendor patches or technical inability require alternative controls and reviewed approval."
+    },
+    {
+      "id": "th-bot-it-risk-2023.incident-root-cause",
+      "label": "Record, analyse and report IT incidents and root causes",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "th-bot-it-risk-2023.source",
+      "locator": "Attachment 2, point 8, PDF p20",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "th-bot-it-risk-2023.incident-root-cause",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "th-bot-it-risk-2023.disaster-recovery-plan",
+      "label": "Approve and maintain a written IT disaster recovery plan",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "th-bot-it-risk-2023.source",
+      "locator": "Attachment 2, points 9.1–9.2, PDF p20",
+      "normativeStrength": "mandatory",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "th-bot-it-risk-2023.disaster-recovery-plan",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    }
+  ]
+}

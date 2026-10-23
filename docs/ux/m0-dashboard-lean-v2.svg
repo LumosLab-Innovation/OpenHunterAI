@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1170" viewBox="0 0 1200 1170" role="img" aria-labelledby="title desc">
+<title id="title">OpenHunterAI lean dashboard wireframe</title>
+<desc id="desc">Start, running and report states with only task-critical copy and contextual help.</desc>
+<style>
+ text{font-family:Inter,Arial,sans-serif;fill:#e5f1f2}.outer{fill:#173039}.outerNote{fill:#48636b}.bg{fill:#e9eeee}.app{fill:#10181d;stroke:#304148;stroke-width:2}.bar{fill:#17232a}.line{stroke:#344750;stroke-width:1.4}.muted{fill:#9ab1b6}.teal{fill:#59e2ca}.amber{fill:#f2c173}.red{fill:#ed8e90}.field{fill:#0c1419;stroke:#66818a;stroke-width:1.4}.button{fill:#51dbc1}.buttontext{fill:#10221f;font-weight:700}.sm{font-size:14px}.body{font-size:17px}.title{font-size:25px;font-weight:750}.label{font-size:15px;font-weight:700}
+</style>
+<rect width="1200" height="1170" class="bg"/>
+<text x="40" y="45" font-size="24" font-weight="750" class="outer">Dashboard · lean information hierarchy</text>
+<text x="40" y="68" font-size="14" class="outerNote">Illustrative data only · each screen shows one primary decision · no marketing copy</text>
+
+<!-- START -->
+<text x="40" y="104" font-size="14" font-weight="700" class="outerNote">01  NEW SCAN</text>
+<rect x="40" y="117" width="1120" height="294" rx="12" class="app"/>
+<path d="M52 117h1096q12 0 12 12v40H40v-40q0-12 12-12z" class="bar"/>
+<text x="65" y="149" class="body" font-weight="750">OpenHunterAI</text><text x="260" y="149" class="sm teal">New scan</text><text x="356" y="149" class="sm muted">Scans</text><text x="419" y="149" class="sm muted">Reports</text><text x="1000" y="149" class="sm">EN  VI  中文</text>
+<text x="65" y="202" class="title">Scan a target</text><text x="948" y="201" class="sm teal">● Engine ready</text>
+<text x="65" y="238" class="sm muted">Target URL</text><rect x="65" y="247" width="775" height="46" rx="7" class="field"/><text x="82" y="277" class="body">https://example.com/app</text>
+<text x="864" y="238" class="sm muted">Profile  ⓘ</text><rect x="864" y="247" width="270" height="46" rx="7" class="field"/><text x="882" y="277" class="body">Standard  ▾</text>
+<text x="65" y="329" class="sm">Scope: /app/**  ⓘ</text><text x="65" y="362" class="sm muted">▸ Advanced options</text>
+<text x="450" y="329" class="sm">☑ I am authorized for this scope</text><rect x="947" y="319" width="187" height="48" rx="7" class="button"/><text x="981" y="350" class="body buttontext">Start scan →</text>
+
+<!-- RUNNING -->
+<text x="40" y="452" font-size="14" font-weight="700" class="outerNote">02  RUNNING</text>
+<rect x="40" y="465" width="1120" height="292" rx="12" class="app"/>
+<path d="M52 465h1096q12 0 12 12v40H40v-40q0-12 12-12z" class="bar"/>
+<text x="65" y="497" class="body" font-weight="750">OpenHunterAI</text><text x="1000" y="497" class="sm">EN  VI  中文</text>
+<text x="65" y="550" class="title">example.com/app</text><text x="1030" y="549" class="sm amber">Running</text>
+<text x="65" y="585" class="sm teal">Discover ✓</text><text x="206" y="585" class="sm teal">Test ●</text><text x="303" y="585" class="sm muted">Validate ○</text><text x="439" y="585" class="sm muted">Report ○</text>
+<path d="M65 605h1069" class="line"/>
+<text x="65" y="641" class="body">Browser inspection</text><text x="501" y="641" class="sm teal">Completed</text><text x="748" y="641" class="sm muted">12 paths</text>
+<text x="65" y="673" class="body">Nuclei</text><text x="501" y="673" class="sm amber">Running</text><text x="748" y="673" class="sm muted">Safe templates</text>
+<text x="65" y="705" class="body">Auth checks</text><text x="501" y="705" class="sm amber">Skipped</text><text x="748" y="705" class="sm muted">No test account</text>
+<path d="M65 722h1069" class="line"/><text x="65" y="745" class="sm">1 candidate awaiting validation  ·  1 coverage gap ⓘ</text><text x="1044" y="745" class="sm muted">Cancel</text>
+
+<!-- REPORT -->
+<text x="40" y="798" font-size="14" font-weight="700" class="outerNote">03  REPORT</text>
+<rect x="40" y="811" width="1120" height="306" rx="12" class="app"/>
+<path d="M52 811h1096q12 0 12 12v40H40v-40q0-12 12-12z" class="bar"/>
+<text x="65" y="843" class="body" font-weight="750">OpenHunterAI</text><text x="1000" y="843" class="sm">EN  VI  中文</text>
+<text x="65" y="894" class="title">1 validated finding</text><text x="865" y="892" class="sm amber">Coverage partial ⓘ</text>
+<path d="M65 914h1069" class="line"/>
+<text x="65" y="951" class="body">High · Access control · /api/orders/42</text><text x="957" y="951" class="sm teal">View evidence →</text>
+<text x="65" y="987" class="sm muted">Impact proven · baseline + probe + independent validation</text>
+<path d="M65 1007h1069" class="line"/>
+<text x="65" y="1041" class="sm amber">1 gap: Auth checks skipped — add a test account</text><text x="947" y="1041" class="sm teal">View coverage →</text>
+<rect x="65" y="1061" width="138" height="38" rx="6" class="button"/><text x="91" y="1086" class="sm buttontext">Retest finding</text><text x="231" y="1086" class="sm teal">Export report ↓</text>
+<text x="40" y="1151" font-size="14" class="outerNote">Help pattern: Scope / Profile / Candidate / Coverage explain on demand via ⓘ; keyboard, touch and screen-reader accessible.</text>
+</svg>

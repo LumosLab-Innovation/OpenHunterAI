@@ -67,6 +67,8 @@ func TestCanarySignalsRequireVulnerableRouteAndFixedRouteProof(t *testing.T) {
 		Available:        true,
 		VulnerableStatus: 200,
 		FixedStatus:      403,
+		UserAOwnStatus:   200,
+		UserBOwnStatus:   200,
 		VulnerablePath:   "/openhunter-canary/objects/vulnerable/b",
 		FixedPath:        "/openhunter-canary/objects/fixed/b",
 	})
@@ -76,14 +78,19 @@ func TestCanarySignalsRequireVulnerableRouteAndFixedRouteProof(t *testing.T) {
 	if signals[0].Kind != "access_control_object_ownership" {
 		t.Fatalf("kind = %q", signals[0].Kind)
 	}
-	if signals[0].EvidenceClass != "validated_finding" || signals[0].ValidationState != "validated_finding" {
-		t.Fatalf("expected validated evidence, got %#v", signals[0])
+	if signals[0].EvidenceClass != "candidate" || signals[0].ValidationState != "candidate" {
+		t.Fatalf("expected independently-triaged candidate, got %#v", signals[0])
+	}
+	if len(signals[0].EvidenceRefs) != 0 {
+		t.Fatalf("status-only replay must not claim persisted HTTP exchange refs: %#v", signals[0].EvidenceRefs)
 	}
 
 	noFinding := canarySignalsFromReplay("https://staging.example.com", canaryReplayResult{
 		Available:        true,
 		VulnerableStatus: 403,
 		FixedStatus:      403,
+		UserAOwnStatus:   200,
+		UserBOwnStatus:   200,
 	})
 	if len(noFinding) != 0 {
 		t.Fatalf("fixed canary should not create finding, got %#v", noFinding)

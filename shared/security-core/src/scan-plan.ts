@@ -1,7 +1,5 @@
 import type {
   AuthScope,
-  PackageTier,
-  ScanMode,
   SurfaceFlags,
   TargetType,
   TestIntensityMode,
@@ -35,8 +33,6 @@ export const HUNTER_IDS = [
 export type HunterId = (typeof HUNTER_IDS)[number];
 
 export interface ScanPlanInput {
-  packageTier: PackageTier;
-  scanMode: ScanMode;
   targetType: TargetType;
   surfaceFlags: SurfaceFlags;
   authScope: AuthScope;
@@ -52,47 +48,32 @@ export interface ScanPlan {
   skippedHunters: Array<{ hunter: HunterId; reason: string }>;
   allowedValidationLevel: ValidationLevel;
   budgets: {
-    maxReturnedFindings: number;
-    maxMonitoredFindings: number;
-    maxRetests: number;
-    cooldownDays: number;
     maxHypotheses: number;
     maxValidationAttempts: number;
+    maxLLMCalls: number;
   };
   requiresApprovalForSensitiveActions: boolean;
   notes: string[];
 }
 
-const FREE_BUDGET = {
-  maxReturnedFindings: 1,
-  maxMonitoredFindings: 1,
-  maxRetests: 1,
-  cooldownDays: 7,
-  maxHypotheses: 3,
-  maxValidationAttempts: 1,
-};
-
-const PAID_BUDGET = {
-  maxReturnedFindings: 50,
-  maxMonitoredFindings: 50,
-  maxRetests: 10,
-  cooldownDays: 0,
+// Resource ceilings protect a self-hosted machine; they are not commercial tiers.
+const STANDARD_BUDGET = {
   maxHypotheses: 20,
   maxValidationAttempts: 8,
+  maxLLMCalls: 24,
 };
 
 export function buildScanPlan(input: ScanPlanInput): ScanPlan {
-  const isFree = input.scanMode === 'free_hunter';
   const isAggressive = input.testIntensityMode === 'aggressive_staging';
-  const budgets = isFree ? FREE_BUDGET : PAID_BUDGET;
+  const budgets = {
+    ...STANDARD_BUDGET,
+    maxLLMCalls: input.testIntensityMode === 'safe_discovery' ? 12 : isAggressive ? 60 : 24,
+  };
   const notes: string[] = [];
   const skippedHunters: Array<{ hunter: HunterId; reason: string }> = [];
   const enabledWorkers: Record<string, WorkerProfile> = {};
   const enabledHunters: HunterId[] = [];
 
-  if (isFree) {
-    notes.push('Free Hunter stops after the first valuable finding and exposes one limited monitored finding.');
-  }
   if (isAggressive) {
     notes.push('Aggressive Staging requires staging/dev/test risk acceptance and still forbids destructive actions.');
   }
@@ -104,7 +85,6 @@ export function buildScanPlan(input: ScanPlanInput): ScanPlan {
       enabledWorkers.nuclei = 'mini';
       enabledWorkers.openhack = 'light';
       enabledWorkers.strix = 'candidate_only';
-      enabledWorkers.recon = 'light';
       enabledHunters.push('content_exposure', 'hardening');
       if (input.surfaceFlags.has_login) enabledHunters.push('auth_session_smoke');
       break;
@@ -114,7 +94,6 @@ export function buildScanPlan(input: ScanPlanInput): ScanPlan {
       enabledWorkers.nuclei = 'standard_safe';
       enabledWorkers.openhack = 'medium';
       enabledWorkers.strix = 'deep';
-      enabledWorkers.recon = 'standard_safe';
       enabledHunters.push('api_surface', 'session_auth', 'admin_like_surface');
       if (!input.surfaceFlags.has_login) {
         skippedHunters.push({ hunter: 'authenticated_access_control', reason: 'surface flag has_login is false' });
@@ -127,7 +106,6 @@ export function buildScanPlan(input: ScanPlanInput): ScanPlan {
       enabledWorkers.nuclei = 'standard_safe';
       enabledWorkers.openhack = 'medium';
       enabledWorkers.strix = 'deep';
-      enabledWorkers.recon = 'standard_safe';
       enabledHunters.push('api_surface', 'api_auth', 'data_exposure');
       break;
     case 'ai_llm_application':
@@ -136,7 +114,6 @@ export function buildScanPlan(input: ScanPlanInput): ScanPlan {
       enabledWorkers.nuclei = 'mini';
       enabledWorkers.openhack = 'medium';
       enabledWorkers.strix = 'deep';
-      enabledWorkers.recon = 'mini';
       enabledHunters.push('ai_prompt', 'rag_exposure', 'tool_calling');
       if (!input.surfaceFlags.has_chatbot_or_rag_or_tool_calling) {
         skippedHunters.push({ hunter: 'ai_deep_reasoning', reason: 'AI surface flag is not set' });

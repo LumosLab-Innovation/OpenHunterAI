@@ -1,0 +1,271 @@
+{
+  "schemaVersion": "country_security_jurisdiction_identifiers_v1",
+  "reviewedOn": "2026-10-08",
+  "method": "Curated alpha-2 to alpha-3 identity crosswalk for catalogued countries and areas. This is OpenHunter metadata, not a field asserted to exist in the reviewed UN table. UN names and M49 codes are joined only by their native alpha-3 keys.",
+  "entries": [
+    {
+      "countryCode": "VN",
+      "isoAlpha3": "VNM"
+    },
+    {
+      "countryCode": "AU",
+      "isoAlpha3": "AUS"
+    },
+    {
+      "countryCode": "GB",
+      "isoAlpha3": "GBR"
+    },
+    {
+      "countryCode": "US",
+      "isoAlpha3": "USA"
+    },
+    {
+      "countryCode": "CN",
+      "isoAlpha3": "CHN"
+    },
+    {
+      "countryCode": "DE",
+      "isoAlpha3": "DEU"
+    },
+    {
+      "countryCode": "SG",
+      "isoAlpha3": "SGP"
+    },
+    {
+      "countryCode": "JP",
+      "isoAlpha3": "JPN"
+    },
+    {
+      "countryCode": "KR",
+      "isoAlpha3": "KOR"
+    },
+    {
+      "countryCode": "IN",
+      "isoAlpha3": "IND"
+    },
+    {
+      "countryCode": "ID",
+      "isoAlpha3": "IDN"
+    },
+    {
+      "countryCode": "MY",
+      "isoAlpha3": "MYS"
+    },
+    {
+      "countryCode": "TH",
+      "isoAlpha3": "THA"
+    },
+    {
+      "countryCode": "PH",
+      "isoAlpha3": "PHL"
+    },
+    {
+      "countryCode": "NZ",
+      "isoAlpha3": "NZL"
+    },
+    {
+      "countryCode": "HK",
+      "isoAlpha3": "HKG"
+    },
+    {
+      "countryCode": "TW",
+      "isoAlpha3": "TWN"
+    },
+    {
+      "countryCode": "SA",
+      "isoAlpha3": "SAU"
+    },
+    {
+      "countryCode": "AE",
+      "isoAlpha3": "ARE"
+    },
+    {
+      "countryCode": "QA",
+      "isoAlpha3": "QAT"
+    },
+    {
+      "countryCode": "BH",
+      "isoAlpha3": "BHR"
+    },
+    {
+      "countryCode": "OM",
+      "isoAlpha3": "OMN"
+    },
+    {
+      "countryCode": "IL",
+      "isoAlpha3": "ISR"
+    },
+    {
+      "countryCode": "FR",
+      "isoAlpha3": "FRA"
+    },
+    {
+      "countryCode": "ES",
+      "isoAlpha3": "ESP"
+    },
+    {
+      "countryCode": "IT",
+      "isoAlpha3": "ITA"
+    },
+    {
+      "countryCode": "NL",
+      "isoAlpha3": "NLD"
+    },
+    {
+      "countryCode": "BE",
+      "isoAlpha3": "BEL"
+    },
+    {
+      "countryCode": "CH",
+      "isoAlpha3": "CHE"
+    },
+    {
+      "countryCode": "AT",
+      "isoAlpha3": "AUT"
+    },
+    {
+      "countryCode": "SE",
+      "isoAlpha3": "SWE"
+    },
+    {
+      "countryCode": "NO",
+      "isoAlpha3": "NOR"
+    },
+    {
+      "countryCode": "FI",
+      "isoAlpha3": "FIN"
+    },
+    {
+      "countryCode": "DK",
+      "isoAlpha3": "DNK"
+    },
+    {
+      "countryCode": "IE",
+      "isoAlpha3": "IRL"
+    },
+    {
+      "countryCode": "PL",
+      "isoAlpha3": "POL"
+    },
+    {
+      "countryCode": "CZ",
+      "isoAlpha3": "CZE"
+    },
+    {
+      "countryCode": "PT",
+      "isoAlpha3": "PRT"
+    },
+    {
+      "countryCode": "GR",
+      "isoAlpha3": "GRC"
+    },
+    {
+      "countryCode": "EE",
+      "isoAlpha3": "EST"
+    },
+    {
+      "countryCode": "RO",
+      "isoAlpha3": "ROU"
+    },
+    {
+      "countryCode": "TR",
+      "isoAlpha3": "TUR"
+    },
+    {
+      "countryCode": "CA",
+      "isoAlpha3": "CAN"
+    },
+    {
+      "countryCode": "BR",
+      "isoAlpha3": "BRA"
+    },
+    {
+      "countryCode": "MX",
+      "isoAlpha3": "MEX"
+    },
+    {
+      "countryCode": "AR",
+      "isoAlpha3": "ARG"
+    },
+    {
+      "countryCode": "CL",
+      "isoAlpha3": "CHL"
+    },
+    {
+      "countryCode": "CO",
+      "isoAlpha3": "COL"
+    },
+    {
+      "countryCode": "PE",
+      "isoAlpha3": "PER"
+    },
+    {
+      "countryCode": "UY",
+      "isoAlpha3": "URY"
+    },
+    {
+      "countryCode": "CR",
+      "isoAlpha3": "CRI"
+    },
+    {
+      "countryCode": "PA",
+      "isoAlpha3": "PAN"
+    },
+    {
+      "countryCode": "EC",
+      "isoAlpha3": "ECU"
+    },
+    {
+      "countryCode": "ZA",
+      "isoAlpha3": "ZAF"
+    },
+    {
+      "countryCode": "KE",
+      "isoAlpha3": "KEN"
+    },
+    {
+      "countryCode": "NG",
+      "isoAlpha3": "NGA"
+    },
+    {
+      "countryCode": "GH",
+      "isoAlpha3": "GHA"
+    },
+    {
+      "countryCode": "MA",
+      "isoAlpha3": "MAR"
+    },
+    {
+      "countryCode": "TN",
+      "isoAlpha3": "TUN"
+    },
+    {
+      "countryCode": "EG",
+      "isoAlpha3": "EGY"
+    },
+    {
+      "countryCode": "RW",
+      "isoAlpha3": "RWA"
+    },
+    {
+      "countryCode": "MU",
+      "isoAlpha3": "MUS"
+    },
+    {
+      "countryCode": "BD",
+      "isoAlpha3": "BGD"
+    },
+    {
+      "countryCode": "LK",
+      "isoAlpha3": "LKA"
+    },
+    {
+      "countryCode": "PK",
+      "isoAlpha3": "PAK"
+    }
+  ],
+  "limitations": [
+    "Identity mappings do not establish sovereignty, legal applicability, framework coverage or assessment results. EU and ZZ are excluded because they are internal group labels.",
+    "Taiwan uses TW/TWN as a catalog area identifier and is outside the reviewed UN directory snapshot; the gap remains visible."
+  ]
+}

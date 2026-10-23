@@ -1,0 +1,448 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "dk-effective-defence-curated",
+  "frameworkId": "dk-effective-defence",
+  "version": "6 July 2023 edition, hosted by SAMSIK",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "dk-primary",
+      "title": "SAMSIK/CFCS effective cyber defence",
+      "url": "https://samsik.dk/wp-content/uploads/2025/09/vejledning-cyberforsvar-der-virker-2023.pdf",
+      "locator": "Step 2 technical measures, pp.7–8; Steps 1–6"
+    }
+  ],
+  "limitations": [
+    "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+    "Operator-supplied facts and evidence metadata do not constitute independent control verification."
+  ],
+  "requirements": [
+    {
+      "id": "dk.patch-process",
+      "label": "Use a tested update process",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "dk-primary",
+      "locator": "Step 2, item 1, p.7",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Use a tested update process"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "dk.patch-deadlines",
+      "label": "Set security update deployment deadlines",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "dk-primary",
+      "locator": "Step 2, item 1, p.7",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "dk.patch-deadlines",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "The organisation defines its own deadlines. The guide provides no universal numeric deployment bound."
+    },
+    {
+      "id": "dk.segmentation",
+      "label": "Separate networks according to use and sensitivity",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "dk-primary",
+      "locator": "Step 2, item 2, p.7",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "dk.segmentation",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "dk.intersegment-filter",
+      "label": "Restrict intersegment traffic to necessity",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "dk-primary",
+      "locator": "Step 2, item 2, p.7",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "dk.intersegment-filter",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "dk.endpoint-antivirus",
+      "label": "Protect all clients with antivirus",
+      "controlId": "malware_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "dk-primary",
+      "locator": "Step 2, item 3, p.7",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "dk.endpoint-antivirus",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "dk.endpoint-firewall",
+      "label": "Protect all clients with local firewalls",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "dk-primary",
+      "locator": "Step 2, item 3, p.7",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "dk.endpoint-firewall",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "dk.account-lifecycle",
+      "label": "Use management-approved account lifecycle processes",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "dk-primary",
+      "locator": "Step 2, item 4, p.7",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Use management-approved account lifecycle processes"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "dk.dedicated-admin",
+      "label": "Limit privileged accounts to privileged tasks",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "dk-primary",
+      "locator": "Step 2, item 4, p.7",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "dk.dedicated-admin",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "dk.privileged-mfa",
+      "label": "Use MFA for privileged accounts",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "dk-primary",
+      "locator": "Step 2, item 5, p.8",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "dk.privileged_accounts_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "dk.privileged-mfa",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "dk.external-mfa",
+      "label": "Use MFA for external access accounts",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "dk-primary",
+      "locator": "Step 2, items 5/8, p.8",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "dk.external_access_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "dk.external-mfa",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "dk.critical-backups",
+      "label": "Back up critical data and recovery configurations",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "dk-primary",
+      "locator": "Step 2, item 6, p.8",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "dk.critical-backups",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "dk.offline-copy",
+      "label": "Keep an offline backup copy",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "dk-primary",
+      "locator": "Step 2, item 6, p.8",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "dk.offline-copy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "dk.restore-tests",
+      "label": "Regularly test complete backup restoration",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "dk-primary",
+      "locator": "Step 2, item 6, p.8",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Regularly test complete backup restoration"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "dk.security-logging",
+      "label": "Log access, failures and configuration changes",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "dk-primary",
+      "locator": "Step 2, item 7, p.8",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "dk.security-logging",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "dk.logs-separate",
+      "label": "Store logs separately with restricted access",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "dk-primary",
+      "locator": "Step 2, item 7, p.8",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "dk.logs-separate",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "dk.remote-encryption",
+      "label": "Encrypt remote communications",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "dk-primary",
+      "locator": "Step 2, item 8, p.8",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "dk.external_access_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "dk.remote-encryption",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "dk.disk-encryption",
+      "label": "Encrypt client and mobile-device storage",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "dk-primary",
+      "locator": "Step 2, item 9, p.8",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "dk.disk-encryption",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    },
+    {
+      "id": "dk.application-allowlist",
+      "label": "Limit client software to approved applications",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "dk-primary",
+      "locator": "Step 2, item 10, p.8",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "dk.application-allowlist",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated assertion with declared metadata. Review full source context and implementation evidence independently; this predicate does not prove control effectiveness."
+    }
+  ]
+}

@@ -68,8 +68,8 @@ func handle(ctx context.Context, cb *callback.Client, e *events.Envelope, log *w
 	log = log.With("scan_id", p.ScanID, "finding_id", p.FindingID, "retest_run_id", p.RetestRunID)
 
 	run := events.WorkerRunPayload{
-		ScanID: p.ScanID, ProjectID: p.ProjectID, WorkerType: "retest",
-		ScanMode: p.ScanMode, TargetType: p.TargetType, AuthScope: p.AuthScope,
+		RunID: e.ID, ScanID: p.ScanID, ProjectID: p.ProjectID, WorkerType: "retest",
+		Profile: p.Profile, TargetURL: p.TargetURL, TargetType: p.TargetType, AuthScope: p.AuthScope,
 		TestIntensityMode: p.TestIntensityMode, SurfaceFlags: p.SurfaceFlags,
 		AllowedHosts: p.AllowedHosts, AllowedPaths: p.AllowedPaths, ExcludedPaths: p.ExcludedPaths,
 		VerifiedDomain: p.VerifiedDomain,
@@ -77,7 +77,7 @@ func handle(ctx context.Context, cb *callback.Client, e *events.Envelope, log *w
 
 	res := worker.Run(ctx, run, worker.Options{Timeout: 3 * time.Minute, Logger: log},
 		func(ctx context.Context, in events.WorkerRunPayload) worker.Result {
-			target := "https://" + in.VerifiedDomain
+			target := scope.SeedURL(in.TargetURL, in.VerifiedDomain, in.AllowedPaths)
 			sc := scope.Scope{AllowedHosts: in.AllowedHosts, AllowedPaths: in.AllowedPaths, ExcludedPaths: in.ExcludedPaths}
 			if err := scope.CheckURL(target, sc); err != nil {
 				var v *scope.Violation
@@ -87,8 +87,8 @@ func handle(ctx context.Context, cb *callback.Client, e *events.Envelope, log *w
 				}
 				return worker.Failed(in, code, "retest target rejected by scope guard")
 			}
-			// The retest reuses the OpenHack adapter to replay the narrow,
-			// finding-scoped scenario. Tool-unavailable becomes a coverage gap.
+			// The legacy adapter endpoint must explicitly reject unsupported
+			// scenarios. Passive checks cannot certify a finding as fixed.
 			ad := adapter.New(env("OPENHACK_INTEGRATION_URL", "http://openhack-adapter:6120"), 3*time.Minute)
 			var resp struct {
 				Result  string          `json:"result"`
@@ -117,6 +117,11 @@ func handle(ctx context.Context, cb *callback.Client, e *events.Envelope, log *w
 				Meta: map[string]any{"findingId": p.FindingID, "retestRunId": p.RetestRunID, "result": resp.Result},
 			}
 		})
+	if res.Meta == nil {
+		res.Meta = map[string]any{}
+	}
+	res.Meta["findingId"] = p.FindingID
+	res.Meta["retestRunId"] = p.RetestRunID
 
 	if err := cb.PostStep(ctx, p.ScanID, res); err != nil {
 		log.Error("callback_step_failed", "err", err.Error())

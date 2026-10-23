@@ -1,0 +1,185 @@
+# Isolated, loopback-only acceptance stack. Never use these development
+# credentials or ports as a production deployment template.
+# Run: docker compose -p openhunter-m0 -f infra/docker-compose/local-e2e.yml up -d --build
+x-app-env: &app-env
+  DATABASE_URL: postgresql://xhunter:xhunter@postgres:5432/xhunter?schema=public
+  NATS_URL: nats://nats:4222
+  WORKER_TOKEN: local-e2e-only-not-a-secret
+
+x-worker-env: &worker-env
+  NATS_URL: nats://nats:4222
+  INTERNAL_API_URL: http://internal-api:4100
+  WORKER_TOKEN: local-e2e-only-not-a-secret
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: xhunter
+      POSTGRES_PASSWORD: xhunter
+      POSTGRES_DB: xhunter
+    ports: ["127.0.0.1:55432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U xhunter -d xhunter"]
+      interval: 2s
+      retries: 30
+
+  nats:
+    image: nats:2.10-alpine
+    command: ["-js", "-sd", "/data"]
+    ports: ["127.0.0.1:5422:4222"]
+    volumes: ["natsdata:/data"]
+
+  frontend:
+    image: openhunter-m0/frontend:local
+    build: { context: ../.., dockerfile: frontend/Dockerfile }
+    ports: ["127.0.0.1:3001:80"]
+    volumes: ["./local-e2e-nginx.conf:/etc/nginx/conf.d/default.conf:ro"]
+    depends_on: [public-api]
+
+  public-api:
+    image: openhunter-m0/public-api:local
+    build: { context: ../.., dockerfile: gateway/public-api/Dockerfile }
+    environment:
+      <<: *app-env
+      API_PORT: 4000
+      APP_JWT_SECRET: local-e2e-jwt-only-not-a-secret
+      OPENHUNTER_LOCAL_MODE: "1"
+      API_BIND_HOST: 0.0.0.0 # Docker network; published host port remains loopback-only.
+      OPENHUNTER_LOCAL_UI_ORIGINS: http://127.0.0.1:3001,http://localhost:3001
+      APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:-}
+      BROWSER_SESSION_BASE_URL: http://browser-session:4700
+      FINDINGS_URL: http://findings:4300
+      REPORTING_URL: http://reporting:4400
+      OPENHUNTER_IN_CONTAINER: "1"
+      OPENHUNTER_LLM_ROUTES_PATH: /var/lib/openhunter/llm-module-routes.json
+      OPENHUNTER_LLM_BRIDGE_URL: http://host.docker.internal:4733
+      OPENHUNTER_LLM_BRIDGE_TOKEN: local-e2e-llm-bridge-only
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    volumes: ["llm-routes:/var/lib/openhunter"]
+    ports: ["127.0.0.1:4000:4000"]
+    depends_on: [postgres, nats, findings, reporting]
+
+  internal-api:
+    image: openhunter-m0/internal-api:local
+    build: { context: ../.., dockerfile: gateway/internal-api/Dockerfile }
+    environment:
+      <<: *app-env
+      INTERNAL_API_PORT: 4100
+      APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:-}
+    depends_on: [postgres, nats]
+
+  findings:
+    image: openhunter-m0/findings:local
+    build: { context: ../.., dockerfile: backend/findings/Dockerfile }
+    environment:
+      <<: *app-env
+      FINDINGS_PORT: 4300
+      OPENHUNTER_IN_CONTAINER: "1"
+      OPENHUNTER_LLM_BRIDGE_URL: http://host.docker.internal:4733
+      OPENHUNTER_LLM_BRIDGE_TOKEN: local-e2e-llm-bridge-only
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    depends_on: [postgres]
+
+  reporting:
+    image: openhunter-m0/reporting:local
+    build: { context: ../.., dockerfile: backend/reporting/Dockerfile }
+    environment:
+      <<: *app-env
+      REPORTING_PORT: 4400
+      OPENHUNTER_IN_CONTAINER: "1"
+      OPENHUNTER_LLM_BRIDGE_URL: http://host.docker.internal:4733
+      OPENHUNTER_LLM_BRIDGE_TOKEN: local-e2e-llm-bridge-only
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    depends_on: [postgres, nats]
+
+  browser-session:
+    profiles: [authenticated]
+    image: openhunter-m0/browser-session:local
+    build: { context: ../.., dockerfile: backend/browser-session/Dockerfile }
+    environment: { BROWSER_SESSION_PORT: 4700 }
+    shm_size: 1gb
+
+  orchestrator:
+    image: openhunter-m0/orchestrator:local
+    build: { context: ../.., dockerfile: workers/orchestrator/Dockerfile }
+    environment:
+      <<: *worker-env
+      FINDINGS_URL: http://findings:4300
+      REPORTING_URL: http://reporting:4400
+    depends_on: [nats, internal-api, findings, reporting]
+
+  browser-inspector:
+    image: openhunter-m0/browser-inspector:local
+    build: { context: ../.., dockerfile: workers/browser-inspector/Dockerfile }
+    environment: { <<: *worker-env, BROWSER_EXECUTABLE: /usr/bin/chromium-browser }
+    depends_on: [nats, internal-api]
+
+  Z:
+    image: openhunter-m0/worker-z:local
+    build: { context: ../.., dockerfile: workers/Z/Dockerfile }
+    environment: { <<: *worker-env, ZAPROXY_INTEGRATION_URL: http://zaproxy-adapter:6100 }
+    depends_on: [nats, internal-api]
+
+  N:
+    image: openhunter-m0/worker-n:local
+    build: { context: ../.., dockerfile: workers/N/Dockerfile }
+    environment: { <<: *worker-env, NUCLEI_INTEGRATION_URL: http://nuclei-adapter:6110 }
+    depends_on: [nats, internal-api]
+
+  O:
+    image: openhunter-m0/worker-o:local
+    build: { context: ../.., dockerfile: workers/O/Dockerfile }
+    environment: { <<: *worker-env, OPENHACK_INTEGRATION_URL: http://openhack-adapter:6120 }
+    depends_on: [nats, internal-api]
+
+  S:
+    image: openhunter-m0/worker-s:local
+    build: { context: ../.., dockerfile: workers/S/Dockerfile }
+    environment: { <<: *worker-env, STRIX_INTEGRATION_URL: http://strix-adapter:6130 }
+    depends_on: [nats, internal-api]
+
+  retest:
+    image: openhunter-m0/worker-retest:local
+    build: { context: ../.., dockerfile: workers/retest/Dockerfile }
+    environment: { <<: *worker-env, OPENHACK_INTEGRATION_URL: http://openhack-adapter:6120 }
+    depends_on: [nats, internal-api]
+
+  zap:
+    image: ghcr.io/zaproxy/zaproxy:2.17.0
+    environment: { ZAP_API_KEY: local-e2e-only-not-a-secret }
+    command: ["zap.sh", "-daemon", "-host", "0.0.0.0", "-port", "8080", "-config", "start.checkForUpdates=false", "-config", "start.checkAddonUpdates=false", "-config", "api.disablekey=false", "-config", "api.key=local-e2e-only-not-a-secret", "-config", "api.addrs.addr.name=.*", "-config", "api.addrs.addr.regex=true"]
+
+  zaproxy-adapter:
+    image: openhunter-m0/zaproxy-adapter:local
+    build: { context: ../.., dockerfile: integrations/zaproxy/Dockerfile }
+    environment: { ZAP_BASE_URL: http://zap:8080, ZAP_API_KEY: local-e2e-only-not-a-secret }
+    depends_on: [zap]
+
+  nuclei-adapter:
+    image: openhunter-m0/nuclei-adapter:local
+    build:
+      context: ../..
+      dockerfile: integrations/nuclei/Dockerfile
+      args: { NUCLEI_IMAGE: projectdiscovery/nuclei:v3.4.10 }
+    environment: { NUCLEI_BIN: nuclei, NUCLEI_TEMPLATES_DIR: /opt/openhunter/nuclei-templates, NUCLEI_DISABLE_TEMPLATE_DOWNLOAD: "true" }
+
+  openhack-adapter:
+    image: openhunter-m0/passive-surface-adapter:local
+    build: { context: ../.., dockerfile: integrations/openhack/Dockerfile }
+
+  strix-adapter:
+    image: openhunter-m0/strix-adapter:local
+    build: { context: ../.., dockerfile: integrations/strix/Dockerfile }
+    environment:
+      WORKER_TOKEN: local-e2e-only-not-a-secret
+      FINDINGS_URL: http://findings:4300
+      STRIX_CODEX_REASONING: "true"
+    depends_on: [findings]
+    # Reasoning-only path: the Strix runtime is still absent and reported as a gap.
+
+volumes:
+  pgdata: {}
+  natsdata: {}
+  llm-routes: {}

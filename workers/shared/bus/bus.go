@@ -116,13 +116,14 @@ func (b *Bus) Consume(ctx context.Context, opts ConsumeOptions, h Handler) error
 		log = wlog.New(wlog.Fields{WorkerType: opts.Durable})
 	}
 
+	// NakWithDelay handles explicit retries. JetStream BackOff overrides AckWait,
+	// which would redeliver slow LLM-backed handlers while they are still running.
 	cons, err := b.js.CreateOrUpdateConsumer(ctx, StreamName, jetstream.ConsumerConfig{
 		Durable:       opts.Durable,
 		FilterSubject: opts.Subject,
 		AckPolicy:     jetstream.AckExplicitPolicy,
 		MaxDeliver:    opts.MaxDeliver,
 		AckWait:       opts.AckWait,
-		BackOff:       backoff(opts.MaxDeliver),
 	})
 	if err != nil {
 		return fmt.Errorf("create consumer %s: %w", opts.Durable, err)

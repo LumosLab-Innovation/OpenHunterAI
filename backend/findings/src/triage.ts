@@ -1,5 +1,5 @@
-import type { LLMGateway } from '@x-hunter/llm-gateway';
-import type { PackageTier } from '@x-hunter/shared';
+import { runModuleReasoning, type CodingCliBridge } from '@x-hunter/llm-gateway';
+import type { LlmCallAudit, LlmRouteSnapshot, ScanProfile } from '@x-hunter/shared';
 
 /**
  * LLM-assisted candidate triage. The LLM is RECOMMENDATION-ONLY: it ranks and
@@ -95,46 +95,53 @@ const SYSTEM_PROMPT =
  * LLM path so triage cannot block the pipeline.
  */
 export async function triageCandidates(
-  gateway: LLMGateway,
-  args: { projectId: string; scanId: string; packageTier: PackageTier; candidates: CandidateSummary[] },
-): Promise<TriageRecommendation> {
+  args: {
+    snapshot: LlmRouteSnapshot | null;
+    bridge: CodingCliBridge | null;
+    projectId: string;
+    scanId: string;
+    profile: ScanProfile;
+    candidates: CandidateSummary[];
+  },
+): Promise<TriageRecommendation & { audits: LlmCallAudit[]; coverageGap?: string }> {
   const { candidates } = args;
   const llmCandidates = candidates.map(({ evidence: _evidence, ...candidate }) => candidate);
   if (candidates.length <= 1) {
-    return { rankedIds: candidates.map((c) => c.id), duplicateClusters: [], fallback: true };
+    return { rankedIds: candidates.map((c) => c.id), duplicateClusters: [], fallback: true, audits: [] };
+  }
+  if (!args.snapshot) {
+    return { rankedIds: deterministicRanking(candidates), duplicateClusters: [], fallback: true, audits: [], coverageGap: 'llm:candidate_dedupe:SNAPSHOT_MISSING' };
   }
 
   try {
-    const res = await gateway.generate({
+    const res = await runModuleReasoning({
+      snapshot: args.snapshot,
       useCase: 'candidate_dedupe',
-      projectId: args.projectId,
-      scanId: args.scanId,
-      packageTier: args.packageTier,
+      bridge: args.bridge,
       systemPrompt: SYSTEM_PROMPT,
       userPrompt: JSON.stringify({ candidates: llmCandidates }),
-      requireJson: true,
     });
-    if (res.error || !res.outputText) {
-      return { rankedIds: deterministicRanking(candidates), duplicateClusters: [], fallback: true };
+    if (res.coverageGap || !res.outputText) {
+      return { rankedIds: deterministicRanking(candidates), duplicateClusters: [], fallback: true, audits: res.audits, ...(res.coverageGap ? { coverageGap: res.coverageGap } : {}) };
     }
     const parsed = parseTriageOutput(res.outputText, candidates);
     if (!parsed) {
-      return { rankedIds: deterministicRanking(candidates), duplicateClusters: [], fallback: true };
+      return { rankedIds: deterministicRanking(candidates), duplicateClusters: [], fallback: true, audits: res.audits };
     }
-    return parsed;
+    return { ...parsed, audits: res.audits };
   } catch {
-    return { rankedIds: deterministicRanking(candidates), duplicateClusters: [], fallback: true };
+    return { rankedIds: deterministicRanking(candidates), duplicateClusters: [], fallback: true, audits: [] };
   }
 }
 
 export interface PromotionCandidate extends CandidateSummary {
   evidence: unknown;
+  decision?: { state: string; rationale: string; evidenceRefs: string[] };
 }
 
 export function selectPromotionCandidates(
   candidates: PromotionCandidate[],
   recommendation: TriageRecommendation,
-  args: { scanMode: string; maxFindings?: number },
 ): PromotionCandidate[] {
   const byId = new Map(candidates.map((candidate) => [candidate.id, candidate]));
   const duplicateIds = new Set<string>();
@@ -147,18 +154,14 @@ export function selectPromotionCandidates(
 
   const ranked = [...recommendation.rankedIds, ...deterministicRanking(candidates)];
   const seen = new Set<string>();
-  const packageMaxFindings = args.scanMode === 'free_hunter' ? 1 : 50;
-  const maxFindings = Math.min(packageMaxFindings, args.maxFindings ?? packageMaxFindings);
-  if (maxFindings <= 0) return [];
   const selected: PromotionCandidate[] = [];
 
   for (const id of ranked) {
     if (seen.has(id) || duplicateIds.has(id)) continue;
     seen.add(id);
     const candidate = byId.get(id);
-    if (!candidate || !isValuableCandidate(candidate) || !hasPromotableEvidence(candidate.evidence)) continue;
+    if (!candidate || !isValuableCandidate(candidate) || !hasPromotableEvidence(candidate)) continue;
     selected.push(candidate);
-    if (selected.length >= maxFindings) break;
   }
 
   return selected;
@@ -169,7 +172,9 @@ function isValuableCandidate(candidate: CandidateSummary): boolean {
     (CONFIDENCE_ORDER[candidate.confidence] ?? 0) >= CONFIDENCE_ORDER.medium;
 }
 
-function hasPromotableEvidence(evidence: unknown): boolean {
+function hasPromotableEvidence(candidate: PromotionCandidate): boolean {
+  if (candidate.decision?.state !== 'validated') return false;
+  const evidence = candidate.evidence;
   if (!evidence || typeof evidence !== 'object') return false;
   const value = evidence as Record<string, unknown>;
   if (value.rawRequest || value.rawResponse || value.rawHar || value.rawCookie || value.rawToken || value.rawSecret) {
@@ -180,5 +185,10 @@ function hasPromotableEvidence(evidence: unknown): boolean {
   }
   const hasSanitizedBody =
     typeof value.description === 'string' || value.sanitized === true || Array.isArray(value.evidenceRefs);
-  return hasSanitizedBody && (value.validationState === 'validated_finding' || value.evidenceClass === 'validated_finding');
+  if (!hasSanitizedBody || (candidate.decision.evidenceRefs?.length ?? 0) === 0) return false;
+  if (candidate.severity === 'high' || candidate.severity === 'critical') {
+    return typeof value.demonstratedImpact === 'string' && value.demonstratedImpact.trim().length > 0 &&
+      typeof value.counterevidence === 'string' && value.counterevidence.trim().length > 0;
+  }
+  return true;
 }

@@ -1,18 +1,22 @@
 import { publishEvent } from '@openhunter/event-core';
 import { getPrisma } from '@x-hunter/db';
-import { assertInScope, buildScanPlan, DEFAULT_SURFACE_FLAGS, GuardrailError, normalizeUrl, sanitizeText, type SurfaceFlags } from '@x-hunter/shared';
+import { assertInScope, buildScanPlan, DEFAULT_SURFACE_FLAGS, evaluateModuleRoutePreflight, GuardrailError, intensityToProfile, normalizeUrl, profileToIntensity, sanitizeText, type ScanProfile, type SurfaceFlags } from '@x-hunter/shared';
+import { AuthorizationsService } from '../authorizations/authorizations.service.js';
 import { createInitialReportDraft } from '../reports/reports.service.js';
-import { EntitlementService } from '../billing/entitlement.service.js';
 import { recordScanActivity } from './live-scan.service.js';
-import { evaluateAggressiveStagingPreflight, type LlmReadinessInput, type PreflightResult } from './preflight.js';
+import { evaluateAggressiveStagingPreflight, moduleLlmReadiness, type PreflightResult } from './preflight.js';
+import { ensureScanRuntimeReady, ScanRuntimeUnavailableError } from './scan-runtime.service.js';
+import { probePlannedRuntimes } from './runtime-readiness.js';
+import { applyBridgeCompletion, readBridgeCapabilities } from '../llm/bridge-remote.js';
+import { loadLlmSettings } from '../llm/llm-routes.store.js';
 import type { CreateScanBody } from './scans.dto.js';
+import { resolveScanRequest, type ScanRequestV2 } from './scan-request-v2.dto.js';
 
 type ScanState = 'queued' | 'running' | 'awaiting_approval' | 'completed' | 'failed' | 'cancelled' | 'timeout';
-type ScanMode = 'free_hunter' | 'ai_blackhat_mindset_check';
 
 export interface ScanListQuery {
   state?: ScanState;
-  mode?: ScanMode;
+  profile?: ScanProfile;
   q?: string;
   sort: 'newest' | 'oldest';
   pageToken?: string;
@@ -21,7 +25,7 @@ export interface ScanListQuery {
 
 export class ScansService {
   private readonly prisma = getPrisma();
-  private readonly entitlements = new EntitlementService();
+  private readonly authorizations = new AuthorizationsService();
 
   async list(orgId: string, rawQuery: Record<string, unknown> = {}) {
     const query = parseScanListQuery(rawQuery);
@@ -52,10 +56,11 @@ export class ScansService {
       id: scan.id,
       projectId: scan.projectId,
       authorizationId: scan.authorizationId,
-      mode: scan.mode,
+      profile: intensityToProfile(scan.testIntensityMode),
       targetType: scan.targetType,
       authScope: scan.authScope,
       testIntensityMode: scan.testIntensityMode,
+      scanPlan: scan.scanPlan ?? undefined,
       state: scan.state,
       target,
       scope: publicScopeSummary(scan.scopeSnapshot),
@@ -159,29 +164,20 @@ export class ScansService {
       where: { id: body.authorizationId, projectId, project: { organizationId: orgId } },
     });
     if (!authz) throw new GuardrailError('NO_SCAN_AUTHORIZATION', 'Scan authorization not found');
+    if (authz.expiresAt && authz.expiresAt < new Date()) throw new GuardrailError('AUTHORIZATION_EXPIRED', 'Scan authorization expired');
+    return this.evaluatePreflight(authz, projectId, orgId, body.acceptanceProfile);
+  }
+
+  private async evaluatePreflight(
+    authz: any,
+    projectId: string | null,
+    orgId: string,
+    acceptanceProfile: 'standard' | 'canary_e2e',
+  ): Promise<PreflightResult> {
     const allowedHosts = authz.allowedHosts as string[];
-    const verifiedHostRows = await this.prisma.domain.findMany({
-      where: {
-        projectId,
-        project: { organizationId: orgId },
-        hostname: { in: allowedHosts },
-        verifications: {
-          some: {
-            status: 'verified',
-            OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-          },
-        },
-      },
-      select: { hostname: true },
-    });
-    const verifiedHosts = new Set(verifiedHostRows.map((row: { hostname: string }) => row.hostname.toLowerCase()));
-    const unverifiedHosts = allowedHosts.filter((host) => !verifiedHosts.has(host.toLowerCase()));
-    if (unverifiedHosts.length > 0) {
-      throw new GuardrailError('DOMAIN_NOT_VERIFIED', 'Every allowed host must still be verified before scan preflight', {
-        unverifiedHosts,
-      });
-    }
-    const sessions = await (this.prisma as any).browserSessionState.findMany({
+    if (allowedHosts.length === 0) throw new GuardrailError('NO_SCAN_AUTHORIZATION', 'Authorization has no public host');
+    for (const host of allowedHosts) normalizeUrl(`https://${host}`);
+    const sessions = projectId && authz.authScope !== 'none' ? await (this.prisma as any).browserSessionState.findMany({
       where: {
         organizationId: orgId,
         projectId,
@@ -190,25 +186,144 @@ export class ScansService {
         storageStateCipher: { not: null },
       },
       select: { testAccountId: true, status: true, expiresAt: true },
+    }) : [];
+    const requireCanary = acceptanceProfile === 'canary_e2e';
+    const surfaceFlags = { ...DEFAULT_SURFACE_FLAGS, ...(authz.surfaceFlags as Partial<SurfaceFlags>) };
+    const scanPlan = buildScanPlan({
+      targetType: authz.targetType,
+      surfaceFlags,
+      authScope: authz.authScope,
+      testIntensityMode: authz.testIntensityMode,
+      allowedHosts,
+      allowedPaths: authz.allowedPaths as string[],
+      excludedPaths: authz.excludedPaths as string[],
     });
-    const requireCanary = body.acceptanceProfile === 'canary_e2e';
-    const [llm, browserSessionRuntimeReady, canaryReady] = await Promise.all([
-      readLlmReadiness(),
+    const [browserSessionRuntimeReady, canaryReady] = await Promise.all([
       checkBrowserSessionRuntime(),
       requireCanary ? checkCanaryManifest(allowedHosts, authz.allowedPaths as string[], authz.excludedPaths as string[]) : Promise.resolve(false),
     ]);
-    return evaluateAggressiveStagingPreflight({
+    const runtimes = await probePlannedRuntimes(Object.keys(scanPlan.enabledWorkers));
+    const settings = loadLlmSettings();
+    const bridge = await readBridgeCapabilities();
+    const modulePreflight = evaluateModuleRoutePreflight({
+      config: settings.routes,
+      probes: applyBridgeCompletion(settings.probes, bridge),
+      bridgeReady: bridge.ready,
+      apiReady: {
+        openai: Boolean(process.env.OPENAI_API_KEY),
+        claude: Boolean(process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY),
+        deepseek: Boolean(process.env.DEEPSEEK_API_KEY),
+      },
+      profile: intensityToProfile(authz.testIntensityMode),
+      targetType: authz.targetType,
+      authScope: authz.authScope,
+      surfaceFlags,
+      capturedAt: new Date().toISOString(),
+    });
+    const safety = evaluateAggressiveStagingPreflight({
       authorization: {
-        scanMode: authz.scanMode,
         authScope: authz.authScope,
         testIntensityMode: authz.testIntensityMode,
         aggressiveStagingRiskAccepted: authz.aggressiveStagingRiskAccepted,
       },
-      llm,
+      llm: moduleLlmReadiness(modulePreflight.snapshot),
       browserSessionRuntimeReady,
       sessions,
       requireCanary,
       canaryReady,
+    });
+    const coverageGaps = [
+      ...runtimes.filter((runtime) => !runtime.executable).map((runtime) => `${runtime.worker}:${runtime.reason ?? 'TOOL_UNAVAILABLE'}`),
+      ...runtimes.filter((runtime) => runtime.worker === 'strix' && runtime.reasoningOnly).map(() => 'strix:REASONING_ONLY'),
+      ...modulePreflight.coverageGaps,
+    ];
+    const checks = [...safety.checks, ...modulePreflight.checks];
+    if (!runtimes.some((runtime) => runtime.executable)) {
+      checks.push({ code: 'ALL_WORKERS_UNAVAILABLE', ok: false, message: 'No planned worker runtime is executable.' });
+    }
+    if (authz.testIntensityMode === 'aggressive_staging' && runtimes.some((runtime) => runtime.worker === 'strix' && (!runtime.executable || !runtime.nativeRuntime))) {
+      checks.push({ code: 'STRIX_REQUIRED_FOR_DEEP', ok: false, message: 'Deep scanning requires an executable Strix runtime.' });
+    }
+    const failures = checks.filter((check) => !check.ok);
+    return {
+      ok: failures.length === 0,
+      checks,
+      failures,
+      profile: intensityToProfile(authz.testIntensityMode),
+      runtimes,
+      coverageGaps,
+      requiresAcknowledgement: coverageGaps.length > 0 && failures.length === 0,
+      scanPlan,
+      moduleRoutes: modulePreflight.rows,
+      llmRouteSnapshot: modulePreflight.snapshot,
+      resolvedScope: {
+        allowedHosts,
+        allowedPaths: authz.allowedPaths as string[],
+        excludedPaths: authz.excludedPaths as string[],
+      },
+    };
+  }
+
+  async preflightRequest(orgId: string, body: ScanRequestV2): Promise<PreflightResult> {
+    const scope = resolveScanRequest(body);
+    if (body.authScope !== 'none' && !body.projectId) {
+      throw new GuardrailError('TEST_ACCOUNT_REQUIRED', 'Authenticated scans must name a project with saved test accounts');
+    }
+    const intensity = profileToIntensity(body.profile);
+    const authorization = {
+      ...scope,
+      authScope: body.authScope,
+      targetType: body.targetType,
+      testIntensityMode: intensity,
+      surfaceFlags: { ...DEFAULT_SURFACE_FLAGS, ...body.surfaceFlags },
+      aggressiveStagingRiskAccepted: body.aggressiveStagingRiskAccepted,
+    };
+    assertInScope(scope.targetUrl, {
+      ...authorization,
+      profile: body.profile,
+      testAccountPermission: body.authScope !== 'none',
+      sensitiveActionPermission: body.profile === 'deep',
+    });
+    const preflight = await this.evaluatePreflight(authorization, body.projectId ?? null, orgId, body.acceptanceProfile);
+    return { ...preflight, resolvedScope: scope };
+  }
+
+  async createRequest(orgId: string, userId: string, body: ScanRequestV2) {
+    const preflight = await this.preflightRequest(orgId, body);
+    if (!preflight.ok) {
+      const first = preflight.failures[0];
+      throw new GuardrailError((first?.code ?? 'INVALID_INPUT') as any, first?.message ?? 'Scan preflight failed', { checks: preflight.checks });
+    }
+    const unacknowledged = (preflight.coverageGaps ?? []).filter((gap) => !body.acceptedCoverageGaps.includes(gap));
+    if (unacknowledged.length > 0) {
+      throw new GuardrailError('INVALID_INPUT', 'Acknowledge unavailable workers before starting this profile', { coverageGaps: unacknowledged });
+    }
+    const scope = resolveScanRequest(body);
+    const project = body.projectId
+      ? await this.prisma.project.findFirst({ where: { id: body.projectId, organizationId: orgId } })
+      : await this.prisma.project.findFirst({ where: { organizationId: orgId, name: scope.targetHost } })
+        ?? await this.prisma.project.create({ data: { organizationId: orgId, name: scope.targetHost } });
+    if (!project) throw new GuardrailError('PROJECT_NOT_FOUND', 'Project not found');
+    const consentScope = scope.allowedPaths.length > 0
+      ? `${scope.targetHost}${scope.allowedPaths.join(', ')} and descendants`
+      : `the entire ${scope.targetHost} host`;
+    const authorization = await this.authorizations.create(project.id, orgId, userId, {
+      targetUrl: scope.targetUrl,
+      authScope: body.authScope,
+      targetType: body.targetType,
+      testIntensityMode: profileToIntensity(body.profile),
+      surfaceFlags: { ...DEFAULT_SURFACE_FLAGS, ...body.surfaceFlags } as SurfaceFlags,
+      allowedHosts: scope.allowedHosts,
+      allowedPaths: scope.allowedPaths,
+      excludedPaths: scope.excludedPaths,
+      authorityConfirmed: true,
+      aggressiveStagingRiskAccepted: body.aggressiveStagingRiskAccepted,
+      consentText: `I confirm I am authorized to run an OpenHunterAI ${body.profile} assessment within ${consentScope}.`,
+    });
+    return this.create(project.id, orgId, userId, {
+      authorizationId: authorization.id,
+      acceptanceProfile: body.acceptanceProfile,
+      acceptedCoverageGaps: body.acceptedCoverageGaps,
     });
   }
 
@@ -228,30 +343,15 @@ export class ScansService {
         acceptanceProfile: body.acceptanceProfile,
       });
     }
-    const allowedHosts = authz.allowedHosts as string[];
-    const domains = await this.prisma.domain.findMany({
-      where: {
-        projectId,
-        project: { organizationId: orgId },
-        hostname: { in: allowedHosts },
-        verifications: {
-          some: {
-            status: 'verified',
-            OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-          },
-        },
-      },
-      select: { id: true, hostname: true },
-    });
-    const verifiedHosts = new Set(domains.map((domain: { hostname: string }) => domain.hostname.toLowerCase()));
-    const unverifiedHosts = allowedHosts.filter((host) => !verifiedHosts.has(host.toLowerCase()));
-    if (unverifiedHosts.length > 0) {
-      throw new GuardrailError('DOMAIN_NOT_VERIFIED', 'Every allowed host must still be verified before scan creation', {
-        unverifiedHosts,
-      });
+    const unacknowledged = (preflight.coverageGaps ?? []).filter((gap) => !body.acceptedCoverageGaps.includes(gap));
+    if (unacknowledged.length > 0) {
+      throw new GuardrailError('INVALID_INPUT', 'Acknowledge unavailable workers before starting this profile', { coverageGaps: unacknowledged });
     }
-    const domain = domains.find((d: { id: string }) => d.id === authz.domainId) ?? domains[0];
-    const project = await this.prisma.project.findUnique({ where: { id: projectId } });
+    const allowedHosts = authz.allowedHosts as string[];
+    for (const host of allowedHosts) normalizeUrl(`https://${host}`);
+    const declaredPaths = authz.allowedPaths as string[];
+    const firstPath = declaredPaths[0] ?? '';
+    const targetUrl = authz.targetUrl ?? `https://${allowedHosts[0]}${firstPath ? (firstPath.startsWith('/') ? firstPath : `/${firstPath}`) : ''}`;
     const surfaceFlags = { ...DEFAULT_SURFACE_FLAGS, ...(authz.surfaceFlags as Partial<SurfaceFlags>) };
     const scope = {
       allowedHosts,
@@ -259,39 +359,38 @@ export class ScansService {
       excludedPaths: authz.excludedPaths as string[],
       testAccountPermission: authz.testAccountPermission,
       sensitiveActionPermission: authz.sensitiveActionPermission,
-      packageTier: project?.packageTier ?? 'free_hunter',
-      scanMode: authz.scanMode,
+      profile: intensityToProfile(authz.testIntensityMode),
       authScope: authz.authScope,
       targetType: authz.targetType,
       testIntensityMode: authz.testIntensityMode,
       surfaceFlags,
       aggressiveStagingRiskAccepted: authz.aggressiveStagingRiskAccepted,
       acceptanceProfile: body.acceptanceProfile,
-      verifiedDomain: domain?.hostname ?? '',
+      targetHost: allowedHosts[0] ?? '',
+      targetUrl,
+      // Legacy worker envelope key; this value is declared scope, not DNS-verified.
+      verifiedDomain: allowedHosts[0] ?? '',
       capturedAt: new Date().toISOString(),
     };
-    const scanPlan = buildScanPlan({
-      packageTier: scope.packageTier,
-      scanMode: authz.scanMode,
-      targetType: authz.targetType,
-      surfaceFlags,
-      authScope: authz.authScope,
-      testIntensityMode: authz.testIntensityMode,
-      allowedHosts: scope.allowedHosts,
-      allowedPaths: scope.allowedPaths,
-      excludedPaths: scope.excludedPaths,
-    });
-
-    // Billing entitlement gate: confirm the project may run this tier (and
-    // consume a PAYG credit) before any scan job is created.
-    await this.entitlements.assertCanScan(projectId, orgId, scope.packageTier);
+    assertInScope(targetUrl, scope);
+    const scanPlan = {
+      ...buildScanPlan({
+        targetType: authz.targetType,
+        surfaceFlags,
+        authScope: authz.authScope,
+        testIntensityMode: authz.testIntensityMode,
+        allowedHosts: scope.allowedHosts,
+        allowedPaths: scope.allowedPaths,
+        excludedPaths: scope.excludedPaths,
+      }),
+      llmRouteSnapshot: preflight.llmRouteSnapshot,
+    };
 
     const scan = await this.prisma.scanJob.create({
       data: {
         projectId,
         authorizationId: authz.id,
         initiatorUserId: userId,
-        mode: authz.scanMode,
         targetType: authz.targetType,
         authScope: authz.authScope,
         testIntensityMode: authz.testIntensityMode,
@@ -308,15 +407,49 @@ export class ScansService {
       actor: 'scan',
       titleKey: 'activity.scan_queued.title',
       bodyKey: 'activity.scan_queued.body',
-      bodyParams: { target: scope.verifiedDomain, mode: authz.scanMode },
+      bodyParams: { target: scope.targetHost, profile: scope.profile },
       status: 'queued',
     }).catch(() => {});
+    try {
+      await ensureScanRuntimeReady((activity) =>
+        recordScanActivity(this.prisma, {
+          scanJobId: scan.id,
+          actor: 'scan',
+          ...activity,
+        }),
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Scan runtime unavailable';
+      await this.prisma.scanJob.update({
+        where: { id: scan.id },
+        data: {
+          state: 'failed',
+          finishedAt: new Date(),
+          errorMessage: `Scan runtime unavailable: ${message}`.slice(0, 2000),
+        },
+      });
+      if (!(error instanceof ScanRuntimeUnavailableError)) {
+        await recordScanActivity(this.prisma, {
+          scanJobId: scan.id,
+          eventType: 'runtime_unavailable',
+          actor: 'scan',
+          titleKey: 'activity.runtime_unavailable.title',
+          bodyKey: 'activity.runtime_unavailable.body',
+          bodyParams: { message },
+          status: 'failed',
+          severity: 'high',
+        }).catch(() => {});
+      }
+      throw new GuardrailError('TOOL_UNAVAILABLE', 'Scan runtime is unavailable; scan was not started', {
+        scanId: scan.id,
+      });
+    }
     try {
       await publishEvent('scan.created', {
         scanId: scan.id,
         projectId,
         authorizationId: authz.id,
-        mode: authz.scanMode,
+        profile: scope.profile,
         scope,
         scanPlan,
       });
@@ -348,43 +481,6 @@ export class ScansService {
   }
 }
 
-interface ServiceLlmHealth {
-  aliases?: {
-    low_reasoning_model?: { primary?: { provider?: string }; fallback?: { provider?: string } };
-    high_reasoning_model?: { primary?: { provider?: string }; fallback?: { provider?: string } };
-  };
-  providers?: {
-    openai?: { configured?: boolean };
-    deepseek?: { configured?: boolean };
-  };
-}
-
-async function readLlmReadiness(): Promise<LlmReadinessInput> {
-  const serviceUrls = [process.env.FINDINGS_URL, process.env.REPORTING_URL].filter((url): url is string => Boolean(url));
-  const serviceHealth = (
-    await Promise.all(serviceUrls.map((url) => fetchJson<ServiceLlmHealth>(`${url.replace(/\/+$/, '')}/health/llm`).catch(() => null)))
-  ).filter((item): item is ServiceLlmHealth => Boolean(item));
-  if (serviceHealth.length > 0) {
-    const first = serviceHealth[0]!;
-    return {
-      lowPrimaryProvider: String(first.aliases?.low_reasoning_model?.primary?.provider ?? ''),
-      lowFallbackProvider: String(first.aliases?.low_reasoning_model?.fallback?.provider ?? ''),
-      highPrimaryProvider: String(first.aliases?.high_reasoning_model?.primary?.provider ?? ''),
-      highFallbackProvider: String(first.aliases?.high_reasoning_model?.fallback?.provider ?? ''),
-      openaiConfigured: serviceHealth.every((health) => health.providers?.openai?.configured === true),
-      deepseekConfigured: serviceHealth.every((health) => health.providers?.deepseek?.configured === true),
-    };
-  }
-  return {
-    lowPrimaryProvider: process.env.LLM_LOW_REASONING_PROVIDER || 'deepseek',
-    lowFallbackProvider: process.env.LLM_LOW_REASONING_FALLBACK_PROVIDER || 'openai',
-    highPrimaryProvider: process.env.LLM_HIGH_REASONING_PROVIDER || 'deepseek',
-    highFallbackProvider: process.env.LLM_HIGH_REASONING_FALLBACK_PROVIDER || 'openai',
-    openaiConfigured: Boolean(process.env.OPENAI_API_KEY),
-    deepseekConfigured: Boolean(process.env.DEEPSEEK_API_KEY),
-  };
-}
-
 async function checkBrowserSessionRuntime(): Promise<boolean> {
   const baseUrl = process.env.BROWSER_SESSION_BASE_URL?.replace(/\/+$/, '');
   if (!baseUrl) return false;
@@ -397,35 +493,46 @@ async function checkCanaryManifest(allowedHosts: string[], allowedPaths: string[
   if (!host) return false;
   const manifestUrl = normalizeUrl(`https://${host}/openhunter-canary/manifest.json`).url.href;
   try {
-    assertInScope(manifestUrl, {
+    const scope: Parameters<typeof assertInScope>[1] = {
       allowedHosts,
       allowedPaths,
       excludedPaths,
       testAccountPermission: true,
       sensitiveActionPermission: true,
-      scanMode: 'ai_blackhat_mindset_check',
+      profile: 'deep',
       authScope: 'two_accounts',
       targetType: 'interactive_web_app',
       testIntensityMode: 'aggressive_staging',
       surfaceFlags: DEFAULT_SURFACE_FLAGS,
       aggressiveStagingRiskAccepted: true,
-    });
+    };
+    assertInScope(manifestUrl, scope);
     const manifest = await fetchJson<Record<string, unknown>>(manifestUrl);
-    return (
-      manifest.scenario === 'object_ownership' &&
-      typeof manifest.vulnerablePath === 'string' &&
-      typeof manifest.fixedPath === 'string'
-    );
+    return canaryManifestInScope(manifest, manifestUrl, scope);
   } catch {
     return false;
   }
+}
+
+export function canaryManifestInScope(manifest: Record<string, unknown>, manifestUrl: string, scope: Parameters<typeof assertInScope>[1]): boolean {
+  if (manifest.scenario !== 'object_ownership') return false;
+  for (const key of ['vulnerablePath', 'fixedPath', 'userAOwnPath', 'userBOwnPath']) {
+    const path = manifest[key];
+    if (typeof path !== 'string' || !path.startsWith('/openhunter-canary/')) return false;
+    try {
+      assertInScope(new URL(path, manifestUrl).href, scope);
+    } catch {
+      return false;
+    }
+  }
+  return true;
 }
 
 async function fetchJson<T>(url: string, timeoutMs = 2000): Promise<T> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const res = await fetch(url, { signal: controller.signal, headers: { accept: 'application/json' } });
+    const res = await fetch(url, { signal: controller.signal, redirect: 'manual', headers: { accept: 'application/json' } });
     if (!res.ok) throw new Error(`HTTP_${res.status}`);
     return (await res.json()) as T;
   } finally {
@@ -434,11 +541,11 @@ async function fetchJson<T>(url: string, timeoutMs = 2000): Promise<T> {
 }
 
 const STATES = new Set<ScanState>(['queued', 'running', 'awaiting_approval', 'completed', 'failed', 'cancelled', 'timeout']);
-const MODES = new Set<ScanMode>(['free_hunter', 'ai_blackhat_mindset_check']);
+const PROFILES = new Set<ScanProfile>(['quick', 'standard', 'deep']);
 
 export function parseScanListQuery(raw: Record<string, unknown>): ScanListQuery {
   const state = typeof raw.state === 'string' && STATES.has(raw.state as ScanState) ? (raw.state as ScanState) : undefined;
-  const mode = typeof raw.mode === 'string' && MODES.has(raw.mode as ScanMode) ? (raw.mode as ScanMode) : undefined;
+  const profile = typeof raw.profile === 'string' && PROFILES.has(raw.profile as ScanProfile) ? (raw.profile as ScanProfile) : undefined;
   const q = typeof raw.q === 'string' && raw.q.trim() ? raw.q.trim().slice(0, 120) : undefined;
   const sort = raw.sort === 'oldest' ? 'oldest' : 'newest';
   const pageToken = typeof raw.pageToken === 'string' && raw.pageToken.includes('|') ? raw.pageToken.slice(0, 240) : undefined;
@@ -446,7 +553,7 @@ export function parseScanListQuery(raw: Record<string, unknown>): ScanListQuery 
   const limit = Number.isFinite(rawLimit) ? Math.max(1, Math.min(Math.trunc(rawLimit), 100)) : 50;
   return {
     ...(state ? { state } : {}),
-    ...(mode ? { mode } : {}),
+    ...(profile ? { profile } : {}),
     ...(q ? { q } : {}),
     sort,
     ...(pageToken ? { pageToken } : {}),
@@ -460,7 +567,7 @@ export function buildScanListWhere(orgId: string, query: ScanListQuery): Record<
     project: { organizationId: orgId },
     hiddenAt: null,
     ...(query.state ? { state: query.state } : {}),
-    ...(query.mode ? { mode: query.mode } : {}),
+    ...(query.profile ? { testIntensityMode: profileToIntensity(query.profile) } : {}),
     ...(cursorCreatedAt ? { createdAt: query.sort === 'oldest' ? { gt: cursorCreatedAt } : { lt: cursorCreatedAt } } : {}),
   };
 }
@@ -475,7 +582,7 @@ function createdAtFromPageToken(pageToken: string | undefined): Date | null {
 function scanMatchesQuery(scan: any, q: string): boolean {
   const haystack = JSON.stringify({
     id: scan.id,
-    mode: scan.mode,
+    profile: intensityToProfile(scan.testIntensityMode),
     state: scan.state,
     targetType: scan.targetType,
     scopeSnapshot: scan.scopeSnapshot,
@@ -484,7 +591,9 @@ function scanMatchesQuery(scan: any, q: string): boolean {
 }
 
 function publicStep(step: any) {
-  const output = step.outputRef && typeof step.outputRef === 'object' ? (step.outputRef as Record<string, unknown>) : {};
+  const envelope = step.outputRef && typeof step.outputRef === 'object' ? (step.outputRef as Record<string, unknown>) : {};
+  const output = envelope.sanitized === true && envelope.value && typeof envelope.value === 'object'
+    ? envelope.value as Record<string, unknown> : envelope;
   return {
     id: step.id,
     kind: displayUnitCode(String(step.kind ?? '')),
@@ -502,7 +611,9 @@ function publicStep(step: any) {
 function publicScopeSummary(scope: unknown) {
   const obj = scope && typeof scope === 'object' ? (scope as Record<string, unknown>) : {};
   return {
-    verifiedDomain: typeof obj.verifiedDomain === 'string' ? sanitizeText(obj.verifiedDomain) : undefined,
+    targetHost: typeof obj.targetHost === 'string'
+      ? sanitizeText(obj.targetHost)
+      : typeof obj.verifiedDomain === 'string' ? sanitizeText(obj.verifiedDomain) : undefined,
     targetUrl: typeof obj.targetUrl === 'string' ? sanitizeText(obj.targetUrl) : undefined,
     allowedHosts: Array.isArray(obj.allowedHosts) ? obj.allowedHosts.map(String).map(sanitizeText) : undefined,
     allowedPaths: Array.isArray(obj.allowedPaths) ? obj.allowedPaths.map(String).map(sanitizeText) : undefined,
@@ -513,6 +624,7 @@ function publicScopeSummary(scope: unknown) {
 function targetFromScope(scope: unknown): string {
   const obj = scope && typeof scope === 'object' ? (scope as Record<string, unknown>) : {};
   if (typeof obj.targetUrl === 'string' && obj.targetUrl.trim()) return sanitizeText(obj.targetUrl);
+  if (typeof obj.targetHost === 'string' && obj.targetHost.trim()) return sanitizeText(obj.targetHost);
   if (typeof obj.verifiedDomain === 'string' && obj.verifiedDomain.trim()) return sanitizeText(obj.verifiedDomain);
   const hosts = Array.isArray(obj.allowedHosts) ? obj.allowedHosts : [];
   return typeof hosts[0] === 'string' ? sanitizeText(hosts[0]) : 'authorized target';
@@ -539,10 +651,6 @@ function displayUnitCode(key: string): string {
     case 'strix_core':
     case 's':
       return 'S';
-    case 'recon':
-    case 'recon_signal':
-    case 'r':
-      return 'R';
     case 'report':
       return 'RPT';
     case 'retest':
@@ -563,11 +671,8 @@ function publicWorkerText(value: string): string {
     .replace(/\bopenhack\b/gi, 'O')
     .replace(/\bstrix[_-]core\b/gi, 'S')
     .replace(/\bstrix\b/gi, 'S')
-    .replace(/\brecon[_-]signal\b/gi, 'R')
-    .replace(/\brecon\b/gi, 'R')
     .replace(/\bZ_signal\b/g, 'Z')
     .replace(/\bN_signal\b/g, 'N')
     .replace(/\bO_hunter\b/g, 'O')
-    .replace(/\bS_core\b/g, 'S')
-    .replace(/\bR_signal\b/g, 'R');
+    .replace(/\bS_core\b/g, 'S');
 }

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "country_security_benchmark_run_v1",
+  "dataOrigin": "synthetic_fixture",
+  "frameworkId": "vn-system-levels",
+  "levelId": "level-3",
+  "producerId": "engine-fixture",
+  "results": [
+    {
+      "caseId": "xss-positive",
+      "outcome": "detected",
+      "validatorId": "reviewer-fixture",
+      "evidenceRefs": [
+        "artifact:probe:xss-positive"
+      ]
+    }
+  ],
+  "coverageGaps": [
+    "VALIDATOR_UNAVAILABLE"
+  ]
+}

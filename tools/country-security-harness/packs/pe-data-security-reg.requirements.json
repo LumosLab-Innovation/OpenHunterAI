@@ -1,0 +1,522 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "pe-data-security-reg-selected-clauses",
+  "frameworkId": "pe-data-security-reg",
+  "version": "2026-10-08.1",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "pe-data-security-reg-source",
+      "title": "Personal-data protection Regulation DS 016-2024-JUS — official reference",
+      "url": "https://cdn.www.gob.pe/uploads/document/file/7568330/6426760-decreto-supremo-n-016-2024-jus-reglamento-de-la-ley-n-29733-ley-de-proteccion-de-datos-personales-publicado-nov-2024.pdf",
+      "locator": "Regulation under Law 29733; security and incident provisions in official ElPeruano PDF"
+    }
+  ],
+  "limitations": [
+    "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+    "Current transition rules, incremental DPO requirements and ANPD guidance require review. Old DS 003-2013-JUS is not assumed current."
+  ],
+  "requirements": [
+    {
+      "id": "pe-access-lifecycle",
+      "label": "Manage user registration and removal",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pe-data-security-reg-source",
+      "locator": "Art 46(1)(a);PDFp 12",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pe-access-lifecycle",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "pe-user-identification",
+      "label": "Define identification/authentication procedures",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pe-data-security-reg-source",
+      "locator": "Art 46(1)(b);PDFp 12",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pe-user-identification",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "pe-privilege-review",
+      "label": "Review assigned user privileges",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pe-data-security-reg-source",
+      "locator": "Art 46(1)(c);PDFp 12",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review documented periodic privilege verification and the source semestral cadence in its proper legal interpretation."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "pe-auth-mechanisms",
+      "label": "Implement approved user authentication",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pe-data-security-reg-source",
+      "locator": "Art 46(1)(d);PDFp 12",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pe-auth-mechanisms",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "pe-control-monitoring",
+      "label": "Review safeguards and role training",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pe-data-security-reg-source",
+      "locator": "Art 46(2);PDFp 12",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pe-control-monitoring",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "pe-interaction-logs",
+      "label": "Record data interactions and actors",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pe-data-security-reg-source",
+      "locator": "Art 46(3);PDFp 12",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pe-interaction-logs",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "pe-log-lifecycle",
+      "label": "Review continuous logs and retention",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pe-data-security-reg-source",
+      "locator": "Art 46(3);PDFp 12",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review readable timely continuous operator traces, immediate availability, log lifecycle and minimum two-year retention; max-only numeric checker is not used for a minimum."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "pe-copy-prevention",
+      "label": "Prevent unauthorized digital copies",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pe-data-security-reg-source",
+      "locator": "Art 46(4);PDFp 12",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pe-copy-prevention",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "pe-security-document",
+      "label": "Approve and maintain security document",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pe-data-security-reg-source",
+      "locator": "Art 47.1;PDFp 12",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pe-security-document",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "pe-staff-security",
+      "label": "Require staff knowledge of safeguards",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pe-data-security-reg-source",
+      "locator": "Art 47.2;PDFp 12",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pe-staff-security",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "pe-data-inventory",
+      "label": "Inventory data/systems and sensitive data",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pe-data-security-reg-source",
+      "locator": "Art 47.3;PDFp 12",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pe-data-inventory",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "pe-secure-areas",
+      "label": "Restrict processing-area entry",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pe-data-security-reg-source",
+      "locator": "Art 49.1(1),(2);PDFp 13",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pe-secure-areas",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "pe-media-disposal",
+      "label": "Erase sensitive media before reuse",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pe-data-security-reg-source",
+      "locator": "Art 50.1(5);PDFp 13",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pe-media-disposal",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "pe-backup-frequency",
+      "label": "Review secure weekly backups",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pe-data-security-reg-source",
+      "locator": "Art 51.1;PDFp 13",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Weekly minimum backups unless no data update occurred; review storage, transfer and destruction protections."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "pe-backup-integrity",
+      "label": "Verify backup integrity and restoration",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pe-data-security-reg-source",
+      "locator": "Art 51.2;PDFp 13",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pe-backup-integrity",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "pe-transit-protection",
+      "label": "Authorize and secure electronic transfer",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pe-data-security-reg-source",
+      "locator": "Art 52;PDFp 13",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pe-transit-protection",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "pe-incidents-record",
+      "label": "Document incident facts/effects/remediation",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pe-data-security-reg-source",
+      "locator": "Art 35;PDFp 10",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "pe-incidents-record",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    },
+    {
+      "id": "pe-notification",
+      "label": "Review triggered 48 hour breach notification",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "pe-data-security-reg-source",
+      "locator": "Art 34.1–34.5;PDFp 10",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "in-framework-scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review threshold facts, awareness clock, ANPD/subject/digital-center notices, resolved-event duties and delay reasons; do not infer significance automatically."
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Operator declaration only. Review source applicability, role and exceptions; this harness does not verify actual safeguards."
+    }
+  ]
+}

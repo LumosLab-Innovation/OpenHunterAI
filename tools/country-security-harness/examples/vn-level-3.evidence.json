@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "country_security_evidence_v1",
+  "dataOrigin": "synthetic_fixture",
+  "assessmentId": "vn-level-3-demo",
+  "countryCode": "VN",
+  "frameworkId": "vn-system-levels",
+  "levelId": "level-3",
+  "applicabilityConfirmed": true,
+  "observations": [
+    {
+      "controlId": "system_classification",
+      "status": "not_assessed",
+      "reasonCode": "manual_review_required"
+    },
+    {
+      "controlId": "risk_management",
+      "status": "not_assessed",
+      "reasonCode": "manual_review_required"
+    },
+    {
+      "controlId": "identity_access",
+      "status": "reported_failed",
+      "kind": "independent_review",
+      "evidenceRefs": [
+        "artifact:baseline:idor-pos",
+        "artifact:probe:idor-pos",
+        "artifact:impact:idor-pos",
+        "artifact:replay:idor-pos"
+      ],
+      "observedAt": "2026-10-08",
+      "expiresAt": "2026-11-08"
+    },
+    {
+      "controlId": "secure_configuration",
+      "status": "not_assessed",
+      "reasonCode": "manual_review_required"
+    },
+    {
+      "controlId": "network_protection",
+      "status": "not_assessed",
+      "reasonCode": "manual_review_required"
+    },
+    {
+      "controlId": "patch_management",
+      "status": "not_assessed",
+      "reasonCode": "manual_review_required"
+    },
+    {
+      "controlId": "application_security",
+      "status": "reported_satisfied",
+      "kind": "scan_metadata",
+      "evidenceRefs": [
+        "artifact:negative:xss-neg"
+      ],
+      "observedAt": "2026-10-08",
+      "expiresAt": "2026-11-08"
+    },
+    {
+      "controlId": "data_protection",
+      "status": "not_assessed",
+      "reasonCode": "manual_review_required"
+    },
+    {
+      "controlId": "logging_monitoring",
+      "status": "not_assessed",
+      "reasonCode": "manual_review_required"
+    },
+    {
+      "controlId": "incident_response",
+      "status": "not_assessed",
+      "reasonCode": "manual_review_required"
+    },
+    {
+      "controlId": "backup_recovery",
+      "status": "not_assessed",
+      "reasonCode": "manual_review_required"
+    },
+    {
+      "controlId": "assurance_review",
+      "status": "not_assessed",
+      "reasonCode": "manual_review_required"
+    }
+  ]
+}

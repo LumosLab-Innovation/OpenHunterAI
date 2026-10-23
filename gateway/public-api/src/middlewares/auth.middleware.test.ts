@@ -1,8 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createHmac } from 'node:crypto';
-import { requireAllowedOrigin, requireUser, sessionCookieName } from './auth.middleware.js';
+import { isLocalMode, isTrustedLocalRequest, requireAllowedOrigin, requireUser, sessionCookieName } from './auth.middleware.js';
 
 const prisma = vi.hoisted(() => ({
+  organization: { upsert: vi.fn() },
+  user: { upsert: vi.fn() },
   userSession: {
     findUnique: vi.fn(),
     update: vi.fn(),
@@ -13,9 +15,12 @@ vi.mock('@x-hunter/db', () => ({
   getPrisma: () => prisma,
 }));
 
+afterEach(() => { vi.unstubAllEnvs(); });
+
 describe('requireUser', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv('OPENHUNTER_MODE', 'hosted');
     prisma.userSession.update.mockResolvedValue({});
   });
 
@@ -149,6 +154,55 @@ describe('requireAllowedOrigin', () => {
 
     expect(allowedNext).toHaveBeenCalledWith();
     expect(sameOriginNext).toHaveBeenCalledWith();
+  });
+});
+
+describe('loopback-only local mode', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.stubEnv('OPENHUNTER_MODE', '');
+    vi.stubEnv('OPENHUNTER_LOCAL_MODE', '1');
+    prisma.organization.upsert.mockResolvedValue({ id: 'local_org' });
+    prisma.user.upsert.mockResolvedValue({ id: 'local_user', organizationId: 'local_org', email: 'local@openhunter.invalid', role: 'owner' });
+  });
+
+  it('rejects non-loopback hosts and cross-site browser origins', () => {
+    expect(isTrustedLocalRequest(fakeRequestWithHeaders({ host: 'attacker.example' }) as any)).toBe(false);
+    expect(isTrustedLocalRequest(fakeRequestWithHeaders({ host: '127.0.0.1:4000', origin: 'https://attacker.example' }) as any)).toBe(false);
+    expect(isTrustedLocalRequest(fakeRequestWithHeaders({ host: '127.0.0.1:4000', 'sec-fetch-site': 'cross-site' }) as any)).toBe(false);
+  });
+
+  it('uses a stable local identity without a login cookie', async () => {
+    const req = { ...fakeRequestWithHeaders({ host: '127.0.0.1:3001', origin: 'http://127.0.0.1:3001' }), cookies: {} } as any;
+    const res = fakeResponse();
+    const next = vi.fn();
+    requireUser(req, res as any, next);
+    await vi.waitFor(() => expect(next).toHaveBeenCalledWith());
+    expect(req.user).toEqual({ userId: 'local_user', orgId: 'local_org', email: 'local@openhunter.invalid', role: 'owner' });
+    expect(prisma.userSession.findUnique).not.toHaveBeenCalled();
+  });
+
+  it('accepts the compose local flag through the same bootstrap and supports IPv6 loopback', async () => {
+    vi.stubEnv('OPENHUNTER_MODE', 'local');
+    vi.stubEnv('OPENHUNTER_LOCAL_MODE', '0');
+    expect(isLocalMode()).toBe(true);
+    const req = { ...fakeRequestWithHeaders({ host: '[::1]:4000', origin: 'http://[::1]:3001' }), cookies: {} } as any;
+    const next = vi.fn();
+    requireUser(req, fakeResponse() as any, next);
+    await vi.waitFor(() => expect(next).toHaveBeenCalledWith());
+    expect(req.user.userId).toBe('local_user');
+    expect(prisma.user.upsert).toHaveBeenCalledWith(expect.objectContaining({ where: { email: 'local@openhunter.invalid' }, update: {} }));
+  });
+
+  it('keeps explicit hosted mode authenticated despite a legacy local flag', async () => {
+    vi.stubEnv('OPENHUNTER_MODE', 'hosted');
+    expect(isLocalMode()).toBe(false);
+    const res = fakeResponse();
+    const next = vi.fn();
+    requireUser({ cookies: {} } as any, res as any, next);
+    await vi.waitFor(() => expect(res.status).toHaveBeenCalledWith(401));
+    expect(prisma.organization.upsert).not.toHaveBeenCalled();
+    expect(next).not.toHaveBeenCalled();
   });
 });
 

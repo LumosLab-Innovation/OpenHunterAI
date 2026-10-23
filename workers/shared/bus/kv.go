@@ -16,7 +16,7 @@ import (
 type ScanProgress struct {
 	ScanID    string          `json:"scanId"`
 	ProjectID string          `json:"projectId"`
-	Mode      string          `json:"mode"`
+	Profile   string          `json:"profile"`
 	Expected  int             `json:"expected"`
 	Completed int             `json:"completed"`
 	Signals   int             `json:"signals"`

@@ -1,0 +1,37 @@
+name: CLI package
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["cli-v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Test CLI
+        run: node --test tools/cli/openhunter.test.mjs tools/cli/rea.test.mjs
+      - name: Build downloadable package
+        run: |
+          mkdir -p output/packages
+          npm pack ./tools/cli --pack-destination output/packages
+      - name: Verify global command from tarball
+        run: |
+          npm install -g ./output/packages/openhunterai-cli-*.tgz
+          openhunterai --help
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openhunterai-cli
+          path: output/packages/*.tgz
+      - name: Attach to CLI release
+        if: startsWith(github.ref, 'refs/tags/cli-v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "${GITHUB_REF_NAME}" output/packages/*.tgz --generate-notes

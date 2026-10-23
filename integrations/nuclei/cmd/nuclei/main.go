@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -46,19 +47,21 @@ type runRequest struct {
 }
 
 type signal struct {
-	Kind            string `json:"kind"`
-	Title           string `json:"title"`
-	Severity        string `json:"severity,omitempty"`
-	Confidence      string `json:"confidence,omitempty"`
-	Asset           string `json:"asset,omitempty"`
-	Description     string `json:"description,omitempty"`
-	EvidenceClass   string `json:"evidenceClass,omitempty"`
-	ValidationState string `json:"validationState,omitempty"`
+	Kind            string   `json:"kind"`
+	Title           string   `json:"title"`
+	Severity        string   `json:"severity,omitempty"`
+	Confidence      string   `json:"confidence,omitempty"`
+	Asset           string   `json:"asset,omitempty"`
+	Description     string   `json:"description,omitempty"`
+	EvidenceRefs    []string `json:"evidenceRefs,omitempty"`
+	EvidenceClass   string   `json:"evidenceClass,omitempty"`
+	ValidationState string   `json:"validationState,omitempty"`
 }
 
 type runResponse struct {
-	Signals []signal `json:"signals"`
-	Summary string   `json:"summary"`
+	Signals           []signal       `json:"signals"`
+	Summary           string         `json:"summary"`
+	RuntimeProvenance map[string]any `json:"runtimeProvenance"`
 }
 
 func runHandler(w http.ResponseWriter, r *http.Request) {
@@ -87,7 +90,12 @@ func runHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, runResponse{
 		Signals: findings,
-		Summary: fmt.Sprintf("Nuclei curated-safe scan produced %d finding(s).", len(findings)),
+		Summary: fmt.Sprintf("Nuclei curated-safe scan produced %d unvalidated signal(s).", len(findings)),
+		RuntimeProvenance: map[string]any{
+			"upstreamId": "nuclei", "upstreamRef": "v3.4.10",
+			"adapterVersion":    "openhunter-nuclei-adapter/v1",
+			"playbookRevisions": []string{"curated-safe-templates/v1"},
+		},
 	})
 }
 
@@ -103,8 +111,13 @@ func runNuclei(ctx context.Context, req runRequest) ([]signal, string, string) {
 
 	// Safe-by-default: bounded severity, exclude intrusive/destructive tags, no
 	// interactsh, low rate. Curated template dir via NUCLEI_TEMPLATES if set.
+	templatesDir, err := curatedTemplatesDir()
+	if err != nil {
+		return nil, "CURATED_TEMPLATES_UNAVAILABLE", "curated Nuclei templates are not available"
+	}
 	args := []string{
 		"-target", req.Target,
+		"-templates", templatesDir,
 		"-jsonl",
 		"-severity", severityFor(req.TestIntensityMode),
 		"-exclude-tags", "intrusive,dos,fuzz,brute-force,sqli,rce",
@@ -114,20 +127,49 @@ func runNuclei(ctx context.Context, req runRequest) ([]signal, string, string) {
 		"-disable-update-check",
 		"-silent",
 	}
-	if dir := os.Getenv("NUCLEI_TEMPLATES"); dir != "" {
-		args = append(args, "-templates", dir)
-	}
-
 	var stdout, stderr bytes.Buffer
 	cmd := exec.CommandContext(runCtx, nucleiBin(), args...)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
-	_ = cmd.Run() // nuclei exits non-zero when findings exist; parse regardless.
+	err = cmd.Run()
 
 	if runCtx.Err() == context.DeadlineExceeded {
 		return nil, "TOOL_TIMEOUT", "nuclei exceeded its time budget"
 	}
-	return parseNucleiJSONL(stdout.Bytes()), "", ""
+	findings, parseErr := parseNucleiJSONL(stdout.Bytes())
+	if err != nil {
+		return nil, "TOOL_RUNTIME_ERROR", "nuclei exited unsuccessfully; scan coverage is incomplete"
+	}
+	if parseErr != nil {
+		return nil, "TOOL_OUTPUT_UNREADABLE", "nuclei returned malformed structured output"
+	}
+	if stderr.Len() > 0 && len(findings) == 0 {
+		// Nuclei sometimes reports configuration/runtime failures on stderr while
+		// exiting zero. Refuse to turn that ambiguous state into a clean scan.
+		return nil, "TOOL_OUTPUT_AMBIGUOUS", "nuclei produced diagnostics without structured results"
+	}
+	return findings, "", ""
+}
+
+func curatedTemplatesDir() (string, error) {
+	dir := strings.TrimSpace(os.Getenv("NUCLEI_TEMPLATES"))
+	if dir == "" {
+		return "", fmt.Errorf("NUCLEI_TEMPLATES is required")
+	}
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return "", err
+	}
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		ext := strings.ToLower(filepath.Ext(entry.Name()))
+		if ext == ".yaml" || ext == ".yml" {
+			return dir, nil
+		}
+	}
+	return "", fmt.Errorf("no curated YAML templates found")
 }
 
 // nucleiResult is the subset of a nuclei JSONL record we map to a signal.
@@ -142,18 +184,21 @@ type nucleiResult struct {
 	Type      string `json:"type"`
 }
 
-func parseNucleiJSONL(data []byte) []signal {
+func parseNucleiJSONL(data []byte) ([]signal, error) {
 	out := []signal{}
 	sc := bufio.NewScanner(bytes.NewReader(data))
 	sc.Buffer(make([]byte, 1024*1024), 4*1024*1024)
 	for sc.Scan() {
 		line := strings.TrimSpace(sc.Text())
-		if line == "" || line[0] != '{' {
+		if line == "" {
 			continue
 		}
+		if line[0] != '{' {
+			return nil, fmt.Errorf("non-JSONL output from nuclei")
+		}
 		var r nucleiResult
-		if err := json.Unmarshal([]byte(line), &r); err != nil {
-			continue
+		if err := json.Unmarshal([]byte(line), &r); err != nil || r.TemplateID == "" {
+			return nil, fmt.Errorf("invalid JSONL record from nuclei")
 		}
 		asset := r.MatchedAt
 		if asset == "" {
@@ -164,37 +209,28 @@ func parseNucleiJSONL(data []byte) []signal {
 			severity = "low"
 		}
 		out = append(out, signal{
-			Kind:            "nuclei_" + sanitizeText(r.TemplateID),
-			Title:           sanitizeText(firstNonEmpty(r.Info.Name, r.TemplateID)),
-			Severity:        severity,
-			Confidence:      "medium",
-			Asset:           sanitizeText(asset),
-			Description:     sanitizeText(fmt.Sprintf("Nuclei template %s matched (%s).", r.TemplateID, r.Type)),
-			EvidenceClass:   evidenceClassForResult(r, severity),
-			ValidationState: validationStateForResult(r, severity),
+			Kind:        "nuclei_" + sanitizeText(r.TemplateID),
+			Title:       sanitizeText(firstNonEmpty(r.Info.Name, r.TemplateID)),
+			Severity:    severity,
+			Confidence:  "medium",
+			Asset:       sanitizeText(asset),
+			Description: sanitizeText(fmt.Sprintf("Nuclei template %s matched (%s).", r.TemplateID, r.Type)),
+			// A template match is a candidate signal, never independent proof.
+			EvidenceClass:   evidenceClassForResult(r),
+			ValidationState: "candidate",
 		})
 	}
-	return out
+	if err := sc.Err(); err != nil {
+		return nil, fmt.Errorf("nuclei JSONL exceeds parser bounds")
+	}
+	return out, nil
 }
 
-func evidenceClassForResult(r nucleiResult, severity string) string {
+func evidenceClassForResult(r nucleiResult) string {
 	if isHeaderHardeningSignal(r) {
 		return "hardening_warning"
 	}
-	if severity == "medium" || severity == "high" || severity == "critical" {
-		return "validated_finding"
-	}
-	return "signal"
-}
-
-func validationStateForResult(r nucleiResult, severity string) string {
-	if isHeaderHardeningSignal(r) {
-		return "unvalidated"
-	}
-	if severity == "medium" || severity == "high" || severity == "critical" {
-		return "validated_finding"
-	}
-	return "unvalidated"
+	return "candidate"
 }
 
 func isHeaderHardeningSignal(r nucleiResult) bool {

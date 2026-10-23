@@ -1,0 +1,535 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "jp-ipa-sme-2026.curated",
+  "frameworkId": "jp-ipa-sme-2026",
+  "version": "Version 4.0, March 2026; published annex updated 2026; curated-2026-10-08",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "jp-ipa-sme-2026.source",
+      "title": "IPA SME guideline v4.0 Appendix 3, self-diagnosis",
+      "url": "https://www.ipa.go.jp/security/guide/sme/ug65p90000019cbk-att/sme_guideline_v4.0_app_3.pdf",
+      "locator": "Appendix 3 diagnosis items 1–25, PDF p3"
+    }
+  ],
+  "limitations": [
+    "Curated partial clause coverage only. The baseline is an assessment target, never a national security grade or a certification decision.",
+    "All selected items are recommendations. The self-diagnosis score and SECURITY ACTION/SCS stars are not calculated or represented as country ranks. Labels paraphrase Japanese source; English v3.1 is not substituted for v4.0."
+  ],
+  "requirements": [
+    {
+      "id": "jp-ipa-sme-2026.software-updates",
+      "label": "Keep operating systems and software updated",
+      "controlId": "patch_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 1, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.software-updates",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "jp-ipa-sme-2026.antimalware",
+      "label": "Use updated malware protection",
+      "controlId": "malware_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 2, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.antimalware",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "jp-ipa-sme-2026.strong-passwords",
+      "label": "Use strong passwords",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 3, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.strong-passwords",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "jp-ipa-sme-2026.restricted-sharing",
+      "label": "Limit data sharing to intended recipients",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 4, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.restricted-sharing",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "jp-ipa-sme-2026.backups",
+      "label": "Back up important information regularly",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 5, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.backups",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "jp-ipa-sme-2026.threat-awareness",
+      "label": "Share current threat information and countermeasures",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 6, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.threat-awareness",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "jp-ipa-sme-2026.phishing-awareness",
+      "label": "Handle suspicious email links and attachments carefully",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 7, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.phishing-awareness",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "jp-ipa-sme-2026.recipient-check",
+      "label": "Prevent email and fax misdelivery",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 8, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.recipient-check",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "jp-ipa-sme-2026.secure-transfer",
+      "label": "Transfer important information using safe methods",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 9, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.secure-transfer",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "jp-ipa-sme-2026.wireless-security",
+      "label": "Configure secure wireless networks",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 10, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "jp-ipa-sme-2026.wireless_network_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.wireless-security",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "jp-ipa-sme-2026.physical-storage",
+      "label": "Secure important documents and media",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 12, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.physical-storage",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "jp-ipa-sme-2026.secure-disposal",
+      "label": "Make discarded important data unrecoverable",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 14, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "jp-ipa-sme-2026.data_disposal_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.secure-disposal",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "jp-ipa-sme-2026.screen-lock",
+      "label": "Prevent unattended-screen disclosure and misuse",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 15, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.screen-lock",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "jp-ipa-sme-2026.network-access",
+      "label": "Protect internal networks from unauthorised access",
+      "controlId": "network_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 18, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.network-access",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "jp-ipa-sme-2026.website-publication",
+      "label": "Prevent disclosure of inappropriate website information",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 19, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "jp-ipa-sme-2026.website_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.website-publication",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "jp-ipa-sme-2026.staff-education",
+      "label": "Educate staff on information security",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 20, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.staff-education",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "jp-ipa-sme-2026.byod-policy",
+      "label": "Define safeguards for personal work devices",
+      "controlId": "secure_configuration",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 21, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "jp-ipa-sme-2026.byod_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.byod-policy",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "jp-ipa-sme-2026.confidentiality-contracts",
+      "label": "Contract for confidentiality in information-sharing transactions",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 22, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "jp-ipa-sme-2026.information_sharing_partners",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.confidentiality-contracts",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "jp-ipa-sme-2026.supplier-selection",
+      "label": "Assess safety and reliability of external services",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 23, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [
+        {
+          "factId": "jp-ipa-sme-2026.external_services_present",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.supplier-selection",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "jp-ipa-sme-2026.incident-preparation",
+      "label": "Prepare emergency roles and incident procedures",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 24, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.incident-preparation",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    },
+    {
+      "id": "jp-ipa-sme-2026.written-rules",
+      "label": "Document and communicate security rules",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "jp-ipa-sme-2026.source",
+      "locator": "Appendix 3, diagnosis item 25, PDF p3",
+      "normativeStrength": "recommendation",
+      "applicability": [],
+      "check": {
+        "type": "boolean",
+        "factId": "jp-ipa-sme-2026.written-rules",
+        "expected": true
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Offline check compares a declared fact and an opaque evidence reference. Document content, implementation effectiveness and legal compliance remain unverified."
+    }
+  ]
+}

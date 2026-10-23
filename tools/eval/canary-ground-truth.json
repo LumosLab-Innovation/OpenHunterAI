@@ -1,0 +1,21 @@
+{
+  "id": "object-ownership-canary-v1",
+  "expectedFindings": [
+    {
+      "category": "access_control_object_ownership",
+      "assetIncludes": "/openhunter-canary/objects/vulnerable/",
+      "minSeverity": "high"
+    }
+  ],
+  "forbiddenFindings": [
+    {
+      "assetIncludes": "/openhunter-canary/objects/fixed/"
+    }
+  ],
+  "thresholds": {
+    "minRecall": 1,
+    "maxFalsePositives": 0,
+    "maxFalsePositiveRate": 0,
+    "minEvidenceCompleteness": 1
+  }
+}

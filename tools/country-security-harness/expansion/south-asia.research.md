@@ -1,0 +1,9 @@
+# Additional South Asia research — 2026-10-08
+
+| Jurisdiction | Official source | Implemented scope | Gaps |
+| --- | --- | --- | --- |
+| Bangladesh | [Bangladesh Bank ICT Security Guideline v4.0, 2023](https://www.bb.org.bd/aboutus/regulationguideline/brpd/jun192023_ictsecurityv4.pdf) | 18 selected numbered controls for network admission, segmentation, physical equipment protection, endpoint protection, patch procedures, workstation locking, encryption and device/software control | Banks/FIs sector scope; later circulars require review. Data-center ratings are not application security grades. |
+| Sri Lanka | [CBSL Banking Act Direction 16/2021 and Schedule I](https://www.cbsl.gov.lk/sites/default/files/cbslweb_documents/laws/cdg/Banking_Act_Directions_No_16_of_2021.pdf) | 20 selected clauses for governance, independent access reviews, logs, classification, encryption alternatives, SOC, third parties, incident response, security tests and recovery exercises | Licensed-bank scope; SOC applicability, D-SIB status, transitions and subsequent amendments need review. Calendar review periods and seven-day DR operation remain manual assessment items. |
+| Pakistan | [SBP Circular 05/2017](https://archive.sbp.org.pk/bprd/2017/C5.htm), [current SBP supervision overview](https://www.sbp.org.pk/our-operations/banking-regulation-and-supervision) | Framework reference and regulated sector scope | The annex redirect was not read reliably. No detailed clauses are inferred from a circular or overview. Consolidated amendments need review. |
+
+The two clause packs require independent manual evidence review. They contain selected paraphrases and source locators, not a complete reproduction or a determination of legal compliance. All three references retain `currency: requires_review` for the unresolved consolidation and sector applicability checks.

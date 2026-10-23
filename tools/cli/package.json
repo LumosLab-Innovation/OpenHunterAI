@@ -1,0 +1,24 @@
+{
+  "name": "openhunterai-cli",
+  "version": "0.1.0",
+  "description": "Local CLI launcher and scan client for OpenHunterAI",
+  "type": "module",
+  "license": "SEE LICENSE IN LICENSE",
+  "bin": {
+    "openhunterai": "./openhunter.mjs"
+  },
+  "files": [
+    "openhunter.mjs",
+    "rea.mjs",
+    "terminal-art.mjs",
+    "assets/hunter-character.png",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test openhunter.test.mjs rea.test.mjs"
+  }
+}

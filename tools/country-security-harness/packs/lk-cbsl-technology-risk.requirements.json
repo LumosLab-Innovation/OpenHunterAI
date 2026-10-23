@@ -1,0 +1,624 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "lk-cbsl-technology-risk-curated",
+  "frameworkId": "lk-cbsl-technology-risk",
+  "version": "Banking Act Direction16 of2021; consolidated amendments require review",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "lk-cbsl-technology-risk-source",
+      "title": "CBSL technology risk management and resilience — official full-text reference",
+      "url": "https://www.cbsl.gov.lk/sites/default/files/cbslweb_documents/laws/cdg/Banking_Act_Directions_No_16_of_2021.pdf",
+      "locator": "Selected numbered clauses; reviewed 2026-10-08"
+    }
+  ],
+  "limitations": [
+    "Partial selection of security controls. No certification, legal compliance or national security grade is inferred.",
+    "The reviewed edition is not verified as a fully consolidated current legal instrument; check amendments and sector applicability before operational use.",
+    "All entries require manual evidence review. Exclusions, compensating controls and annual/calendar obligations are not decided by metadata.",
+    "SOC applicability under5.6.1 and encryption alternatives under5.5.1(iv) must be assessed. DLP exceptions, detailed D-SIB requirements and implementation transitions are not fully encoded."
+  ],
+  "requirements": [
+    {
+      "id": "lk.governance",
+      "label": "Board-approved technology risk governance",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "lk-cbsl-technology-risk-source",
+      "locator": "Direction5.1; ScheduleI section4",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "lk_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against Direction5.1; ScheduleI section4"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "lk.audit",
+      "label": "Annual internal audit and Board reporting",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "lk-cbsl-technology-risk-source",
+      "locator": "Direction7.1",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "lk_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against Direction7.1"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "lk.privilege",
+      "label": "Time-limited privileged access on demonstrated need",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "lk-cbsl-technology-risk-source",
+      "locator": "ScheduleI5.2.3",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "lk_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against ScheduleI5.2.3"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "lk.critical-review",
+      "label": "Monthly access review for critical systems",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "lk-cbsl-technology-risk-source",
+      "locator": "ScheduleI5.2.4(i)(a)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "lk_regulated_scope",
+          "equals": true
+        },
+        {
+          "factId": "critical_systems_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against ScheduleI5.2.4(i)(a)"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "lk.sensitive-review",
+      "label": "Quarterly review of noncritical sensitive-data system access",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "lk-cbsl-technology-risk-source",
+      "locator": "ScheduleI5.2.4(i)(b)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "lk_regulated_scope",
+          "equals": true
+        },
+        {
+          "factId": "noncritical_sensitive_data_systems_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against ScheduleI5.2.4(i)(b)"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "lk.customer-review",
+      "label": "Annual customer access authorization review",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "lk-cbsl-technology-risk-source",
+      "locator": "ScheduleI5.2.4(i)(c)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "lk_regulated_scope",
+          "equals": true
+        },
+        {
+          "factId": "customer_access_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against ScheduleI5.2.4(i)(c)"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "lk.independent-review",
+      "label": "Access reviews independent of user administration",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "lk-cbsl-technology-risk-source",
+      "locator": "ScheduleI5.2.4(iv)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "lk_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against ScheduleI5.2.4(iv)"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "lk.log-policy",
+      "label": "Logs cover scoped systems under a documented policy",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "lk-cbsl-technology-risk-source",
+      "locator": "ScheduleI5.3.1-5.3.2",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "lk_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against ScheduleI5.3.1-5.3.2"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "lk.privileged-log",
+      "label": "Near real-time privileged-user log review",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "lk-cbsl-technology-risk-source",
+      "locator": "ScheduleI5.3.6",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "lk_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against ScheduleI5.3.6"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "lk.classification",
+      "label": "Classify and label electronic data by sensitivity",
+      "controlId": "system_classification",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "lk-cbsl-technology-risk-source",
+      "locator": "ScheduleI5.4.1-5.4.2",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "lk_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against ScheduleI5.4.1-5.4.2"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "lk.encryption",
+      "label": "Review customer encryption and approved alternative controls",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "lk-cbsl-technology-risk-source",
+      "locator": "ScheduleI5.5.1(i),(ii),(iv)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "lk_regulated_scope",
+          "equals": true
+        },
+        {
+          "factId": "customer_data_processed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against ScheduleI5.5.1(i),(ii),(iv)"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "lk.soc-hours",
+      "label": "SOC provides continuous operating coverage",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "lk-cbsl-technology-risk-source",
+      "locator": "ScheduleI5.6.1;5.6.4",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "lk_regulated_scope",
+          "equals": true
+        },
+        {
+          "factId": "soc_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against ScheduleI5.6.1;5.6.4"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "lk.soc-workflow",
+      "label": "SOC has documented incident and forensic processes",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "lk-cbsl-technology-risk-source",
+      "locator": "ScheduleI5.6.6(i)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "lk_regulated_scope",
+          "equals": true
+        },
+        {
+          "factId": "soc_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against ScheduleI5.6.6(i)"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "lk.soc-tools",
+      "label": "SOC has asset, database, vulnerability and intrusion tools",
+      "controlId": "logging_monitoring",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "lk-cbsl-technology-risk-source",
+      "locator": "ScheduleI5.6.7(i)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "lk_regulated_scope",
+          "equals": true
+        },
+        {
+          "factId": "soc_in_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against ScheduleI5.6.7(i)"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "lk.thirdparty-soc",
+      "label": "Critical third-party systems covered by compliant SOC",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "lk-cbsl-technology-risk-source",
+      "locator": "ScheduleI5.6.10",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "lk_regulated_scope",
+          "equals": true
+        },
+        {
+          "factId": "critical_thirdparty_systems_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against ScheduleI5.6.10"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "lk.incident-plan",
+      "label": "Board-approved incident escalation and recovery plan",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "lk-cbsl-technology-risk-source",
+      "locator": "ScheduleI5.7.1",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "lk_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against ScheduleI5.7.1"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "lk.incident-test",
+      "label": "Annual realistic incident response and recovery exercises",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "lk-cbsl-technology-risk-source",
+      "locator": "ScheduleI5.7.2",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "lk_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against ScheduleI5.7.2"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "lk.security-pretest",
+      "label": "Pre-implementation testing for scoped critical and sensitive systems",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "lk-cbsl-technology-risk-source",
+      "locator": "ScheduleI5.8.1(i)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "lk_regulated_scope",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against ScheduleI5.8.1(i)"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "lk.dr-trigger",
+      "label": "Board-approved critical system disaster recovery triggers",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "lk-cbsl-technology-risk-source",
+      "locator": "ScheduleI6.4.1-6.4.2",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "lk_regulated_scope",
+          "equals": true
+        },
+        {
+          "factId": "critical_systems_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against ScheduleI6.4.1-6.4.2"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    },
+    {
+      "id": "lk.dr-testing",
+      "label": "Annual disaster recovery operation lasts at least seven days",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "framework_wide",
+      "sourceId": "lk-cbsl-technology-risk-source",
+      "locator": "ScheduleI6.5.1",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "lk_regulated_scope",
+          "equals": true
+        },
+        {
+          "factId": "critical_systems_used",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review scoped records and implementation against ScheduleI6.5.1"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Selected paraphrase. Native exceptions, period semantics, organizational scope and current amendments require independent review. Timing language is retained in the source locator and label, without converting a calendar obligation into a rolling numeric deadline."
+    }
+  ]
+}

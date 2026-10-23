@@ -16,6 +16,7 @@ reading order in [AGENTS.md](../AGENTS.md).
 
 | Reference | Authority |
 | --- | --- |
+| [Core questions](CORE_QUESTIONS.md) | User outcomes, current evidence, unanswered questions and proposed first proof |
 | [Product requirements](PRD.md) | Product vocabulary and intended behavior |
 | [Architecture](ARCHITECTURE.md) | Checked-in runtime, service boundaries, data flow |
 | [Worker specification](WORKER_SPEC.md) | Plan keys, process IDs, subjects, profiles, result contract |
@@ -23,7 +24,7 @@ reading order in [AGENTS.md](../AGENTS.md).
 | [UI design](DESIGN.md) | Current frontend tokens and interaction conventions |
 | [Database](../shared/db/README.md) | Schema, migration commands, sensitive fields |
 | [API schema](../contracts/api/public-api.openapi.yaml) / [events](../contracts/events/events.asyncapi.yaml) | Published contract files; check coverage notes below |
-| [Report schema](../contracts/schemas/report-content-v1.schema.json) | Structured report format |
+| [Report schema](../contracts/schemas/report-content-v2.schema.json) | Structured report format for the development engine |
 
 The OpenAPI/AsyncAPI files are not a complete inventory of every current route or
 event. For local workspace response examples, see the [agent API table](../skills/openhunter/references/workflow.md#read-endpoints);

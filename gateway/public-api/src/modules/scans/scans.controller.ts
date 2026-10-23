@@ -28,6 +28,22 @@ export async function createScan(req: Request, res: Response) {
   res.json({ scan: service.toPublicScan(await service.create(req.params.id!, user.orgId, user.userId, req.body)) });
 }
 
+export async function createSelfHostedScan(req: Request, res: Response) {
+  const user = currentUser(req);
+  res.json({
+    schemaVersion: 'scan_request_v2',
+    scan: service.toPublicScan(await service.createRequest(user.orgId, user.userId, req.body)),
+  });
+}
+
+export async function preflightSelfHostedScan(req: Request, res: Response) {
+  const user = currentUser(req);
+  res.json({
+    schemaVersion: 'scan_request_v2',
+    preflight: await service.preflightRequest(user.orgId, req.body),
+  });
+}
+
 export async function preflightScan(req: Request, res: Response) {
   const user = currentUser(req);
   res.json({ preflight: await service.preflight(req.params.id!, user.orgId, req.body) });

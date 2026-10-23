@@ -1,0 +1,887 @@
+{
+  "schemaVersion": "country_security_framework_batch_v1",
+  "reviewedOn": "2026-10-08",
+  "frameworks": [
+    {
+      "id": "us-ftc-safeguards",
+      "countryCode": "US",
+      "countryName": "United States",
+      "label": "FTC Safeguards Rule",
+      "version": "16 CFR Part 314; eCFR checked 2026-10-08",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Financial institutions subject to FTC jurisdiction, processing customer information; not a general US baseline. Section 314.6 excludes four provisions for institutions holding information of fewer than 5000 consumers.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Selected source obligations for the declared scope; no formal level or certification is awarded."
+        }
+      ],
+      "controlIds": [
+        "risk_management",
+        "identity_access",
+        "data_protection",
+        "application_security",
+        "secure_configuration",
+        "logging_monitoring",
+        "assurance_review",
+        "staff_awareness",
+        "supplier_security",
+        "incident_response"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "us-ftc-safeguards-source",
+          "title": "FTC Safeguards Rule — official reference",
+          "url": "https://www.ecfr.gov/current/title-16/chapter-I/subchapter-C/part-314/section-314.4",
+          "locator": "16 CFR 314.4(a)-(j); applicability 314.2 and exceptions 314.6"
+        },
+        {
+          "id": "us-ftc-exceptions",
+          "title": "eCFR 16 CFR 314.6 — Exceptions",
+          "url": "https://www.ecfr.gov/current/title-16/chapter-I/subchapter-C/part-314/section-314.6",
+          "locator": "314.6; four excluded paragraphs for fewer than 5000 consumers."
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "Jurisdiction, customer-information definitions, compensating-control approvals and exemptions require manual review. Notification thresholds are not applied by this partial pack."
+      ]
+    },
+    {
+      "id": "ca-osfi-b13",
+      "countryCode": "CA",
+      "countryName": "Canada",
+      "label": "OSFI Guideline B-13 — Technology and Cyber Risk Management",
+      "version": "July 2022 guideline, official HTML including branch scope checked 2026-10-08",
+      "kind": "control_baseline",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Federally regulated financial institutions including specified foreign branches, proportionate to risk and Canadian legal obligations. This guideline expresses supervisory expectations, not a countrywide grade.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Selected source obligations for the declared scope; no formal level or certification is awarded."
+        }
+      ],
+      "controlIds": [
+        "risk_management",
+        "secure_configuration",
+        "patch_management",
+        "application_security",
+        "data_protection",
+        "network_protection",
+        "identity_access",
+        "logging_monitoring"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "ca-osfi-b13-source",
+          "title": "OSFI Guideline B-13 — Technology and Cyber Risk Management — official reference",
+          "url": "https://www.osfi-bsif.gc.ca/en/guidance/guidance-library/technology-cyber-risk-management",
+          "locator": "A.Purpose and scope; 1.1–1.3;2.2–2.6;3.1–3.4"
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "Requirements using should/where feasible remain recommendations in this pack. Other OSFI guidance and incident reporting advisory are outside coverage."
+      ]
+    },
+    {
+      "id": "br-cmn-cyber",
+      "countryCode": "BR",
+      "countryName": "Brazil",
+      "label": "CMN Resolution 4.893 — Cybersecurity policy and cloud outsourcing",
+      "version": "4.893/2021 consolidated update 19 December 2025 incl 5.274/2025",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "BCB-authorized institutions within CMN 4.893 scope. Excludes consortium administrators, payment institutions, securities brokers/dealers and FX brokers listed by Art 1; those follow separate BCB regulation.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Selected source obligations for the declared scope; no formal level or certification is awarded."
+        }
+      ],
+      "controlIds": [
+        "risk_management",
+        "patch_management",
+        "logging_monitoring",
+        "staff_awareness",
+        "incident_response",
+        "assurance_review",
+        "supplier_security"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "br-cmn-cyber-source",
+          "title": "CMN Resolution 4.893 — Cybersecurity policy and cloud outsourcing — official reference",
+          "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?numero=4893&tipo=Resolu%C3%A7%C3%A3o+CMN",
+          "locator": "Articles 1–3,3-A,4–12,21; updated scope at Art 1 sole paragraph"
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "This selected map does not exhaust additions in CMN 5.274/2025, cloud requirements or related 2026 BCB normative instructions. Scope exclusions are material."
+      ]
+    },
+    {
+      "id": "mx-public-data-security",
+      "countryCode": "MX",
+      "countryName": "Mexico",
+      "label": "Public-sector personal-data security duties — LGPDPPSO",
+      "version": "New law 20 March 2025; consolidated last reform 14 November 2025",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Public bodies, authorities, parties, trusts and other sujetos obligados under Articles 1–4/3 XXVII. Not the private-sector LFPDPPP and not a national assurance grade.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Selected source obligations for the declared scope; no formal level or certification is awarded."
+        }
+      ],
+      "controlIds": [
+        "data_protection",
+        "risk_management",
+        "assurance_review",
+        "logging_monitoring",
+        "staff_awareness",
+        "incident_response"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "mx-public-data-security-source",
+          "title": "Public-sector personal-data security duties — LGPDPPSO — official reference",
+          "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LGPDPPSO.pdf",
+          "locator": "Articles 25–36 security duties; PDF pp 7–9"
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "The 2025 institutional changes and other local/sector requirements need manual review. This pack covers security duties only, not all data-subject rights."
+      ]
+    },
+    {
+      "id": "ar-aaip-security",
+      "countryCode": "AR",
+      "countryName": "Argentina",
+      "label": "AAIP Resolution 47/2018 — Recommended security measures",
+      "version": "Resolution 47/2018; AnnexI/II",
+      "kind": "control_baseline",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Recommended measures for personal-data processing; assess Law 25.326 obligations separately. These recommendations are not national security levels.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Selected source obligations for the declared scope; no formal level or certification is awarded."
+        }
+      ],
+      "controlIds": [
+        "risk_management",
+        "identity_access",
+        "data_protection",
+        "incident_response",
+        "backup_recovery",
+        "assurance_review"
+      ],
+      "mappingCoverage": "overview_only",
+      "sources": [
+        {
+          "id": "ar-aaip-security-source",
+          "title": "AAIP Resolution 47/2018 — Recommended security measures — official reference",
+          "url": "https://www.argentina.gob.ar/normativa/nacional/resoluci%C3%B3n-47-2018-312662",
+          "locator": "Article 1 and AnnexI electronic processing; AnnexII non-electronic processing"
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "CATALOG_ONLY: Annex full text could not be retrieved reliably during this review; no executable clauses were invented. Recommended status must not become mandatory."
+      ]
+    },
+    {
+      "id": "cl-cyber-law",
+      "countryCode": "CL",
+      "countryName": "Chile",
+      "label": "Cybersecurity Framework Law 21.663",
+      "version": "Law 21.663 official consolidated text checked 2026-10-08",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Essential-service providers and operators classified by ANCI; additional Art 8 duties depend on designation. Excludes pretending all websites are essential services.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Selected source obligations for the declared scope; no formal level or certification is awarded."
+        }
+      ],
+      "controlIds": [
+        "incident_response",
+        "risk_management",
+        "logging_monitoring",
+        "backup_recovery",
+        "assurance_review",
+        "staff_awareness"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "cl-cyber-law-source",
+          "title": "Cybersecurity Framework Law 21.663 — official reference",
+          "url": "https://www.bcn.cl/leychile/navegar?idNorma=1202434",
+          "locator": "Articles 4–9: essential services, vital operators and cybersecurity duties"
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "Designation decisions, ANCI implementing protocols and current operational reporting rules need review. This map does not itself determine designation."
+      ]
+    },
+    {
+      "id": "co-personal-data-security",
+      "countryCode": "CO",
+      "countryName": "Colombia",
+      "label": "Law 1581/2012 — Personal-data security duties",
+      "version": "Law 1581/2012",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Personal-data controllers/processors falling within Colombian law territorial/treaty scope, subject to Article 2 exclusions. Security obligations only.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Selected source obligations for the declared scope; no formal level or certification is awarded."
+        }
+      ],
+      "controlIds": [
+        "data_protection",
+        "supplier_security",
+        "incident_response"
+      ],
+      "mappingCoverage": "overview_only",
+      "sources": [
+        {
+          "id": "co-personal-data-security-source",
+          "title": "Law 1581/2012 — Personal-data security duties — official reference",
+          "url": "https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=49981",
+          "locator": "Art 2 scope; Art 4(g),(h); Art 17(d),(i),(n); Art 18 duties"
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "CATALOG_ONLY: the reviewed security clauses do not justify 12 distinct cybersecurity requirements; broader privacy rights were not used as filler. Sector cybersecurity rules remain unmapped."
+      ]
+    },
+    {
+      "id": "pe-data-security-reg",
+      "countryCode": "PE",
+      "countryName": "Peru",
+      "label": "Personal-data protection Regulation DS 016-2024-JUS",
+      "version": "DS 016-2024-JUS published 30 November 2024",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Controllers/processors within Law 29733 and its updated regulation; system/data scope and exemptions require assessment. No national security grade.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Selected source obligations for the declared scope; no formal level or certification is awarded."
+        }
+      ],
+      "controlIds": [
+        "identity_access",
+        "assurance_review",
+        "logging_monitoring",
+        "data_protection",
+        "risk_management",
+        "staff_awareness",
+        "secure_configuration",
+        "backup_recovery",
+        "incident_response"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "pe-data-security-reg-source",
+          "title": "Personal-data protection Regulation DS 016-2024-JUS — official reference",
+          "url": "https://cdn.www.gob.pe/uploads/document/file/7568330/6426760-decreto-supremo-n-016-2024-jus-reglamento-de-la-ley-n-29733-ley-de-proteccion-de-datos-personales-publicado-nov-2024.pdf",
+          "locator": "Regulation under Law 29733; security and incident provisions in official ElPeruano PDF"
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "Current transition rules, incremental DPO requirements and ANPD guidance require review. Old DS 003-2013-JUS is not assumed current."
+      ]
+    },
+    {
+      "id": "uy-agesic-mcu",
+      "countryCode": "UY",
+      "countryName": "Uruguay",
+      "label": "AGESIC Marco de Ciberseguridad 5.0",
+      "version": "MCU 5.0; official reference updatedJune 2026",
+      "kind": "maturity",
+      "ordinalLevels": true,
+      "currency": "reviewed_reference",
+      "applicability": "Public/private organisations using the Uruguayan MCU reference. Desired maturity is selected through risk/sector context per subcategory, not an arithmetic country grade.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "level-0",
+          "label": "Nivel 0",
+          "summary": "Absent or almost absent activity; not included in positive maturity model."
+        },
+        {
+          "id": "level-1",
+          "label": "Nivel 1",
+          "summary": "Native MCU target; higher levels include lower levels. Target is risk/context dependent."
+        },
+        {
+          "id": "level-2",
+          "label": "Nivel 2",
+          "summary": "Native MCU target; higher levels include lower levels. Target is risk/context dependent."
+        },
+        {
+          "id": "level-3",
+          "label": "Nivel 3",
+          "summary": "Native MCU target; higher levels include lower levels. Target is risk/context dependent."
+        },
+        {
+          "id": "level-4",
+          "label": "Nivel 4",
+          "summary": "Native MCU target; higher levels include lower levels. Target is risk/context dependent."
+        }
+      ],
+      "controlIds": [
+        "secure_configuration",
+        "logging_monitoring",
+        "identity_access",
+        "malware_protection",
+        "network_protection",
+        "data_protection",
+        "assurance_review"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "uy-agesic-mcu-source",
+          "title": "AGESIC Marco de Ciberseguridad 5.0 — official reference",
+          "url": "https://www.gub.uy/agencia-gobierno-electronico-sociedad-informacion-conocimiento/comunicacion/publicaciones/marco-ciberseguridad-50/marco-ciberseguridad-50",
+          "locator": "MCU 5.0 model; levels 0–4; implementation controls OR.6,SO.5,SC.14,CN.3"
+        },
+        {
+          "id": "uy-native-model",
+          "title": "AGESIC MCU 5.0 — Modelo de madurez",
+          "url": "https://www.gub.uy/agencia-gobierno-electronico-sociedad-informacion-conocimiento/comunicacion/publicaciones/marco-ciberseguridad-50/marco-ciberseguridad-50/modelo-madurez",
+          "locator": "Modelo de madurez:0–4 and cumulative rule."
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "Level 0 denotes absent activity and is explicitly outside the implemented model; it has no positive executable requirements here. Level membership follows native controls and explicit cumulative rule, not inferred cross-country equivalence. Community profiles BĂ¡sico/EstĂ¡ndar/Avanzado are distinct from maturity levels."
+      ]
+    },
+    {
+      "id": "cr-personal-data-security",
+      "countryCode": "CR",
+      "countryName": "Costa Rica",
+      "label": "Law 8968 and Regulation 37554-JP — Security duties",
+      "version": "Law 8968/2011; Regulation 37554-JP with 2016/2019 amendments",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Personal-data databases within Law 8968; public/private scope and exceptions require review. This selection is not a national level.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Selected source obligations for the declared scope; no formal level or certification is awarded."
+        }
+      ],
+      "controlIds": [
+        "data_protection",
+        "identity_access",
+        "logging_monitoring"
+      ],
+      "mappingCoverage": "overview_only",
+      "sources": [
+        {
+          "id": "cr-personal-data-security-source",
+          "title": "Law 8968 and Regulation 37554-JP — Security duties — official reference",
+          "url": "https://www.prodhab.go.cr/acercade/normativa/",
+          "locator": "Official legislation index; LawArt 10 security and Art 11 confidentiality; amended regulation"
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "CATALOG_ONLY: regulator index and FAQs retrieved; complete amended security regulation not independently parsed. Do not use repealed intermediary definitions or invent thresholds."
+      ]
+    },
+    {
+      "id": "pa-personal-data-security",
+      "countryCode": "PA",
+      "countryName": "Panama",
+      "label": "Law 81/2019 and Executive Decree 285 — Security duties",
+      "version": "Executive Decree 285 of 28 May 2021",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Personal-data controllers within Law 81/2019 and Decree 285, with territorial and sector exclusions assessed manually.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Selected source obligations for the declared scope; no formal level or certification is awarded."
+        }
+      ],
+      "controlIds": [
+        "data_protection",
+        "risk_management",
+        "incident_response",
+        "supplier_security"
+      ],
+      "mappingCoverage": "overview_only",
+      "sources": [
+        {
+          "id": "pa-personal-data-security-source",
+          "title": "Law 81/2019 and Executive Decree 285 — Security duties — official reference",
+          "url": "https://www.antai.gob.pa/wp-content/uploads/2021/05/Reglamentacio%CC%81n-de-Ley-81-de-Proteccio%CC%81n-de-Datos-Personales.pdf",
+          "locator": "Official Gazette 29185-A; Decree 285 implementing Law 81/2019"
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "CATALOG_ONLY: source identified and regulator-hosted text verified at overview; article-by-article security mapping has not been completed."
+      ]
+    },
+    {
+      "id": "ec-lopdp-security",
+      "countryCode": "EC",
+      "countryName": "Ecuador",
+      "label": "LOPDP — Personal-data security and risk duties",
+      "version": "LOPDP published 2021; SPDP reference accessed 2026-10-08",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Personal-data controllers/processors within LOPDP Articles 2–3. Additional public-sector obligations and 2025/2026 SPDP rules require manual review.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Selected source obligations for the declared scope; no formal level or certification is awarded."
+        }
+      ],
+      "controlIds": [
+        "risk_management",
+        "assurance_review",
+        "data_protection",
+        "backup_recovery",
+        "application_security",
+        "incident_response"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "ec-lopdp-security-source",
+          "title": "LOPDP — Personal-data security and risk duties — official reference",
+          "url": "https://spdp.gob.ec/wp-content/uploads/2024/12/03.pdf.pdf",
+          "locator": "Articles 37–43 security, risks, by-design, impact and breach notification; Art 47 responsibilities"
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "Current implementing regulation and SPDP resolutions are not exhausted by this law map. Optional mechanisms in Art 37 must not be converted into unconditional mandatory technology checks."
+      ]
+    },
+    {
+      "id": "za-popia-security",
+      "countryCode": "ZA",
+      "countryName": "South Africa",
+      "label": "POPIA — Security safeguards",
+      "version": "Act 4/2013; selected sections 19–22",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Responsible parties and operators within POPIA scope; personal information includes the statutory categories. Security condition only, not whole POPIA compliance.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Selected source obligations for the declared scope; no formal level or certification is awarded."
+        }
+      ],
+      "controlIds": [
+        "data_protection",
+        "risk_management",
+        "assurance_review",
+        "identity_access",
+        "supplier_security",
+        "incident_response"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "za-popia-security-source",
+          "title": "POPIA — Security safeguards — official reference",
+          "url": "https://www.gov.za/sites/default/files/gcis_document/201409/3706726-11act4of2013popi.pdf",
+          "locator": "Chapter 3 Condition 7: sections 19–22; official Gazette PDF"
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "2025 amended regulations and any approved sector code are outside this partial map. Applicable exceptions and regulator/law-enforcement restrictions require manual review."
+      ]
+    },
+    {
+      "id": "ke-cbk-banking-cyber",
+      "countryCode": "KE",
+      "countryName": "Kenya",
+      "label": "CBK Guidance Note on Cybersecurity — Banking sector",
+      "version": "Final Guidance Note August 2017",
+      "kind": "control_baseline",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Institutions licensed under Banking Act Cap 488 per 1.3. Supervisory guidance; separate 2019 PSP guideline is not merged into banking scope.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Selected source obligations for the declared scope; no formal level or certification is awarded."
+        }
+      ],
+      "controlIds": [
+        "risk_management",
+        "assurance_review",
+        "identity_access",
+        "incident_response",
+        "supplier_security",
+        "logging_monitoring",
+        "backup_recovery",
+        "staff_awareness"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "ke-cbk-banking-cyber-source",
+          "title": "CBK Guidance Note on Cybersecurity — Banking sector — official reference",
+          "url": "https://www.centralbank.go.ke/uploads/banking_circulars/634077191_GUIDANCE%20NOTE%20ON%20CYBERSECURITY%20FOR%20THE%20BANKING%20SECTOR.pdf",
+          "locator": "PartI 1.3; PartIII 3.1–3.4; PartIV; AnnexI; PDF pp 3,5–12"
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "Source wording should remains recommendation unless a clause states a mandatory reporting duty. A 2026 draft prudential-guideline consultation is not treated as enacted replacement."
+      ]
+    },
+    {
+      "id": "ng-cbn-banking-cyber",
+      "countryCode": "NG",
+      "countryName": "Nigeria",
+      "label": "CBN Risk-Based Cybersecurity Framework — DMBs and PSBs",
+      "version": "2024 framework replacing October 2018 banking framework",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Commercial, merchant, non-interest and payment-service banks supervised by CBN Banking Supervision Department. Not every Nigerian company or all PSP licensing classes.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Selected source obligations for the declared scope; no formal level or certification is awarded."
+        }
+      ],
+      "controlIds": [
+        "risk_management",
+        "identity_access",
+        "data_protection",
+        "logging_monitoring",
+        "incident_response",
+        "backup_recovery",
+        "supplier_security",
+        "assurance_review"
+      ],
+      "mappingCoverage": "overview_only",
+      "sources": [
+        {
+          "id": "ng-cbn-banking-cyber-source",
+          "title": "CBN Risk-Based Cybersecurity Framework — DMBs and PSBs — official reference",
+          "url": "https://www.cbn.gov.ng/Out/2024/BSD/CBN%20Risk-Based%20Cybersecurity%20Framework%20for%20DMBs%20and%20PSBs_2024.pdf",
+          "locator": "Introduction/scope; seven programme parts"
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "CATALOG_ONLY: official indexed introduction readable but full PDF retrieval returned an access challenge; no executable subclauses fabricated. The 2024 source explicitly replaces 2018; NDPA 2023/other directives remain separate."
+      ]
+    },
+    {
+      "id": "gh-csa-cii",
+      "countryCode": "GH",
+      "countryName": "Ghana",
+      "label": "CSA Directive for Protection of Critical Information Infrastructure",
+      "version": "Directive 2021 under Cybersecurity Act 1038/2020",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Owners/operators of designated Ghanaian CII within Act 1038 and ministerial designation; applicability is not inferred for all sites.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Selected source obligations for the declared scope; no formal level or certification is awarded."
+        }
+      ],
+      "controlIds": [
+        "risk_management",
+        "assurance_review",
+        "identity_access",
+        "supplier_security",
+        "staff_awareness",
+        "logging_monitoring",
+        "secure_configuration",
+        "patch_management",
+        "backup_recovery",
+        "incident_response"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "gh-csa-cii-source",
+          "title": "CSA Directive for Protection of Critical Information Infrastructure — official reference",
+          "url": "https://www.csa.gov.gh/resources/Directive_CII.pdf",
+          "locator": "CSA CII Directive; Act 1038 sections 35–40;13 designated sectors"
+        },
+        {
+          "id": "gh-csa-overview",
+          "title": "CSA official CII scope and resources",
+          "url": "https://www.csa.gov.gh/cii",
+          "locator": "CII sectors, Act 1038 sections 35–40; designation Notice 13223 September 2021."
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "CII designation, current CSA notices and risk-assessment framework require review; sector listing alone does not establish an individual system designation."
+      ]
+    },
+    {
+      "id": "ma-law0908-security",
+      "countryCode": "MA",
+      "countryName": "Morocco",
+      "label": "Law 09-08 — Security of personal-data processing",
+      "version": "Law 09-08; official French Bulletin 57145 March 2009",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Controllers/processors within Article 2. Article 24 additional controls apply to sensitive/health data and may be subject to CNDP dispensations. No national level.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Selected source obligations for the declared scope; no formal level or certification is awarded."
+        }
+      ],
+      "controlIds": [
+        "risk_management",
+        "supplier_security",
+        "identity_access",
+        "data_protection",
+        "logging_monitoring"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "ma-law0908-security-source",
+          "title": "Law 09-08 — Security of personal-data processing — official reference",
+          "url": "https://www.cndp.ma/wp-content/uploads/2023/11/Loi-09-08-Fr.pdf",
+          "locator": "Articles 23–26; PDF pp 15–16"
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "Art 24 is conditional on sensitive/health processing; CNDP dispensations require manual review. Authorization/declaration and transfer regimes are outside the selected security pack."
+      ]
+    },
+    {
+      "id": "tn-law2004-security",
+      "countryCode": "TN",
+      "countryName": "Tunisia",
+      "label": "Law 2004-63 — Personal-data security obligations",
+      "version": "Organic Law 2004-6327 July 2004",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Controllers/processors within Tunisian personal-data law; system category and authorization obligations require manual review.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Selected source obligations for the declared scope; no formal level or certification is awarded."
+        }
+      ],
+      "controlIds": [
+        "data_protection",
+        "identity_access",
+        "supplier_security"
+      ],
+      "mappingCoverage": "overview_only",
+      "sources": [
+        {
+          "id": "tn-law2004-security-source",
+          "title": "Law 2004-63 — Personal-data security obligations — official reference",
+          "url": "https://www.inpdp.tn/ressources/loi_2004.pdf",
+          "locator": "Official INPDP Law 2004-63 statutory resource. Detailed security article locators remain unverified; catalog only."
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "CATALOG_ONLY: official legal resource identified but PDF could not be reliably retrieved; no unverified article number is used as an executable check. No draft replacement is treated as current."
+      ]
+    },
+    {
+      "id": "eg-pdpl-security",
+      "countryCode": "EG",
+      "countryName": "Egypt",
+      "label": "PDPL 151/2020 and Executive Regulations 816/2025",
+      "version": "Law 151/2020; Executive Regulations 816/2025",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Electronic personal-data processing covered by Egyptian PDPL and Executive Regulations; citizenship/residency, actors, licensing and exclusions need source-specific review.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Selected source obligations for the declared scope; no formal level or certification is awarded."
+        }
+      ],
+      "controlIds": [
+        "data_protection",
+        "risk_management",
+        "supplier_security",
+        "incident_response"
+      ],
+      "mappingCoverage": "overview_only",
+      "sources": [
+        {
+          "id": "eg-pdpl-security-source",
+          "title": "PDPL 151/2020 and Executive Regulations 816/2025 — official reference",
+          "url": "https://www.pdpc.gov.eg/",
+          "locator": "PDPC Legal Framework and official scope FAQ"
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "CATALOG_ONLY: PDPC confirms the 2025 Executive Regulations, but complete enacted Arabic article text was not independently parsed; no inferred deadline or 12 fabricated clauses. Do not apply pre-2025 no-regulation assumptions."
+      ]
+    },
+    {
+      "id": "rw-data-security",
+      "countryCode": "RW",
+      "countryName": "Rwanda",
+      "label": "Law 058/2021 — Security and breach duties",
+      "version": "Law 058/2021 of 13 October 2021; Gazette 15 October 2021",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Controllers/processors within Articles 1–3; includes relevant non-resident processing of persons located in Rwanda. Declared roles and breach triggers assessed manually.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Selected source obligations for the declared scope; no formal level or certification is awarded."
+        }
+      ],
+      "controlIds": [
+        "data_protection",
+        "risk_management",
+        "assurance_review",
+        "incident_response"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "rw-data-security-source",
+          "title": "Law 058/2021 — Security and breach duties — official reference",
+          "url": "https://dpo.gov.rw/fileadmin/DPO/Law_relating_to_the_protection_of_personal_data_and_privacy.pdf",
+          "locator": "Articles 38,40–41,43–45,47; English columns PDF pp 53–65"
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "Article 47 security is distinct from Article 48 cross-border transfer. No complete law assessment or automatic determination of high-risk processing is provided."
+      ]
+    },
+    {
+      "id": "mu-dpa-security",
+      "countryCode": "MU",
+      "countryName": "Mauritius",
+      "label": "Data Protection Act 2017 — Security of processing",
+      "version": "Act 20/2017; regulator-hosted amended copy",
+      "kind": "regulatory_requirements",
+      "ordinalLevels": false,
+      "currency": "requires_review",
+      "applicability": "Controllers/processors within Mauritius DPA 2017; security controls and breach triggers depend on processing context. No national assurance level.",
+      "levelSelection": "assessment_target",
+      "levels": [
+        {
+          "id": "baseline",
+          "label": "Baseline assessment target (no national grade)",
+          "summary": "Selected source obligations for the declared scope; no formal level or certification is awarded."
+        }
+      ],
+      "controlIds": [
+        "data_protection",
+        "risk_management",
+        "backup_recovery",
+        "assurance_review",
+        "supplier_security",
+        "staff_awareness"
+      ],
+      "mappingCoverage": "partial",
+      "sources": [
+        {
+          "id": "mu-dpa-security-source",
+          "title": "Data Protection Act 2017 — Security of processing — official reference",
+          "url": "https://dataprotection.govmu.org/Documents/DPA_2017.pdf",
+          "locator": "Sections 25–26,31–32; PDF pp 33–35,40–43"
+        }
+      ],
+      "limitations": [
+        "This is a partial offline evidence mapping. It does not establish legal compliance, a national security grade, certification, scan permission or vulnerability confirmation.",
+        "Official site lists Data Protection Regulations 2026; their complete interaction with this selected Act map requires review. Do not use superseded 2004 Act section numbers."
+      ]
+    }
+  ]
+}

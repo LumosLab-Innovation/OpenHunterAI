@@ -1,0 +1,716 @@
+{
+  "schemaVersion": "country_security_requirement_pack_v1",
+  "packId": "it-nis2-decree-curated",
+  "frameworkId": "it-nis2-decree",
+  "version": "Legislative Decree 138/2024, original gazette text effective 2024-10-16",
+  "reviewedOn": "2026-10-08",
+  "coverage": "partial",
+  "sources": [
+    {
+      "id": "it-primary",
+      "title": "Decree 138/2024",
+      "url": "https://www.gazzettaufficiale.it/atto/serie_generale/caricaDettaglioAtto/originario?atto.codiceRedazionale=24G00155&atto.dataPubblicazioneGazzetta=2024-10-01&elenco30giorni=false",
+      "locator": "Articles 23–25;30–32"
+    },
+    {
+      "id": "it-article-23",
+      "title": "Decree 138/2024 Article 23",
+      "url": "https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=24G00155&art.dataPubblicazioneGazzetta=2024-10-01&art.flagTipoArticolo=0&art.idArticolo=23&art.idGruppo=4&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1",
+      "locator": "Article 23, original gazette text"
+    },
+    {
+      "id": "it-article-24",
+      "title": "Decree 138/2024 Article 24",
+      "url": "https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=24G00155&art.dataPubblicazioneGazzetta=2024-10-01&art.flagTipoArticolo=0&art.idArticolo=24&art.idGruppo=4&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1",
+      "locator": "Article 24, original gazette text"
+    },
+    {
+      "id": "it-article-25",
+      "title": "Decree 138/2024 Article 25",
+      "url": "https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=24G00155&art.dataPubblicazioneGazzetta=2024-10-01&art.flagTipoArticolo=0&art.idArticolo=25&art.idGruppo=4&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=0&art.versione=1",
+      "locator": "Article 25, original gazette text"
+    }
+  ],
+  "limitations": [
+    "Curated partial mapping only; remaining clauses, applicability and independent evidence review are required.",
+    "Operator-supplied facts and evidence metadata do not constitute independent control verification.",
+    "Pinned original decree clauses. Current ACN implementing determinations and obligation-specific transition deadlines are not fully mapped; source/terms review is required."
+  ],
+  "requirements": [
+    {
+      "id": "it.management-approval",
+      "label": "Management approves implementation",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "it-article-23",
+      "locator": "Article 23(1)(a)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "it.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "it.current_implementing_terms_reviewed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Management approves implementation"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "it.management-oversight",
+      "label": "Management oversees statutory obligations",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "it-article-23",
+      "locator": "Article 23(1)(b)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "it.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "it.current_implementing_terms_reviewed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Management oversees statutory obligations"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "it.management-training",
+      "label": "Management receives security training",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "it-article-23",
+      "locator": "Article 23(2)(a)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "it.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "it.current_implementing_terms_reviewed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Management receives security training"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "it.employee-training",
+      "label": "Promote recurring employee training",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "it-article-23",
+      "locator": "Article 23(2)(b)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "it.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "it.current_implementing_terms_reviewed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Promote recurring employee training"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "it.board-incident-information",
+      "label": "Keep management informed about incidents",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "it-article-23",
+      "locator": "Article 23(3)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "it.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "it.current_implementing_terms_reviewed",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Keep management informed about incidents"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "it.risk-policy",
+      "label": "Maintain risk and security policies",
+      "controlId": "risk_management",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "it-article-24",
+      "locator": "Article 24(2)(a)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "it.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "it.current_implementing_terms_reviewed",
+          "equals": true
+        },
+        {
+          "factId": "it.security_measure_obligations_due",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Maintain risk and security policies"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "it.incident-tools",
+      "label": "Implement incident and notification procedures",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "it-article-24",
+      "locator": "Article 24(2)(b)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "it.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "it.current_implementing_terms_reviewed",
+          "equals": true
+        },
+        {
+          "factId": "it.security_measure_obligations_due",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Implement incident and notification procedures"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "it.continuity",
+      "label": "Manage backups, recovery and crises",
+      "controlId": "backup_recovery",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "it-article-24",
+      "locator": "Article 24(2)(c)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "it.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "it.current_implementing_terms_reviewed",
+          "equals": true
+        },
+        {
+          "factId": "it.security_measure_obligations_due",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Manage backups, recovery and crises"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "it.supplier-security",
+      "label": "Assess direct supplier security",
+      "controlId": "supplier_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "it-article-24",
+      "locator": "Article 24(2)(d),24(3)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "it.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "it.current_implementing_terms_reviewed",
+          "equals": true
+        },
+        {
+          "factId": "it.security_measure_obligations_due",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Assess direct supplier security"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "it.lifecycle-security",
+      "label": "Secure acquisition, development and vulnerability handling",
+      "controlId": "application_security",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "it-article-24",
+      "locator": "Article 24(2)(e)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "it.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "it.current_implementing_terms_reviewed",
+          "equals": true
+        },
+        {
+          "factId": "it.security_measure_obligations_due",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Secure acquisition, development and vulnerability handling"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "it.effectiveness",
+      "label": "Assess measure effectiveness",
+      "controlId": "assurance_review",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "it-article-24",
+      "locator": "Article 24(2)(f)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "it.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "it.current_implementing_terms_reviewed",
+          "equals": true
+        },
+        {
+          "factId": "it.security_measure_obligations_due",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Assess measure effectiveness"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "it.hygiene",
+      "label": "Maintain hygiene practices and training",
+      "controlId": "staff_awareness",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "it-article-24",
+      "locator": "Article 24(2)(g)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "it.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "it.current_implementing_terms_reviewed",
+          "equals": true
+        },
+        {
+          "factId": "it.security_measure_obligations_due",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Maintain hygiene practices and training"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "it.cryptography",
+      "label": "Maintain appropriate cryptography procedures",
+      "controlId": "data_protection",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "it-article-24",
+      "locator": "Article 24(2)(h)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "it.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "it.current_implementing_terms_reviewed",
+          "equals": true
+        },
+        {
+          "factId": "it.security_measure_obligations_due",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Maintain appropriate cryptography procedures"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "it.personnel-access-assets",
+      "label": "Manage staff reliability, access and assets",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "it-article-24",
+      "locator": "Article 24(2)(i)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "it.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "it.current_implementing_terms_reviewed",
+          "equals": true
+        },
+        {
+          "factId": "it.security_measure_obligations_due",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Manage staff reliability, access and assets"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "it.authentication-communications",
+      "label": "Review appropriate authentication and communications",
+      "controlId": "identity_access",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "it-article-24",
+      "locator": "Article 24(2)(l)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "it.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "it.current_implementing_terms_reviewed",
+          "equals": true
+        },
+        {
+          "factId": "it.security_measure_obligations_due",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review appropriate authentication and communications"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Italian clause letter is l), not j). Retain proportionality and where-appropriate conditions; no blanket MFA predicate."
+    },
+    {
+      "id": "it.early-warning-age",
+      "label": "Pre-notify CSIRT Italia within 24 hours",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "it-article-25",
+      "locator": "Article 25(5)(a)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "it.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "it.significant_incident_occurred",
+          "equals": true
+        },
+        {
+          "factId": "it.current_implementing_terms_reviewed",
+          "equals": true
+        },
+        {
+          "factId": "it.incident_notification_obligations_due",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "it.early-warning-age",
+        "max": 24,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "it.notification-age",
+      "label": "Ordinary incident notification within 72 hours",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "it-article-25",
+      "locator": "Article 25(5)(b)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "it.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "it.significant_incident_occurred",
+          "equals": true
+        },
+        {
+          "factId": "it.trust_service_incident",
+          "equals": false
+        },
+        {
+          "factId": "it.current_implementing_terms_reviewed",
+          "equals": true
+        },
+        {
+          "factId": "it.incident_notification_obligations_due",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "it.notification-age",
+        "max": 72,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "it.trust-notification-age",
+      "label": "Trust incident notification within 24 hours",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "it-article-25",
+      "locator": "Article 25(6)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "it.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "it.significant_incident_occurred",
+          "equals": true
+        },
+        {
+          "factId": "it.trust_service_incident",
+          "equals": true
+        },
+        {
+          "factId": "it.current_implementing_terms_reviewed",
+          "equals": true
+        },
+        {
+          "factId": "it.incident_notification_obligations_due",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "number",
+        "factId": "it.trust-notification-age",
+        "max": 24,
+        "unit": "hours"
+      },
+      "evidenceKinds": [
+        "configuration",
+        "independent_review"
+      ],
+      "interpretationNotes": "Curated clause assertion; review the full cited text, implementation scope and supporting evidence. A declared fact is not an independent verification."
+    },
+    {
+      "id": "it.ongoing-monthly-reports",
+      "label": "Review monthly progress reports while incident continues",
+      "controlId": "incident_response",
+      "levels": [
+        "baseline"
+      ],
+      "levelBasis": "explicit_clause",
+      "sourceId": "it-article-25",
+      "locator": "Article 25(5)(e)",
+      "normativeStrength": "mandatory",
+      "applicability": [
+        {
+          "factId": "it.regulated_entity_scope_confirmed",
+          "equals": true
+        },
+        {
+          "factId": "it.incident_ongoing_at_report_deadline",
+          "equals": true
+        },
+        {
+          "factId": "it.current_implementing_terms_reviewed",
+          "equals": true
+        },
+        {
+          "factId": "it.incident_notification_obligations_due",
+          "equals": true
+        }
+      ],
+      "check": {
+        "type": "manual",
+        "reviewTopic": "Review monthly progress reports while incident continues"
+      },
+      "evidenceKinds": [
+        "policy_document",
+        "independent_review"
+      ],
+      "interpretationNotes": "Italy explicitly requires monthly progress reports for an ongoing incident; do not substitute the EU directive wording without this national detail."
+    }
+  ]
+}
