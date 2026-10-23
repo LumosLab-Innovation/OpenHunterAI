@@ -169,3 +169,7 @@ Commercial licensing: [LICENSING.md](LICENSING.md).
 ## Star history
 
 [![Star History Chart](https://api.star-history.com/svg?repos=LumosLab-Innovation/OpenHunterAI&type=Date)](https://www.star-history.com/#LumosLab-Innovation/OpenHunterAI&Date)
+
+## Contributors
+
+[![Contributors](https://contrib.rocks/image?repo=LumosLab-Innovation/OpenHunterAI)](https://github.com/LumosLab-Innovation/OpenHunterAI/graphs/contributors)
