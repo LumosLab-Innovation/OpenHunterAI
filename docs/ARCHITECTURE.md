@@ -14,11 +14,15 @@ Self-host local mode creates an internal operator automatically and exposes the 
 
 ## Product and UI boundary
 
-The client is one operational workspace at `/`; old project/scan/finding/report
+The local client is one operational workspace at `/`; old project/scan/finding/report
 links select context on that same page. Target/scope and explicit consent remain
 visible before execution. Accounts, authorization details and model routes are
 collapsed settings. Approvals, candidate/finding state and report exports stay
 available without separate dashboards or an incident workflow.
+
+The public GitHub Pages site is a separate static introduction from `site/`.
+It has no operational dashboard or API connection. Its dependency-free public
+build and the local React build are separate artifacts; see [public hosting](PUBLIC_SITE.md).
 
 The canonical report can be exported as a bounded immutable snapshot plus an
 external digest for manual OpenShield intake. Mutable status overlays are not

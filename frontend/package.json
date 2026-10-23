@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json && vite build",
-    "build:public-site": "npm run build",
+    "build:public-site": "node ../tools/build-public-site.mjs",
     "dev": "vite --host 127.0.0.1 --port 3001",
     "preview": "vite preview --host 127.0.0.1 --port 3001",
     "typecheck": "tsc -p tsconfig.json --noEmit",

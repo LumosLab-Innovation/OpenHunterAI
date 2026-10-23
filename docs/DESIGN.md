@@ -32,32 +32,20 @@ Radii are 4/6/8/12 px; use borders for hierarchy and restrained elevation.
 
 ## Information layout
 
-```text
-Desktop
-┌─────────────────┬──────────────────────────────────────┐
-│ OpenHunterAI    │ Page title          Status / Theme   │
-│                 ├──────────────────────────────────────┤
-│ Overview        │                                      │
-│ Projects        │ Page content                         │
-│ Scan runs       │ One clear primary next action        │
-│ Findings        │                                      │
-│ Reports         │ Loading / empty / error / data       │
-│                 │                                      │
-│ Setup & models  │                                      │
-└─────────────────┴──────────────────────────────────────┘
-```
+The local application has one compact workspace with a header and theme control,
+followed by target/scope, selected run, findings and reports. Access/model
+settings are collapsed sections. Legacy detail links select context on the same
+page. There is no sidebar or separate overview/setup dashboard.
 
-[AppShell](../frontend/src/components/AppShell.tsx) uses a 224 px sidebar from
-the `lg` breakpoint (1024 px); smaller screens use a navigation drawer.
-Local mode opens directly into the workspace. The hosted signed-out branch
-retains sign-in/create-workspace actions.
+The public [project landing](PUBLIC_SITE.md) is separate static content in
+`site/`: navy/cyan art direction, the existing Hunter mascot, workflow, research
+and installation links. It has no application state or API calls.
 
 | Surface | Interaction |
 | --- | --- |
-| Overview | Real service state, recent work, next step |
-| Setup & models | Copyable commands, model/key presence, clear configuration guidance |
-| Projects | Project creation, domain verification, scope, optional target accounts |
-| Scan runs | Persisted activity and explicit connection/worker states |
+| Target and scope | Explicit authority, profile, preflight, resource and coverage gaps |
+| Access & models | Collapsed project/account controls and system reasoning routes |
+| Scan run | Persisted activity, approvals and explicit connection/worker states |
 | Findings / reports | Evidence, limitations, remediation, download state |
 
 ## Component and accessibility rules

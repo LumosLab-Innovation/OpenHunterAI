@@ -9,6 +9,8 @@ finding validation and manual verification retest. OpenShieldAI owns incident /
 situation investigation, containment, remediation coordination and recovery.
 The application has one compact operational page; project grouping, account
 access and model routes are collapsed configuration rather than separate products.
+GitHub Pages is a separate public introduction; the one-page operational
+dashboard belongs to the local application, not the public landing.
 No incident/SOC/remediation executor is added to Hunter. The existing report
 provides a sanitized manual file handoff, with independent downstream authority.
 See [the collaboration contract](OPENSHIELD_COLLABORATION.md).

@@ -14,7 +14,8 @@
 
 ## Assessment workspace and OpenShield handoff
 
-- One workspace at `/` exposes scope/preflight, scans, approvals, findings, finding-scoped manual retest, report downloads and reasoning settings. Legacy detail links select the same workspace; desktop/mobile flows preserve authority and gap acknowledgments without horizontal overflow.
+- One local application workspace at `/` exposes scope/preflight, scans, approvals, findings, finding-scoped manual retest, report downloads and reasoning settings. Legacy detail links select the same workspace; desktop/mobile flows preserve authority and gap acknowledgments without horizontal overflow.
+- GitHub Pages publishes a separate static project landing. Relative assets work under `/OpenHunterAI/`; the page does not load dashboard code or call API/auth endpoints. The normal local frontend/Docker build retains the operational workspace.
 - OpenHunter owns assessment and verification. Incident queues, containment, operational response and recovery belong to OpenShield; finding fix guidance does not execute those actions.
 - Each research method records its source edition, prerequisites, safe scope, existing hunter/use-case mapping, deterministic oracle, matched negative and independent-validation requirements. Research-only records have no accepted executor and cannot enable a runtime scenario.
 - Finalized JSON exports contain the bounded sanitized `report_v2` snapshot and an external canonical SHA-256 digest. Mutable latest statuses are outside that digest; draft reports cannot be exported as finalized evidence.

@@ -6,6 +6,7 @@ One self-hosted engine, one compact workspace, one `scan_request_v2` → `report
 pipeline. Enter the public HTTPS target you may test, review the exact scope and
 available workers, inspect evidence, then export the assessment for OpenShieldAI.
 
+[Project landing](https://lumoslab-innovation.github.io/OpenHunterAI/) ·
 [Documentation](docs/) · [Pentest methods](docs/research/PENTEST_METHODS_2026.md) ·
 [Security policy](SECURITY.md) · [Contributing](CONTRIBUTING.md)
 
@@ -21,6 +22,9 @@ those facts to an enrolled asset and controls its own response workflow. A repor
 carries no credentials or action authority. The current collaboration boundary
 is a manually transferred file; OpenShield's importer is not implemented.
 See [the collaboration contract](docs/OPENSHIELD_COLLABORATION.md).
+
+The public website introduces the project. The operational workspace runs
+locally; its dashboard and API are separate from the [static landing](docs/PUBLIC_SITE.md).
 
 ## One-page workflow
 
