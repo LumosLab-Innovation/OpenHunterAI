@@ -1,3 +1,4 @@
+import { reportHandoffSchema, type ReportHandoff } from './report-handoff.js';
 import type { AuthScope, ScanProfile, SurfaceFlags, TargetType, TestIntensityMode } from './packages.js';
 import type { Confidence, Severity } from './types.js';
 import { sanitizeText, sanitizeValue } from './sanitizer.js';
@@ -68,6 +69,7 @@ export interface ReportContentV2 {
     regressionTestIdeas: string[];
     acceptanceCriteria: string;
   }>;
+  historicalDeveloperFixPack?: ReportContentV2['developerFixPack'];
   coverage: {
     targetType: TargetType;
     workersRun: string[];
@@ -85,6 +87,7 @@ export interface ReportContentV2 {
     manualRetestActions: string[];
   };
   generatedAt: string;
+  handoff?: ReportHandoff;
 }
 
 export interface RankRecommendation {
@@ -158,7 +161,12 @@ function stringValues(value: unknown): string[] {
 }
 
 export function sanitizeReportContent<T>(content: T): T {
-  return sanitizeValue(content) as T;
+  const sanitized = sanitizeValue(content) as T;
+  if (content && typeof content === 'object' && 'handoff' in content) {
+    const metadata = reportHandoffSchema.safeParse(content.handoff);
+    if (metadata.success) (sanitized as Record<string, unknown>).handoff = metadata.data;
+  }
+  return sanitized;
 }
 
 /** A persisted finding is reportable only with a separate independent decision. */

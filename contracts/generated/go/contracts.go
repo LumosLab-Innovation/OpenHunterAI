@@ -36,8 +36,10 @@ type ReportContentV2 struct {
 	Findings                []map[string]any       `json:"findings"`
 	HistoricalFindings      []map[string]any       `json:"historicalFindings,omitempty"`
 	DeveloperFixPack        []map[string]any       `json:"developerFixPack"`
+	HistoricalDeveloperFixPack []map[string]any    `json:"historicalDeveloperFixPack,omitempty"`
 	Coverage                map[string]any         `json:"coverage"`
 	HardeningRecommendations []string              `json:"hardeningRecommendations"`
 	Retest                  map[string]any         `json:"retest"`
 	GeneratedAt             string                 `json:"generatedAt"`
+	Handoff                 map[string]any         `json:"handoff,omitempty"`
 }

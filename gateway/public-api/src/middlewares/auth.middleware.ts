@@ -3,6 +3,7 @@ import { createHmac, randomBytes, scryptSync, timingSafeEqual } from 'node:crypt
 import { Buffer } from 'node:buffer';
 import { getPrisma } from '@x-hunter/db';
 import { GuardrailError } from '@x-hunter/shared';
+import { isLocalWorkspaceRequest, localWorkspaceUser, workspaceMode } from '../modules/workspace/local-workspace.js';
 
 export interface SessionUser {
   userId: string;
@@ -109,7 +110,7 @@ export function requireUser(req: Request, res: Response, next: NextFunction) {
       res.status(403).json({ error: { code: 'LOCAL_ONLY', message: 'Local mode only accepts requests from the configured loopback UI or CLI' } });
       return;
     }
-    void localUser().then((user) => {
+    void localWorkspaceUser().then((user) => {
       res.setHeader('Cache-Control', 'no-store');
       req.user = user;
       next();
@@ -130,39 +131,17 @@ export function requireUser(req: Request, res: Response, next: NextFunction) {
 }
 
 export function isLocalMode(): boolean {
-  return process.env.OPENHUNTER_LOCAL_MODE === '1';
+  return workspaceMode() === 'local';
 }
 
 export function isTrustedLocalRequest(req: Pick<Request, 'header'>): boolean {
-  const host = req.header('host')?.toLowerCase() ?? '';
-  if (!/^((127\.0\.0\.1|localhost)(:\d+)?)$/.test(host)) return false;
-  if (req.header('sec-fetch-site') === 'cross-site') return false;
-  const origin = req.header('origin');
-  if (!origin) return true;
-  const allowed = (process.env.OPENHUNTER_LOCAL_UI_ORIGINS ?? 'http://127.0.0.1:3001,http://localhost:3001')
-    .split(',').map((value) => value.trim()).filter(Boolean);
-  return allowed.includes(origin);
-}
-
-async function localUser(): Promise<SessionUser> {
-  const prisma = getPrisma();
-  const organization = await prisma.organization.upsert({
-    where: { slug: 'openhunter-local' },
-    update: {},
-    create: { slug: 'openhunter-local', name: 'Local' },
-  });
-  const user = await prisma.user.upsert({
-    where: { email: 'local@openhunter.invalid' },
-    update: {},
-    create: {
-      email: 'local@openhunter.invalid',
-      passwordHash: '!local-mode-no-password',
-      displayName: 'Local operator',
-      role: 'owner',
-      organizationId: organization.id,
+  return isLocalWorkspaceRequest({
+    headers: {
+      host: req.header('host'),
+      origin: req.header('origin'),
+      'sec-fetch-site': req.header('sec-fetch-site'),
     },
   });
-  return { userId: user.id, orgId: organization.id, email: user.email, role: 'owner' };
 }
 
 export function requireAllowedOrigin(req: Request, res: Response, next: NextFunction) {

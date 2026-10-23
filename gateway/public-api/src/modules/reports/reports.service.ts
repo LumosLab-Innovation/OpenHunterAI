@@ -2,6 +2,10 @@ import { getPrisma } from '@x-hunter/db';
 import { isLocalMode } from '../../middlewares/auth.middleware.js';
 import {
   REPORT_FORMAT_VERSION,
+  GuardrailError,
+  normalizeReportSnapshotContent,
+  normalizeReportLatestOverlay,
+  reportSnapshotExport,
   deriveWorkerCoverage,
   intensityToProfile,
   isIndependentlyValidatedFinding,
@@ -11,6 +15,7 @@ import {
   sanitizeText,
   type ReportContentV2,
 } from '@x-hunter/shared';
+import { reportCsv, reportDocx, type ReportExportFormat } from './report-downloads.js';
 
 export class ReportsService {
   private readonly prisma = getPrisma();
@@ -58,15 +63,26 @@ export class ReportsService {
     return this.toEnvelope(report);
   }
 
-  async export(id: string, orgId: string, format: 'html' | 'pdf', view: 'snapshot' | 'latest') {
+  async export(id: string, orgId: string, format: ReportExportFormat, view: 'snapshot' | 'latest') {
     const envelope = await this.get(id, orgId);
     if (!envelope) return null;
-    const content = sanitizeReportContent(envelope.snapshot.content as ReportContentV2);
+    if (envelope.snapshot.state !== 'final' && envelope.snapshot.state !== 'superseded') throw new GuardrailError('INVALID_INPUT', 'Report is still being prepared');
+    const content = normalizeReportSnapshotContent(envelope.snapshot.content);
+    const filename = `openhunter-report-${id.replace(/[^A-Za-z0-9_.-]/g, '_')}`;
+    if (format === 'json') {
+      const exported = { ...reportSnapshotExport({ ...envelope.snapshot, content }),
+        ...(view === 'latest' ? { latestOverlay: normalizeReportLatestOverlay(envelope.latestOverlay, content.findings.map((finding) => finding.id)) } : {}) };
+      return { contentType: 'application/json; charset=utf-8', filename: `${filename}.json`,
+        body: Buffer.from(JSON.stringify(exported, null, 2), 'utf8') };
+    }
+    const latest = view === 'latest' ? renderOverlayMarkdown(envelope.latestOverlay) : undefined;
+    if (format === 'csv') return { contentType: 'text/csv; charset=utf-8', filename: `${filename}.csv`, body: Buffer.from(reportCsv(content, latest), 'utf8') };
+    if (format === 'docx') return { contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: `${filename}.docx`, body: await reportDocx(content, latest) };
     const html = renderReportHtml(content, view === 'latest' ? envelope.latestOverlay : undefined);
     if (format === 'html') {
       return {
         contentType: 'text/html; charset=utf-8',
-        filename: `openhunter-report-${id}.html`,
+        filename: `${filename}.html`,
         body: Buffer.from(html, 'utf8'),
       };
     }
@@ -80,7 +96,7 @@ ${renderOverlayMarkdown(envelope.latestOverlay)}`
         : renderReportMarkdown(content);
     return {
       contentType: 'application/pdf',
-      filename: `openhunter-report-${id}.pdf`,
+      filename: `${filename}.pdf`,
       body: renderSimplePdf(markdown),
     };
   }
@@ -152,7 +168,7 @@ ${renderOverlayMarkdown(envelope.latestOverlay)}`
       },
       latestOverlay,
       exports: {
-        formats: ['html', 'pdf'],
+        formats: ['docx', 'csv', 'json', 'html', 'pdf'],
         generatedOnDemand: true,
       },
     };
@@ -369,18 +385,19 @@ function publicScanPlanSummary(scanPlan: unknown) {
 }
 
 function publicReportContent(content: unknown): unknown {
-  return rewritePublicWorkerLabels(sanitizeReportContent(content ?? {}));
+  const rewritten = rewritePublicWorkerLabels(sanitizeReportContent(content ?? {}));
+  return rewritten && typeof rewritten === 'object' && (rewritten as any).formatVersion === REPORT_FORMAT_VERSION
+    ? normalizeReportSnapshotContent(rewritten) : rewritten;
 }
 
 function rewritePublicWorkerLabels(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(rewritePublicWorkerLabels);
-  if (!value || typeof value !== 'object') {
-    if (typeof value === 'string') return publicWorkerText(value);
-    return value;
-  }
+  if (!value || typeof value !== 'object') return value;
   const out: Record<string, unknown> = {};
   for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
-    if (key === 'scanPlan' || key === 'enabledWorkers') {
+    if (key === 'handoff') {
+      out[key] = child;
+    } else if (key === 'scanPlan' || key === 'enabledWorkers') {
       out[key] = publicScanPlanSummary(child);
     } else if (key === 'workersRun' || key === 'huntersRun' || key === 'workersPlanned' || key === 'huntersPlanned') {
       out[key] = Array.isArray(child) ? child.map((item) => displayUnitCode(String(item))) : [];
@@ -393,21 +410,6 @@ function rewritePublicWorkerLabels(value: unknown): unknown {
     }
   }
   return out;
-}
-
-function publicWorkerText(value: string): string {
-  const exact = displayUnitCode(value);
-  if (exact !== sanitizeText(value)) return exact;
-  return sanitizeText(value)
-    .replace(/\bbrowser[_-]inspector\b/gi, 'Browser')
-    .replace(/\bzap[_-]signal\b/gi, 'Z')
-    .replace(/\bzap\b/gi, 'Z')
-    .replace(/\bnuclei[_-]signal\b/gi, 'N')
-    .replace(/\bnuclei\b/gi, 'N')
-    .replace(/\bopenhack[_-]hunter\b/gi, 'Passive surface')
-    .replace(/\bopenhack\b/gi, 'Passive surface')
-    .replace(/\bstrix[_-]core\b/gi, 'S')
-    .replace(/\bstrix\b/gi, 'S');
 }
 
 function renderSimplePdf(markdown: string): Buffer {

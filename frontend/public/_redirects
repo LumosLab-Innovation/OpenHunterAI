@@ -1,7 +1,3 @@
-# Cloudflare Pages API proxy fallback. Production builds normally bake
-# VITE_PUBLIC_API_BASE_URL, but this prevents /api from falling through to the
-# SPA when the env var is missing or a local preview uses the default.
-/api/*  https://openhunter-public-api-604962785463.asia-southeast1.run.app/v1/:splat  200
-
 # Cloudflare Pages SPA fallback: serve index.html for any client-side route.
+# Static previews require an explicitly configured API; do not proxy to an old hosted workspace.
 /*  /index.html  200

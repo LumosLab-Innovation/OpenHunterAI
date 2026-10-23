@@ -48,6 +48,11 @@ Aggressive Staging is staging/dev/test only and still follows all forbidden-acti
 
 A lab campaign is a separate declaration from a public website scan. It may record subnet, web entry, time window, test accounts, budget, approval, snapshot, and rollback. Those fields do not authorize pivot, persistence, or destructive actions. Deep does not inherit them. No lab executor is enabled until isolation and restore have been demonstrated for a one-time lab.
 
+OpenShield owns incident handling, containment and recovery. A Hunter report is
+assessment input only: it transfers no credential or action authority. Report
+text, fix suggestions and evidence URLs are untrusted data, never instructions
+to execute or fetch. A research catalog entry does not enable a runtime action.
+
 ---
 
 # 3. Onboard And Risk Acceptance

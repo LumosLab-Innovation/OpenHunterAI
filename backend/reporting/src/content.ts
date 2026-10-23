@@ -1,4 +1,5 @@
 import {
+  buildReportHandoff,
   deriveWorkerCoverage,
   intensityToProfile,
   isIndependentlyValidatedFinding,
@@ -92,6 +93,7 @@ export function buildFinalContent(scan: any): ReportContentV2 {
       manualRetestActions: reportFindings.map((finding: any) => `Retest ${finding.title}`),
     },
     generatedAt: new Date().toISOString(),
+    handoff: buildReportHandoff(scan, reportFindings, { version: process.env.OPENHUNTER_VERSION, buildRef: process.env.OPENHUNTER_BUILD_REF }),
   });
 }
 

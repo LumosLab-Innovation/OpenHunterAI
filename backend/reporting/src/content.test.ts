@@ -36,6 +36,10 @@ describe('final report v2 content', () => {
     deepStrictEqual(report.findings.map((finding) => finding.id), ['finding_1', 'finding_2']);
     ok(report.findings.every((finding) => finding.validationStatus === 'validated'));
     equal(report.coverage.unvalidatedCandidates, 1);
+    equal(report.handoff?.grantsAuthority, false);
+    equal(report.handoff?.validation.length, 2);
+    equal(report.handoff?.scope.authorityConfirmation, 'unknown');
+    ok(report.handoff?.evidence.every((item) => item.sha256 === null));
   });
 
   it('marks an unavailable reasoning route as incomplete coverage', () => {

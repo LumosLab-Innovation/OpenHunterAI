@@ -1,10 +1,10 @@
 import { Document, HeadingLevel, Packer, Paragraph } from 'docx';
-import { sanitizeReportContent, sanitizeText, type ReportContentV1 } from '@x-hunter/shared';
+import { sanitizeReportContent, sanitizeText, type ReportContentV2 } from '@x-hunter/shared';
 
 export const REPORT_EXPORT_FORMATS = ['docx', 'csv', 'json', 'html', 'pdf'] as const;
 export type ReportExportFormat = (typeof REPORT_EXPORT_FORMATS)[number];
 
-export function reportCsv(input: ReportContentV1, latestStatus?: string): string {
+export function reportCsv(input: ReportContentV2, latestStatus?: string): string {
   const report = sanitizeReportContent(input);
   const rows: unknown[][] = [['type', 'id', 'title', 'severity', 'confidence', 'asset', 'detail', 'fix']];
   rows.push(['summary', '', report.ownerSummary.headline, '', '', '', report.ownerSummary.topRiskOrOutcome, report.ownerSummary.recommendedNextAction]);
@@ -12,6 +12,8 @@ export function reportCsv(input: ReportContentV1, latestStatus?: string): string
     rows.push(['validated_finding', f.id, f.title, f.severity, f.confidence, f.affectedAsset,
       `${f.impact}\n${f.sanitizedProof.description}`, f.fixSummary]);
   }
+  for (const f of report.historicalFindings ?? []) rows.push(['legacy_unverified', f.id, f.title, f.severity, f.confidence, f.affectedAsset, f.sanitizedProof.description, f.fixSummary]);
+  for (const fix of report.historicalDeveloperFixPack ?? []) rows.push(['legacy_fix_context', fix.findingId, '', '', '', '', fix.rootCauseHypothesis, fix.concreteFixPrompt]);
   for (const text of report.hardeningRecommendations) rows.push(['hardening', '', '', '', '', '', text, '']);
   for (const text of report.coverage.coverageGaps) rows.push(['coverage_gap', '', '', '', '', '', text, '']);
   for (const text of report.coverage.limitations) rows.push(['limitation', '', '', '', '', '', text, '']);
@@ -27,7 +29,7 @@ function csvCell(value: unknown): string {
   return '"' + text.replace(/"/g, '""') + '"';
 }
 
-export async function reportDocx(input: ReportContentV1, latestStatus?: string): Promise<Buffer> {
+export async function reportDocx(input: ReportContentV2, latestStatus?: string): Promise<Buffer> {
   const report = sanitizeReportContent(input);
   const children: Paragraph[] = [new Paragraph({ text: 'OpenHunterAI Report', heading: HeadingLevel.TITLE })];
   const section = (title: string, values: string[]) => {
@@ -37,7 +39,7 @@ export async function reportDocx(input: ReportContentV1, latestStatus?: string):
     }
   };
   section('Scope', [
-    `Generated: ${report.generatedAt}`, `Package: ${report.packageTier}`, `Mode: ${report.scanMode}`,
+    `Generated: ${report.generatedAt}`, `Profile: ${report.profile}`,
     `Target type: ${report.targetType}`, `Intensity: ${report.testIntensityMode}`, `Authentication: ${report.authScope}`,
     report.ownerSummary.whatWasTested,
   ]);
@@ -54,7 +56,11 @@ export async function reportDocx(input: ReportContentV1, latestStatus?: string):
       `Fix: ${f.fixSummary}`, `Retest scenario: ${JSON.stringify(f.retestScenario ?? null)}`,
     ]) children.push(new Paragraph({ text }));
   }
+  for (const f of report.historicalFindings ?? []) section(`Historical observation: ${f.id}`, [f.title, 'legacy_unverified; replay required', f.sanitizedProof.description]);
   for (const fix of report.developerFixPack) section(`Developer fix pack: ${fix.findingId}`, [
+    fix.rootCauseHypothesis, fix.concreteFixPrompt, ...fix.validationSteps, ...fix.regressionTestIdeas, fix.acceptanceCriteria,
+  ]);
+  for (const fix of report.historicalDeveloperFixPack ?? []) section(`Historical developer fix pack (unverified): ${fix.findingId}`, [
     fix.rootCauseHypothesis, fix.concreteFixPrompt, ...fix.validationSteps, ...fix.regressionTestIdeas, fix.acceptanceCriteria,
   ]);
   section('Coverage', [
@@ -64,9 +70,14 @@ export async function reportDocx(input: ReportContentV1, latestStatus?: string):
   ]);
   section('Hardening', report.hardeningRecommendations);
   section('Limitations', report.coverage.limitations);
-  section('Manual retest and monitor', [
-    `Retests remaining: ${report.retestAndMonitor.remainingRetestQuota}`,
-    `Cooldown days: ${report.retestAndMonitor.cooldownDays}`, ...report.retestAndMonitor.manualRetestActions,
+  section('Manual retest', report.retest.manualRetestActions);
+  if (report.handoff) section('OpenShieldAI handoff', [
+    `Purpose: ${report.handoff.purpose}; grants authority: false`,
+    `Target: ${report.handoff.scope.targetUrl ?? 'unknown'}`,
+    `Allowed hosts: ${report.handoff.scope.allowedHosts.join(', ') || 'unknown'}`,
+    `Allowed paths: ${report.handoff.scope.allowedPaths.join(', ') || '(host-wide or unknown; inspect JSON scope)'}`,
+    `Excluded paths: ${report.handoff.scope.excludedPaths.join(', ') || 'none recorded'}`,
+    ...report.handoff.limitations,
   ]);
   if (latestStatus) section('Latest status (separate from scan snapshot)', [sanitizeText(latestStatus)]);
   return Packer.toBuffer(new Document({

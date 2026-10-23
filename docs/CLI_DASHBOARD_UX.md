@@ -1,10 +1,10 @@
 # CLI and dashboard entrypoints
 
 OpenHunterAI has one scan/report engine with two entrypoints. The dashboard
-starts with current project, scan, and report data; the CLI starts with a
-ANSI true-color portrait sampled from the same character asset in an
+uses one compact assessment workspace; the CLI starts with an
+ANSI true-color portrait sampled from its character asset in an
 interactive terminal. The brand image is a standalone
-transparent character cutout at `frontend/public/hunter-character.png`, not a
+transparent character cutout at `tools/cli/assets/hunter-character.png`, not a
 representation of a validated finding.
 
 The image was generated with the built-in image tool from the user's visual

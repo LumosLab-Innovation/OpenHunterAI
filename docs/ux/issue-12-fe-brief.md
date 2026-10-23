@@ -76,7 +76,7 @@ The command input invokes the **same structured API** as the dashboard; it must 
 
 ![Original OpenHunterAI mascot cutout to use in CLI and dashboard](https://github.com/user-attachments/assets/09f3e605-87e5-4b36-9f91-723ba0c9d2ea)
 
-Use the existing transparent asset `frontend/public/hunter-character.png` (same bytes as `tools/cli/assets/hunter-character.png`) for product UI. Preserve the hood, cyan eyes, proportions, transparency, and blue/cyan rim light; **do not redraw a generic hood/robot**. Show it once at CLI launch with a text-only/low-color fallback; on dashboard use it sparingly as a brand anchor, never as a substitute for useful scan state. Supply meaningful alt text or mark as decorative when adjacent brand text names the product.
+The canonical transparent asset is `tools/cli/assets/hunter-character.png`. Preserve the hood, cyan eyes, proportions, transparency, and blue/cyan rim light; **do not redraw a generic hood/robot**. Show it once at CLI launch with a text-only/low-color fallback. The October 2026 one-page workspace supersedes this brief's dashboard mascot direction; the unused public asset copy has been removed.
 
 The original full-scene user reference is attached below for visual provenance; the transparent cutout above is the production-ready UI asset.
 

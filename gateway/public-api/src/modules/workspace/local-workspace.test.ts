@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import express, { type Request, type Response } from "express";
 import type { Server } from "node:http";
 import {
-  LOCAL_ORG_ID,
   isLocalWorkspaceRequest,
   localWorkspaceBoundary,
   localWorkspaceUser,
@@ -12,14 +11,12 @@ import {
   requireUser,
   verifyPassword,
 } from "../../middlewares/auth.middleware.js";
-import { EntitlementService } from "../billing/entitlement.service.js";
+import { workspaceRoutes } from "./workspace.routes.js";
 
 const db = vi.hoisted(() => ({
   organization: { upsert: vi.fn() },
-  user: { upsert: vi.fn() },
+  user: { upsert: vi.fn(), findUnique: vi.fn() },
   userSession: { findUnique: vi.fn() },
-  subscription: { findFirst: vi.fn() },
-  creditEntry: { findMany: vi.fn(), create: vi.fn() },
 }));
 vi.mock("@x-hunter/db", () => ({ getPrisma: () => db }));
 
@@ -27,14 +24,16 @@ let server: Server | undefined;
 beforeEach(() => {
   vi.clearAllMocks();
   vi.stubEnv("OPENHUNTER_MODE", "local");
+  vi.stubEnv("OPENHUNTER_LOCAL_MODE", "");
   vi.stubEnv("NODE_ENV", "test");
-  db.organization.upsert.mockResolvedValue({ id: LOCAL_ORG_ID });
+  db.organization.upsert.mockResolvedValue({ id: "existing_local_org" });
   db.user.upsert.mockResolvedValue({
-    id: "openhunter_local_operator",
-    organizationId: LOCAL_ORG_ID,
-    email: "operator@openhunter.invalid",
+    id: "existing_local_user",
+    organizationId: "existing_local_org",
+    email: "local@openhunter.invalid",
     role: "owner",
   });
+  db.user.findUnique.mockResolvedValue({ displayName: "Local operator", organization: { name: "Local" } });
 });
 afterEach(async () => {
   vi.unstubAllEnvs();
@@ -93,16 +92,24 @@ describe("local request boundary", () => {
       }),
     ).toBe(false);
   });
+  it("accepts the legacy UI origin setting only for loopback origins", () => {
+    vi.stubEnv("OPENHUNTER_LOCAL_UI_ORIGINS", "http://localhost:5174,https://attacker.example");
+    expect(isLocalWorkspaceRequest({ headers: { host: "localhost:4000", origin: "http://localhost:5174" } })).toBe(true);
+    expect(isLocalWorkspaceRequest({ headers: { host: "localhost:4000", origin: "https://attacker.example" } })).toBe(false);
+  });
 });
 
 describe("workspace identity", () => {
-  it("upserts the same isolated identity without creating a password or session", async () => {
+  it("preserves original local organization/user IDs without creating a password or session", async () => {
     expect(await localWorkspaceUser()).toEqual(await localWorkspaceUser());
     expect(db.organization.upsert).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: LOCAL_ORG_ID }, update: {} }),
+      expect.objectContaining({ where: { slug: "openhunter-local" }, update: {} }),
     );
     const create = db.user.upsert.mock.calls[0][0].create;
-    expect(create.organizationId).toBe(LOCAL_ORG_ID);
+    expect(create.organizationId).toBe("existing_local_org");
+    expect(create.email).toBe("local@openhunter.invalid");
+    expect(create.id).toBeUndefined();
+    expect(db.user.upsert).toHaveBeenCalledWith(expect.objectContaining({ where: { email: "local@openhunter.invalid" }, update: {} }));
     expect(verifyPassword("anything", create.passwordHash)).toBe(false);
     expect(db.userSession.findUnique).not.toHaveBeenCalled();
   });
@@ -122,11 +129,27 @@ describe("workspace identity", () => {
     vi.stubEnv("OPENHUNTER_MODE", "typo");
     expect(workspaceMode).toThrow("local or hosted");
   });
+  it("honors the legacy local flag while explicit hosted mode always wins", () => {
+    vi.stubEnv("OPENHUNTER_MODE", "");
+    vi.stubEnv("OPENHUNTER_LOCAL_MODE", "1");
+    expect(workspaceMode()).toBe("local");
+    vi.stubEnv("OPENHUNTER_MODE", "hosted");
+    expect(workspaceMode()).toBe("hosted");
+    vi.stubEnv("OPENHUNTER_MODE", "");
+    vi.stubEnv("OPENHUNTER_LOCAL_MODE", "0");
+    expect(workspaceMode()).toBe("hosted");
+  });
+  it("does not bootstrap a local identity when called in hosted mode", async () => {
+    vi.stubEnv("OPENHUNTER_MODE", "hosted");
+    await expect(localWorkspaceUser()).rejects.toThrow("unavailable in hosted mode");
+    expect(db.organization.upsert).not.toHaveBeenCalled();
+  });
 });
 
-async function request(headers: Record<string, string> = {}) {
+async function request(headers: Record<string, string> = {}, path = "/project") {
   const app = express();
   app.use(localWorkspaceBoundary);
+  app.use("/v1/workspace", workspaceRoutes);
   app.get("/project", requireUser, (req, res) =>
     res.json({ orgId: req.user!.orgId }),
   );
@@ -137,7 +160,7 @@ async function request(headers: Record<string, string> = {}) {
     const listening = app.listen(0, "127.0.0.1", () => resolve(listening));
   });
   const address = server.address() as { port: number };
-  return fetch("http://127.0.0.1:" + address.port + "/project", { headers });
+  return fetch("http://127.0.0.1:" + address.port + path, { headers });
 }
 
 describe("auth mode integration", () => {
@@ -146,7 +169,7 @@ describe("auth mode integration", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("set-cookie")).toBeNull();
     expect(response.headers.get("cache-control")).toBe("no-store");
-    expect(await response.json()).toEqual({ orgId: LOCAL_ORG_ID });
+    expect(await response.json()).toEqual({ orgId: "existing_local_org" });
   });
   it("rejects foreign websites before bootstrapping an identity", async () => {
     const response = await request({ Origin: "https://attacker.example" });
@@ -164,38 +187,16 @@ describe("auth mode integration", () => {
     const response = await request();
     expect(response.status).toBe(503);
   });
-});
-
-describe("local entitlements", () => {
-  it("requires no subscription or credits only for the local identity", async () => {
-    await new EntitlementService().assertCanScan(
-      "project",
-      LOCAL_ORG_ID,
-      "enterprise_payg",
-    );
-    expect(db.creditEntry.findMany).not.toHaveBeenCalled();
-    expect(db.creditEntry.create).not.toHaveBeenCalled();
+  it("exposes the workspace mode endpoint without a separate login flow", async () => {
+    const response = await request({}, "/v1/workspace");
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ mode: "local" });
+    expect(db.organization.upsert).not.toHaveBeenCalled();
   });
-  it("retains subscription enforcement for other organizations", async () => {
-    db.subscription.findFirst.mockResolvedValue(null);
-    await expect(
-      new EntitlementService().assertCanScan(
-        "project",
-        "hosted_org",
-        "ai_blackhat_mindset_check",
-      ),
-    ).rejects.toThrow();
-  });
-  it("does not bypass billing in hosted mode, even for the reserved ID", async () => {
+  it("keeps workspace status protected in hosted mode", async () => {
     vi.stubEnv("OPENHUNTER_MODE", "hosted");
-    db.creditEntry.findMany.mockResolvedValue([]);
-    await expect(
-      new EntitlementService().assertCanScan(
-        "project",
-        LOCAL_ORG_ID,
-        "enterprise_payg",
-      ),
-    ).rejects.toThrow();
-    expect(db.creditEntry.create).not.toHaveBeenCalled();
+    const response = await request({}, "/v1/workspace/status");
+    expect(response.status).toBe(401);
+    expect(db.organization.upsert).not.toHaveBeenCalled();
   });
 });

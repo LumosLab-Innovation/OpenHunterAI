@@ -1,251 +1,182 @@
-import { useEffect, useState } from "react";
-import {
-  ArrowRight,
-  Crosshair,
-  FolderPlus,
-  Terminal,
-  Radar,
-  RefreshCw,
-} from "lucide-react";
-import { Link } from "react-router-dom";
-import { apiFetch } from "../lib/api";
-import { useAuth } from "../lib/auth";
-import { Button } from "../components/ui/Button";
-import { ButtonLink } from "../components/ui/ButtonLink";
-import { CopyCommand } from "../components/CopyCommand";
-import { ErrorState } from "../components/ui/States";
+import { type FormEvent, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { apiFetch } from '../lib/api';
+import { AUTH_SCOPE_OPTIONS, SCAN_PROFILE_OPTIONS, SURFACE_FLAGS, TARGET_TYPE_OPTIONS } from '../lib/product';
+import { Button } from '../components/ui/Button';
+import { Field, Input, Select } from '../components/ui/Field';
+import { ErrorState } from '../components/ui/States';
+import { AccessPanel } from '../components/workspace/AccessPanel';
+import { ReasoningSettings } from '../components/workspace/ReasoningSettings';
+import { RunPanel } from '../components/workspace/RunPanel';
+import { FindingPanel } from '../components/workspace/FindingPanel';
+import { ReportPanel } from '../components/workspace/ReportPanel';
 
-export const SKILL_COMMAND =
-  "npx skills add LumosLab-Innovation/OpenHunterAI --skill openhunter --agent codex claude-code gemini-cli grok --yes";
+interface Project { id: string; name: string }
+interface Scan { id: string; projectId: string; target?: string; state: string; createdAt: string }
+interface Report { id: string; scanJobId?: string; headline?: string; state: string }
+interface Preflight {
+  ok: boolean;
+  failures?: Array<{ code: string; message: string }>;
+  coverageGaps?: string[];
+  runtimes?: Array<{ worker: string; installed: boolean; configured: boolean; reachable: boolean; executable: boolean; reason?: string }>;
+  resolvedScope?: { targetUrl?: string; allowedHosts: string[]; allowedPaths: string[]; excludedPaths: string[] };
+}
 
 export function WorkspacePage() {
-  const { status, error, loading, refresh } = useAuth();
-  const [projects, setProjects] = useState<Array<{ id: string; name: string }>>(
-    [],
-  );
-  const [projectsError, setProjectsError] = useState<string | null>(null);
-  useEffect(() => {
-    if (!status) {
-      setProjects([]);
-      setProjectsError(null);
-      return;
-    }
-    let active = true;
-    void apiFetch<{ projects: Array<{ id: string; name: string }> }>(
-      "/v1/projects",
-    ).then((res) => {
-      if (!active) return;
-      if (res.ok) {
-        setProjects(res.data.projects);
-        setProjectsError(null);
-      } else setProjectsError(res.error.message ?? "Could not load projects.");
+  const [params, setParams] = useSearchParams();
+  const projectId = params.get('project') ?? '';
+  const scanId = params.get('scan') ?? '';
+  const reportId = params.get('report') ?? '';
+  const findingId = params.get('finding') ?? '';
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [scans, setScans] = useState<Scan[]>([]);
+  const [reports, setReports] = useState<Report[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [host, setHost] = useState('');
+  const [profile, setProfile] = useState('standard');
+  const [scopeMode, setScopeMode] = useState('path');
+  const [excludedPaths, setExcludedPaths] = useState('');
+  const [targetType, setTargetType] = useState('interactive_web_app');
+  const [authScope, setAuthScope] = useState('none');
+  const [surfaces, setSurfaces] = useState<Record<string, boolean>>({});
+  const [authority, setAuthority] = useState(false);
+  const [deepRisk, setDeepRisk] = useState(false);
+  const [gapsAccepted, setGapsAccepted] = useState(false);
+  const [preflight, setPreflight] = useState<Preflight | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [startError, setStartError] = useState<string | null>(null);
+  const requestVersion = useRef(0);
+  const currentProject = useRef(projectId);
+  currentProject.current = projectId;
+
+  function select(values: Record<string, string | null>) {
+    if ('project' in values && values.project !== projectId) invalidate();
+    setParams((current) => {
+      const next = new URLSearchParams(current);
+      for (const [key, value] of Object.entries(values)) value ? next.set(key, value) : next.delete(key);
+      return next;
     });
-    return () => {
-      active = false;
+  }
+  function invalidate() { requestVersion.current += 1; setBusy(false); setAuthority(false); setDeepRisk(false); setGapsAccepted(false); setPreflight(null); setStartError(null); }
+  async function loadHistory() {
+    const [projectResult, scanResult, reportResult] = await Promise.all([
+      apiFetch<{ projects: Project[] }>('/v1/projects'),
+      apiFetch<{ scans: Scan[] }>('/v1/scans?sort=newest'),
+      apiFetch<{ reports: Report[] }>('/v1/reports'),
+    ]);
+    if (projectResult.ok) setProjects(projectResult.data.projects);
+    if (scanResult.ok) setScans(scanResult.data.scans);
+    if (reportResult.ok) setReports(reportResult.data.reports);
+    setLoadError(!projectResult.ok || !scanResult.ok || !reportResult.ok ? 'Some scan history could not be loaded. Retry when the local API is ready.' : null);
+  }
+  useEffect(() => { void loadHistory(); return () => { requestVersion.current += 1; }; }, []);
+  useEffect(() => { invalidate(); }, [projectId]);
+  useEffect(() => {
+    const heading = document.getElementById(findingId ? 'finding-heading' : reportId ? 'report-heading' : scanId ? 'run-heading' : 'target-heading');
+    if (scanId || reportId || findingId) { heading?.focus({ preventScroll: true }); heading?.scrollIntoView({ block: 'start' }); }
+  }, [scanId, reportId, findingId]);
+
+  let target: { host: string; path: string } | null = null;
+  try { target = normalizeTargetInput(host); } catch { /* Validation appears on submit. */ }
+  const scopeText = target ? `${target.host}${scopeMode === 'path' && target.path !== '/' ? `${target.path} and its descendants` : ' (entire exact host)'}` : 'this exact public host and declared paths';
+
+  async function start(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (busy || !authority) return;
+    setStartError(null);
+    let resolved: { host: string; path: string };
+    try { resolved = normalizeTargetInput(host); }
+    catch (failure) { setStartError(failure instanceof Error ? failure.message : 'Enter a public HTTPS URL.'); return; }
+    if (profile === 'deep' && !deepRisk) { setStartError('Confirm staging ownership and active-testing risk for Deep.'); return; }
+    if (authScope !== 'none' && !projectId) { setStartError('Choose a project with the required saved test accounts.'); return; }
+    const body = {
+      schemaVersion: 'scan_request_v2', targetUrl: `https://${resolved.host}${resolved.path}`, profile,
+      authorityConfirmed: true, ...(projectId ? { projectId } : {}), targetType, authScope,
+      ...(Object.keys(surfaces).length ? { surfaceFlags: surfaces } : {}),
+      scope: { allowedPaths: scopeMode === 'path' && resolved.path !== '/' ? [resolved.path] : [], excludedPaths: excludedPaths.split(',').map((path) => path.trim()).filter(Boolean) },
+      aggressiveStagingRiskAccepted: profile === 'deep' && deepRisk,
     };
-  }, [status]);
-  const ready = Boolean(status);
+    const version = requestVersion.current;
+    const isCurrent = () => version === requestVersion.current && currentProject.current === projectId;
+    setBusy(true);
+    try {
+      const result = await apiFetch<{ preflight: Preflight }>('/v1/scans/preflight', { method: 'POST', body: JSON.stringify(body) });
+      if (!isCurrent()) return;
+      if (!result.ok) throw new Error(result.error.message ?? 'Preflight failed.');
+      const checked = result.data.preflight;
+      const gaps = checked.coverageGaps ?? [];
+      const changed = JSON.stringify(gaps) !== JSON.stringify(preflight?.coverageGaps ?? []);
+      setPreflight(checked);
+      if (!checked.ok) throw new Error((checked.failures ?? []).map((failure) => `${failure.code}: ${failure.message}`).join('; ') || 'Preflight blocked this scan.');
+      if (!preflight || changed) { setGapsAccepted(false); return; }
+      if (gaps.length && !gapsAccepted) { setStartError('Acknowledge the coverage gaps before running.'); return; }
+      const created = await apiFetch<{ scan: { id: string } }>('/v1/scans', { method: 'POST', body: JSON.stringify({ ...body, acceptedCoverageGaps: gapsAccepted ? gaps : [] }) });
+      if (!isCurrent()) return;
+      if (!created.ok) throw new Error(created.error.message ?? 'Scan could not start.');
+      select({ scan: created.data.scan.id, report: null, finding: null });
+      invalidate(); void loadHistory();
+    } catch (failure) { if (isCurrent()) setStartError(failure instanceof Error ? failure.message : 'Scan could not start.'); }
+    finally { if (isCurrent()) setBusy(false); }
+  }
 
-  return (
-    <div className="animate-fade-up">
-      <div className="mb-9 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">
-            Your machine. Your workspace.
-          </p>
-          <h1 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            Security workspace
-          </h1>
-          <p className="mt-3 max-w-xl text-sm leading-6 text-ink-muted">
-            Create a project, define your target, and follow the investigation
-            from first signal to verified finding.
-          </p>
-        </div>
-        <ButtonLink to={ready ? "/projects?new=1" : "/setup"}>
-          <FolderPlus size={16} />
-          {ready ? "New project" : "Set up workspace"}
-        </ButtonLink>
-      </div>
-
-      {error && (
-        <ErrorState
-          message={error}
-          onRetry={() => void refresh()}
-          className="mb-6"
-        />
-      )}
-
-      <div className="mb-10 flex flex-wrap items-center gap-x-8 gap-y-3 border-y border-hairline py-4 text-xs">
-        <span className="font-medium text-ink">Local runtime</span>
-        {(["api", "database", "queue"] as const).map((service) => (
-          <span
-            key={service}
-            className="flex items-center gap-2 text-ink-muted"
-          >
-            <span
-              className={`h-1.5 w-1.5 rounded-full ${status?.services[service] === "connected" ? "bg-emerald-500" : "bg-ink-faint"}`}
-            />
-            {service === "api"
-              ? "API"
-              : service === "database"
-                ? "Database"
-                : "Queue"}
-            <span className="text-ink-faint">
-              {loading ? "Checking…" : (status?.services[service] ?? "Offline")}
-            </span>
-          </span>
-        ))}
-        <Link
-          to="/setup"
-          className="ml-auto flex items-center gap-1 text-ink-muted hover:text-signal"
-        >
-          Setup & models <ArrowRight size={13} />
-        </Link>
-      </div>
-
-      <div className="grid gap-10 xl:grid-cols-[minmax(0,1.5fr)_minmax(280px,1fr)]">
-        <section className="min-w-0">
-          <div className="mb-5 flex items-center justify-between">
-            <h2 className="font-display text-lg font-semibold">Projects</h2>
-            <Link
-              to="/projects"
-              className="text-xs text-ink-muted hover:text-signal"
-            >
-              View all <span aria-hidden="true">↗</span>
-            </Link>
+  return <div className="space-y-8">
+    <section aria-labelledby="target-heading" className="space-y-5">
+      <div><h1 id="target-heading" className="font-display text-2xl font-semibold tracking-tight">Pentest workspace</h1><p className="mt-2 text-sm text-ink-muted">Test an authorized public URL. Review evidence and export a report for OpenShieldAI.</p></div>
+      <form onSubmit={(event) => void start(event)} className="space-y-4">
+        <fieldset disabled={busy} className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_140px_auto] sm:items-end">
+            <Field label="Public HTTPS URL" htmlFor="scan-target"><Input id="scan-target" value={host} onChange={(event) => { setHost(event.target.value); setScopeMode('path'); invalidate(); }} placeholder="https://example.com/app" autoComplete="url" required /></Field>
+            <Field label="Profile" htmlFor="scan-profile"><Select id="scan-profile" value={profile} onChange={(event) => { setProfile(event.target.value); invalidate(); }}>{SCAN_PROFILE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</Select></Field>
+            <Button type="submit" disabled={!authority || (profile === 'deep' && !deepRisk)}>{busy ? 'Checking…' : preflight?.ok ? 'Run scan' : 'Check plan'}</Button>
           </div>
-          {projectsError && <ErrorState message={projectsError} />}
-          {projects.length ? (
-            <div className="divide-y divide-hairline border-y border-hairline">
-              {projects.slice(0, 5).map((project) => (
-                <Link
-                  key={project.id}
-                  to={`/projects/${project.id}`}
-                  className="group flex items-center gap-4 py-5"
-                >
-                  <span className="rounded-lg bg-surface-raised p-3 text-signal">
-                    <Crosshair size={19} />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="truncate text-sm font-medium">
-                      {project.name}
-                    </h3>
-                    <p className="mt-1 text-xs text-ink-faint">
-                      Targets, scope and scan history
-                    </p>
-                  </div>
-                  <ArrowRight
-                    size={16}
-                    className="text-ink-faint transition-transform group-hover:translate-x-1"
-                  />
-                </Link>
-              ))}
+          {target && target.path !== '/' && <fieldset className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-ink-muted"><legend className="mb-2 font-medium text-ink">Authorized paths</legend><label className="flex gap-2"><input type="radio" name="scope" checked={scopeMode === 'path'} onChange={() => { setScopeMode('path'); invalidate(); }} />Only {target.path} and descendants</label><label className="flex gap-2"><input type="radio" name="scope" checked={scopeMode === 'host'} onChange={() => { setScopeMode('host'); invalidate(); }} />Entire exact host</label></fieldset>}
+          <details open={!!projectId || undefined} className="border-y border-hairline py-3">
+            <summary className="cursor-pointer text-sm text-ink-muted">Scope, authentication and surfaces</summary>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <Field label="Project (optional)" htmlFor="scan-project"><Select id="scan-project" value={projectId} onChange={(event) => { select({ project: event.target.value }); invalidate(); }}><option value="">Automatic target group</option>{projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}</Select></Field>
+              <Field label="Target type" htmlFor="target-type"><Select id="target-type" value={targetType} onChange={(event) => { setTargetType(event.target.value); invalidate(); }}>{TARGET_TYPE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</Select></Field>
+              <Field label="Authentication" htmlFor="auth-scope"><Select id="auth-scope" value={authScope} onChange={(event) => { setAuthScope(event.target.value); invalidate(); }}>{AUTH_SCOPE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</Select></Field>
+              <Field label="Excluded paths (comma separated)" htmlFor="excluded-paths"><Input id="excluded-paths" value={excludedPaths} onChange={(event) => { setExcludedPaths(event.target.value); invalidate(); }} placeholder="/billing, /logout" /></Field>
+              <fieldset className="sm:col-span-2"><legend className="mb-2 text-xs font-medium text-ink-muted">Known surfaces</legend><div className="flex flex-wrap gap-x-5 gap-y-2">{SURFACE_FLAGS.map(([key, label]) => <label key={key} className="flex gap-2 text-xs text-ink-muted"><input type="checkbox" checked={surfaces[key] ?? false} onChange={(event) => { setSurfaces({ ...surfaces, [key]: event.target.checked }); invalidate(); }} />{label}</label>)}</div></fieldset>
             </div>
-          ) : (
-            <div className="flex min-h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-hairline-strong px-6 py-8 text-center">
-              <Radar
-                size={34}
-                strokeWidth={1.25}
-                className="mb-4 text-ink-faint"
-              />
-              <h3 className="text-sm font-semibold">
-                {loading ? "Connecting to your workspace" : ready ? "Your first investigation starts here" : "Connect your local workspace"}
-              </h3>
-              <p className="mt-2 max-w-xs text-sm leading-6 text-ink-muted">
-                {ready ? "Group your target domains, scan runs and evidence in one project." : "Start the local stack to load your projects and continue your work."}
-              </p>
-              <ButtonLink
-                to={ready ? "/projects?new=1" : "/setup"}
-                variant="secondary"
-                className="mt-5"
-              >
-                {ready ? "Create a project" : "Connect local runtime"}
-                <ArrowRight size={14} />
-              </ButtonLink>
-            </div>
-          )}
+          </details>
+          <label className="flex items-start gap-2 text-xs leading-5 text-ink-muted"><input type="checkbox" checked={authority} onChange={(event) => setAuthority(event.target.checked)} className="mt-1 accent-signal" />I confirm I am authorized to test {scopeText}.</label>
+          {profile === 'deep' && <label className="flex items-start gap-2 text-xs leading-5 text-ink-muted"><input type="checkbox" checked={deepRisk} onChange={(event) => setDeepRisk(event.target.checked)} className="mt-1 accent-signal" />This is staging/dev/test I control. I accept that active testing may cause errors, load, test data or alerts.</label>}
+          {preflight && <section aria-label="Scan plan preflight" className="space-y-3 border-l-2 border-signal pl-4">
+            <p className="text-sm font-medium">{preflight.ok ? 'Plan ready for review' : 'Plan blocked'} · {profile}</p>
+            <p className="break-all text-xs text-ink-muted">Hosts: {preflight.resolvedScope?.allowedHosts.join(', ') || target?.host} · Paths: {preflight.resolvedScope?.allowedPaths.join(', ') || (scopeMode === 'path' ? target?.path : 'Entire exact host')}</p>
+            {!!preflight.runtimes?.length && <ul className="space-y-2 text-xs text-ink-muted">{preflight.runtimes.map((runtime) => <li key={runtime.worker} className="break-words"><span className="font-medium text-ink">{runtime.worker}</span> · installed {runtime.installed ? 'yes' : 'no'} · configured {runtime.configured ? 'yes' : 'no'} · reachable {runtime.reachable ? 'yes' : 'no'} · executable {runtime.executable ? 'yes' : 'no'}{runtime.reason && ` · ${runtime.reason}`}</li>)}</ul>}
+            {!!preflight.coverageGaps?.length && <><ul className="list-disc pl-4 text-xs text-ink-muted">{preflight.coverageGaps.map((gap) => <li key={gap} className="break-all">{gap}</li>)}</ul><label className="flex gap-2 text-xs text-ink-muted"><input type="checkbox" checked={gapsAccepted} onChange={(event) => setGapsAccepted(event.target.checked)} />I accept these gaps; retain the selected {profile} profile.</label></>}
+          </section>}
+          {startError && <ErrorState message={startError} />}
+        </fieldset>
+      </form>
+    </section>
 
-          <div className="mt-8 flex gap-3">
-            <Terminal size={18} className="mt-1 shrink-0 text-ink-faint" />
-            <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-medium">
-                Use it with your coding agent
-              </h3>
-              <p className="mb-3 mt-1 text-xs leading-5 text-ink-muted">
-                Install the OpenHunter skill in your project, then ask your
-                agent to prepare an authorized security assessment.
-              </p>
-              <CopyCommand command={SKILL_COMMAND} />
-              <p className="mt-2 text-[11px] text-ink-faint">
-                Codex · Claude Code · Gemini CLI · compatible Agent Skills
-                clients
-              </p>
-            </div>
-          </div>
-        </section>
+    <details open={params.get('settings') === '1' || undefined} className="border-t border-hairline pt-4"><summary className="cursor-pointer text-sm font-medium">Access and model settings</summary><div className="mt-5 grid gap-8 lg:grid-cols-2"><section className="min-w-0"><h2 className="mb-4 text-sm font-semibold">Projects and test accounts</h2><AccessPanel key={projectId} projectId={projectId} onProjectCreated={(id) => { select({ project: id }); invalidate(); void loadHistory(); }} /></section><section className="min-w-0"><ReasoningSettings /></section></div></details>
 
-        <aside className="xl:border-l xl:border-hairline xl:pl-8">
-          <h2 className="mb-6 font-display text-lg font-semibold">
-            From target to evidence
-          </h2>
-          <ol className="space-y-7">
-            {[
-              [
-                "01",
-                "Create a project",
-                "Give your investigation a name. Your work stays organized here.",
-              ],
-              [
-                "02",
-                "Verify & define scope",
-                "Add your domain, verify ownership, and choose the allowed actions.",
-              ],
-              [
-                "03",
-                "Run & review",
-                "Follow worker activity, inspect findings, and export a report.",
-              ],
-            ].map(([number, title, text]) => (
-              <li key={number} className="flex gap-4">
-                <span className="font-mono text-xs leading-6 text-signal">
-                  {number}
-                </span>
-                <div>
-                  <h3 className="text-sm font-medium">{title}</h3>
-                  <p className="mt-1 text-sm leading-6 text-ink-muted">
-                    {text}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ol>
-          <div className="mt-8 border-t border-hairline pt-6">
-            <p className="text-xs font-medium text-ink">
-              Bring your own model keys
-            </p>
-            <p className="mt-2 text-xs leading-5 text-ink-muted">
-              Workspace data stays in your local database. AI reasoning sends
-              sanitized context to your configured provider.
-            </p>
-            <Link
-              to="/setup"
-              className="mt-3 inline-flex items-center gap-2 text-xs font-medium text-signal"
-            >
-              Check configuration <ArrowRight size={14} />
-            </Link>
-          </div>
-          <Button
-            onClick={() => void refresh()}
-            disabled={loading}
-            variant="ghost"
-            size="sm"
-            className="mt-5"
-          >
-            <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
-            Refresh status
-          </Button>
-        </aside>
+    <section aria-labelledby="history-heading" className="space-y-3 border-t border-hairline pt-5">
+      <div className="flex items-center justify-between"><h2 id="history-heading" className="text-sm font-semibold">Scan history and reports</h2><Button size="sm" variant="ghost" onClick={() => void loadHistory()}>Refresh history</Button></div>
+      {loadError && <ErrorState message={loadError} onRetry={() => void loadHistory()} />}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field label="Selected scan" htmlFor="selected-scan"><Select id="selected-scan" value={scanId} onChange={(event) => { const picked = scans.find((scan) => scan.id === event.target.value); select({ scan: event.target.value, report: null, finding: null, ...(picked?.projectId ? { project: picked.projectId } : {}) }); }}>{!scans.some((scan) => scan.id === scanId) && scanId && <option value={scanId}>{scanId}</option>}<option value="">Select a scan</option>{scans.map((scan) => <option key={scan.id} value={scan.id}>{scan.target ?? scan.id.slice(0, 12)} · {scan.state}</option>)}</Select></Field>
+        <Field label="Selected report" htmlFor="selected-report"><Select id="selected-report" value={reportId} onChange={(event) => select({ report: event.target.value, finding: null })}>{!reports.some((report) => report.id === reportId) && reportId && <option value={reportId}>{reportId}</option>}<option value="">Select a report</option>{reports.map((report) => <option key={report.id} value={report.id}>{report.headline ?? report.id.slice(0, 12)}</option>)}</Select></Field>
       </div>
-    </div>
-  );
+      {!scans.length && !reports.length && !loadError && <p className="text-sm text-ink-muted">No assessments yet. Check the plan for an authorized URL above.</p>}
+    </section>
+    {scanId && <RunPanel key={scanId} id={scanId} onFinding={(id) => select({ finding: id })} onReport={(id) => select({ report: id })} onChanged={() => void loadHistory()} />}
+    {reportId && <ReportPanel key={reportId} id={reportId} onFinding={(id) => select({ finding: id })} onClose={() => select({ report: null })} />}
+    {findingId && <FindingPanel key={findingId} id={findingId} onClose={() => select({ finding: null })} />}
+  </div>;
+}
+
+function normalizeTargetInput(input: string): { host: string; path: string } {
+  const raw = input.trim();
+  if (!raw || /:[0-9]+(?:[/?#]|$)/.test(raw)) throw new Error('Enter one public HTTPS URL without a port.');
+  let url: URL;
+  try { url = new URL(raw.includes('://') ? raw : `https://${raw}`); }
+  catch { throw new Error('Enter a valid public HTTPS URL.'); }
+  const hostname = url.hostname.toLowerCase();
+  if (url.protocol !== 'https:' || url.username || url.password || url.port || url.search || url.hash || !/^[a-z0-9.-]+$/.test(hostname) || !hostname.includes('.') || hostname.includes('..') || ['.local', '.localhost', '.internal', '.intranet', '.lan', '.home.arpa'].some((suffix) => hostname.endsWith(suffix)) || /^\d+\.\d+\.\d+\.\d+$/.test(hostname)) throw new Error('Enter one public HTTPS URL without a port, query, fragment or credentials.');
+  return { host: hostname, path: url.pathname.replace(/\/+$/, '') || '/' };
 }

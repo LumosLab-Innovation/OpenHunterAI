@@ -36,7 +36,7 @@ help:
 	@echo "  make install | typecheck | test | build | db-generate | db-migrate | db-seed | go-build"
 
 install:
-	for d in $(TS_SERVICES); do (cd $$d && pnpm install); done
+	set -e; for d in $(TS_SERVICES); do (cd $$d && pnpm install); done
 
 typecheck:
 	set -e; for d in $(TS_SERVICES); do (cd $$d && pnpm run typecheck); done
@@ -45,7 +45,7 @@ test:
 	set -e; for d in $(TS_SERVICES); do (cd $$d && pnpm run test); done
 
 build:
-	for d in $(TS_SERVICES); do (cd $$d && pnpm run build); done
+	set -e; for d in $(TS_SERVICES); do (cd $$d && pnpm run build); done
 
 db-generate:
 	cd shared/db && pnpm run generate
@@ -120,7 +120,7 @@ dev-stack:
 
 go-build:
 	go work sync
-	for d in workers/* integrations/*; do (cd $$d && go build ./...); done
+	set -e; for d in workers/* integrations/*; do (cd $$d && go build ./...); done
 
 # --- high-level convenience targets ---
 app:

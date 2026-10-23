@@ -7,21 +7,11 @@ export const SCAN_PROFILE_OPTIONS = [
   { value: 'deep', label: 'Deep' },
 ] as const;
 
-export function profileFromIntensity(intensity?: string) {
-  return intensity === 'aggressive_staging' ? 'deep' : intensity === 'safe_discovery' ? 'quick' : 'standard';
-}
-
 export const TARGET_TYPE_OPTIONS = [
   { value: 'static_content_website', label: 'Static / Content Website', hint: 'Marketing sites, docs, brochureware.' },
   { value: 'interactive_web_app', label: 'Interactive Web App', hint: 'Dashboards, SaaS, authenticated flows.' },
   { value: 'api_service', label: 'API Service', hint: 'REST/GraphQL backends and services.' },
   { value: 'ai_llm_application', label: 'AI / LLM Application', hint: 'Chatbots, RAG, tool-calling agents.' },
-] as const;
-
-export const INTENSITY_OPTIONS = [
-  { value: 'safe_discovery', label: 'Safe Discovery', hint: 'Observe, passive/baseline, little to no validation.' },
-  { value: 'controlled_attack_simulation', label: 'Controlled Attack Simulation', hint: 'Controlled in-scope validation with benign proof of concept.' },
-  { value: 'aggressive_staging', label: 'Aggressive Staging', hint: 'Staging/dev/test only. Explicit risk acceptance required.' },
 ] as const;
 
 export const AUTH_SCOPE_OPTIONS = [
@@ -40,11 +30,3 @@ export const SURFACE_FLAGS = [
   ['has_webhook', 'Webhook'],
   ['has_chatbot_or_rag_or_tool_calling', 'Chatbot / RAG / tool calling'],
 ] as const;
-
-export function labelFor(
-  options: ReadonlyArray<{ value: string; label: string }>,
-  value?: string,
-  fallback = '—',
-) {
-  return options.find((o) => o.value === value)?.label ?? fallback;
-}

@@ -17,6 +17,8 @@ import { approvalRoutes } from './modules/approvals/approvals.routes.js';
 import { testAccountRoutes } from './modules/test-accounts/test-accounts.routes.js';
 import { llmRoutes } from './modules/llm/llm-routes.routes.js';
 import { orcaRouterRoutes } from './modules/providers/orcarouter.routes.js';
+import { localWorkspaceBoundary } from './modules/workspace/local-workspace.js';
+import { workspaceRoutes } from './modules/workspace/workspace.routes.js';
 
 export function createApp() {
   const app = express();
@@ -37,8 +39,10 @@ export function createApp() {
   app.use(cookieParser());
   app.use(rateLimit({ limit: 300, windowMs: 60_000 }));
   app.use(requestContext);
+  app.use(localWorkspaceBoundary);
 
   app.use('/health', healthRoutes);
+  app.use('/v1/workspace', workspaceRoutes);
   app.use('/v1/auth', authRoutes);
   app.use('/v1/projects', projectRoutes);
   app.use('/v1', domainRoutes);

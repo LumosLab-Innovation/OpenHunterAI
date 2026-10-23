@@ -18,13 +18,16 @@ Open [localhost:3001](http://localhost:3001). First startup builds/downloads ima
 creates private `.env.local` secrets, applies migrations, and checks the workspace
 API. It exits nonzero on startup/check failure.
 
-**Before scanning:** resolve the [Nuclei template-policy blocker](PUBLIC_RELEASE_READINESS.md#open-gaps).
-The binary is packaged, but reviewed templates and effective configuration are
-not complete. You can inspect/configure the workspace without starting a scan.
+**Existing databases:** the self-host v2 migration removes commercial tables.
+Verify a restorable backup before applying migrations or starting the updated
+stack against existing data. No backup/restore or migration is performed by the
+UI/research refactor.
 
-Once runtime prerequisites are satisfied: create a project, add a **public**
-domain, complete DNS ownership verification, define exact scope, then authorize
-the scan. Opening the UI, creating a project, or installing a skill does not scan.
+Use the single workspace to enter one public HTTPS URL, choose Quick/Standard/
+Deep, confirm exact host/path testing authority, and review preflight gaps.
+DNS ownership verification is optional in self-host mode; private targets,
+out-of-scope redirects and sensitive actions remain gated. Opening the page,
+creating project grouping or installing a skill does not start a scan.
 
 | Command | Result |
 | --- | --- |
@@ -45,25 +48,30 @@ The first start generates unique database, worker, ZAP, and encryption secrets.
 Existing `.env.local` is not overwritten. Keep the file private and preserve its
 encryption key when retaining encrypted target credentials.
 
-Set `OPENAI_API_KEY` or `DEEPSEEK_API_KEY` and the
-`LLM_LOW_REASONING_*` / `LLM_HIGH_REASONING_*` provider/model values, then restart.
-Use IDs available to your provider account. Keys may incur provider charges;
-never paste them into an agent chat, report, or issue.
+Configure the system-wide routes in the workspace's collapsed settings.
+The local default uses Codex CLI through the bounded host bridge. CLI login,
+model availability and a successful version probe do not prove completion or
+pentest coverage. Snapshots taken at scan creation retain the chosen routes.
 
-| Surface | What it actually checks/provides |
+Optional API adapters, including OrcaRouter, remain explicit configuration;
+keys belong in ignored `.env.local` configuration, never chat, reports or issues.
+A saved route must pass the actual preflight/implementation checks before use;
+an unsupported API snapshot hop remains `API_ROUTE_NOT_IMPLEMENTED`.
+See [LLM routing](LLM_PROVIDER_SPEC.md) and [OrcaRouter setup](ORCAROUTER.md).
+
+| Surface | Actual meaning |
 | --- | --- |
-| Setup model status | Key/model presence, not verified credentials, balance, or model access |
-| Queue status | TCP connectivity, not worker completion or JetStream acceptance |
-| Browser / ZAP / recon | Packaged local runtimes |
-| Nuclei | Adapter/binary; template-policy blocker remains |
-| OpenHack / Strix | Worker processes; supply separate real runtimes/adapters |
-| Target-login capture | Optional browser-session service, separate from workspace access |
+| CLI route probe | Installed/authenticated/model and bridge capability checks; not an assessment result. |
+| API model status | Configuration presence, not balance, model access or completed calls. |
+| Queue status | Connectivity, not worker completion or accepted evidence. |
+| Browser / ZAP / curated Nuclei / passive surface | Scoped runtime readiness and execution must be checked per scan. |
+| Strix / host reasoning | Reasoning-only operation remains a coverage gap; Deep requires accepted runtime prerequisites. |
+| Target-login capture | Optional service and encrypted test-account state, separate from workspace login. |
 
-Configure `OPENHACK_INTEGRATION_URL` and `STRIX_INTEGRATION_URL` for actual
-runtimes. Defaults point at the Docker host. Their absence can fail or prevent a
-run from completing; no runtime should be replaced with fabricated success.
-See [integration packaging](../infra/INTEGRATIONS.md) and
-[model routing/fallback behavior](LLM_PROVIDER_SPEC.md).
+OpenHack is a manually consulted methodology source. The built-in passive surface
+adapter does not execute the OpenHack repository. Missing or failed tools stay
+visible in preflight and report coverage; do not substitute synthetic success.
+See [integration packaging](../infra/INTEGRATIONS.md).
 
 Interactive target login is for dedicated test accounts, with explicit consent.
 The optional browser image has separate runtime prerequisites; baseline startup
@@ -84,14 +92,15 @@ Metadata; forwarded headers cannot opt into local access.
 Local mode trusts processes/users on your machine. Do not expose it through a
 public tunnel, LAN bind, shared reverse proxy, or untrusted shared user session.
 
-`OPENHUNTER_MODE=local` selects local access. `hosted` retains account/session and
-commercial checks. If unset, production/test default to hosted; development
-defaults to local. Local Compose explicitly chooses local mode.
+`OPENHUNTER_MODE=local` selects local access; explicit `hosted` retains
+account/session isolation and overrides the legacy `OPENHUNTER_LOCAL_MODE=1` flag.
+If neither is set, production/test default to hosted and development to local.
+The canonical bootstrap preserves the existing `openhunter-local` organization
+slug, `local@openhunter.invalid` operator and existing database IDs.
 
-The reserved organization does not adopt another organization's data.
-Local projects use `enterprise_payg` to permit both scan modes without hosted
-credits, while scan-mode safety quotas/cooldowns remain. Local mode is not a
-commercial license grant. Do not use local Compose as a production deployment.
+There are no commercial entitlements, finding caps, retest quotas or cooldowns.
+Resource/safety budgets still apply. Local mode is not a commercial license grant
+or permission to expose the unauthenticated API as a shared public service.
 
 ## Coding-agent skill
 

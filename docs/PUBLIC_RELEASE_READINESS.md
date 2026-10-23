@@ -1,65 +1,44 @@
 # Public release status
 
-**Alpha.** Documentation/code audit baseline:
-[3ed0447](https://github.com/LumosLab-Innovation/OpenHunterAI/commit/3ed0447b4f6218207ff5e104b81a376b59798fae).
-This is a source review, not fresh production or target-scan evidence.
+Development snapshot reviewed **24 October 2026**. This file records remaining
+acceptance work; it is not evidence that a live deployment or pentest passed.
 
-## Present in the repository
+## Current product boundary
 
-| Surface | Implementation |
-| --- | --- |
-| Local bootstrap | [ops/local.mjs](../ops/local.mjs), [Compose](../compose.local.yml), generated private configuration and migrations |
-| Local access | Reserved identity, loopback request checks, no workspace login |
-| UI | Overview, setup/models, projects, scan activity, findings, reports, light/dark theme |
-| Coding-agent skill | [Skill and read-only helper](../skills/openhunter/); named client installation |
-| Scan pipeline | Deterministic plan, NATS dispatch, normalized worker IDs, callbacks, candidate promotion, report finalization |
-| Exports | Organization-scoped DOCX/CSV/JSON/HTML/PDF routes; PDF limitations below |
-| Hosted compatibility | Existing account/session and commercial entitlement paths retained |
-| Repository policy | Root license, licensing guide, contribution policy, private security-reporting link |
+One assessment workspace and one `scan_request_v2` → `report_v2` pipeline.
+OpenHunter owns authorized pentest research, assessment evidence and manual
+verification retest. OpenShield owns incident/situation handling and response.
+Research methods remain separate from accepted executors.
 
-Presence of code does not establish completed runtime acceptance.
+## Present in source
+
+- One-page target/scope/preflight/run/findings/approval/report workflow, with
+  account/model settings in disclosures and compatibility links to selected context.
+- Explicit public-host authority, deterministic plan, resource limits and
+  sanitizer/policy gates. Worker failures remain coverage gaps.
+- Native passive surface, pinned curated Nuclei/ZAP adapters and optional governed
+  reasoning runtimes; actual availability still requires deployment verification.
+- Canonical sanitized report_v2, historical unverified claims, bounded exports
+  and a finalized JSON snapshot/digest for manual OpenShield intake.
+- Source-linked method catalog, per-method AI/tool/validator responsibilities,
+  optional REA local artifact analysis and offline country/framework research.
+
+Source presence does not establish completed runtime acceptance.
 
 ## Open gaps
 
-| Priority | Gap | Evidence / consequence |
-| --- | --- | --- |
-| Blocker | Nuclei reviewed-template policy is not wired | [Template directory](../integrations/nuclei/templates/) contains only README. Compose sets `NUCLEI_TEMPLATES_DIR` / `NUCLEI_DISABLE_TEMPLATE_DOWNLOAD`; [adapter](../integrations/nuclei/cmd/nuclei/main.go) reads `NUCLEI_TEMPLATES` and does not consume the other flags. Do not claim curated-only execution or start scans until resolved. |
-| Blocker | Nuclei process errors can look like empty success | `runNuclei` ignores the process exit error except timeout and parses stdout. A healthy binary or zero signals is not successful coverage. |
-| Required runtime | OpenHack/Strix tools are external to the local stack | Local URLs point to separately installed adapters; their checked-in Dockerfiles contain adapter binaries, not complete upstream tools. |
-| Required evidence | Full authorized local scan E2E | Need fresh positive/fixed-control scan, callbacks, report, exports, and manual retest evidence after blockers are resolved. Startup/project CRUD alone is insufficient. |
-| Functional gap | Free Hunter early stopping | [Fan-in](../workers/orchestrator/cmd/orchestrator/fanin.go) waits for all expected workers; output/promotion limits exist, immediate stop of expensive work does not. |
-| Export gap | PDF truncates long reports | [Renderer](../gateway/public-api/src/modules/reports/reports.service.ts) takes 45 lines and 100 characters per line, one page, without a Unicode font strategy. Prefer JSON/DOCX/HTML for full content. |
-| Resilience gap | Report event publish follows the DB write | [Reporting](../backend/reporting/src/server.ts) awaits NATS after persistence. Publish failure can fail the request despite saved data; polling fallback does not make this atomic. |
-| Deployment gap | Recon staging coverage differs from local | Local/developer tooling includes R; staging worker overlay and Cloud Build pipeline do not. |
-| Contract gap | Published schemas are partial | [AsyncAPI](../contracts/events/events.asyncapi.yaml) lists only scan/retest requests; [OpenAPI](../contracts/api/public-api.openapi.yaml) is not a full controller inventory. |
-| Toolchain gap | CI bootstrap differs from workspace | [CI](../.github/workflows/ci.yml) sets Go 1.22 while [go.work](../go.work) requires 1.26; verify toolchain auto-download/build behavior explicitly. |
+| Gate | Evidence still needed |
+| --- | --- |
+| Existing-data migration | Verified pg_dump and successful restore before the v2 commercial-table removal migration is applied. No production data migration is established here. |
+| Independent vulnerability replay | Real artifact/provenance verification, matched negative controls and replay for each supported class. Metadata-only triage must remain needs_more_evidence. |
+| Pentest efficacy | Authorized positive/fixed controls, recall/false-positive measures, evidence completeness, time/cost and supported manual retest. Empty reports or model calls cannot satisfy this. |
+| New research methods | Every one of the nine catalog records currently has no accepted executor. Lab-only methods remain blocked from public scans, including Deep. |
+| Full local runtime | Docker/service/queue/restart and optional browser/session/runtime checks on the actual deployed revision. Browser fixture checks are UI evidence only. |
+| OpenShield intake | Downstream importer is specification-only at the reviewed commit. No live interoperability, containment, remediation or recovery action was performed. |
+| Evidence lineage | Current reports expose reference-only provenance gaps. Capture time, collector, artifact hashes and sanitizer lineage must be established by future artifact verification, not fabricated by the exporter. |
+| PDF fidelity | The existing simple PDF renderer has pagination/Unicode limits; use JSON/DOCX/HTML for complete structured collaboration until its renderer is upgraded. |
+| External contracts | OpenAPI/AsyncAPI inventories and deployment overlays require explicit reconciliation against the chosen runtime. |
 
-The docs cleanup records these gaps; it does **not** fix runtime code or certify
-safety. Health checks and worker completion must be read together with actual
-coverage and errors.
-
-## Distribution and contribution gates
-
-The root [LICENSE](../LICENSE) and [LICENSING.md](../LICENSING.md) already exist;
-the licensor/contact is HungBil. Do not keep treating those as pending setup choices.
-
-Still required before broader distribution/commercial licensing:
-
-- Review rights to existing contributions and the third-party notice inventory.
-- Complete the contributor agreement/acceptance process before reopening external
-  source contributions, as stated in [CONTRIBUTING.md](../CONTRIBUTING.md).
-- Review tracked files and history for secrets without printing their values;
-  rotate exposed credentials where needed.
-- Record actual release SHA and runtime/browser evidence.
-
-This review does not alter licensing terms or establish that contribution rights
-have been cleared.
-
-## Future proposals
-
-A streaming terminal client, user-selectable module switches, and durable
-checkpoints are proposals, not features of the bundled read-only helper.
-They require explicit product approval and must preserve scope, approval,
-sanitization, quotas, and manual retest policy.
-
-Release acceptance: [production checklist](PRODUCTION_READINESS.md).
+Closing an issue as not planned does not satisfy a release gate. Keep the
+[acceptance criteria](ACCEPTANCE_CRITERIA.md) and
+[production checklist](PRODUCTION_READINESS.md) as required verification.

@@ -50,8 +50,30 @@ export interface ReportContentV2 {
   findings: Array<{ id: string; validationStatus: 'validated'; [key: string]: unknown }>;
   historicalFindings?: Array<{ id: string; validationStatus: 'legacy_unverified'; [key: string]: unknown }>;
   developerFixPack: unknown[];
+  historicalDeveloperFixPack?: unknown[];
   coverage: Record<string, unknown>;
   hardeningRecommendations: string[];
   retest: { eligibleFindings: string[]; manualRetestActions: string[] };
   generatedAt: string;
+  handoff?: ReportHandoff;
+}
+
+/** Optional producer metadata; ingestion never grants defensive authority. */
+export interface ReportHandoff {
+  purpose: 'investigation_input';
+  producer: { product: 'OpenHunterAI'; version: string | null; buildRef: string | null };
+  source: { projectId: string | null; scanId: string | null; authorizationId: string | null };
+  scope: { status: 'recorded' | 'incomplete'; targetUrl: string | null; allowedHosts: string[]; allowedPaths: string[]; excludedPaths: string[];
+    capturedAt: string | null; authorityConfirmation: 'recorded' | 'unknown' };
+  scanWindow: { startedAt: string | null; finishedAt: string | null };
+  evidence: Array<{ ref: string; collector: null; capturedAt: null; sha256: null; sanitizerVersion: null; lineage: string[]; status: 'metadata_unavailable' }>;
+  validation: Array<{ findingId: string; producerClaim: 'validated'; validator: 'independent_policy_v1' | null;
+    decisionEvidenceRefs: string[]; replayStatus: 'not_attested'; rationale: string | null; counterevidence: string | null }>;
+  grantsAuthority: false;
+  assetMappingRequired: true;
+  manualIntakeRequired: true;
+  connectorStatus: 'not_implemented';
+  retestMode: 'manual';
+  retestExecution: 'unsupported';
+  limitations: string[];
 }

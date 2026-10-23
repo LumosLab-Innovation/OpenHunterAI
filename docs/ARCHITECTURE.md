@@ -12,6 +12,20 @@ Client → public API/preflight → immutable authorization + scope snapshot
 
 Self-host local mode creates an internal operator automatically and exposes the unauthenticated API only through a loopback-published port. Project IDs group scans and support audit. Billing, entitlement, payment, subscription, and credit state are not runtime concepts.
 
+## Product and UI boundary
+
+The client is one operational workspace at `/`; old project/scan/finding/report
+links select context on that same page. Target/scope and explicit consent remain
+visible before execution. Accounts, authorization details and model routes are
+collapsed settings. Approvals, candidate/finding state and report exports stay
+available without separate dashboards or an incident workflow.
+
+The canonical report can be exported as a bounded immutable snapshot plus an
+external digest for manual OpenShield intake. Mutable status overlays are not
+part of that digest. OpenShield owns investigation, response and recovery; no
+credential or authority crosses the file boundary. Its importer remains planned.
+See [the collaboration contract](OPENSHIELD_COLLABORATION.md).
+
 ## Request and plan
 
 The canonical request carries a public HTTPS URL (path included), profile `quick | standard | deep`, explicit authority confirmation, optional exact-host/path scope, exclusions, target type, auth scope, and surface hints. If a URL has a path, its subtree is the default scope. Both client preflight and creation call the same scan service; project-scoped routes are compatibility adapters. Changing profile or scope requires fresh user confirmation.

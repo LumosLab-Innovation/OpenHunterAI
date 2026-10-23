@@ -12,6 +12,15 @@
 - CLI and dashboard smoke produce the same request/plan/report type on one authorized host. Smoke does not satisfy exploit-recall acceptance.
 - System-wide reasoning routes show the CLI or provider, model, and reasoning level before a scan. The scan stores that copy. A route probe or a dashboard preview is not evidence that a coding CLI completed a prompt, and it is not evidence for XSS, SQLi, or IDOR.
 
+## Assessment workspace and OpenShield handoff
+
+- One workspace at `/` exposes scope/preflight, scans, approvals, findings, finding-scoped manual retest, report downloads and reasoning settings. Legacy detail links select the same workspace; desktop/mobile flows preserve authority and gap acknowledgments without horizontal overflow.
+- OpenHunter owns assessment and verification. Incident queues, containment, operational response and recovery belong to OpenShield; finding fix guidance does not execute those actions.
+- Each research method records its source edition, prerequisites, safe scope, existing hunter/use-case mapping, deterministic oracle, matched negative and independent-validation requirements. Research-only records have no accepted executor and cannot enable a runtime scenario.
+- Finalized JSON exports contain the bounded sanitized `report_v2` snapshot and an external canonical SHA-256 digest. Mutable latest statuses are outside that digest; draft reports cannot be exported as finalized evidence.
+- Handoff records scope/authority context, producer and snapshot identity, scan window, validation basis, evidence references, coverage, remediation context and retest limitations. Missing artifact lineage or replay proof remains explicitly unknown. Scope metadata and the report digest grant no downstream authority.
+- OpenShield intake is manual until a real importer is implemented and accepted. Imported prose and URLs remain untrusted data, never tool instructions. No credential transfer or autonomous response is introduced.
+
 ## Later release gates
 
 - #14 verifies artifact provenance, baseline/exploit replay, demonstrated impact and negative controls; High/Critical require stronger independent evidence. Retest returns fixed/still reproducible/inconclusive with attempt evidence.

@@ -77,6 +77,14 @@ Every declared use case may use the gateway in an authorized scan. Profile resou
 
 For reports, LLM output is recommendation-only. It may summarize sanitized facts, propose ranking reasons, and draft wording. It must not create new findings, reference unknown finding IDs, override severity policy, or add evidence that is not present in sanitized inputs.
 
+The [method catalog and AI responsibility map](research/PENTEST_METHODS_2026.md)
+place these existing use cases at discovery, hypothesis, validation planning,
+reporting and manual retest. Scope authorization, execution, budgets and finding
+promotion remain deterministic policy/validator responsibilities. Catalog methods
+without an accepted executor remain research-only. `fix_prompt` supplies advisory
+remediation context for [OpenShield](OPENSHIELD_COLLABORATION.md); it cannot run
+containment, remediation or recovery actions.
+
 ---
 
 # 4. Prompt And Data Policy

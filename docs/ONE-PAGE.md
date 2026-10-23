@@ -1,97 +1,49 @@
-# ONE-PAGE.md - OpenHunterAI
+# OpenHunterAI — product boundary
 
-**OpenHunterAI - Authorized Attacker-Mindset Security Workspace**
+OpenHunterAI owns authorized pentest research and assessment for public web,
+API and AI applications. Its one-page workspace is a client of the same
+`scan_request_v2` / `report_v2` engine as the CLI.
 
-OpenHunterAI tests verified public web/app targets with attacker-mindset reasoning, deterministic scan planning, strict policy gates, and sanitized reporting.
+## Operator workflow
 
-## Public Packages
+Enter target and exact scope → confirm authority/profile → inspect preflight
+and acknowledge gaps → run bounded tests → review candidates and independently
+validated findings → export report / request a narrow supported manual retest.
 
-```text
-Free Hunter
-AI Black-hat Mindset Check
-Monitor Workspace
-Enterprise / PAYG
-```
+Accounts, model routes and advanced scope hints live inside collapsed sections.
+There is one operational page; old list/detail URLs select context on that page.
+Quick/Standard/Deep affect resources and safety, with Standard as default.
+There are no commercial tiers, finding caps, retest quotas or cooldowns.
 
-Not packages:
+## Product ownership
 
-```text
-Authenticated Scope = auth_scope inside paid/enterprise checks
-Readiness Report View/Export = report/export mode
-Monitor sub-tiers = optional internal quota tiers
-```
+| OpenHunterAI | OpenShieldAI |
+| --- | --- |
+| Attack-method research and bounded pentest planning | Incident/situation investigation |
+| Scope-gated tools and sanitized assessment evidence | Operational telemetry and incident timelines |
+| Independent vulnerability validation | Response/remediation proposals and controlled actions |
+| Fix guidance and manual verification retest | Containment, recovery and their own acceptance checks |
 
-## Free Hunter
+A protective scope gate, sanitizer or worker timeout is part of the pentest
+engine's correctness. It is retained even though Shield owns response.
 
-Free Hunter is not weak. It uses the same Target Type and Test Intensity Mode model as paid, but stops at first valuable finding.
+## AI placement
 
-```text
-max_returned_findings = 1
-max_monitored_findings = 1
-max_retests = 1
-cooldown_days = 7
-```
+The LLM Gateway supports summarization/ranking, attacker hypotheses, access/API/
+AI reasoning, validation plans, reports and retest guidance. Deterministic code
+owns authorization, execution, budgets, evidence identity and independent
+validation. A model cannot certify its own suggested exploit.
 
-If no valuable finding is found in budget, user gets coverage, hardening, limitations, and next steps.
+## Collaboration
 
-## Onboard Inputs
+Export the finalized sanitized snapshot and its digest. Include known/unknown
+scope, provenance, validation, evidence, coverage and retest context. Shield maps
+it manually to an enrolled asset; no credentials or action authority transfer.
+Shield's importer remains planned. See [the contract](OPENSHIELD_COLLABORATION.md).
 
-Target Type:
+## Evidence limits
 
-```text
-static_content_website
-interactive_web_app
-api_service
-ai_llm_application
-```
-
-Surface Flags:
-
-```text
-has_login
-has_test_account
-has_api_docs
-has_file_upload
-has_payment
-has_admin_dashboard
-has_webhook
-has_chatbot_or_rag_or_tool_calling
-```
-
-Test Intensity:
-
-```text
-safe_discovery
-controlled_attack_simulation
-aggressive_staging
-```
-
-Aggressive Staging is staging/dev/test only and always blocks destructive/offensive unrestricted behavior.
-
-## Scan Plan
-
-Orchestrator builds a deterministic plan from package, target type, surface flags, auth scope, intensity, verified scope, gates, and quota. LLM does not choose target type or worker set.
-
-## Worker Roles
-
-```text
-ZAP = passive/baseline DAST signal
-Nuclei = curated known-pattern/exposure/misconfig signal
-Built-in passive surface adapter = native safe HTTP/header observations; OpenHack is a workflow/schema reference, not an executable worker
-Strix = attacker-mindset reasoning + controlled validation planning
-```
-
-## LLM
-
-Business logic uses:
-
-```text
-low_reasoning_model
-high_reasoning_model
-```
-
-Provider/model mapping is config behind LLM Gateway.
-
-## Not V1
-
-No CI/CD retest, GitHub/Jira integration, VPS/cloud/private network scan, mobile APK audit, server agent, SAST/SCA/secrets scanning, raw evidence persistence, or external artifact storage core dependency.
+The new nine-method catalog is research only, not nine executable tests.
+Independent replay and matched-positive/negative benchmarks remain release
+requirements. A failed, skipped or unavailable check remains a coverage gap.
+The country/framework harness stays offline and makes no certification claim.

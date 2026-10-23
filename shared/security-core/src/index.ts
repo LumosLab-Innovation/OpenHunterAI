@@ -15,3 +15,5 @@ export * from './result.js';
 export * from './llm-module-routes.js';
 export * from './website-scenarios.js';
 export * from './lab-campaign.js';
+export * from './report-handoff.js';
+export * from './pentest-methods.js';

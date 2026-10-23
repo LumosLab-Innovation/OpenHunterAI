@@ -102,6 +102,7 @@ app.post('/internal/reports/:scanId/finalize', asyncRoute(async (req, res) => {
     where: { id: req.params.scanId! },
     include: {
       project: true,
+      authorization: true,
       findings: { include: { retestRuns: true, candidates: { include: { triageDecision: true } } } },
       reportDraftSections: true,
       reports: { orderBy: { version: 'desc' } },
