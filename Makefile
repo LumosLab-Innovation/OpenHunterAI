@@ -120,7 +120,7 @@ dev-stack:
 
 go-build:
 	go work sync
-	set -e; for d in workers/* integrations/*; do (cd $$d && go build ./...); done
+	set -e; for d in workers/*/ integrations/*/; do (cd $$d && go build ./...); done
 
 # --- high-level convenience targets ---
 app:
