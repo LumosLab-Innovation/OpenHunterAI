@@ -63,7 +63,7 @@ services:
     environment:
       <<: *runtime
       OPENHUNTER_MODE: local
-      API_HOST: 0.0.0.0
+      API_BIND_HOST: 0.0.0.0
       API_PORT: 4000
       BROWSER_SESSION_BASE_URL: http://browser-session:4700
       FINDINGS_URL: http://findings:4300
