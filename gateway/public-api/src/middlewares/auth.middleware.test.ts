@@ -15,7 +15,7 @@ vi.mock('@x-hunter/db', () => ({
   getPrisma: () => prisma,
 }));
 
-afterEach(() => vi.unstubAllEnvs());
+afterEach(() => { vi.unstubAllEnvs(); });
 
 describe('requireUser', () => {
   beforeEach(() => {
